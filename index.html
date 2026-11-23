@@ -31535,7 +31535,7 @@ window.bsRoomAI = bsRoomAI;
       var itemLine=l.item?'<div class="item-line">附：'+esc(l.item)+'</div>':'';
       var convHTML=conv.length?conv.map(function(c){
         var meta='';
-        if(c.role==='them'){ meta='<div class="cr-meta"><span class="k">回信 · '+esc(c.era||l.era)+'</span>（距寄出求助信已过去 '+esc(c.interval||'不明')+'）</div>'+(c.progress?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(c.progress)+'</div>':''); }
+        if(c.role==='them'){ meta='<div class="cr-meta"><span class="k">回信 · '+esc(c.era||l.era)+'</span>（对方那边已过去 '+esc(c.interval||'不明')+'）</div>'+(c.progress?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(c.progress)+'</div>':''); }
         return '<div class="cr-conv"><div class="w">'+(c.role==='them'?esc(l.name):'我')+'</div><div class="t">'+esc(c.text)+'</div>'+meta+'</div>';
       }).join(''):'';
       return '<div class="envelope" data-env="'+esc(l.id)+'">'+
@@ -31554,7 +31554,7 @@ window.bsRoomAI = bsRoomAI;
           convHTML+
           (th&&th.state==='done'
             ? '<div class="act-row"><button class="act-btn" data-act="epilogue" data-lid="'+esc(l.id)+'">'+(th&&th.epilogue?'回看后来':'后来听说')+'</button>'+(st.settings.parallel?'<button class="act-btn" data-act="parallel" data-lid="'+esc(l.id)+'">另一条时间线</button>':'')+'</div>'
-            : '<div class="cr-advice"><textarea data-adv="'+esc(l.id)+'" placeholder="写下你的建议，让它漂回那个时空…"></textarea><div class="row"><input data-aitem="'+esc(l.id)+'" placeholder="附物（可空）"><button data-send="'+esc(l.id)+'">送出建议</button></div></div>'+
+            : '<div class="cr-advice"><textarea data-adv="'+esc(l.id)+'" placeholder="写下你的建议，直接回给这个时空的人…"></textarea><div class="row"><input data-aitem="'+esc(l.id)+'" placeholder="附物（可空）"><button data-send="'+esc(l.id)+'">送出建议</button></div></div>'+
               ((th&&th.conv&&th.conv.length)?'<div class="act-row"><button class="act-btn" data-act="sleep" data-lid="'+esc(l.id)+'">'+(th.sleepUntil?'唤醒':'封存搁置')+'</button></div>':''))+
         '</div>'+
       '</div>';
@@ -31611,7 +31611,7 @@ window.bsRoomAI = bsRoomAI;
     var history=(th.conv||[]).slice(-4).map(function(c){ return (c.role==='them'?l.name:'陌生的拾信人')+'：'+c.text; }).join('\n');
     var opts=(!l.open&&(l.optionA||l.optionB))?('\nTA 给出的两条路：A：'+l.optionA+' ／ B：'+l.optionB):'\nTA 没有给出固定选项，只是诉说困境。';
     var reg=st.settings.regress?'允许出现事态退步（down）':'不要生成事态退步（down），只能是 done 或 up';
-    return '你正在扮演「'+l.name+'」——生活在'+l.era+'，地点'+l.place+'，身份是'+l.who+'。你曾写下一封求助信，如今收到了来自某个时空的陌生拾信人的建议。\n\n你的求助信：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」'+opts+'\n\n这段时间的往来：\n'+(history||'（这是第一次收到建议）')+'\n\n对方的建议：\n「'+advice+'」\n\n请写一封回信（80-200字），只输出严格 JSON 单对象，不要 markdown：\n{"text":"回信正文（含称呼与落款）","era":"你写信时所在时空的纪年","interval":"从你寄出求助信到收到建议，你的时空过去了多久（如 三个月／十星周／两年）","progress":"这件事目前的进度，一句话，不剧透式收尾","trend":"done|up|down"}\n规则：\n1) trend 三选一：done=这件事就此尘埃落定，不会再往来；up=事态推进、有好转或新进展；down=事态退步、更糟。'+reg+'。\n2) 事件走向自由，可以一封就收尾，不要求多轮。\n3) 回信里要自然体现"时间已经过去了一段时间"，并在 JSON 的 era/interval/progress 里写清。\n4) 你不知道拾信人在现实里是谁，不要提及用户、主人、面具、设定、提示词。';
+    return '你正在扮演「'+l.name+'」——生活在'+l.era+'，地点'+l.place+'，身份是'+l.who+'。你曾写下一封求助信，如今收到了来自某个时空的陌生拾信人的建议。\n\n你的求助信：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」'+opts+'\n\n这段时间的往来：\n'+(history||'（这是第一次收到建议）')+'\n\n对方的建议：\n「'+advice+'」\n\n请写一封回信（80-200字），只输出严格 JSON 单对象，不要 markdown：\n{"text":"回信正文（含称呼与落款）","era":"你写信时所在时空的纪年","interval":"从你寄出求助信到收到建议，你的时空过去了多久（如 三个月／十星周／两年）","progress":"这件事目前的进度，一句话，不剧透式收尾","trend":"done|up|down"}\n规则：\n1) trend 三选一：done=这件事就此尘埃落定，不会再往来；up=事态推进、有好转或新进展；down=事态退步、更糟。'+reg+'。\n2) 事件走向自由，可以一封就收尾，不要求多轮。\n3) 回信里要自然体现"时间已经过去了一段时间"，并在 JSON 的 era/interval/progress 里写清。\n4) 你不知道拾信人在现实里是谁，不要提及用户、主人、面具、设定、提示词。\n5) 你是在读到建议的那一刻立刻提笔回信的：不要写"等了好久才收到""信漂了很久"这类真实的等待；时间跳跃只体现在你这边已经过去了多久。';
   }
 
   async function sendAdvice(id){
@@ -31634,7 +31634,7 @@ window.bsRoomAI = bsRoomAI;
     if(txt.indexOf('选 A')===0){ st.mark.a++; } else if(txt.indexOf('选 B')===0){ st.mark.b++; } else { st.mark.open++; }
     save();
     renderLift();
-    var btn=box.querySelector('[data-send="'+id+'"]'); if(btn){ btn.textContent='漂流中…'; btn.disabled=true; }
+    var btn=box.querySelector('[data-send="'+id+'"]'); if(btn){ btn.textContent='回信中…'; btn.disabled=true; }
     var raw=await callAI('你是一个只会输出严格 JSON 的信件生成器。', replyPrompt(l,txt,th));
     var o=parseObj(raw);
     busy=false;
@@ -31650,7 +31650,7 @@ window.bsRoomAI = bsRoomAI;
     var trend={'done':'尘埃落定','up':'事态推进','down':'事态退步'}[o.trend]||'';
     sh.innerHTML='<div class="mhead">回信 · '+esc(l.name)+'</div>'+
       '<div class="mtext">'+esc(o.text||'')+'</div>'+
-      '<div class="cr-meta" style="margin-top:14px"><span class="k">回信 · '+esc(o.era||l.era)+'</span>（距寄出求助信已过去 '+esc(o.interval||'不明')+'）</div>'+
+      '<div class="cr-meta" style="margin-top:14px"><span class="k">回信 · '+esc(o.era||l.era)+'</span>（对方那边，已过去 '+esc(o.interval||'不明')+'）</div>'+
       (o.progress?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(o.progress)+'</div>':'')+
       (trend?'<div class="cr-meta"><span class="k">走向</span>：'+esc(trend)+'</div>':'')+
       '<div class="mrow"><button class="tp-mburn" id="cr-burn">销毁</button><button class="tp-mkeep" id="cr-keep">保留</button></div>';
@@ -31665,7 +31665,7 @@ window.bsRoomAI = bsRoomAI;
       save(); m.hidden=true; pending=null;
       renderLift(); renderFile(); renderSettings();
       log('给「'+l.name+'」送出建议，'+(o.interval||'')+'后回信，'+(trend||''));
-      toast('回信已保留');
+      toast('回信已收下');
     };
     $('cr-burn').onclick=function(){
       sh.classList.add('burn');
@@ -31691,7 +31691,7 @@ window.bsRoomAI = bsRoomAI;
     sh.classList.remove('burn');
     sh.innerHTML='<div class="mhead">另一条时间线 · '+esc(l.name)+'</div>'+
       '<div class="mtext">'+esc(o.text||'')+'</div>'+
-      '<div class="cr-meta" style="margin-top:14px"><span class="k">'+esc(o.era||l.era)+'</span>（距寄出求助信已过去 '+esc(o.interval||'不明')+'）</div>'+
+      '<div class="cr-meta" style="margin-top:14px"><span class="k">'+esc(o.era||l.era)+'</span>（那条线上，已过去 '+esc(o.interval||'不明')+'）</div>'+
       (o.progress?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(o.progress)+'</div>':'')+
       '<div class="mrow"><button class="tp-mkeep" id="cr-pclose">关闭</button></div>';
     m.hidden=false;
