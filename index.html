@@ -31149,7 +31149,9 @@ window.bsRoomAI = bsRoomAI;
     document.querySelectorAll('[data-tp-tab]').forEach(function(x){x.classList.remove('on');});
     var t=document.querySelector('[data-tp-tab="drift"]'); if(t)t.classList.add('on');
     $('tp-drift-view').hidden=false; $('tp-write-view').hidden=true; $('tp-roles-view').hidden=true; $('tp-pens-view').hidden=true; $('tp-bag-view').hidden=true;
-    st.current=[l]; save(st); renderList();
+    if(!st.current) st.current=[];
+    if(!st.current.some(function(x){return x.id===l.id;})) st.current.push(l);
+    save(st); renderList();
     var env=document.querySelector('[data-env="'+id+'"]');
     if(env){var b=env.querySelector('.env-body'); if(b)b.hidden=false; env.scrollIntoView({behavior:'smooth',block:'start'});}
   }
@@ -31373,7 +31375,7 @@ window.bsRoomAI = bsRoomAI;
   st.driftQueue=st.driftQueue||[]; st.paper=st.paper||'#fffef9';
   st.mark=st.mark||{a:0,b:0,open:0,done:0,up:0,down:0};
   st.settings=st.settings||{crack:15,regress:true,parallel:true,chars:true};
-  var busy=false, pending=null;
+  var busy=false, pending=null, pendingPost=null;
 
   function $(id){return document.getElementById(id);}
   function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -31699,6 +31701,34 @@ window.bsRoomAI = bsRoomAI;
     log('查看了「'+l.name+'」的另一条时间线');
   }
 
+  function makeEcho(p,o){
+    return {id:'echo_'+Date.now()+'_'+Math.floor(Math.random()*99),echo:true,echoText:String(p.text||'').slice(0,80),to:'你',name:o.name||'拾信人',era:o.era||'年代不明',place:o.place||'',who:o.who||'捡到信的人',lang:'zh',foreign:'',text:o.text||'',item:'',date:o.era||'',optionA:'',optionB:'',open:true,fromChar:'',crack:false,state:'waiting',conv:[],progress:o.progress||'',interval:o.interval||'',createdAt:Date.now()};
+  }
+  function showDriftReply(p,o){
+    var m=$('cr-modal'), sh=$('cr-msheet');
+    sh.classList.remove('burn'); sh.style.background=st.paper;
+    sh.innerHTML='<div class="mhead">有人捡到了 · 当场回了信</div>'+
+      '<div class="msalute">'+esc(o.name||'拾信人')+(o.era?' · '+esc(o.era):'')+(o.place?' · '+esc(o.place):'')+'</div>'+
+      '<div class="mtext">'+esc(o.text||'')+'</div>'+
+      (o.interval?'<div class="cr-meta" style="margin-top:14px"><span class="k">你这封信到他手上</span>：' + esc(o.interval)+'</div>':'')+
+      (o.progress?'<div class="cr-meta"><span class="k">对方那边</span>：'+esc(o.progress)+'</div>':'')+
+      '<div class="mrow"><button class="tp-mburn" id="cr-dburn">销毁</button><button class="tp-mkeep" id="cr-dkeep">保留</button></div>';
+    m.hidden=false;
+    $('cr-dkeep').onclick=function(){
+      p.reply={name:o.name||'',era:o.era||'',place:o.place||'',who:o.who||'',interval:o.interval||'',progress:o.progress||'',text:o.text||''};
+      st.driftQueue.push(makeEcho(p,o));
+      save(); m.hidden=true; pendingPost=null; renderPost();
+      toast('已收下 · 下次打捞也会看到这封回音');
+      log('「'+(o.name||'某人')+'」当场回了信');
+    };
+    $('cr-dburn').onclick=function(){
+      sh.classList.add('burn');
+      setTimeout(function(){
+        m.hidden=true; sh.classList.remove('burn'); pendingPost=null; renderPost();
+        toast('已丢掉这封回信'); log('丢掉了一封当场回信');
+      },500);
+    };
+  }
   function renderPost(){
     var box=$('cr-p-list'); if(!box) return;
     if(!st.posts.length){ box.innerHTML='<div class="empty">还没有投出的歧路信。</div>'; return; }
@@ -31727,11 +31757,9 @@ window.bsRoomAI = bsRoomAI;
     var raw=await callAI('你是一个只会输出严格 JSON 的信件生成器。', prompt);
     var o=parseObj(raw);
     busy=false;
-    if(!o){ toast('回信未至 · 接口未接通'); return; }
-    p.reply={name:o.name||'',era:o.era||'',place:o.place||'',who:o.who||'',interval:o.interval||'',progress:o.progress||'',text:o.text||''};
-    st.driftQueue.push({id:'echo_'+Date.now()+'_'+Math.floor(Math.random()*99),echo:true,echoText:String(txt).slice(0,80),to:'你',name:o.name||'拾信人',era:o.era||'年代不明',place:o.place||'',who:o.who||'捡到信的人',lang:'zh',foreign:'',text:o.text||'',item:'',date:o.era||'',optionA:'',optionB:'',open:true,fromChar:'',crack:false,state:'waiting',conv:[],progress:o.progress||'',interval:o.interval||'',createdAt:Date.now()});
-    save(); renderPost(); toast('有人捡到了你的信 · 下次打捞会漂回来');
-    log('投出的歧路信被「'+(o.name||'某人')+'」捡到并回了信');
+    if(!o){ toast('回信未至 · 接口未接通'); renderPost(); return; }
+    pendingPost={p:p,data:o};
+    showDriftReply(p,o);
   }
 
   function renderFile(){
@@ -31790,7 +31818,9 @@ window.bsRoomAI = bsRoomAI;
     document.querySelectorAll('[data-cr-tab]').forEach(function(x){x.classList.remove('on');});
     var tb=document.querySelector('[data-cr-tab="lift"]'); if(tb) tb.classList.add('on');
     $('cr-lift-view').hidden=false; $('cr-post-view').hidden=true; $('cr-file-view').hidden=true; $('cr-set-view').hidden=true;
-    st.current=[th]; save();
+    if(!st.current) st.current=[];
+    if(!st.current.some(function(x){return x.id===th.id;})) st.current.push(th);
+    save();
     renderLift();
     var env=document.querySelector('[data-env="'+id+'"]');
     if(env){ var body=env.querySelector('.env-body'); if(body) body.hidden=false; var c=env.querySelector('.env-caret'); if(c) c.textContent='\u25b4'; env.scrollIntoView({behavior:'smooth',block:'start'}); }
