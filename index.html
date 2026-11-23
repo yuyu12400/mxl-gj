@@ -30673,6 +30673,17 @@ window.bsRoomAI = bsRoomAI;
 .cr-state-line{font-size:10px;color:#8d897f;margin-left:6px;font-family:var(--tp-font);}
 .cr-main textarea{width:100%;min-height:150px;background:var(--cr-paper);border:1px solid #e0dbcd;padding:12px;font-family:var(--tp-font);font-size:13px;line-height:1.9;resize:vertical;outline:none;}
 .cr-empty{color:#a19d92;font-size:12px;text-align:center;padding:36px 0;font-family:var(--tp-font);letter-spacing:1px;}
+.cr-wind-btn{background:none;border:1px solid #cfc9bb;color:#8d897f;font-family:var(--tp-font);font-size:11px;letter-spacing:2px;padding:7px 16px;border-radius:2px;margin-top:10px;}
+.cr-wind-text{font-family:var(--tp-font);font-size:12px;line-height:1.9;color:#6f6a60;margin-top:10px;min-height:16px;}
+.cr-topics{display:flex;flex-wrap:wrap;gap:6px 14px;padding:4px 0 10px;font-family:var(--tp-font);font-size:11.5px;color:#3a3833;}
+.cr-topics label{display:flex;gap:5px;align-items:center;}
+.cr-item.faded{opacity:.45;}
+.envelope.faded{opacity:.5;}
+.cr-pair-names{font-family:var(--tp-font);font-size:13px;color:#1b1a17;line-height:1.8;}
+.cr-pair-block{margin-bottom:10px;}
+.cr-pair-block .who{font-size:10px;color:#9a968c;font-family:var(--tp-font);margin-bottom:3px;}
+.cr-tag.cr-anchor{color:#3d5a52;border-color:#b8cbc3;}
+.cr-tag.cr-pair{color:#6b4f8a;border-color:#d6c9e6;}
 .cr-file-filters[hidden]{display:none;}
 .cr-dot[data-cr-paper="#fffef9"]{background:#fffef9;}
 .cr-dot[data-cr-paper="#f7efdc"]{background:#f7efdc;}
@@ -30848,7 +30859,7 @@ window.bsRoomAI = bsRoomAI;
     });
   }
   function buildGenPrompt(){
-    return '你是「时空邮局」的信件生成器。请生成 5 封真实信件，来源完全随机——任何时代、任何地区、任何世界、任何身份、任何性别的人都可能，就像真的从时间的潮水里随手捞到。\n只输出严格 JSON 数组，不要任何多余文字、不要 markdown 代码块：\n[{"to":"收信人称呼（必填：从信件开头的称呼里取，如「阿姊」「捡到信的人」「未来的我」；不得留空，不得写「收信人未知」）","name":"真实姓名","era":"该时空的年代/朝代/纪元（可为架空）","place":"地点","who":"身份（性别不限，正常写即可）","lang":"zh/en/fr/ru/ja 之一","foreign":"若 lang 不是 zh，写该语言原文信；否则空字符串","text":"若 lang 不是 zh，写中文翻译；否则写中文信正文","item":"附带的一件小物件（可为空字符串，如「一枚铜币」「干枯的银杏叶」）","date":"信末日期"} ]\n要求：\n1) 完全随机：时代/地区/世界/身份都不限，不要求覆盖类别，也不要刻意凑。\n2) 收信对象随机：可能写给熟人，也可能写给陌生人、未来的自己、某个不具名的过客，或干脆不知道写给谁；不刻意偏向任何一类。\n3) 性别不限：任何性别都可以出现，男、女、其他都行，随机即可，不要刻意统一，也不要把性别当卖点。\n4) 内容不限：写什么都可以——琐事、遗憾、狂喜、愤怒、荒诞、梦、求救、告白、牢骚、呓语、秘密、无聊……任何题材、任何情绪都行，不必“感人”或“有意义”，真实就好。\n5) 格式：每封都要有称呼、落款署名与日期；中文 180-320 字，外文 200 词以内。\n6) 5 封互相独立、不雷同；可全中文，也可自然混外文，不强制。';
+    return '你是「时空邮局」的信件生成器。请生成 5 封真实信件，来源完全随机——任何时代、任何地区、任何世界、任何身份、任何性别的人都可能，就像真的从时间的潮水里随手捞到。\n只输出严格 JSON 数组，不要任何多余文字、不要 markdown 代码块：\n[{"to":"收信人称呼（必填：从信件开头的称呼里取，如「阿姊」「捡到信的人」「未来的我」；不得留空，不得写「收信人未知」）","name":"真实姓名","era":"该时空的年代/朝代/纪元（可为架空）","place":"地点","who":"身份（性别不限，正常写即可）","lang":"zh/en/fr/ru/ja 之一","foreign":"若 lang 不是 zh，写该语言原文信；否则空字符串","text":"若 lang 不是 zh，写中文翻译；否则写中文信正文","item":"附带的一件小物件（可为空字符串，如「一枚铜币」「干枯的银杏叶」）","date":"信末日期"} ]\n要求：\n1) 完全随机：时代/地区/世界/身份都不限，不要求覆盖类别，也不要刻意凑。\n2) 收信对象随机：可能写给熟人，也可能写给陌生人、未来的自己、某个不具名的过客，或干脆不知道写给谁；不刻意偏向任何一类。\n3) 性别不限：任何性别都可以出现，男、女、其他都行，随机即可，不要刻意统一，也不要把性别当卖点。\n4) 内容不限：写什么都可以——琐事、遗憾、狂喜、愤怒、荒诞、梦、求救、告白、牢骚、呓语、秘密、无聊……任何题材、任何情绪都行，不必“感人”或“有意义”，真实就好。\n5) 格式：每封都要有称呼、落款署名与日期；篇幅自由，按写信人的性格——有人简短一两句，有人碎碎念夹着吐槽，长短自然随机，不设字数上下限。\n6) 5 封互相独立、不雷同；可全中文，也可自然混外文，不强制。';
   }
   function parseJSON(t){
     if(!t) return null;
@@ -30872,9 +30883,10 @@ window.bsRoomAI = bsRoomAI;
       if(!o.interval){ o.interval=o.elapsed||o.gap||o['间隔']||o['时长']||''; }
       if(!o.progress){ o.progress=o.state||o.status||o['进度']||''; }
       if(!o.trend){ o.trend=o.outcome||o.result||o['走向']||''; }
-      if(o.text||o.name) return o;
+      if(o.text||o.name||o.textA||o.textB) return o;
     }
     var raw=String(t).replace(/```[a-z]*/gi,'').trim();
+    try{ var js=JSON.parse(raw); if(typeof js==='string') return {text:js.replace(/\\n/g,'\n')}; }catch(e){}
     if(raw && raw!=='{}') return {text:raw.replace(/\\n/g,'\n')};
     return null;
   }
@@ -31063,7 +31075,7 @@ window.bsRoomAI = bsRoomAI;
     var hist=th.conv.slice(-6).map(function(c){return (c.role==='them'?l.name:'我')+'：'+c.text;}).join('\n');
     var itemTxt=item?'\n随信附了一件小物件：'+item+'。'+(l.item?'（对方先前的信里附了：'+l.item+'）':'')+'':'';
     var sys='你正在扮演「'+l.name+'」——生活在'+l.era+'，地点'+l.place+'，身份是'+l.who+'。你要用这个人的身份、年代口吻回信。';
-    var user='你原本写出的信是：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」\n\n你们最近的往来：\n'+hist+itemTxt+'\n\n请写一封(80-200字的)回信，只输出信的内容，自然承接对方说的内容，符合你的身份与年代，不要客套。';
+    var user='你原本写出的信是：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」\n\n你们最近的往来：\n'+hist+itemTxt+'\n\n请写一封回信，篇幅自由，自然承接对方说的内容，符合你的身份与年代，不要客套。';
     var out=await callAI(sys,user);
     if(!out){
       busy=false; renderList(); toast('回信未送达 · 接口未接通');
@@ -31335,6 +31347,8 @@ window.bsRoomAI = bsRoomAI;
       <p class="cr-slogan">这里没有闲谈，<br>只有站在岔路口的人在等一句话。</p>
       <button class="cr-lift-btn" id="cr-lift">打捞一组抉择信</button>
       <p class="cr-hint" id="cr-hint"></p>
+      <button class="cr-wind-btn" id="cr-wind">观测洋流风向</button>
+      <p class="cr-wind-text" id="cr-wind-text"></p>
     </div>
     <div id="cr-list"></div>
     <button class="cr-relift" id="cr-relift" hidden>再次打捞</button>
@@ -31360,6 +31374,7 @@ window.bsRoomAI = bsRoomAI;
       <select class="cr-select" id="cr-f-from"><option value="">全部来源</option><option value="char">角色来信</option><option value="stranger">陌生人来信</option></select>
       <select class="cr-select" id="cr-f-state"><option value="">全部状态</option><option value="waiting">等待回信</option><option value="done">尘埃落定</option></select>
       <select class="cr-select" id="cr-f-lang"><option value="">全部语言</option><option value="zh">中文</option><option value="ja">日文</option><option value="ru">俄文</option><option value="other">英法外文</option></select>
+      <select class="cr-select" id="cr-f-fade"><option value="">全部信件</option><option value="faded">已褪色</option><option value="active">未褪色</option></select>
     </div>
     <div id="cr-file-list"></div>
     <button class="cr-link" id="cr-log-toggle">歧路轨迹</button>
@@ -31369,7 +31384,22 @@ window.bsRoomAI = bsRoomAI;
     <div class="cr-set-item"><span>裂隙信件概率 <b id="cr-s-crack-val" style="color:#a8342b;font-weight:400">15%</b></span><input type="range" id="cr-s-crack" min="0" max="30" step="5"></div>
     <div class="cr-set-item"><span>允许事态退步</span><input type="checkbox" id="cr-s-regress"></div>
     <div class="cr-set-item"><span>平行分支回看</span><input type="checkbox" id="cr-s-parallel"></div>
-    <div class="cr-set-item"><span>打捞包含角色来信</span><input type="checkbox" id="cr-s-chars"></div>
+    <div class="cr-set-item"><span>打捞时代</span><select class="cr-select" id="cr-s-era"><option value="random">随机</option><option value="modern">现代当下</option><option value="ancient">古代</option><option value="fantasy">架空世界</option><option value="future">未来</option></select></div>
+    <div class="cr-set-item" style="align-items:flex-start"><span>题材偏好（不勾为全随机）</span></div>
+    <div class="cr-topics" id="cr-s-topics">
+      <label><input type="checkbox" value="感情">感情</label>
+      <label><input type="checkbox" value="亲族">亲族</label>
+      <label><input type="checkbox" value="职业去留">职业去留</label>
+      <label><input type="checkbox" value="生死">生死</label>
+      <label><input type="checkbox" value="背叛">背叛</label>
+      <label><input type="checkbox" value="理想与现实">理想与现实</label>
+      <label><input type="checkbox" value="日常琐碎">日常琐碎</label>
+      <label><input type="checkbox" value="异世界">异世界</label>
+      <label><input type="checkbox" value="历史关头">历史关头</label>
+    </div>
+    <div class="cr-set-item"><span>允许名人与历史大事件</span><input type="checkbox" id="cr-s-famous"></div>
+    <div class="cr-set-item"><span>双歧路共信</span><input type="checkbox" id="cr-s-pair"></div>
+    <div class="cr-set-item"><span>锚点回响</span><input type="checkbox" id="cr-s-anchor"></div>
     <div class="cr-set-item"><span>抉择倾向印记</span><span class="cr-mark" id="cr-mark-text"></span></div>
     <button class="cr-link" id="cr-mark-clear">清空印记</button>
     <p class="cr-note" style="margin-top:18px">所有信件与回信均由 API 实时生成，不内置任何内容。</p>
@@ -31388,7 +31418,8 @@ window.bsRoomAI = bsRoomAI;
   st.threads=st.threads||[]; st.current=st.current||null; st.posts=st.posts||[]; st.log=st.log||[];
   st.driftQueue=st.driftQueue||[]; st.paper=st.paper||'#fffef9';
   st.mark=st.mark||{a:0,b:0,open:0,done:0,up:0,down:0};
-  st.settings=st.settings||{crack:15,regress:true,parallel:true,chars:true};
+  st.settings=Object.assign({crack:15,regress:true,parallel:true,chars:true,era:'random',topics:[],famous:false,pair:true,anchor:true},st.settings||{});
+  st.wind=st.wind||'';
   var busy=false, pending=null, pendingPost=null;
 
   function $(id){return document.getElementById(id);}
@@ -31461,9 +31492,10 @@ window.bsRoomAI = bsRoomAI;
       if(!o.interval){ o.interval=o.elapsed||o.gap||o['间隔']||o['时长']||''; }
       if(!o.progress){ o.progress=o.state||o.status||o['进度']||''; }
       if(!o.trend){ o.trend=o.outcome||o.result||o['走向']||''; }
-      if(o.text||o.name) return o;
+      if(o.text||o.name||o.textA||o.textB) return o;
     }
     var raw=String(t).replace(/```[a-z]*/gi,'').trim();
+    try{ var js=JSON.parse(raw); if(typeof js==='string') return {text:js.replace(/\\n/g,'\n')}; }catch(e){}
     if(raw && raw!=='{}') return {text:raw.replace(/\\n/g,'\n')};
     return null;
   }
@@ -31473,20 +31505,31 @@ window.bsRoomAI = bsRoomAI;
   function charName(c){ return c.realName||c.remarkName||c.name||'未命名'; }
 
   function liftPrompt(charOpts){
-    var base='你是「十字路口」的信件生成器。请生成 5 封来自不同时空的"抉择求助信"——写信的人正卡在人生或历史的岔路口，向陌生的拾信人求助。\n只输出严格 JSON 数组，不要多余文字、不要 markdown：\n[{"to":"收信人称呼","name":"真实姓名","era":"年代/朝代/纪元（可为架空）","place":"地点","who":"身份","lang":"zh/en/fr/ru/ja 之一","foreign":"非中文时写原文，否则空","text":"中文正文，讲清困境","optionA":"第一条路（开放式时为空字符串）","optionB":"第二条路（开放式时为空字符串）","open":false,"item":"随信附物，可为空","date":"日期","fromChar":"若由已知人物写则填其名，否则空"}]\n要求：\n1) 5 封全部是两难抉择求助，不是闲聊；题材完全随机（感情、亲族、职业、去留、生死、历史站队、异世界危机、日常琐碎的两难都可以）。\n2) 形式随机：有的明确给出 A/B 两条路（open=false）；有的只诉说困境、等对方给想法（open=true，optionA/optionB 留空）。\n3) 信要有称呼、落款署名与日期；中文 150-280 字，外文 180 词以内。\n4) 不要预设结局，不要替对方做决定。\n5) 5 封互相独立、不雷同。';
+    var s=st.settings;
+    var eraMap={modern:'现代当下（2020 年代前后，和我们身处同一时空的身边人）',ancient:'古代（中国历史或其他文明的古代纪年）',fantasy:'架空世界（虚构朝代、国度、种族）',future:'未来（近未来或远未来）'};
+    var eraLine=(s.era&&s.era!=='random')?('本轮优先打捞：'+eraMap[s.era]+'。'):'时空完全随机：必须混合现代当下（2020 年代、与我们同时空的普通人生活）、古代、架空、未来；不要全是遥远古代，也不要全是历史大事件。';
+    var topicLine=(s.topics&&s.topics.length)?('本轮题材限定在：'+s.topics.join('、')+'。'):'题材完全随机：感情、亲族、职业去留、生死、背叛、理想与现实、日常琐碎的两难、异世界危机、历史关头都可以。';
+    var famousLine=s.famous?'允许出现历史名人、公众人物或卷入大事件的人。':'不要写历史名人、帝王将相、战争领袖、公众人物；写信的人以普通人为主（学生、店员、上班族、邻居、家人、手艺人、路人、异乡者等），事件多为日常里的真实两难，不要刻意写战争、站队、王朝兴衰这类大事件。';
+    var pairLine=s.pair?'允许 0~1 封"双歧路共信"：两个相互关联的人同时卡在各自的两难里，合写在一封信笺上；该封加 "pair":true，用 nameA/textA/optionA/optionB 写第一个人，nameB/textB/optionC/optionD 写第二个人，其余字段共用。':'本轮不写共信信，pair 一律 false。';
+    var hasAnchor=(s.anchor&&(st.threads||[]).some(function(t){return t.anchor;}));
+    var anchorLine=hasAnchor?'另有一条极低概率规则：至多 1 封信可以泛泛提到"很多年前曾收到过一位陌生过客的建议"，不要点名是谁、不要和其他信件的故事挂钩；若出现，在该封加 "anchorEcho":"这句回响的短摘"。':'本轮不写锚点回响，anchorEcho 留空。';
+    var base='你是「十字路口」的信件生成器。请生成 5 封来自不同时空的"抉择求助信"——写信的人正卡在人生岔路口，向陌生的拾信人求助。\n只输出严格 JSON 数组，不要多余文字、不要 markdown：\n[{"to":"收信人称呼","name":"真实姓名","era":"年代/朝代/纪元（可为架空；现代就写具体年份前后）","place":"地点","who":"身份","lang":"zh/en/fr/ru/ja 之一","foreign":"非中文时写原文，否则空","text":"中文正文，讲清困境","optionA":"第一条路（开放式时为空字符串）","optionB":"第二条路（开放式时为空字符串）","open":false,"item":"随信附物，可为空","date":"日期","fromChar":"若由已知人物写则填其名，否则空","pair":false,"nameA":"共信第一人姓名（pair 时）","textA":"共信第一人正文（pair 时）","optionC":"共信第二人第一条路","optionD":"共信第二人第二条路","nameB":"共信第二人姓名（pair 时）","textB":"共信第二人正文（pair 时）","anchorEcho":"锚点回响短摘，否则空"}]\n要求：\n1) 5 封全部是两难抉择求助，不是闲聊。\n2) 形式随机：有的明确给出两条路（open=false）；有的只诉说困境、等对方给想法（open=true，optionA/optionB 留空）。\n3) 信要有称呼、落款署名与日期。\n4) 不要预设结局，不要替对方做决定。\n5) 5 封互相独立、不雷同。\n'+eraLine+'\n'+topicLine+'\n'+famousLine+'\n'+pairLine+'\n'+anchorLine+'\n篇幅自由：不设任何字数上下限，按写信人的性格来——有人三言两语、言简意赅，有人碎碎念、夹着吐槽和絮叨，长短自然随机，不要凑字数也不要压字数。';
     if(charOpts&&charOpts.length){
-      base+='\n6) 本轮随机混入 0-2 封由「已知人物」写的求助信（也可以一封都不写，不要刻意凑）。已知人物：'+charOpts.join('、')+'。若某封由其中某人写，在该封加 "fromChar":"该人物名"，name 也写这个名字，内容符合TA的身份与处境。';
+      base+='\n另有：本轮随机混入 0-2 封由「已知人物」写的求助信（也可以一封都不写，不要刻意凑）。已知人物：'+charOpts.join('、')+'。若某封由其中某人写，在该封加 "fromChar":"该人物名"，name 也写这个名字，内容符合TA的身份与处境。';
     }
     return base;
   }
 
   function normLetter(l,idx){
-    var open=(l.open===true)||(!l.optionA&&!l.optionB);
+    var pair=!!l.pair;
+    var open=pair?false:((l.open===true)||(!l.optionA&&!l.optionB));
     return {
       id:'cr_'+Date.now()+'_'+idx,
       to:l.to||'', name:l.name||'无名者', era:l.era||'年代不明', place:l.place||'', who:l.who||'陌生人',
       lang:l.lang||'zh', foreign:l.foreign||'', text:l.text||'', item:l.item||'', date:l.date||'',
       optionA:open?'':(l.optionA||''), optionB:open?'':(l.optionB||''), open:open,
+      pair:pair, nameA:l.nameA||'', textA:l.textA||'', optionC:l.optionC||'', optionD:l.optionD||'',
+      nameB:l.nameB||'', textB:l.textB||'', anchorEcho:l.anchorEcho||'',
       fromChar:l.fromChar||'', crack:false, state:'waiting', conv:[], progress:'', createdAt:Date.now()
     };
   }
@@ -31539,6 +31582,7 @@ window.bsRoomAI = bsRoomAI;
   function renderLift(){
     var box=$('cr-list'); if(!box)return;
     (st.threads||[]).forEach(function(t){ if(t.sleepUntil && Date.now()>t.sleepUntil){ delete t.sleepUntil; save(); log('「'+t.name+'」搁置到期，自动醒来'); } });
+    if(st.wind){ var we=$('cr-wind-text'); if(we) we.textContent=st.wind; }
     var list=st.current;
     if(!list||!list.length){ box.innerHTML=''; $('cr-relift').hidden=true; return; }
     $('cr-relift').hidden=false;
@@ -31547,17 +31591,24 @@ window.bsRoomAI = bsRoomAI;
       var th=thById(l.id);
       var conv=th&&th.conv?th.conv:[];
       var stateText=th&&th.state==='done'?'尘埃落定':'';
-      var tags='<span class="cr-tag">'+(l.echo?'回音':'十字路口')+'</span>'+(l.fromChar?'<span class="cr-tag cr-char">熟悉的人</span>':'')+(l.crack?'<span class="cr-tag cr-crack">裂隙</span>':'')+(th&&th.sleepUntil?'<span class="cr-tag cr-sleep">搁置中</span>':'');
+      var tags='<span class="cr-tag">'+(l.echo?'回音':'十字路口')+'</span>'+(l.fromChar?'<span class="cr-tag cr-char">熟悉的人</span>':'')+(l.crack?'<span class="cr-tag cr-crack">裂隙</span>':'')+(l.pair?'<span class="cr-tag cr-pair">双歧路共信</span>':'')+(l.anchorEcho?'<span class="cr-tag cr-anchor">锚点回响</span>':'')+(th&&th.sleepUntil?'<span class="cr-tag cr-sleep">搁置中</span>':'');
       var fcls=(l.lang==='ja')?'foreign foreign-ja':((l.lang==='ru')?'foreign foreign-ru':'foreign');
       var body='', salute='', rest='';
-      if(l.lang!=='zh'&&l.foreign){ body='<div class="'+fcls+'">'+(l.crack?crackLines(l.foreign):esc(l.foreign))+'</div><div class="trans">'+esc(l.text)+'</div>'; }
-      else {
+      if(l.pair){
+        body='<div class="cr-pair-block"><div class="who">A · '+esc(l.nameA||'一人')+'</div><div class="body-text">'+esc(l.textA||'')+'</div></div>'+
+             '<div class="cr-pair-block"><div class="who">B · '+esc(l.nameB||'另一人')+'</div><div class="body-text">'+esc(l.textB||'')+'</div></div>';
+      } else if(l.lang!=='zh'&&l.foreign){
+        body='<div class="'+fcls+'">'+(l.crack?crackLines(l.foreign):esc(l.foreign))+'</div><div class="trans">'+esc(l.text)+'</div>';
+      } else {
         salute=l.text?'<div class="salute">'+esc(l.text.split('\n')[0])+'</div>':'';
         rest=l.text?l.text.split('\n').slice(1).join('\n'):'';
         body='<div class="body-text">'+(l.crack?crackLines(rest):esc(rest))+'</div>';
       }
       var optsHTML='';
-      if(!l.open && (l.optionA||l.optionB)){
+      if(l.pair){
+        var opts=[['A',l.optionA],['B',l.optionB],['C',l.optionC],['D',l.optionD]].filter(function(x){return x[1];});
+        optsHTML=opts.length?'<div class="cr-opts">'+opts.map(function(x){return '<div class="cr-opt" data-opt="'+x[0]+'" data-lid="'+esc(l.id)+'">'+x[0]+' · '+esc(x[1])+'</div>';}).join('')+'</div>':'<div class="cr-opts"><div class="cr-open-note">两人都没给出选项，只想听听别人怎么说。</div></div>';
+      } else if(!l.open && (l.optionA||l.optionB)){
         optsHTML='<div class="cr-opts">'+(l.optionA?'<div class="cr-opt" data-opt="A" data-lid="'+esc(l.id)+'">A · '+esc(l.optionA)+'</div>':'')+(l.optionB?'<div class="cr-opt" data-opt="B" data-lid="'+esc(l.id)+'">B · '+esc(l.optionB)+'</div>':'')+(l.crack&&!(l.optionA&&l.optionB)?'<div class="cr-open-note">（裂隙让其中一条路的字迹模糊了）</div>':'')+'</div>';
       } else {
         optsHTML='<div class="cr-opts"><div class="cr-open-note">TA 没给出选项，只想听听别人怎么说。</div></div>';
@@ -31566,12 +31617,25 @@ window.bsRoomAI = bsRoomAI;
       var convHTML=conv.length?conv.map(function(c){
         var meta='';
         if(c.role==='them'){ meta='<div class="cr-meta"><span class="k">回信 · '+esc(c.era||l.era)+'</span>（对方那边已过去 '+esc(c.interval||'不明')+'）</div>'+(c.progress?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(c.progress)+'</div>':''); }
-        return '<div class="cr-conv"><div class="w">'+(c.role==='them'?esc(l.name):'我')+'</div><div class="t">'+esc(c.text)+'</div>'+meta+'</div>';
+        var who=c.role==='them'?(c.who?(esc(l.name)+'（'+esc(c.who)+'）'):esc(l.name)):'我';
+        return '<div class="cr-conv"><div class="w">'+who+'</div><div class="t">'+esc(c.text)+'</div>'+meta+'</div>';
       }).join(''):'';
-      return '<div class="envelope" data-env="'+esc(l.id)+'">'+
+      var actRow='';
+      if(th&&th.state==='done'){
+        var btns='<button class="act-btn" data-act="epilogue" data-lid="'+esc(l.id)+'">'+(th.epilogue?'回看后来':'后来听说')+'</button>';
+        if(st.settings.parallel) btns+='<button class="act-btn" data-act="parallel" data-lid="'+esc(l.id)+'">另一条时间线</button>';
+        btns+='<button class="act-btn" data-act="fade" data-lid="'+esc(l.id)+'">'+(th.faded?'恢复':'褪色')+'</button>';
+        if(st.settings.anchor) btns+='<button class="act-btn" data-act="anchor" data-lid="'+esc(l.id)+'">'+(th.anchor?'锚点已埋下':'种下锚点')+'</button>';
+        actRow='<div class="act-row">'+btns+'</div>';
+      } else {
+        actRow='<div class="cr-advice"><textarea data-adv="'+esc(l.id)+'" placeholder="写下你的建议，直接回给这个时空的人…"></textarea><div class="row"><input data-aitem="'+esc(l.id)+'" placeholder="附物（可空）"><button data-send="'+esc(l.id)+'">送出建议</button></div></div>'+
+          ((th&&th.conv&&th.conv.length)?'<div class="act-row"><button class="act-btn" data-act="sleep" data-lid="'+esc(l.id)+'">'+(th.sleepUntil?'唤醒':'封存搁置')+'</button></div>':'');
+      }
+      var envCls=(th&&th.faded)?'envelope faded':'envelope';
+      return '<div class="'+envCls+'" data-env="'+esc(l.id)+'">'+
         '<div class="env-head">'+
           '<div class="env-to">'+esc(l.to||'捡到信的人')+'</div>'+
-          '<div class="env-from">'+esc(l.name)+'</div>'+
+          '<div class="env-from">'+esc(l.name)+(l.pair?'（共 '+esc(l.nameA||'')+' 与 '+esc(l.nameB||'')+'）':'')+'</div>'+
           '<div class="env-meta">'+tags+esc(l.era)+' · '+esc(l.place)+' · '+esc(l.who)+(stateText?' · '+stateText:'')+'</div>'+
           '<div class="env-postmark">歧路</div>'+
           '<div class="env-stamp">✉</div>'+
@@ -31582,10 +31646,7 @@ window.bsRoomAI = bsRoomAI;
           '<div class="sheet">'+salute+body+itemLine+'<div class="sign">'+esc(l.name)+'</div><div class="date-line">'+esc(l.date||l.era)+'</div></div>'+
           optsHTML+
           convHTML+
-          (th&&th.state==='done'
-            ? '<div class="act-row"><button class="act-btn" data-act="epilogue" data-lid="'+esc(l.id)+'">'+(th&&th.epilogue?'回看后来':'后来听说')+'</button>'+(st.settings.parallel?'<button class="act-btn" data-act="parallel" data-lid="'+esc(l.id)+'">另一条时间线</button>':'')+'</div>'
-            : '<div class="cr-advice"><textarea data-adv="'+esc(l.id)+'" placeholder="写下你的建议，直接回给这个时空的人…"></textarea><div class="row"><input data-aitem="'+esc(l.id)+'" placeholder="附物（可空）"><button data-send="'+esc(l.id)+'">送出建议</button></div></div>'+
-              ((th&&th.conv&&th.conv.length)?'<div class="act-row"><button class="act-btn" data-act="sleep" data-lid="'+esc(l.id)+'">'+(th.sleepUntil?'唤醒':'封存搁置')+'</button></div>':''))+
+          actRow+
         '</div>'+
       '</div>';
     }).join('');
@@ -31607,7 +31668,8 @@ window.bsRoomAI = bsRoomAI;
         var l=list.find(function(x){return x.id===lid;});
         var ta=box.querySelector('[data-adv="'+lid+'"]');
         if(!ta||!l) return;
-        var pick='选 '+k+'：'+(k==='A'?l.optionA:l.optionB)+'。\n';
+        var optsMap={A:l.optionA,B:l.optionB,C:l.optionC,D:l.optionD};
+        var pick='选 '+k+'：'+(optsMap[k]||'')+'。\n';
         if(ta.value.indexOf('选 ')!==0) ta.value=pick+ta.value;
         o.parentNode.querySelectorAll('.cr-opt').forEach(function(x){x.classList.remove('on');});
         o.classList.add('on');
@@ -31626,6 +31688,12 @@ window.bsRoomAI = bsRoomAI;
     box.querySelectorAll('[data-act="epilogue"]').forEach(function(b){
       b.onclick=function(e){ e.stopPropagation(); showEpilogue(b.getAttribute('data-lid')); };
     });
+    box.querySelectorAll('[data-act="fade"]').forEach(function(b){
+      b.onclick=function(e){ e.stopPropagation(); toggleFade(b.getAttribute('data-lid')); };
+    });
+    box.querySelectorAll('[data-act="anchor"]').forEach(function(b){
+      b.onclick=function(e){ e.stopPropagation(); plantAnchor(b.getAttribute('data-lid')); };
+    });
   }
 
   function getLetter(id){
@@ -31639,9 +31707,13 @@ window.bsRoomAI = bsRoomAI;
 
   function replyPrompt(l, advice, th){
     var history=(th.conv||[]).slice(-4).map(function(c){ return (c.role==='them'?l.name:'陌生的拾信人')+'：'+c.text; }).join('\n');
-    var opts=(!l.open&&(l.optionA||l.optionB))?('\nTA 给出的两条路：A：'+l.optionA+' ／ B：'+l.optionB):'\nTA 没有给出固定选项，只是诉说困境。';
     var reg=st.settings.regress?'允许出现事态退步（down）':'不要生成事态退步（down），只能是 done 或 up';
-    return '你正在扮演「'+l.name+'」——生活在'+l.era+'，地点'+l.place+'，身份是'+l.who+'。你曾写下一封求助信，如今收到了来自某个时空的陌生拾信人的建议。\n\n你的求助信：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」'+opts+'\n\n这段时间的往来：\n'+(history||'（这是第一次收到建议）')+'\n\n对方的建议：\n「'+advice+'」\n\n请写一封回信（80-200字），只输出严格 JSON 单对象，不要 markdown：\n{"text":"回信正文（含称呼与落款）","era":"你写信时所在时空的纪年","interval":"从你寄出求助信到收到建议，你的时空过去了多久（如 三个月／十星周／两年）","progress":"这件事目前的进度，一句话，不剧透式收尾","trend":"done|up|down"}\n规则：\n1) trend 三选一：done=这件事就此尘埃落定，不会再往来；up=事态推进、有好转或新进展；down=事态退步、更糟。'+reg+'。\n2) 事件走向自由，可以一封就收尾，不要求多轮。\n3) 回信里要自然体现"时间已经过去了一段时间"，并在 JSON 的 era/interval/progress 里写清。\n4) 你不知道拾信人在现实里是谁，不要提及用户、主人、面具、设定、提示词。\n5) 你是在读到建议的那一刻立刻提笔回信的：不要写"等了好久才收到""信漂了很久"这类真实的等待；时间跳跃只体现在你这边已经过去了多久。';
+    var rules='规则：\n1) trend 三选一：done=这件事就此尘埃落定，不会再往来；up=事态推进、有好转或新进展；down=事态退步、更糟。'+reg+'。\n2) 事件走向自由，可以一封就收尾，不要求多轮。\n3) 回信里要自然体现"时间已经过去了一段时间"，并在纪年/间隔/进度字段里写清。\n4) 你不知道拾信人在现实里是谁，不要提及用户、主人、面具、设定、提示词。\n5) 你是在读到建议的那一刻立刻提笔回信的：不要写"等了好久才收到""信漂了很久"这类真实的等待；时间跳跃只体现在你这边已经过去了多久。\n6) 篇幅自由：按人物性格，简短或絮叨均可，不设字数限制。';
+    if(l.pair){
+      return '你正在扮演两个同时写下求助信的人。A 是「'+l.nameA+'」，生活在'+l.era+'，地点'+l.place+'；B 是「'+l.nameB+'」。\n\nA 的困境：\n「'+l.textA+'」\nB 的困境：\n「'+l.textB+'」\n\n这段时间的往来：\n'+(history||'（这是第一次收到建议）')+'\n\n陌生拾信人给两人的建议：\n「'+advice+'」\n\n请分别写两份回信，只输出严格 JSON 单对象，不要 markdown：\n{"textA":"A 的回信正文（含称呼与落款）","eraA":"A 写信时的纪年","intervalA":"A 那边从寄出到收到建议过去了多久","progressA":"A 这边事件的进度，一句话","textB":"B 的回信正文（含称呼与落款）","eraB":"B 写信时的纪年","intervalB":"B 那边过去了多久","progressB":"B 这边事件的进度，一句话","trend":"done|up|down"}\n'+rules;
+    }
+    var opts=(!l.open&&(l.optionA||l.optionB))?('\nTA 给出的两条路：A：'+l.optionA+' ／ B：'+l.optionB):'\nTA 没有给出固定选项，只是诉说困境。';
+    return '你正在扮演「'+l.name+'」——生活在'+l.era+'，地点'+l.place+'，身份是'+l.who+'。你曾写下一封求助信，如今收到了来自某个时空的陌生拾信人的建议。\n\n你的求助信：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」'+opts+'\n\n这段时间的往来：\n'+(history||'（这是第一次收到建议）')+'\n\n对方的建议：\n「'+advice+'」\n\n请写一封回信，只输出严格 JSON 单对象，不要 markdown：\n{"text":"回信正文（含称呼与落款）","era":"你写信时所在时空的纪年","interval":"从你寄出求助信到收到建议，你的时空过去了多久（如 三个月／十星周／两年）","progress":"这件事目前的进度，一句话，不剧透式收尾","trend":"done|up|down"}\n'+rules;
   }
 
   async function sendAdvice(id){
@@ -31668,9 +31740,11 @@ window.bsRoomAI = bsRoomAI;
     var raw=await callAI('你是一个只会输出严格 JSON 的信件生成器。', replyPrompt(l,txt,th));
     var o=parseObj(raw);
     busy=false;
-    if(!o||!o.text){ toast('回信回来了，但没解析出内容'); renderLift(); return; }
+    var isPair=!!l.pair;
+    var hasContent=isPair?(o&&(o.textA||o.textB)):(o&&o.text);
+    if(!hasContent){ toast('回信回来了，但没解析出内容'); renderLift(); return; }
     if(!st.settings.regress && o.trend==='down'){ o.trend='up'; if(o.progress) o.progress=String(o.progress).replace(/更糟|恶化|退步|失败/g,'出现转机'); }
-    pending={letter:l, thread:th, data:o, advice:txt};
+    pending={letter:l, thread:th, data:o, advice:txt, pair:isPair};
     showReply(l,o);
   }
 
@@ -31682,25 +31756,42 @@ window.bsRoomAI = bsRoomAI;
     if(!st.settings.regress && trk==='down') trk='up';
     o.trend=trk;
     var trend={'done':'尘埃落定','up':'事态推进','down':'事态退步'}[trk]||'';
-    sh.innerHTML='<div class="mhead">回信 · '+esc(l.name)+'</div>'+
-      '<div class="mtext">'+esc(o.text||'')+'</div>'+
-      '<div class="cr-meta" style="margin-top:14px"><span class="k">回信 · '+esc(o.era||l.era)+'</span>（对方那边，已过去 '+esc(o.interval||'不明')+'）</div>'+
-      (o.progress?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(o.progress)+'</div>':'')+
+    var head, bodyHTML;
+    if(l.pair){
+      head='共同回信 · '+esc(l.nameA)+' 与 '+esc(l.nameB);
+      bodyHTML='<div class="cr-pair-block"><div class="who">A · '+esc(l.nameA)+'</div><div class="mtext">'+esc(o.textA||'')+'</div>'+
+        '<div class="cr-meta" style="margin-top:10px"><span class="k">回信 · '+esc(o.eraA||l.era)+'</span>（A 那边已过去 '+esc(o.intervalA||'不明')+'）</div>'+
+        (o.progressA?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(o.progressA)+'</div>':'')+'</div>'+
+        '<div class="cr-pair-block"><div class="who">B · '+esc(l.nameB)+'</div><div class="mtext">'+esc(o.textB||'')+'</div>'+
+        '<div class="cr-meta" style="margin-top:10px"><span class="k">回信 · '+esc(o.eraB||l.era)+'</span>（B 那边已过去 '+esc(o.intervalB||'不明')+'）</div>'+
+        (o.progressB?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(o.progressB)+'</div>':'')+'</div>';
+    } else {
+      head='回信 · '+esc(l.name);
+      bodyHTML='<div class="mtext">'+esc(o.text||'')+'</div>'+
+        '<div class="cr-meta" style="margin-top:14px"><span class="k">回信 · '+esc(o.era||l.era)+'</span>（对方那边，已过去 '+esc(o.interval||'不明')+'）</div>'+
+        (o.progress?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(o.progress)+'</div>':'');
+    }
+    sh.innerHTML='<div class="mhead">'+head+'</div>'+bodyHTML+
       (trend?'<div class="cr-meta"><span class="k">走向</span>：'+esc(trend)+'</div>':'')+
       '<div class="mrow"><button class="tp-mburn" id="cr-burn">销毁</button><button class="tp-mkeep" id="cr-keep">保留</button></div>';
     m.hidden=false;
     $('cr-keep').onclick=function(){
       var p=pending; if(!p) return;
       var th=p.thread;
-      th.conv.push({role:'them',text:o.text,era:o.era,interval:o.interval,progress:o.progress,trend:o.trend,ts:Date.now()});
+      if(l.pair){
+        th.conv.push({role:'them',who:'A',text:o.textA,era:o.eraA,interval:o.intervalA,progress:o.progressA,trend:o.trend,ts:Date.now()});
+        th.conv.push({role:'them',who:'B',text:o.textB,era:o.eraB,interval:o.intervalB,progress:o.progressB,trend:o.trend,ts:Date.now()});
+      } else {
+        th.conv.push({role:'them',text:o.text,era:o.era,interval:o.interval,progress:o.progress,trend:o.trend,ts:Date.now()});
+      }
       th.state=(o.trend==='done')?'done':'waiting';
-      th.progress=o.progress||''; th.lastEra=o.era||''; th.interval=o.interval||'';
+      th.progress=o.progress||o.progressA||o.progressB||''; th.lastEra=o.era||o.eraA||''; th.interval=o.interval||o.intervalA||'';
       if(o.trend==='done') st.mark.done++; else if(o.trend==='up') st.mark.up++; else if(o.trend==='down') st.mark.down++;
       save(); m.hidden=true; pending=null;
       renderLift(); renderFile(); renderSettings();
       var env=document.querySelector('[data-env="'+l.id+'"]');
       if(env){ var bd=env.querySelector('.env-body'); if(bd) bd.hidden=false; var ca=env.querySelector('.env-caret'); if(ca) ca.textContent='\u25b4'; env.scrollIntoView({behavior:'smooth',block:'start'}); }
-      log('给「'+l.name+'」送出建议，'+(o.interval||'')+'后回信，'+(trend||''));
+      log('给「'+l.name+'」送出建议，'+(o.interval||o.intervalA||'')+'后回信，'+(trend||''));
       toast('回信已收下');
     };
     $('cr-burn').onclick=function(){
@@ -31718,7 +31809,7 @@ window.bsRoomAI = bsRoomAI;
   async function askParallel(id){
     var l=getLetter(id); if(!l||busy) return;
     busy=true;
-    var prompt='下面是「'+l.name+'」在'+l.era+'（'+l.place+'）遇到的抉择：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」\nTA 当初给出的两条路：A：'+(l.optionA||'（未给出）')+' ／ B：'+(l.optionB||'（未给出）')+'\n\n现在请写"另一条时间线"：假设拾信人当初给出的是相反的建议，事情会走向什么结局。\n只输出严格 JSON 单对象：\n{"text":"这一段平行结局的叙述（60-140字，第三人称或片段式均可）","era":"那个时空的纪年","interval":"从寄出求助信到结局过去多久","progress":"这条时间线里事件的最终状态","trend":"done|up|down"}';
+    var prompt='下面是「'+l.name+'」在'+l.era+'（'+l.place+'）遇到的抉择：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」\nTA 当初给出的两条路：A：'+(l.optionA||'（未给出）')+' ／ B：'+(l.optionB||'（未给出）')+'\n\n现在请写"另一条时间线"：假设拾信人当初给出的是相反的建议，事情会走向什么结局。\n只输出严格 JSON 单对象：\n{"text":"这一段平行结局的叙述（第三人称或片段式均可，篇幅自由）","era":"那个时空的纪年","interval":"从寄出求助信到结局过去多久","progress":"这条时间线里事件的最终状态","trend":"done|up|down"}';
     var raw=await callAI('你是一个只会输出严格 JSON 的信件生成器。', prompt);
     var o=parseObj(raw);
     busy=false;
@@ -31787,7 +31878,7 @@ window.bsRoomAI = bsRoomAI;
     if(ta) ta.value=''; $('cr-p-a').value=''; $('cr-p-b').value=''; $('cr-p-item').value='';
     renderPost(); toast('歧路信已投出'); log('投出一封自己的歧路信');
     busy=true;
-    var prompt='你在某个时空生活，某天捡到一封没有收信人、只写着困境的求助信：\n「'+txt+'」'+(a||b?('\n写信的人列了两条路：A：'+a+' ／ B：'+b):'')+(item?'\n随信附着：'+item:'')+'\n\n请写一封回信，给出你的看法（60-140字）。只输出严格 JSON 单对象：\n{"name":"你的姓名","era":"你的年代/纪元","place":"你的地点","who":"你的身份","interval":"从这封信投出到你捡到，过去多久","progress":"你这边给出建议时，事情在你看来处于什么状态","text":"回信正文（含称呼与落款）"}';
+    var prompt='你在某个时空生活，某天捡到一封没有收信人、只写着困境的求助信：\n「'+txt+'」'+(a||b?('\n写信的人列了两条路：A：'+a+' ／ B：'+b):'')+(item?'\n随信附着：'+item:'')+'\n\n请写一封回信，给出你的看法，篇幅自由，按你的性格写。只输出严格 JSON 单对象：\n{"name":"你的姓名","era":"你的年代/纪元","place":"你的地点","who":"你的身份","interval":"从这封信投出到你捡到，过去多久","progress":"你这边给出建议时，事情在你看来处于什么状态","text":"回信正文（含称呼与落款）"}';
     var raw=await callAI('你是一个只会输出严格 JSON 的信件生成器。', prompt);
     var o=parseObj(raw);
     busy=false;
@@ -31803,11 +31894,14 @@ window.bsRoomAI = bsRoomAI;
     var ff=$('cr-f-from')?$('cr-f-from').value:'';
     var fs=$('cr-f-state')?$('cr-f-state').value:'';
     var fl=$('cr-f-lang')?$('cr-f-lang').value:'';
+    var ffd=$('cr-f-fade')?$('cr-f-fade').value:'';
     var list=st.threads.filter(function(t){
       if(ff==='char'&&!t.fromChar) return false;
       if(ff==='stranger'&&t.fromChar) return false;
       if(fs==='waiting'&&t.state==='done') return false;
       if(fs==='done'&&t.state!=='done') return false;
+      if(ffd==='faded'&&!t.faded) return false;
+      if(ffd==='active'&&t.faded) return false;
       var lang=String(t.lang||'zh');
       if(fl==='zh'&&lang!=='zh') return false;
       if(fl==='ja'&&lang!=='ja') return false;
@@ -31821,7 +31915,8 @@ window.bsRoomAI = bsRoomAI;
     });
     if(!list.length){ box.innerHTML='<div class="empty">没有符合条件的记录。</div>'; return; }
     box.innerHTML=list.slice().reverse().map(function(t){
-      return '<div class="cr-item" data-tid="'+esc(t.id)+'"><div class="n">'+esc(t.name)+' · '+esc(t.era)+'<span class="state">'+(t.state==='done'?'尘埃落定':'等待回信')+(t.sleepUntil?' · 搁置中':'')+'</span></div><div class="m">'+esc(t.who)+' · '+(t.conv||[]).length+' 封往来'+(t.fromChar?' · 角色来信':'')+'</div></div>';
+      var extras=(t.fromChar?' · 角色来信':'')+(t.pair?' · 共信':'')+(t.anchor?' · 锚点':'')+(t.faded?' · 已褪色':'');
+      return '<div class="cr-item'+(t.faded?' faded':'')+'" data-tid="'+esc(t.id)+'"><div class="n">'+esc(t.name)+' · '+esc(t.era)+'<span class="state">'+(t.state==='done'?'尘埃落定':'等待回信')+(t.sleepUntil?' · 搁置中':'')+'</span></div><div class="m">'+esc(t.who)+' · '+(t.conv||[]).length+' 封往来'+extras+'</div></div>';
     }).join('');
     box.querySelectorAll('[data-tid]').forEach(function(el){ el.onclick=function(){ openThread(el.getAttribute('data-tid')); }; });
   }
@@ -31875,6 +31970,38 @@ window.bsRoomAI = bsRoomAI;
       };
     });
   }
+  function toggleFade(id){
+    var th=st.threads.find(function(x){return x.id===id;}); if(!th) return;
+    if(th.state!=='done'){ toast('落幕之后才能褪色'); return; }
+    th.faded=!th.faded; save();
+    log((th.faded?'褪色了':'恢复了')+'「'+th.name+'」的卷宗');
+    renderLift(); renderFile();
+    toast(th.faded?'已褪色 · 卷宗里会暗下来':'已恢复');
+  }
+  function plantAnchor(id){
+    var th=st.threads.find(function(x){return x.id===id;}); if(!th) return;
+    if(th.state!=='done'){ toast('落幕之后才能埋下锚点'); return; }
+    if(th.anchor){ toast('锚点已经埋下'); return; }
+    th.anchor={ts:Date.now(),label:th.name+' · '+(th.era||'')};
+    save(); log('在「'+th.name+'」身上埋下了锚点');
+    renderLift(); renderSettings();
+    toast('锚点已埋下，也许以后会有人偶然提起');
+  }
+  async function observeWind(){
+    if(busy) return;
+    busy=true;
+    var btn=$('cr-wind'); if(btn){ btn.disabled=true; btn.textContent='风正在掠过…'; }
+    var prompt='此刻漂流池里聚集着一批站在岔路口的人。不要生成信件，只写一段两三句的氛围旁白：当下漂来的困境大致围绕什么主题、是什么心境（如离别、亏欠、留与走、说不清的犹豫）。只输出正文两句话以内，不要 JSON，不要标题，不要称呼落款。';
+    var raw=await callAI('你是路口的风，只负责转述氛围。',prompt);
+    busy=false;
+    if(btn){ btn.disabled=false; btn.textContent='观测洋流风向'; }
+    var o=parseObj(raw); var txt=(o&&o.text)?o.text:raw;
+    if(!txt){ toast('风向观测失败 · 检查 API'); return; }
+    st.wind=String(txt).replace(/\n/g,' ').trim(); save();
+    var we=$('cr-wind-text'); if(we) we.textContent=st.wind;
+    log('观测了一次洋流风向');
+  }
+
   function renderEpilogue(th,o){
     var m=$('cr-modal'), sh=$('cr-msheet');
     sh.classList.remove('burn'); sh.style.background=st.paper;
@@ -31895,7 +32022,7 @@ window.bsRoomAI = bsRoomAI;
     if(busy) return;
     busy=true;
     var lines=(th.conv||[]).map(function(c){ return (c.role==='them'?th.name:'我')+'：'+c.text; }).join('\n');
-    var prompt='你是一个只在事后路过的旁观者，不参与任何往来。\n「'+th.name+'」生活在'+(th.era||'')+'，'+(th.place||'')+'，身份是'+(th.who||'')+'。\nTA 当年卡在一个抉择里，写下这封求助信：\n「'+(th.foreign&&th.lang!=='zh'?th.foreign:th.text)+'」\n后来发生的往来：\n'+(lines||'（没有留下更多往来）')+'\n\n请写一段「后来听说」：那件事过去很久之后，留下了什么。\n只输出严格 JSON 单对象，不要 markdown：\n{"text":"80-160字，旁观者转述或第三人称片段，只写后事与回声","era":"你听说这些时的纪年","elapsed":"距那件事过去了多久"}\n不要续写对话，不要新增往来，不要给出新的选择。';
+    var prompt='你是一个只在事后路过的旁观者，不参与任何往来。\n「'+th.name+'」生活在'+(th.era||'')+'，'+(th.place||'')+'，身份是'+(th.who||'')+'。\nTA 当年卡在一个抉择里，写下这封求助信：\n「'+(th.foreign&&th.lang!=='zh'?th.foreign:th.text)+'」\n后来发生的往来：\n'+(lines||'（没有留下更多往来）')+'\n\n请写一段「后来听说」：那件事过去很久之后，留下了什么。\n只输出严格 JSON 单对象，不要 markdown：\n{"text":"旁观者转述或第三人称片段，只写后事与回声，篇幅自由","era":"你听说这些时的纪年","elapsed":"距那件事过去了多久"}\n不要续写对话，不要新增往来，不要给出新的选择。';
     var raw=await callAI('你是一个只在事后路过的旁观者。',prompt);
     busy=false;
     var o=parseObj(raw);
@@ -31911,6 +32038,12 @@ window.bsRoomAI = bsRoomAI;
     if($('cr-s-regress')) $('cr-s-regress').checked=s.regress;
     if($('cr-s-parallel')) $('cr-s-parallel').checked=s.parallel;
     if($('cr-s-chars')) $('cr-s-chars').checked=s.chars;
+    if($('cr-s-era')) $('cr-s-era').value=s.era||'random';
+    if($('cr-s-famous')) $('cr-s-famous').checked=!!s.famous;
+    if($('cr-s-pair')) $('cr-s-pair').checked=s.pair!==false;
+    if($('cr-s-anchor')) $('cr-s-anchor').checked=s.anchor!==false;
+    var tps=$('cr-s-topics');
+    if(tps){ tps.querySelectorAll('input[type=checkbox]').forEach(function(cb){ cb.checked=(s.topics||[]).indexOf(cb.value)>=0; }); }
     if($('cr-s-crack-val')) $('cr-s-crack-val').textContent=(s.crack||0)+'%';
     if($('cr-mark-text')) $('cr-mark-text').textContent=markText();
     applyPaper(st.paper,true);
@@ -31934,13 +32067,22 @@ window.bsRoomAI = bsRoomAI;
     $('cr-relift').onclick=function(){ st.current=null; save(); renderLift(); lift(); };
     $('cr-p-send').onclick=sendPost;
     var q=$('cr-q'); if(q) q.oninput=renderFile;
-    ['cr-f-from','cr-f-state','cr-f-lang'].forEach(function(id){ var el=$(id); if(el) el.onchange=renderFile; });
+    ['cr-f-from','cr-f-state','cr-f-lang','cr-f-fade'].forEach(function(id){ var el=$(id); if(el) el.onchange=renderFile; });
     var lt=$('cr-log-toggle'); if(lt) lt.onclick=function(){ var l=$('cr-log-list'); l.hidden=!l.hidden; renderLog(); };
     var s=st.settings;
     var sc=$('cr-s-crack'); if(sc) sc.oninput=function(){ s.crack=parseFloat(sc.value)||0; if($('cr-s-crack-val')) $('cr-s-crack-val').textContent=s.crack+'%'; save(); };
     var sr=$('cr-s-regress'); if(sr) sr.onchange=function(){ s.regress=sr.checked; save(); };
     var sp=$('cr-s-parallel'); if(sp) sp.onchange=function(){ s.parallel=sp.checked; save(); };
     var sch=$('cr-s-chars'); if(sch) sch.onchange=function(){ s.chars=sch.checked; save(); };
+    var se=$('cr-s-era'); if(se) se.onchange=function(){ s.era=se.value; save(); };
+    var sf=$('cr-s-famous'); if(sf) sf.onchange=function(){ s.famous=sf.checked; save(); };
+    var sp2=$('cr-s-pair'); if(sp2) sp2.onchange=function(){ s.pair=sp2.checked; save(); };
+    var sa2=$('cr-s-anchor'); if(sa2) sa2.onchange=function(){ s.anchor=sa2.checked; save(); };
+    var tps=$('cr-s-topics');
+    if(tps){ tps.querySelectorAll('input[type=checkbox]').forEach(function(cb){
+      cb.onchange=function(){ s.topics=Array.from(tps.querySelectorAll('input[type=checkbox]:checked')).map(function(x){return x.value;}); save(); };
+    }); }
+    var wb=$('cr-wind'); if(wb) wb.onclick=observeWind;
     var mc=$('cr-mark-clear'); if(mc) mc.onclick=function(){ st.mark={a:0,b:0,open:0,done:0,up:0,down:0}; save(); renderSettings(); toast('印记已清空'); };
     document.querySelectorAll('#crossroads-screen [data-cr-paper]').forEach(function(b){ b.onclick=function(){ applyPaper(b.getAttribute('data-cr-paper')); }; });
     tabs();
