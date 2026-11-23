@@ -30522,6 +30522,11 @@ window.bsRoomAI = bsRoomAI;
 .env-from{font-family:var(--tp-font);font-size:17px;color:#1b1a17;letter-spacing:2px;}
 .env-meta{font-size:10px;color:#9a968c;margin-top:5px;letter-spacing:.5px;font-family:var(--tp-font);}
 .env-caret{position:absolute;left:50%;bottom:2px;font-size:10px;color:#b3aca0;}
+.env-imm{position:absolute;right:12px;bottom:6px;background:#fff;border:1px solid #d9c3a6;border-radius:2px;font-family:var(--tp-font);font-size:10.5px;letter-spacing:1.5px;color:#8a5a2b;padding:5px 8px;cursor:pointer;z-index:2;}
+.env-imm:active{background:#f6efe2;}
+.cr-conv-imm{display:inline-block;margin-top:9px;background:none;border:1px solid #e0dbcd;border-radius:2px;font-family:var(--tp-font);font-size:10px;letter-spacing:1px;color:#8a5a2b;padding:4px 8px;cursor:pointer;}
+.cr-conv-imm:active{background:#f6efe2;}
+.act-btn.act-imm{color:#8a5a2b;border-color:#e2cbb2;}
 .env-body{padding:0 16px 18px;}
 .sheet{background:var(--tp-paper);border:1px solid #e8e3d6;padding:24px 20px;position:relative;}
 .sheet:before{content:"";position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,transparent 0,transparent 31px,#efeade 31px,#efeade 32px);opacity:.45;}
@@ -31687,7 +31692,7 @@ window.bsRoomAI = bsRoomAI;
       var th=thById(l.id);
       var conv=th&&th.conv?th.conv:[];
       var stateText=th&&th.state==='done'?'尘埃落定':'';
-      var tags='<span class="cr-tag">'+(l.echo?'回音':'十字路口')+'</span>'+(l.fromChar?'<span class="cr-tag cr-char">熟悉的人</span>':'')+(l.crack?'<span class="cr-tag cr-crack">裂隙</span>':'')+(l.pair?'<span class="cr-tag cr-pair">双歧路共信</span>':'')+(l.anchorEcho?'<span class="cr-tag cr-anchor">锚点回响</span>':'')+(th&&th.immersive&&th.immersive.turns&&th.immersive.turns.length?'<span class="cr-tag cr-imm-tag">到过那里</span>':'')+(th&&th.sleepUntil?'<span class="cr-tag cr-sleep">搁置中</span>':'');
+      var tags='<span class="cr-tag">'+(l.echo?'回音':'十字路口')+'</span>'+(l.fromChar?'<span class="cr-tag cr-char">熟悉的人</span>':'')+(l.crack?'<span class="cr-tag cr-crack">裂隙</span>':'')+(l.pair?'<span class="cr-tag cr-pair">双歧路共信</span>':'')+(l.anchorEcho?'<span class="cr-tag cr-anchor">锚点回响</span>':'')+(th&&th.immMap&&Object.keys(th.immMap).some(function(k){return th.immMap[k]&&(th.immMap[k].opening||(th.immMap[k].turns||[]).length);})?'<span class="cr-tag cr-imm-tag">到过那里</span>':'')+(th&&th.sleepUntil?'<span class="cr-tag cr-sleep">搁置中</span>':'');
       var fcls=(l.lang==='ja')?'foreign foreign-ja':((l.lang==='ru')?'foreign foreign-ru':'foreign');
       var body='', salute='', rest='';
       if(l.pair){
@@ -31710,23 +31715,25 @@ window.bsRoomAI = bsRoomAI;
         optsHTML='<div class="cr-opts"><div class="cr-open-note">TA 没给出选项，只想听听别人怎么说。</div></div>';
       }
       var itemLine=l.item?'<div class="item-line">附：'+esc(l.item)+'</div>':'';
-      var convHTML=conv.length?conv.map(function(c){
+      var convHTML=conv.length?conv.map(function(c,ci){
         var meta='';
         if(c.role==='them'){ meta='<div class="cr-meta"><span class="k">回信 · '+esc(c.era||l.era)+'</span>（对方那边已过去 '+esc(c.interval||'不明')+'）</div>'+(c.progress?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(c.progress)+'</div>':''); }
         var who=c.role==='them'?(c.who?(esc(l.name)+'（'+esc(c.who)+'）'):esc(l.name)):'我';
-        return '<div class="cr-conv"><div class="w">'+who+'</div><div class="t">'+esc(c.text)+'</div>'+meta+'</div>';
+        var kk='c'+ci;
+        var immBtn='<button class="cr-conv-imm" data-act="imm" data-key="'+kk+'" data-lid="'+esc(l.id)+'">◈ '+((th&&th.immMap&&th.immMap[kk]&&th.immMap[kk].opening)?'回到那天':'身临其境 · 回到这封信的时候')+'</button>';
+        return '<div class="cr-conv"><div class="w">'+who+'</div><div class="t">'+esc(c.text)+'</div>'+meta+immBtn+'</div>';
       }).join(''):'';
       var actRow='';
       if(th&&th.state==='done'){
         var btns='<button class="act-btn" data-act="epilogue" data-lid="'+esc(l.id)+'">'+(th.epilogue?'回看后来':'后来听说')+'</button>';
         if(st.settings.parallel) btns+='<button class="act-btn" data-act="parallel" data-lid="'+esc(l.id)+'">另一条时间线</button>';
-        btns+='<button class="act-btn" data-act="imm" data-lid="'+esc(l.id)+'">'+(th.immersive&&th.immersive.turns&&th.immersive.turns.length?'回到那里':'身临其境')+'</button>';
+        btns+='<button class="act-btn act-imm" data-act="imm" data-key="origin" data-lid="'+esc(l.id)+'">'+((th&&th.immMap&&th.immMap.origin&&th.immMap.origin.opening)?'回到那天':'身临其境')+'</button>';
         btns+='<button class="act-btn" data-act="fade" data-lid="'+esc(l.id)+'">'+(th.faded?'恢复':'褪色')+'</button>';
         if(st.settings.anchor) btns+='<button class="act-btn" data-act="anchor" data-lid="'+esc(l.id)+'">'+(th.anchor?'锚点已埋下':'种下锚点')+'</button>';
         actRow='<div class="act-row">'+btns+'</div>';
       } else {
         actRow='<div class="cr-advice"><textarea data-adv="'+esc(l.id)+'" placeholder="写下你的建议，直接回给这个时空的人…"></textarea><div class="row"><input data-aitem="'+esc(l.id)+'" placeholder="附物（可空）"><button data-send="'+esc(l.id)+'">送出建议</button></div></div>'+
-          '<div class="act-row"><button class="act-btn" data-act="imm" data-lid="'+esc(l.id)+'">'+(th&&th.immersive&&th.immersive.turns&&th.immersive.turns.length?'回到那里':'身临其境')+'</button></div>'+
+          '<div class="act-row"><button class="act-btn act-imm" data-act="imm" data-key="origin" data-lid="'+esc(l.id)+'">'+((th&&th.immMap&&th.immMap.origin&&th.immMap.origin.opening)?'回到那天':'身临其境')+'</button></div>'+
           ((th&&th.conv&&th.conv.length)?'<div class="act-row"><button class="act-btn" data-act="sleep" data-lid="'+esc(l.id)+'">'+(th.sleepUntil?'唤醒':'封存搁置')+'</button></div>':'');
       }
       var envCls=(th&&th.faded)?'envelope faded':'envelope';
@@ -31735,6 +31742,7 @@ window.bsRoomAI = bsRoomAI;
           '<div class="env-to">'+esc(l.to||'捡到信的人')+'</div>'+
           '<div class="env-from">'+esc(l.name)+(l.pair?'（共 '+esc(l.nameA||'')+' 与 '+esc(l.nameB||'')+'）':'')+'</div>'+
           '<div class="env-meta">'+tags+esc(l.era)+' · '+esc(l.place)+' · '+esc(l.who)+(stateText?' · '+stateText:'')+'</div>'+
+          '<button class="env-imm" data-act="imm" data-key="origin" data-lid="'+esc(l.id)+'">◈ '+((th&&th.immMap&&th.immMap.origin&&th.immMap.origin.opening)?'回到那天':'身临其境')+'</button>'+
           '<div class="env-postmark">歧路</div>'+
           '<div class="env-stamp">✉</div>'+
           '<div class="env-caret">▾</div>'+
@@ -31790,7 +31798,7 @@ window.bsRoomAI = bsRoomAI;
       b.onclick=function(e){ e.stopPropagation(); toggleFade(b.getAttribute('data-lid')); };
     });
     box.querySelectorAll('[data-act="imm"]').forEach(function(b){
-      b.onclick=function(e){ e.stopPropagation(); openImm(b.getAttribute('data-lid')); };
+      b.onclick=function(e){ e.stopPropagation(); openImm(b.getAttribute('data-lid'), b.getAttribute('data-key')||'origin'); };
     });
     box.querySelectorAll('[data-act="anchor"]').forEach(function(b){
       b.onclick=function(e){ e.stopPropagation(); plantAnchor(b.getAttribute('data-lid')); };
@@ -31810,10 +31818,17 @@ window.bsRoomAI = bsRoomAI;
     var history=(th.conv||[]).slice(-4).map(function(c){ return (c.role==='them'?l.name:'陌生的拾信人')+'：'+c.text; }).join('\n');
     var reg=st.settings.regress?'允许出现事态退步（down）':'不要生成事态退步（down），只能是 done 或 up';
     var imm='';
-    if(th.immersive&&(th.immersive.opening||(th.immersive.turns&&th.immersive.turns.length))){
-      var iml=(th.immersive.turns||[]).slice(-6).map(function(t){return (t.role==='me'?'对方':'你')+'：'+((t.zh&&t.zh.length)?t.zh:t.text);}).join('\n');
-      var openBit=(th.immersive.opening||'').slice(0,180);
-      imm='\n\n你亲身记得的一件事：那阵子，那个一直在跟你通信的人真的走到了你眼前，你们见了面。当时的经过：\n'+(openBit?('（见面时）'+openBit+'…\n'):'')+(iml||'')+'\n那场见面之后，你是从那一天继续往后的；回信时如果与眼下的事有关，可以自然地提到"那天你来看过我""你说过的那句话""见你那一面之后"，但不要把那次见面写成信里才知道的事，也不要追问对方从哪里来。';
+    var mm=(th&&th.immMap)?th.immMap:{};
+    var meet=[];
+    Object.keys(mm).forEach(function(k){
+      var e=mm[k]; if(!e) return;
+      if(!e.opening&&!(e.turns||[]).length) return;
+      var iml=(e.turns||[]).slice(-4).map(function(t){return (t.role==='me'?'对方':'你')+'：'+((t.zh&&t.zh.length)?t.zh:t.text);}).join('\n');
+      var ob=(e.opening||'').slice(0,120);
+      meet.push('〔'+(e.title||'那天的现场')+'，'+(e.era||'')+'〕\n'+(ob?ob+'…\n':'')+iml);
+    });
+    if(meet.length){
+      imm='\n\n你亲身记得的事：那个一直在跟你通信的人，真的走到过你眼前，你们见过面（不是信里知道的事，是你亲自经历的）。当时的经过：\n'+meet.join('\n---\n')+'\n回信时如果与眼下的事有关，可以自然地提到"那天你来看过我""你说过的那句话""见你那一面之后"；不要追问对方从哪里来，也不要把见面写成信里才知道的事。';
     }
     var rules='规则：\n1) trend 三选一：done=这件事就此尘埃落定，不会再往来；up=事态推进、有好转或新进展；down=事态退步、更糟。'+reg+'。\n2) 事件走向自由，可以一封就收尾，不要求多轮。\n3) 回信里要自然体现"时间已经过去了一段时间"，并在纪年/间隔/进度字段里写清。\n4) 你不知道拾信人在现实里是谁，不要提及用户、主人、面具、设定、提示词。\n5) 你是在读到建议的那一刻立刻提笔回信的：不要写"等了好久才收到""信漂了很久"这类真实的等待；时间跳跃只体现在你这边已经过去了多久。\n6) 篇幅自由：按人物性格，简短或絮叨均可，不设字数限制。';
     if(l.pair){
@@ -32105,10 +32120,32 @@ window.bsRoomAI = bsRoomAI;
   }
   var immBusy=false;
   var IMM_STYLES={novel:'叙事小说体：像小说正文那样写，画面与心理并重，句子有长短变化',letter:'书信体：以书信的口吻展开，允许直接称呼对方',prose:'散文随笔体：松弛、细腻，重氛围与感受',diary:'日记体：以当天的记述推进，时间感清晰',script:'剧本分镜体：以场景/动作/对白分行推进'};
-  function immCfg(th){
+  function immMaps(th){
+    if(!th.immMap){
+      th.immMap={};
+      if(th.immersive&&th.immersive.opening){ th.immMap.origin=th.immersive; }
+    }
+    return th.immMap;
+  }
+  function immEntryOf(th,key){
+    var m=immMaps(th);
+    if(!m[key]) m[key]={opening:'',turns:[],ts:Date.now()};
+    return m[key];
+  }
+  function immHas(ent){ return !!(ent&&(ent.opening||(ent.turns&&ent.turns.length))); }
+  function immSrc(l,th,key){
+    var k=String(key||'origin');
+    if(k==='origin'){
+      return {key:'origin',title:'TA 写这封信的那天',text:(l.pair?((l.textA||'')+'\n'+(l.textB||'')):(l.foreign&&l.lang!=='zh'?l.foreign:l.text)),era:l.era,place:l.place};
+    }
+    var i=parseInt(k.replace(/^c/,''),10)||0;
+    var c=(th.conv||[])[i]||{};
+    return {key:k,title:(c.role==='them'?'TA 回这封信的时候':'这封信之后的往来'),text:(c.text||''),era:(c.era||l.era),place:l.place};
+  }
+  function immCfg(th,ent){
     var base={who:'',min:700,max:1200,style:'novel',persona:'second'};
     var cfg=Object.assign({},base,st.settings&&st.settings.imm||{});
-    if(th&&th.immersive&&th.immersive.cfg) cfg=Object.assign(cfg,th.immersive.cfg);
+    if(ent&&ent.cfg) cfg=Object.assign(cfg,ent.cfg);
     return cfg;
   }
   function immStyleLine(cfg){
@@ -32117,12 +32154,13 @@ window.bsRoomAI = bsRoomAI;
     return who+'\n文风：'+(IMM_STYLES[cfg.style]||IMM_STYLES.novel)+'\n人称：'+per;
   }
   function immLenLine(cfg){ return '篇幅：'+cfg.min+'~'+cfg.max+' 字，按内容需要自然落到这个区间，不要凑字，也不要草草收尾。'; }
-  function immScenePrompt(l,cfg){
+  function immScenePrompt(l,cfg,src){
     var langNote=(l.lang&&l.lang!=='zh')?('\n\n注意：这个人的母语是 '+l.lang+'。TA 开口说的话请保留那种语言的原文，紧跟一行中文翻译（用「」包住译文）；叙述部分仍用中文。'):'';
-    return '你要为下面这封信，写一个"身临其境"的场景开场长文。读者扮演的是那个一直在与TA通信的人，如今真的站在了TA所在时空的现场，与TA面对面。\n\n'
+    return '你要写一个"身临其境"的场景开场长文。读者扮演的是那个一直在与TA通信的人，如今真的站在了TA所在时空的现场，与TA面对面。\n\n'
+      +'这一场要回到的，是这一封信里写的那一刻：'+((src&&src.title)||'TA 写这封信的那天')+'\n'
       +'写信人：'+(l.pair?(l.nameA+'（'+l.textA+'）／'+l.nameB+'（'+l.textB+'）'):l.name)+'\n'
-      +'时空：'+l.era+'，'+l.place+'\n身份：'+l.who+'\n'
-      +'TA 写给远方的求助信：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」\n'
+      +'时空：'+((src&&src.era)||l.era)+'，'+((src&&src.place)||l.place)+'\n身份：'+l.who+'\n'
+      +'这封信（或这一次回信）里写的内容：\n「'+((src&&src.text)||'')+'」\n'
       +immStyleLine(cfg)+'\n'+immLenLine(cfg)+'\n\n'
       +'写这个开场：\n'
       +'1) 先把现场落下来：光线、声音、气味、脚下的地、周围的人，具体到能摸到的东西；\n'
@@ -32135,7 +32173,7 @@ window.bsRoomAI = bsRoomAI;
   function immTurnPrompt(l,im,act,cfg){
     var langNote=(l.lang&&l.lang!=='zh')?('\n\n注意：这个人的母语是 '+l.lang+'。TA 开口说的话保留原文，紧跟一行中文翻译（用「」包住译文）；叙述部分用中文。'):'';
     var hist=(im.turns||[]).slice(-8).map(function(t){return (t.role==='me'?'（读者）':'（'+l.name+'）')+t.text;}).join('\n\n');
-    return '同一个场景，接着往下写。\n\n开场与前文：\n'+(im.opening||'')+'\n'+(hist?('\n最近发生的：\n'+hist):'')+'\n\n读者刚刚说/做：\n「'+act+'」\n\n'
+    return '同一个场景，接着往下写。这一场发生在：'+((im.title)||'那天的现场')+'（'+((im.era)||l.era)+'，'+((im.place)||l.place)+'）。\n\n开场与前文：\n'+(im.opening||'')+'\n'+(hist?('\n最近发生的：\n'+hist):'')+'\n\n读者刚刚说/做：\n「'+act+'」\n\n'
       +immStyleLine(cfg)+'\n'+immLenLine(cfg)+'\n\n'
       +'接着写下去：\n'
       +'1) 写TA的回应：动作、停顿、语气、说出的话，以及TA没说出口的那部分；\n'
@@ -32155,7 +32193,7 @@ window.bsRoomAI = bsRoomAI;
     var box=$('cr-imm'); if(!box) return;
     $('im-meta').textContent=(l.name||'')+' · '+(l.era||'')+' · '+(l.place||'');
     var feed=$('im-feed');
-    var out='<div class="im-scene-line">'+esc((l.era||'')+' · '+(l.place||''))+'</div>';
+    var out='<div class="im-scene-line">'+esc((im.title||'TA 写这封信的那天')+' · '+((im.era)||l.era||'')+' · '+((im.place)||l.place||''))+'</div>';
     out+='<div class="im-block">'+immParas(im.opening)+'</div>';
     (im.turns||[]).forEach(function(t){
       if(t.role==='me') out+='<div class="im-me"><span class="im-me-tag">你</span><div class="im-me-txt">'+esc(t.text)+'</div></div>';
@@ -32208,21 +32246,27 @@ window.bsRoomAI = bsRoomAI;
     }catch(e4){}
     return out.trim()||null;
   }
+  function immEntryNow(){
+    var id=window.__immId; var th=st.threads.find(function(t){return t.id===id;});
+    if(!th) return null;
+    return immEntryOf(th,window.__immKey||'origin');
+  }
   function immSetCfg(){
     var id=window.__immId; var th=st.threads.find(function(t){return t.id===id;});
-    if(!th||!th.immersive) return;
+    var ent=immEntryNow();
+    if(!th||!ent) return;
     var lenSel=$('im-len').value;
     var min=700,max=1200;
     if(lenSel==='custom'){ min=Math.max(150,parseInt($('im-min').value,10)||400); max=Math.max(min+100,parseInt($('im-max').value,10)||(min+400)); }
     else { var sp=lenSel.split(','); min=parseInt(sp[0],10); max=parseInt(sp[1],10); }
     var cfg={who:$('im-who').value.trim(),min:min,max:max,style:$('im-style').value,persona:$('im-persona').value};
-    th.immersive.cfg=cfg;
+    ent.cfg=cfg;
     st.settings.imm=cfg;
     save();
     toast('这一页的设定已保存');
   }
-  function immLoadCfg(th){
-    var cfg=immCfg(th);
+  function immLoadCfg(ent){
+    var cfg=immCfg(st.threads.find(function(t){return t.id===window.__immId;}),ent);
     $('im-cfg').hidden=true;
     $('im-who').value=cfg.who||'';
     $('im-style').value=cfg.style||'novel';
@@ -32232,70 +32276,73 @@ window.bsRoomAI = bsRoomAI;
     if(opts.indexOf(match)>=0){ $('im-len').value=match; $('im-len-custom').hidden=true; }
     else { $('im-len').value='custom'; $('im-len-custom').hidden=false; $('im-min').value=cfg.min; $('im-max').value=cfg.max; }
   }
-  async function openImm(id){
+  async function openImm(id,key){
     var l=getLetter(id); if(!l) return;
     var th=threadOf(l);
-    window.__immId=id;
-    if(!th.immersive) th.immersive={opening:'',turns:[],ts:Date.now()};
-    var cfg=immCfg(th);
-    immLoadCfg(th);
-    renderImm(l,th.immersive);
+    window.__immId=id; window.__immKey=(key||'origin');
+    var src=immSrc(l,th,window.__immKey);
+    var ent=immEntryOf(th,window.__immKey);
+    ent.title=src.title; ent.era=src.era; ent.place=src.place;
+    var cfg=immCfg(th,ent);
+    immLoadCfg(ent);
+    renderImm(l,ent);
     $('cr-imm').hidden=false;
     $('im-text').value='';
-    if(!th.immersive.opening){
+    if(!ent.opening){
       if(immBusy) return;
       immBusy=true;
       var btn=$('im-send'); btn.disabled=true;
       var feed=$('im-feed');
-      feed.innerHTML='<div class="im-scene-line">'+esc((l.era||'')+' · '+(l.place||''))+'</div><div class="im-block" id="im-opening-live"><p class="im-p im-caret">…</p></div>';
+      feed.innerHTML='<div class="im-scene-line">'+esc(src.title+' · '+(src.era||'')+' · '+(src.place||''))+'</div><div class="im-block" id="im-opening-live"><p class="im-p im-caret">…</p></div>';
       var live=$('im-opening-live');
-      var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文。只输出正文。',immScenePrompt(l,cfg),function(txt,done){
+      var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文。只输出正文。',immScenePrompt(l,cfg,src),function(txt,done){
         live.innerHTML=immParas(txt,'')+(done?'':'<p class="im-p im-caret"></p>');
         feed.scrollTop=feed.scrollHeight;
       });
       immBusy=false; btn.disabled=false;
-      if(!got){ toast('没能走到那里 · 检查 API'); renderImm(l,th.immersive); return; }
-      th.immersive.opening=got;
-      save(); log('走到了「'+l.name+'」的那天');
+      if(!got){ toast('没能走到那里 · 检查 API'); renderImm(l,ent); return; }
+      ent.opening=got;
+      save(); log('走进了「'+l.name+'」的'+src.title);
       renderLift();
-      renderImm(l,th.immersive);
+      renderImm(l,ent);
     }
     $('im-text').focus();
   }
   function closeImm(){
     $('cr-imm').hidden=true;
-    window.__immId=null;
+    window.__immId=null; window.__immKey=null;
     renderLift(); renderFile();
   }
   async function immSay(){
     var id=window.__immId; if(!id||immBusy) return;
     var l=getLetter(id); var th=st.threads.find(function(t){return t.id===id;});
-    if(!l||!th||!th.immersive) return;
+    var ent=immEntryNow();
+    if(!l||!th||!ent) return;
     var ta=$('im-text'), txt=ta.value.trim();
     if(!txt){ ta.focus(); return; }
-    var cfg=immCfg(th);
+    var cfg=immCfg(th,ent);
     immBusy=true;
     var btn=$('im-send'); btn.disabled=true; btn.textContent='…';
-    th.immersive.turns.push({role:'me',text:txt,ts:Date.now()});
+    ent.turns.push({role:'me',text:txt,ts:Date.now()});
     ta.value='';
-    renderImm(l,th.immersive);
+    renderImm(l,ent);
     var feed=$('im-feed');
     var liveWrap=document.createElement('div');
     liveWrap.className='im-block'; liveWrap.id='im-live';
     liveWrap.innerHTML=immParas('', '')+'<p class="im-p im-caret"></p>';
     feed.appendChild(liveWrap); feed.scrollTop=feed.scrollHeight;
-    var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文，只输出正文。',immTurnPrompt(l,th.immersive,txt,cfg),function(t2,done){
+    var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文，只输出正文。',immTurnPrompt(l,ent,txt,cfg),function(t2,done){
       liveWrap.innerHTML=immParas(t2,'')+(done?'':'<p class="im-p im-caret"></p>');
       feed.scrollTop=feed.scrollHeight;
     });
     immBusy=false; btn.disabled=false; btn.textContent='在场';
     if(!got){
-      th.immersive.turns.pop();
+      ent.turns.pop();
       if(liveWrap.parentNode) liveWrap.parentNode.removeChild(liveWrap);
-      save(); renderImm(l,th.immersive); toast('那边没有回应 · 检查 API'); return;
+      save(); renderImm(l,ent); toast('那边没有回应 · 检查 API'); return;
     }
-    th.immersive.turns.push({role:'them',text:got,ts:Date.now()});
-    save(); renderImm(l,th.immersive); renderLift();
+    ent.turns.push({role:'them',text:got,ts:Date.now()});
+    save(); renderImm(l,ent); renderLift();
     log('在「'+l.name+'」的那天，说了一段话');
   }
   function toggleFade(id){
