@@ -30691,6 +30691,25 @@ window.bsRoomAI = bsRoomAI;
 .cr-pair-names{font-family:var(--tp-font);font-size:13px;color:#1b1a17;line-height:1.8;}
 .cr-pair-block{margin-bottom:10px;}
 .cr-pair-block .who{font-size:10px;color:#9a968c;font-family:var(--tp-font);margin-bottom:3px;}
+.cr-imm{position:fixed;inset:0;z-index:70;background:var(--cr-paper,#fffef9);display:flex;flex-direction:column;padding:0 0 env(safe-area-inset-bottom);}
+.cr-imm[hidden]{display:none;}
+.im-top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #e8e3d6;}
+.im-back{background:none;border:none;font-family:var(--tp-font);font-size:12px;color:#6f6a60;letter-spacing:1px;padding:0;}
+.im-meta{font-family:var(--tp-font);font-size:10.5px;color:#9a968c;letter-spacing:1px;text-align:right;line-height:1.7;}
+.im-scene{font-family:var(--tp-font);font-size:12.5px;line-height:2;color:#5d5951;padding:16px 20px 12px;border-bottom:1px dashed #e8e3d6;white-space:pre-wrap;}
+.im-feed{flex:1;overflow-y:auto;padding:16px 20px 8px;-webkit-overflow-scrolling:touch;}
+.im-line{margin-bottom:16px;}
+.im-line .who{font-family:var(--tp-font);font-size:10px;letter-spacing:2px;color:#a8342b;margin-bottom:5px;}
+.im-line .say{font-family:var(--tp-font);font-size:13px;line-height:2;color:#1b1a17;white-space:pre-wrap;}
+.im-line.me .who{color:#7d7a72;}
+.im-line.me .say{color:#4a4841;font-size:12.5px;}
+.im-zh{font-size:11px;line-height:1.9;color:#8e8a80;margin-top:4px;padding-left:1px;}
+.im-beat{font-family:var(--tp-font);font-size:11px;color:#a8a396;letter-spacing:1px;line-height:1.9;margin:0 0 14px;padding-left:10px;border-left:2px solid #efeade;}
+.im-input{display:flex;gap:8px;padding:12px 16px 16px;border-top:1px solid #e8e3d6;align-items:flex-end;}
+.im-input textarea{flex:1;min-height:44px;max-height:110px;border:1px solid #dfd9ca;background:#fffdf7;font-family:var(--tp-font);font-size:12.5px;line-height:1.9;color:#2f2d29;padding:9px 11px;border-radius:2px;resize:none;outline:none;}
+.im-send{background:#1b1a17;color:#f4f1e8;border:none;font-family:var(--tp-font);font-size:12px;letter-spacing:2px;padding:12px 16px;border-radius:2px;}
+.im-send:disabled{opacity:.5;}
+.cr-tag.cr-imm-tag{color:#8a5a2b;border-color:#e2cbb2;}
 .cr-tag.cr-anchor{color:#3d5a52;border-color:#b8cbc3;}
 .cr-tag.cr-pair{color:#6b4f8a;border-color:#d6c9e6;}
 .cr-file-filters[hidden]{display:none;}
@@ -31413,6 +31432,18 @@ window.bsRoomAI = bsRoomAI;
     <p class="cr-note" style="margin-top:18px">所有信件与回信均由 API 实时生成，不内置任何内容。</p>
   </main>
 </div>
+<div class="cr-imm" id="cr-imm" hidden>
+  <div class="im-top">
+    <button class="im-back" id="im-back">← 回到信笺</button>
+    <div class="im-meta" id="im-meta"></div>
+  </div>
+  <div class="im-scene" id="im-scene"></div>
+  <div class="im-feed" id="im-feed"></div>
+  <div class="im-input">
+    <textarea id="im-text" placeholder="说点什么，或者做点什么…"></textarea>
+    <button class="im-send" id="im-send">在场</button>
+  </div>
+</div>
 <div class="tp-modal" id="cr-modal" hidden><div class="tp-msheet" id="cr-msheet"></div></div>
 <div class="toast" id="cr-toast"></div>
 
@@ -31599,7 +31630,7 @@ window.bsRoomAI = bsRoomAI;
       var th=thById(l.id);
       var conv=th&&th.conv?th.conv:[];
       var stateText=th&&th.state==='done'?'尘埃落定':'';
-      var tags='<span class="cr-tag">'+(l.echo?'回音':'十字路口')+'</span>'+(l.fromChar?'<span class="cr-tag cr-char">熟悉的人</span>':'')+(l.crack?'<span class="cr-tag cr-crack">裂隙</span>':'')+(l.pair?'<span class="cr-tag cr-pair">双歧路共信</span>':'')+(l.anchorEcho?'<span class="cr-tag cr-anchor">锚点回响</span>':'')+(th&&th.sleepUntil?'<span class="cr-tag cr-sleep">搁置中</span>':'');
+      var tags='<span class="cr-tag">'+(l.echo?'回音':'十字路口')+'</span>'+(l.fromChar?'<span class="cr-tag cr-char">熟悉的人</span>':'')+(l.crack?'<span class="cr-tag cr-crack">裂隙</span>':'')+(l.pair?'<span class="cr-tag cr-pair">双歧路共信</span>':'')+(l.anchorEcho?'<span class="cr-tag cr-anchor">锚点回响</span>':'')+(th&&th.immersive&&th.immersive.turns&&th.immersive.turns.length?'<span class="cr-tag cr-imm-tag">到过那里</span>':'')+(th&&th.sleepUntil?'<span class="cr-tag cr-sleep">搁置中</span>':'');
       var fcls=(l.lang==='ja')?'foreign foreign-ja':((l.lang==='ru')?'foreign foreign-ru':'foreign');
       var body='', salute='', rest='';
       if(l.pair){
@@ -31632,11 +31663,13 @@ window.bsRoomAI = bsRoomAI;
       if(th&&th.state==='done'){
         var btns='<button class="act-btn" data-act="epilogue" data-lid="'+esc(l.id)+'">'+(th.epilogue?'回看后来':'后来听说')+'</button>';
         if(st.settings.parallel) btns+='<button class="act-btn" data-act="parallel" data-lid="'+esc(l.id)+'">另一条时间线</button>';
+        btns+='<button class="act-btn" data-act="imm" data-lid="'+esc(l.id)+'">'+(th.immersive&&th.immersive.turns&&th.immersive.turns.length?'回到那里':'身临其境')+'</button>';
         btns+='<button class="act-btn" data-act="fade" data-lid="'+esc(l.id)+'">'+(th.faded?'恢复':'褪色')+'</button>';
         if(st.settings.anchor) btns+='<button class="act-btn" data-act="anchor" data-lid="'+esc(l.id)+'">'+(th.anchor?'锚点已埋下':'种下锚点')+'</button>';
         actRow='<div class="act-row">'+btns+'</div>';
       } else {
         actRow='<div class="cr-advice"><textarea data-adv="'+esc(l.id)+'" placeholder="写下你的建议，直接回给这个时空的人…"></textarea><div class="row"><input data-aitem="'+esc(l.id)+'" placeholder="附物（可空）"><button data-send="'+esc(l.id)+'">送出建议</button></div></div>'+
+          '<div class="act-row"><button class="act-btn" data-act="imm" data-lid="'+esc(l.id)+'">'+(th&&th.immersive&&th.immersive.turns&&th.immersive.turns.length?'回到那里':'身临其境')+'</button></div>'+
           ((th&&th.conv&&th.conv.length)?'<div class="act-row"><button class="act-btn" data-act="sleep" data-lid="'+esc(l.id)+'">'+(th.sleepUntil?'唤醒':'封存搁置')+'</button></div>':'');
       }
       var envCls=(th&&th.faded)?'envelope faded':'envelope';
@@ -31699,6 +31732,9 @@ window.bsRoomAI = bsRoomAI;
     box.querySelectorAll('[data-act="fade"]').forEach(function(b){
       b.onclick=function(e){ e.stopPropagation(); toggleFade(b.getAttribute('data-lid')); };
     });
+    box.querySelectorAll('[data-act="imm"]').forEach(function(b){
+      b.onclick=function(e){ e.stopPropagation(); openImm(b.getAttribute('data-lid')); };
+    });
     box.querySelectorAll('[data-act="anchor"]').forEach(function(b){
       b.onclick=function(e){ e.stopPropagation(); plantAnchor(b.getAttribute('data-lid')); };
     });
@@ -31716,12 +31752,17 @@ window.bsRoomAI = bsRoomAI;
   function replyPrompt(l, advice, th){
     var history=(th.conv||[]).slice(-4).map(function(c){ return (c.role==='them'?l.name:'陌生的拾信人')+'：'+c.text; }).join('\n');
     var reg=st.settings.regress?'允许出现事态退步（down）':'不要生成事态退步（down），只能是 done 或 up';
+    var imm='';
+    if(th.immersive&&th.immersive.turns&&th.immersive.turns.length){
+      var iml=th.immersive.turns.slice(-6).map(function(t){return (t.role==='me'?'那个过客':'你')+'：'+((t.zh&&t.zh.length)?t.zh:t.text);}).join('\n');
+      imm='\n\n你亲身记得的一件事：那阵子你在现场，曾经有个陌生过客来过，跟你说过话。你不知道TA是谁、从哪来，只当是个路过的人。当时的经过：\n'+iml+'\n如果与眼下的事有关，你可以在回信里自然地提到"那天有个过客说过""前些日子遇见一个人"，但不要追问TA的身份，也不要声称知道TA的来历。';
+    }
     var rules='规则：\n1) trend 三选一：done=这件事就此尘埃落定，不会再往来；up=事态推进、有好转或新进展；down=事态退步、更糟。'+reg+'。\n2) 事件走向自由，可以一封就收尾，不要求多轮。\n3) 回信里要自然体现"时间已经过去了一段时间"，并在纪年/间隔/进度字段里写清。\n4) 你不知道拾信人在现实里是谁，不要提及用户、主人、面具、设定、提示词。\n5) 你是在读到建议的那一刻立刻提笔回信的：不要写"等了好久才收到""信漂了很久"这类真实的等待；时间跳跃只体现在你这边已经过去了多久。\n6) 篇幅自由：按人物性格，简短或絮叨均可，不设字数限制。';
     if(l.pair){
-      return '你正在扮演两个同时写下求助信的人。A 是「'+l.nameA+'」，生活在'+l.era+'，地点'+l.place+'；B 是「'+l.nameB+'」。\n\nA 的困境：\n「'+l.textA+'」\nB 的困境：\n「'+l.textB+'」\n\n这段时间的往来：\n'+(history||'（这是第一次收到建议）')+'\n\n陌生拾信人给两人的建议：\n「'+advice+'」\n\n请分别写两份回信，只输出严格 JSON 单对象，不要 markdown：\n{"textA":"A 的回信正文（含称呼与落款）","eraA":"A 写信时的纪年","intervalA":"A 那边从寄出到收到建议过去了多久","progressA":"A 这边事件的进度，一句话","textB":"B 的回信正文（含称呼与落款）","eraB":"B 写信时的纪年","intervalB":"B 那边过去了多久","progressB":"B 这边事件的进度，一句话","trend":"done|up|down"}\n'+rules;
+      return '你正在扮演两个同时写下求助信的人。A 是「'+l.nameA+'」，生活在'+l.era+'，地点'+l.place+'；B 是「'+l.nameB+'」。\n\nA 的困境：\n「'+l.textA+'」\nB 的困境：\n「'+l.textB+'」\n\n这段时间的往来：\n'+(history||'（这是第一次收到建议）')+'\n\n陌生拾信人给两人的建议：\n「'+advice+'」\n\n请分别写两份回信，只输出严格 JSON 单对象，不要 markdown：\n{"textA":"A 的回信正文（含称呼与落款）","eraA":"A 写信时的纪年","intervalA":"A 那边从寄出到收到建议过去了多久","progressA":"A 这边事件的进度，一句话","textB":"B 的回信正文（含称呼与落款）","eraB":"B 写信时的纪年","intervalB":"B 那边过去了多久","progressB":"B 这边事件的进度，一句话","trend":"done|up|down"}\n'+rules+imm;
     }
     var opts=(!l.open&&(l.optionA||l.optionB))?('\nTA 给出的两条路：A：'+l.optionA+' ／ B：'+l.optionB):'\nTA 没有给出固定选项，只是诉说困境。';
-    return '你正在扮演「'+l.name+'」——生活在'+l.era+'，地点'+l.place+'，身份是'+l.who+'。你曾写下一封求助信，如今收到了来自某个时空的陌生拾信人的建议。\n\n你的求助信：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」'+opts+'\n\n这段时间的往来：\n'+(history||'（这是第一次收到建议）')+'\n\n对方的建议：\n「'+advice+'」\n\n请写一封回信，只输出严格 JSON 单对象，不要 markdown：\n{"text":"回信正文（含称呼与落款）","era":"你写信时所在时空的纪年","interval":"从你寄出求助信到收到建议，你的时空过去了多久（如 三个月／十星周／两年）","progress":"这件事目前的进度，一句话，不剧透式收尾","trend":"done|up|down"}\n'+rules;
+    return '你正在扮演「'+l.name+'」——生活在'+l.era+'，地点'+l.place+'，身份是'+l.who+'。你曾写下一封求助信，如今收到了来自某个时空的陌生拾信人的建议。\n\n你的求助信：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」'+opts+'\n\n这段时间的往来：\n'+(history||'（这是第一次收到建议）')+'\n\n对方的建议：\n「'+advice+'」\n\n请写一封回信，只输出严格 JSON 单对象，不要 markdown：\n{"text":"回信正文（含称呼与落款）","era":"你写信时所在时空的纪年","interval":"从你寄出求助信到收到建议，你的时空过去了多久（如 三个月／十星周／两年）","progress":"这件事目前的进度，一句话，不剧透式收尾","trend":"done|up|down"}\n'+rules+imm;
   }
 
   async function sendAdvice(id){
@@ -32004,6 +32045,84 @@ window.bsRoomAI = bsRoomAI;
       };
     });
   }
+  var immBusy=false;
+  function immParse(t){
+    if(!t) return null;
+    var s=String(t).trim().replace(/^```[a-z]*/i,'').replace(/```$/,'').trim();
+    var a=s.indexOf('{'), b=s.lastIndexOf('}');
+    if(a>=0&&b>a) s=s.slice(a,b+1);
+    try{ var o=JSON.parse(s); return (o&&typeof o==='object'&&!Array.isArray(o))?o:null; }catch(e){ return null; }
+  }
+  function immScenePrompt(l){
+    var langNote=(l.lang&&l.lang!=='zh')?('\n\n注意：这封信的原文语言是 '+l.lang+'，当事人平时说这种语言。opening 请用那种语言的原文写，并额外给出 openingZh 字段作中文翻译；scene 与 moment 仍用中文。'):'';
+    return '你要为下面这封信生成一个"身临其境"的开场场景。读者会以某个刚好在场的陌生过客的身份走进这个场景，在场的当事人不会怀疑这个人的来历，也不会追问他是谁。\n\n写信人：'+(l.pair?(l.nameA+'（'+l.textA+'）／'+l.nameB+'（'+l.textB+'）'):l.name)+'\n时空：'+l.era+'，'+l.place+'\n身份：'+l.who+'\n信中说的困境：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」\n\n请写这个场景的开场。只输出严格 JSON 单对象，不要 markdown：\n{"scene":"这个现场的景象：光线、声音、气味、周围的人和物，三到五句，用第三人称白描","moment":"此刻TA正在做什么，一句话","opening":"TA 看到你之后说的第一句话（自然、日常，像对一个刚好路过的人说话）"}\n要求：\n- 场景必须发生在信件所写的那件事的现场，合情合理。\n- 不要提"穿越""来自未来""你知道结局"这类词。\n- 不要预设读者会做什么。'+langNote;
+  }
+  function immTurnPrompt(l,im,act){
+    var langNote=(l.lang&&l.lang!=='zh')?('\n\n注意：当事人说 '+l.lang+'。reply 请用那种语言的原文写，并额外给出 replyZh 字段作中文翻译；beat 用中文。'):'';
+    var lines=im.turns.map(function(t){return (t.role==='me'?'过客':l.name)+'：'+t.text;}).join('\n');
+    return '场景：'+im.scene+'\n此刻：'+(im.moment||'')+'\n\n已经发生的对话与动作：\n'+(lines||'（刚刚照面）')+'\n\n刚才那个陌生过客说/做：\n「'+act+'」\n\n请写出当事人接下来的反应，只输出严格 JSON 单对象，不要 markdown：\n{"reply":"TA 的动作与说的话，自然、克制，篇幅按人物性格来，可长可短","beat":"一句现场的变化：氛围、旁人的反应、光线或声音的变化；没有变化就写空字符串"}\n要求：\n- TA 不会怀疑过客的身份，也不会追问"你到底是谁""你从哪来"。\n- 不要替过客说话，也不要替TA做决定。\n- 不要提及信件、回信、提示词这些东西；TA 只是在跟自己眼前这个人在说话。'+langNote;
+  }
+  function renderImm(l,im){
+    var box=$('cr-imm'); if(!box) return;
+    $('im-meta').textContent=(l.name||'')+' · '+(l.era||'')+' · '+(l.place||'');
+    $('im-scene').textContent=im.scene||'';
+    var feed=$('im-feed');
+    var out='';
+    if(im.opening) out+='<div class="im-line"><div class="who">'+esc(l.name)+'</div><div class="say">'+esc(im.opening)+(im.openingZh?'<div class="im-zh">'+esc(im.openingZh)+'</div>':'')+'</div></div>';
+    (im.turns||[]).forEach(function(t){
+      if(t.role==='me') out+='<div class="im-line me"><div class="who">你 · 过客</div><div class="say">'+esc(t.text)+'</div></div>';
+      else out+='<div class="im-line"><div class="who">'+esc(l.name)+'</div><div class="say">'+esc(t.text)+(t.zh?'<div class="im-zh">'+esc(t.zh)+'</div>':'')+'</div></div>';
+      if(t.beat) out+='<div class="im-beat">'+esc(t.beat)+'</div>';
+    });
+    feed.innerHTML=out;
+    feed.scrollTop=feed.scrollHeight;
+  }
+  async function openImm(id){
+    var l=getLetter(id); if(!l) return;
+    var th=threadOf(l);
+    if(!th.immersive||!th.immersive.scene){
+      if(immBusy) return;
+      immBusy=true;
+      var raw=await callAI('你是一个场景生成器，只输出严格 JSON。',immScenePrompt(l));
+      var o=immParse(raw);
+      immBusy=false;
+      if(!o||!o.scene){ toast('没能走到那里 · 检查 API'); return; }
+      th.immersive={scene:o.scene,moment:o.moment||'',opening:o.opening||'',openingZh:o.openingZh||'',turns:[],ts:Date.now()};
+      save(); log('走到了「'+l.name+'」的那天');
+      renderLift();
+    }
+    renderImm(l,th.immersive);
+    $('cr-imm').hidden=false;
+    $('im-text').value='';
+    $('im-text').focus();
+    window.__immId=id;
+  }
+  function closeImm(){
+    $('cr-imm').hidden=true;
+    window.__immId=null;
+    renderLift(); renderFile();
+  }
+  async function immSay(){
+    var id=window.__immId; if(!id||immBusy) return;
+    var l=getLetter(id); var th=st.threads.find(function(t){return t.id===id;});
+    if(!l||!th||!th.immersive) return;
+    var ta=$('im-text'), txt=ta.value.trim();
+    if(!txt){ ta.focus(); return; }
+    immBusy=true;
+    var btn=$('im-send'); btn.disabled=true; btn.textContent='…';
+    th.immersive.turns.push({role:'me',text:txt,ts:Date.now()});
+    ta.value='';
+    renderImm(l,th.immersive); save();
+    var raw=await callAI('你是一个场景演绎者，只输出严格 JSON。',immTurnPrompt(l,th.immersive,txt));
+    var o=immParse(raw);
+    var reply=o&&(o.reply||o.text)?(o.reply||o.text):null;
+    var beat=o&&o.beat?o.beat:'';
+    immBusy=false; btn.disabled=false; btn.textContent='在场';
+    if(!reply){ toast('那边没有回应 · 检查 API'); return; }
+    th.immersive.turns.push({role:'them',text:reply,zh:(o&&o.replyZh)||'',beat:beat,ts:Date.now()});
+    save(); renderImm(l,th.immersive); renderLift();
+    log('在「'+l.name+'」的那天与TA说了话');
+  }
   function toggleFade(id){
     var th=st.threads.find(function(x){return x.id===id;}); if(!th) return;
     if(th.state!=='done'){ toast('落幕之后才能褪色'); return; }
@@ -32096,6 +32215,9 @@ window.bsRoomAI = bsRoomAI;
 
   function bind(){
     $('cr-back').onclick=close;
+    if($('im-back')) $('im-back').onclick=closeImm;
+    if($('im-send')) $('im-send').onclick=immSay;
+    if($('im-text')) $('im-text').onkeydown=function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); immSay(); } };
     $('cr-lift').onclick=function(){ $('cr-lift').style.display=''; lift(); };
     $('cr-relift').onclick=function(){ st.current=null; save(); renderLift(); lift(); };
     $('cr-p-send').onclick=sendPost;
