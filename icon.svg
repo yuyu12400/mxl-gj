@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fdf3f6"/>
+      <stop offset="1" stop-color="#f7dce5"/>
+    </linearGradient>
+    <linearGradient id="pan" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d96a86"/>
+      <stop offset="1" stop-color="#c45370"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <!-- 锅身 -->
+  <path d="M120 300 a136 136 0 0 0 272 0 Z" fill="url(#pan)"/>
+  <!-- 锅柄 -->
+  <rect x="392" y="240" width="76" height="26" rx="13" fill="#c45370"/>
+  <rect x="468" y="236" width="22" height="34" rx="11" fill="#e9a7b8"/>
+  <!-- 锅内食物：辣椒与小料 -->
+  <g fill="#f26d4f">
+    <path d="M198 232 q16 -26 34 0 q-3 30 -20 32 q-15 2 -14 -32 Z"/>
+    <path d="M262 212 q14 -22 30 0 q-2 26 -17 28 q-13 2 -13 -28 Z"/>
+  </g>
+  <g fill="#f6b352">
+    <circle cx="252" cy="272" r="10"/>
+    <circle cx="226" cy="300" r="9"/>
+    <circle cx="296" cy="292" r="11"/>
+    <circle cx="270" cy="320" r="9"/>
+  </g>
+  <g fill="#8fce98">
+    <path d="M150 320 q18 -26 40 -6 q-22 26 -40 6 Z"/>
+    <path d="M334 300 q18 -20 36 -2 q-20 20 -36 2 Z"/>
+  </g>
+  <!-- 蒸汽 -->
+  <path d="M150 150 q10 -24 -2 -44 M204 132 q12 -22 2 -40 M258 124 q12 -20 2 -38" stroke="#e9a7b8" stroke-width="14" stroke-linecap="round" fill="none"/>
+</svg>
