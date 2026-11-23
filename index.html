@@ -30859,10 +30859,24 @@ window.bsRoomAI = bsRoomAI;
   }
   function parseObj(t){
     if(!t) return null;
-    var s=String(t).trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+    var s=String(t).trim().replace(/^```[a-z]*/i,'').replace(/```$/,'').trim();
     var a=s.indexOf('{'), b=s.lastIndexOf('}');
     if(a>=0&&b>a) s=s.slice(a,b+1);
-    try{var o=JSON.parse(s); return (o&&o.name)?o:null;}catch(e){return null;}
+    var o=null;
+    try{ o=JSON.parse(s); }catch(e){ o=null; }
+    if(o&&typeof o==='object'&&!Array.isArray(o)){
+      var txt=o.text||o.reply||o.content||o.body||o.letter||o.answer||o.message||o['回信']||o['正文']||o['回信正文'];
+      if(txt) o.text=String(txt).replace(/\\n/g,'\n');
+      if(!o.name){ o.name=o.who||o.author||o['姓名']||''; }
+      if(!o.era){ o.era=o.year||o.time||o.when||o['纪年']||o['年代']||''; }
+      if(!o.interval){ o.interval=o.elapsed||o.gap||o['间隔']||o['时长']||''; }
+      if(!o.progress){ o.progress=o.state||o.status||o['进度']||''; }
+      if(!o.trend){ o.trend=o.outcome||o.result||o['走向']||''; }
+      if(o.text||o.name) return o;
+    }
+    var raw=String(t).replace(/```[a-z]*/gi,'').trim();
+    if(raw && raw!=='{}') return {text:raw.replace(/\\n/g,'\n')};
+    return null;
   }
   async function callAI(sys,user){
     var c=window.db&&window.db.apiSettings;
@@ -31434,10 +31448,24 @@ window.bsRoomAI = bsRoomAI;
   }
   function parseObj(t){
     if(!t) return null;
-    var s=String(t).trim().replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
+    var s=String(t).trim().replace(/^```[a-z]*/i,'').replace(/```$/,'').trim();
     var a=s.indexOf('{'), b=s.lastIndexOf('}');
     if(a>=0&&b>a) s=s.slice(a,b+1);
-    try{var o=JSON.parse(s); return (o&&(o.text||o.name))?o:null;}catch(e){return null;}
+    var o=null;
+    try{ o=JSON.parse(s); }catch(e){ o=null; }
+    if(o&&typeof o==='object'&&!Array.isArray(o)){
+      var txt=o.text||o.reply||o.content||o.body||o.letter||o.answer||o.message||o['回信']||o['正文']||o['回信正文'];
+      if(txt) o.text=String(txt).replace(/\\n/g,'\n');
+      if(!o.name){ o.name=o.who||o.author||o['姓名']||''; }
+      if(!o.era){ o.era=o.year||o.time||o.when||o['纪年']||o['年代']||''; }
+      if(!o.interval){ o.interval=o.elapsed||o.gap||o['间隔']||o['时长']||''; }
+      if(!o.progress){ o.progress=o.state||o.status||o['进度']||''; }
+      if(!o.trend){ o.trend=o.outcome||o.result||o['走向']||''; }
+      if(o.text||o.name) return o;
+    }
+    var raw=String(t).replace(/```[a-z]*/gi,'').trim();
+    if(raw && raw!=='{}') return {text:raw.replace(/\\n/g,'\n')};
+    return null;
   }
   function charList(){
     return (st.settings.chars&&window.db&&window.db.characters)?window.db.characters:[];
@@ -31640,7 +31668,7 @@ window.bsRoomAI = bsRoomAI;
     var raw=await callAI('你是一个只会输出严格 JSON 的信件生成器。', replyPrompt(l,txt,th));
     var o=parseObj(raw);
     busy=false;
-    if(!o){ toast('回信未送达 · 接口未接通'); renderLift(); return; }
+    if(!o||!o.text){ toast('回信回来了，但没解析出内容'); renderLift(); return; }
     if(!st.settings.regress && o.trend==='down'){ o.trend='up'; if(o.progress) o.progress=String(o.progress).replace(/更糟|恶化|退步|失败/g,'出现转机'); }
     pending={letter:l, thread:th, data:o, advice:txt};
     showReply(l,o);
@@ -31649,7 +31677,11 @@ window.bsRoomAI = bsRoomAI;
   function showReply(l,o){
     var m=$('cr-modal'), sh=$('cr-msheet');
     sh.classList.remove('burn'); sh.style.background=st.paper;
-    var trend={'done':'尘埃落定','up':'事态推进','down':'事态退步'}[o.trend]||'';
+    var trk=String(o.trend||'').toLowerCase();
+    trk=/done|尘埃|落定|定局|结束/.test(trk)?'done':(/down|退|恶|糟/.test(trk)?'down':'up');
+    if(!st.settings.regress && trk==='down') trk='up';
+    o.trend=trk;
+    var trend={'done':'尘埃落定','up':'事态推进','down':'事态退步'}[trk]||'';
     sh.innerHTML='<div class="mhead">回信 · '+esc(l.name)+'</div>'+
       '<div class="mtext">'+esc(o.text||'')+'</div>'+
       '<div class="cr-meta" style="margin-top:14px"><span class="k">回信 · '+esc(o.era||l.era)+'</span>（对方那边，已过去 '+esc(o.interval||'不明')+'）</div>'+
@@ -31666,6 +31698,8 @@ window.bsRoomAI = bsRoomAI;
       if(o.trend==='done') st.mark.done++; else if(o.trend==='up') st.mark.up++; else if(o.trend==='down') st.mark.down++;
       save(); m.hidden=true; pending=null;
       renderLift(); renderFile(); renderSettings();
+      var env=document.querySelector('[data-env="'+l.id+'"]');
+      if(env){ var bd=env.querySelector('.env-body'); if(bd) bd.hidden=false; var ca=env.querySelector('.env-caret'); if(ca) ca.textContent='\u25b4'; env.scrollIntoView({behavior:'smooth',block:'start'}); }
       log('给「'+l.name+'」送出建议，'+(o.interval||'')+'后回信，'+(trend||''));
       toast('回信已收下');
     };
