@@ -30665,6 +30665,13 @@ window.bsRoomAI = bsRoomAI;
 .cr-post-item .reply{margin-top:8px;padding:9px 11px;background:var(--cr-paper);border:1px solid #e8e3d6;font-family:var(--tp-font);font-size:12px;line-height:1.9;white-space:pre-wrap;color:#3a3833;}
 .cr-post-item .reply .h{font-size:9px;letter-spacing:2px;color:#a8342b;margin-bottom:5px;font-family:var(--tp-font);}
 .drift-letter{margin-bottom:14px;padding:12px 13px;border:1px solid #e8e3d6;background:#fffdf7;border-radius:2px;}
+.dl-head{display:flex;align-items:flex-start;justify-content:space-between;cursor:pointer;}
+.dl-head .msalute{margin:0;}
+.dl-caret{font-size:10px;color:#a8a396;padding-left:10px;}
+.dl-body[hidden]{display:none;}
+.rp-h{cursor:pointer;display:flex;align-items:flex-start;justify-content:space-between;gap:8px;}
+.rp-caret{font-size:9px;color:#c0a49e;}
+.rp-body[hidden]{display:none;}
 .drift-letter:last-of-type{margin-bottom:6px;}
 .cr-set-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px dashed #e8e3d6;font-family:var(--tp-font);font-size:12px;color:#3a3833;}
 .cr-set-item input[type=range]{width:150px;}
@@ -31828,24 +31835,35 @@ window.bsRoomAI = bsRoomAI;
   }
 
   function makeEcho(p,o){
-    return {id:'echo_'+Date.now()+'_'+Math.floor(Math.random()*99),echo:true,echoText:String(p.text||'').slice(0,80),to:'你',name:o.name||'拾信人',era:o.era||'年代不明',place:o.place||'',who:o.who||'捡到信的人',lang:'zh',foreign:'',text:o.text||'',item:'',date:o.era||'',optionA:'',optionB:'',open:true,fromChar:'',crack:false,state:'waiting',conv:[],progress:o.progress||'',interval:o.interval||'',createdAt:Date.now()};
+    return {id:'echo_'+Date.now()+'_'+Math.floor(Math.random()*99),echo:true,echoText:String(p.text||'').slice(0,80),to:'你',name:o.name||'拾信人',era:o.era||'年代不明',place:o.place||'',who:o.who||'捡到信的人',lang:o.lang||'zh',foreign:o.foreign||'',text:o.text||'',item:'',date:o.era||'',optionA:'',optionB:'',open:true,fromChar:'',crack:false,state:'waiting',conv:[],progress:o.progress||'',interval:o.interval||'',createdAt:Date.now()};
   }
   function showDriftReplies(p,arr){
     var m=$('cr-modal'), sh=$('cr-msheet');
     sh.classList.remove('burn'); sh.style.background=st.paper;
     var cards=arr.map(function(o,i){
+      var fcls=(o.lang==='ja')?'foreign foreign-ja':((o.lang==='ru')?'foreign foreign-ru':'foreign');
+      var body=(o.lang&&o.lang!=='zh'&&o.foreign)
+        ? '<div class="'+fcls+'">'+esc(o.foreign)+'</div><div class="trans">'+esc(o.text||'')+'</div>'
+        : '<div class="mtext">'+esc(o.text||'')+'</div>';
       return '<div class="drift-letter">'+
-        '<div class="msalute">'+esc(o.name||'拾信人')+(o.era?' · '+esc(o.era):'')+(o.place?' · '+esc(o.place):'')+'</div>'+
-        '<div class="mtext">'+esc(o.text||'')+'</div>'+
-        (o.interval?'<div class="cr-meta" style="margin-top:10px"><span class="k">你这封信到TA手上</span>：'+esc(o.interval)+'</div>':'')+
-        (o.progress?'<div class="cr-meta"><span class="k">TA 那边</span>：'+esc(o.progress)+'</div>':'')+
-      '</div>';
+        '<div class="dl-head" data-dlh="'+i+'"><span class="msalute">'+esc(o.name||'拾信人')+(o.era?' · '+esc(o.era):'')+(o.place?' · '+esc(o.place):'')+'</span><span class="dl-caret">▴</span></div>'+
+        '<div class="dl-body">'+body+
+        (o.interval?'<div class="cr-meta" style="margin-top:10px"><span class="k">TA 那边已过去</span>：'+esc(o.interval)+'</div>':'')+
+        (o.progress?'<div class="cr-meta"><span class="k">TA 那边自己的事</span>：'+esc(o.progress)+'</div>':'')+
+        '</div></div>';
     }).join('');
     sh.innerHTML='<div class="mhead">有人捡到了 · 当场回了 '+arr.length+' 封信</div>'+cards+
       '<div class="mrow"><button class="tp-mburn" id="cr-dburn">全部销毁</button><button class="tp-mkeep" id="cr-dkeep">保留全部</button></div>';
     m.hidden=false;
+    sh.querySelectorAll('.dl-head').forEach(function(h){
+      h.onclick=function(){
+        var b=h.parentNode.querySelector('.dl-body');
+        b.hidden=!b.hidden;
+        h.querySelector('.dl-caret').textContent=b.hidden?'▾':'▴';
+      };
+    });
     $('cr-dkeep').onclick=function(){
-      p.replies=arr.map(function(o){ return {name:o.name||'',era:o.era||'',place:o.place||'',who:o.who||'',interval:o.interval||'',progress:o.progress||'',text:o.text||''}; });
+      p.replies=arr.map(function(o){ return {name:o.name||'',era:o.era||'',place:o.place||'',who:o.who||'',interval:o.interval||'',progress:o.progress||'',text:o.text||'',lang:o.lang||'zh',foreign:o.foreign||''}; });
       p.reply=p.replies[0]||null;
       arr.forEach(function(o){ st.driftQueue.push(makeEcho(p,o)); });
       save(); m.hidden=true; pendingPost=null; renderPost();
@@ -31866,11 +31884,20 @@ window.bsRoomAI = bsRoomAI;
     box.innerHTML=st.posts.slice().reverse().map(function(p){
       var meta=(p.anon?'匿名':(p.name||'未署名'))+' · '+new Date(p.ts).toLocaleString()+(p.a||p.b?(' · A：'+p.a+' ／ B：'+p.b):'');
       var reps=p.replies&&p.replies.length?p.replies:(p.reply?[p.reply]:[]);
-      var rep=reps.map(function(r){
-        return '<div class="reply"><div class="h">有人捡到了 · '+esc(r.name||'')+' · '+esc(r.era||'')+'（'+esc(r.interval||'')+'后）</div>'+esc(r.text||'')+'</div>';
+      var rep=reps.map(function(r,i){
+        var fcls=(r.lang==='ja')?'foreign foreign-ja':((r.lang==='ru')?'foreign foreign-ru':'foreign');
+        var body=(r.lang&&r.lang!=='zh'&&r.foreign)?('<div class="'+fcls+'">'+esc(r.foreign)+'</div><div class="trans">'+esc(r.text||'')+'</div>'):esc(r.text||'');
+        return '<div class="reply"><div class="h rp-h"><span>有人捡到了 · '+esc(r.name||'')+' · '+esc(r.era||'')+'（'+esc(r.interval||'')+'后）</span><span class="rp-caret">▾</span></div><div class="rp-body" hidden>'+body+'</div></div>';
       }).join('');
       return '<div class="cr-post-item"><div class="m">'+esc(meta)+'</div><div class="t">'+esc(String(p.text).slice(0,120))+(String(p.text).length>120?'…':'')+'</div>'+rep+'</div>';
     }).join('');
+    box.querySelectorAll('.rp-h').forEach(function(h){
+      h.onclick=function(){
+        var b=h.parentNode.querySelector('.rp-body');
+        b.hidden=!b.hidden;
+        var c=h.querySelector('.rp-caret'); if(c) c.textContent=b.hidden?'▾':'▴';
+      };
+    });
   }
   async function sendPost(){
     if(busy) return;
@@ -31884,7 +31911,7 @@ window.bsRoomAI = bsRoomAI;
     if(ta) ta.value=''; $('cr-p-a').value=''; $('cr-p-b').value=''; $('cr-p-item').value='';
     renderPost(); toast('歧路信已投出'); log('投出一封自己的歧路信');
     busy=true;
-    var prompt='你在某个时空生活，某天捡到一封没有收信人、只写着困境的求助信：\n「'+txt+'」'+(a||b?('\n写信的人列了两条路：A：'+a+' ／ B：'+b):'')+(item?'\n随信附着：'+item:'')+'\n\n请安排至少 3 个（3~4 个）彼此独立的人先后捡到这封信，各自写一封回信。只输出严格 JSON 数组，不要 markdown：\n[{"name":"拾信人姓名","era":"年代/纪元","place":"地点","who":"身份","interval":"信到TA手上过去了多久","progress":"TA 看来事情处于什么状态","text":"回信正文（含称呼与落款）"}]\n要求：\n- 几个人彼此独立、口吻不同；时空不限，可以都在同一个时空，也可以分散在不同时空；身份、性别、内容都不限。\n- 篇幅自由，有人简短，有人絮叨带吐槽。\n- 不要替写信的人把决定做好。';
+    var prompt='你在某个时空生活，某天捡到一封没有收信人、只写着困境的求助信：\n「'+txt+'」'+(a||b?('\n写信的人列了两条路：A：'+a+' ／ B：'+b):'')+(item?'\n随信附着：'+item:'')+'\n\n请安排至少 3 个（3~4 个）彼此独立的人先后捡到这封信，各自写一封回信。只输出严格 JSON 数组，不要 markdown：\n[{"name":"拾信人姓名","era":"年代/纪元","place":"地点","who":"身份","lang":"zh/en/fr/ru/ja 之一","foreign":"非中文时写该语言原文，中文时为空","interval":"从这封信被投出到TA捡到，TA那边过去了多久","progress":"TA 自己那边的近况：TA 手头正忙的事、TA 自己的处境或变化，一句话","text":"回信正文（含称呼与落款；非中文时为对应的中文翻译）"}]\n要求：\n- 几个人彼此独立、口吻不同；时空、年代、地点完全不限，可以都在同一个时空，也可以分散在不同时空；身份、性别、内容都不限。\n- 外文回信要写该语言的原文放进 foreign，text 里放中文翻译；中文信 foreign 留空。\n- progress 写的是 TA 自己那边的事，不必和来信人的困境对得上，也不要硬凑成"你的信让我如何如何"。\n- 篇幅自由，有人简短，有人絮叨带吐槽。\n- 不要替写信的人把决定做好。';
     var raw=await callAI('你是一个只会输出严格 JSON 的信件生成器。', prompt);
     var arr=parseArr(raw);
     if(!arr){ var o=parseObj(raw); if(o) arr=[o]; }
