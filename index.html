@@ -30701,6 +30701,8 @@ window.bsRoomAI = bsRoomAI;
 .im-top{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #e8e3d6;flex:0 0 auto;}
 .im-back{background:none;border:none;font-family:var(--tp-font);font-size:12px;color:#6f6a60;letter-spacing:1px;padding:0;flex:0 0 auto;}
 .im-meta{flex:1;font-family:var(--tp-font);font-size:10.5px;color:#9a968c;letter-spacing:1px;text-align:right;line-height:1.6;}
+.im-tool{background:none;border:1px solid #e0dbcd;border-radius:2px;font-family:var(--tp-font);font-size:11px;color:#6f6a60;letter-spacing:1px;padding:5px 8px;flex:0 0 auto;}
+.im-tool-del{color:#a8342b;border-color:#e2c9c4;}
 .im-gear{background:none;border:1px solid #e0dbcd;border-radius:2px;font-family:var(--tp-font);font-size:11px;color:#6f6a60;letter-spacing:1px;padding:5px 9px;}
 .im-cfg{flex:0 0 auto;max-height:58vh;overflow-y:auto;padding:14px 16px 16px;border-bottom:1px solid #e8e3d6;background:#fbf8ef;}
 .im-cfg[hidden]{display:none;}
@@ -31458,6 +31460,8 @@ window.bsRoomAI = bsRoomAI;
   <div class="im-top">
     <button class="im-back" id="im-back">← 回到信笺</button>
     <div class="im-meta" id="im-meta"></div>
+    <button class="im-tool" id="im-reroll">重写</button>
+    <button class="im-tool im-tool-del" id="im-del">删除</button>
     <button class="im-gear" id="im-gear">设置</button>
   </div>
   <div class="im-cfg" id="im-cfg" hidden>
@@ -31727,13 +31731,13 @@ window.bsRoomAI = bsRoomAI;
       if(th&&th.state==='done'){
         var btns='<button class="act-btn" data-act="epilogue" data-lid="'+esc(l.id)+'">'+(th.epilogue?'回看后来':'后来听说')+'</button>';
         if(st.settings.parallel) btns+='<button class="act-btn" data-act="parallel" data-lid="'+esc(l.id)+'">另一条时间线</button>';
-        btns+='<button class="act-btn act-imm" data-act="imm" data-key="origin" data-lid="'+esc(l.id)+'">'+((th&&th.immMap&&th.immMap.origin&&th.immMap.origin.opening)?'回到那天':'身临其境')+'</button>';
+        btns+='<button class="act-btn act-imm" data-act="imm" data-key="'+immLatestKey(th)+'" data-lid="'+esc(l.id)+'">'+((th&&th.immMap&&th.immMap[immLatestKey(th)]&&th.immMap[immLatestKey(th)].opening)?'回到那天':'身临其境')+'</button>';
         btns+='<button class="act-btn" data-act="fade" data-lid="'+esc(l.id)+'">'+(th.faded?'恢复':'褪色')+'</button>';
         if(st.settings.anchor) btns+='<button class="act-btn" data-act="anchor" data-lid="'+esc(l.id)+'">'+(th.anchor?'锚点已埋下':'种下锚点')+'</button>';
         actRow='<div class="act-row">'+btns+'</div>';
       } else {
         actRow='<div class="cr-advice"><textarea data-adv="'+esc(l.id)+'" placeholder="写下你的建议，直接回给这个时空的人…"></textarea><div class="row"><input data-aitem="'+esc(l.id)+'" placeholder="附物（可空）"><button data-send="'+esc(l.id)+'">送出建议</button></div></div>'+
-          '<div class="act-row"><button class="act-btn act-imm" data-act="imm" data-key="origin" data-lid="'+esc(l.id)+'">'+((th&&th.immMap&&th.immMap.origin&&th.immMap.origin.opening)?'回到那天':'身临其境')+'</button></div>'+
+          '<div class="act-row"><button class="act-btn act-imm" data-act="imm" data-key="'+immLatestKey(th)+'" data-lid="'+esc(l.id)+'">'+((th&&th.immMap&&th.immMap[immLatestKey(th)]&&th.immMap[immLatestKey(th)].opening)?'回到那天':'身临其境')+'</button></div>'+
           ((th&&th.conv&&th.conv.length)?'<div class="act-row"><button class="act-btn" data-act="sleep" data-lid="'+esc(l.id)+'">'+(th.sleepUntil?'唤醒':'封存搁置')+'</button></div>':'');
       }
       var envCls=(th&&th.faded)?'envelope faded':'envelope';
@@ -31742,7 +31746,7 @@ window.bsRoomAI = bsRoomAI;
           '<div class="env-to">'+esc(l.to||'捡到信的人')+'</div>'+
           '<div class="env-from">'+esc(l.name)+(l.pair?'（共 '+esc(l.nameA||'')+' 与 '+esc(l.nameB||'')+'）':'')+'</div>'+
           '<div class="env-meta">'+tags+esc(l.era)+' · '+esc(l.place)+' · '+esc(l.who)+(stateText?' · '+stateText:'')+'</div>'+
-          '<button class="env-imm" data-act="imm" data-key="origin" data-lid="'+esc(l.id)+'">◈ '+((th&&th.immMap&&th.immMap.origin&&th.immMap.origin.opening)?'回到那天':'身临其境')+'</button>'+
+          '<button class="env-imm" data-act="imm" data-key="'+immLatestKey(th)+'" data-lid="'+esc(l.id)+'">◈ '+((th&&th.immMap&&th.immMap[immLatestKey(th)]&&th.immMap[immLatestKey(th)].opening)?'回到那天':'身临其境')+'</button>'+
           '<div class="env-postmark">歧路</div>'+
           '<div class="env-stamp">✉</div>'+
           '<div class="env-caret">▾</div>'+
@@ -32133,6 +32137,11 @@ window.bsRoomAI = bsRoomAI;
     return m[key];
   }
   function immHas(ent){ return !!(ent&&(ent.opening||(ent.turns&&ent.turns.length))); }
+  function immLatestKey(th){
+    var conv=(th&&th.conv)||[];
+    for(var i=conv.length-1;i>=0;i--){ if(conv[i]&&conv[i].role==='them') return 'c'+i; }
+    return 'origin';
+  }
   function immSrc(l,th,key){
     var k=String(key||'origin');
     if(k==='origin'){
@@ -32345,6 +32354,61 @@ window.bsRoomAI = bsRoomAI;
     save(); renderImm(l,ent); renderLift();
     log('在「'+l.name+'」的那天，说了一段话');
   }
+  async function immReroll(){
+    if(immBusy) return;
+    var id=window.__immId; if(!id) return;
+    var l=getLetter(id); var th=st.threads.find(function(t){return t.id===id;});
+    var ent=immEntryNow();
+    if(!l||!th||!ent) return;
+    var cfg=immCfg(th,ent);
+    var src=immSrc(l,th,window.__immKey||'origin');
+    var turns=ent.turns||[];
+    if(!turns.length&&!ent.opening){ toast('这一场还没有正文'); return; }
+    immBusy=true;
+    var rb=$('im-reroll'); if(rb){ rb.disabled=true; rb.textContent='…'; }
+    var feed=$('im-feed');
+    if(!turns.length){
+      ent.opening=''; save();
+      feed.innerHTML='<div class="im-scene-line">'+esc(src.title+' · '+(src.era||'')+' · '+(src.place||''))+'</div><div class="im-block" id="im-opening-live"><p class="im-p im-caret">…</p></div>';
+      var live0=$('im-opening-live');
+      var got0=await crStream('你是一个沉浸式场景叙述者，用中文写长文。只输出正文。',immScenePrompt(l,cfg,src),function(t2,done){
+        live0.innerHTML=immParas(t2,'')+(done?'':'<p class="im-p im-caret"></p>');
+        feed.scrollTop=feed.scrollHeight;
+      });
+      immBusy=false; if(rb){ rb.disabled=false; rb.textContent='重写'; }
+      if(!got0){ toast('重写失败 · 检查 API'); renderImm(l,ent); return; }
+      ent.opening=got0; save(); renderImm(l,ent); renderLift(); toast('开场已重写');
+      return;
+    }
+    if(turns[turns.length-1].role==='them') turns.pop();
+    save(); renderImm(l,ent);
+    var lastMe='';
+    for(var i=turns.length-1;i>=0;i--){ if(turns[i].role==='me'){ lastMe=turns[i].text; break; } }
+    if(!lastMe){ immBusy=false; if(rb){ rb.disabled=false; rb.textContent='重写'; } renderImm(l,ent); return; }
+    var liveWrap=document.createElement('div'); liveWrap.className='im-block'; liveWrap.id='im-live';
+    liveWrap.innerHTML='<p class="im-p im-caret"></p>';
+    feed.appendChild(liveWrap); feed.scrollTop=feed.scrollHeight;
+    var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文，只输出正文。',immTurnPrompt(l,ent,lastMe,cfg),function(t2,done){
+      liveWrap.innerHTML=immParas(t2,'')+(done?'':'<p class="im-p im-caret"></p>');
+      feed.scrollTop=feed.scrollHeight;
+    });
+    immBusy=false; if(rb){ rb.disabled=false; rb.textContent='重写'; }
+    if(!got){ toast('重写失败 · 检查 API'); renderImm(l,ent); return; }
+    ent.turns.push({role:'them',text:got,ts:Date.now()});
+    save(); renderImm(l,ent); renderLift(); toast('这一段已重写');
+  }
+  function immDel(){
+    var id=window.__immId; if(!id) return;
+    var th=st.threads.find(function(t){return t.id===id;});
+    var key=window.__immKey||'origin';
+    if(!th||!th.immMap||!th.immMap[key]){ toast('这一场还没有内容'); return; }
+    if(!window.confirm('删掉这一场？正文和里面的对话都会消失，删了之后还可以重新走进来。')) return;
+    delete th.immMap[key];
+    save();
+    closeImm();
+    renderLift();
+    toast('这一场已删除');
+  }
   function toggleFade(id){
     var th=st.threads.find(function(x){return x.id===id;}); if(!th) return;
     if(th.state!=='done'){ toast('落幕之后才能褪色'); return; }
@@ -32441,6 +32505,8 @@ window.bsRoomAI = bsRoomAI;
     if($('im-send')) $('im-send').onclick=immSay;
     if($('im-gear')) $('im-gear').onclick=function(){ var c=$('im-cfg'); c.hidden=!c.hidden; };
     if($('im-cfg-save')) $('im-cfg-save').onclick=immSetCfg;
+    if($('im-reroll')) $('im-reroll').onclick=immReroll;
+    if($('im-del')) $('im-del').onclick=immDel;
     if($('im-len')) $('im-len').onchange=function(){ $('im-len-custom').hidden=($('im-len').value!=='custom'); };
     if($('im-text')) $('im-text').onkeydown=function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); immSay(); } };
     $('cr-lift').onclick=function(){ $('cr-lift').style.display=''; lift(); };
