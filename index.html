@@ -30691,23 +30691,40 @@ window.bsRoomAI = bsRoomAI;
 .cr-pair-names{font-family:var(--tp-font);font-size:13px;color:#1b1a17;line-height:1.8;}
 .cr-pair-block{margin-bottom:10px;}
 .cr-pair-block .who{font-size:10px;color:#9a968c;font-family:var(--tp-font);margin-bottom:3px;}
-.cr-imm{position:fixed;inset:0;z-index:70;background:var(--cr-paper,#fffef9);display:flex;flex-direction:column;padding:0 0 env(safe-area-inset-bottom);}
+.cr-imm{position:fixed;inset:0;z-index:70;background:var(--cr-paper,#fffef9);display:flex;flex-direction:column;}
 .cr-imm[hidden]{display:none;}
-.im-top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid #e8e3d6;}
-.im-back{background:none;border:none;font-family:var(--tp-font);font-size:12px;color:#6f6a60;letter-spacing:1px;padding:0;}
-.im-meta{font-family:var(--tp-font);font-size:10.5px;color:#9a968c;letter-spacing:1px;text-align:right;line-height:1.7;}
-.im-scene{font-family:var(--tp-font);font-size:12.5px;line-height:2;color:#5d5951;padding:16px 20px 12px;border-bottom:1px dashed #e8e3d6;white-space:pre-wrap;}
-.im-feed{flex:1;overflow-y:auto;padding:16px 20px 8px;-webkit-overflow-scrolling:touch;}
-.im-line{margin-bottom:16px;}
-.im-line .who{font-family:var(--tp-font);font-size:10px;letter-spacing:2px;color:#a8342b;margin-bottom:5px;}
-.im-line .say{font-family:var(--tp-font);font-size:13px;line-height:2;color:#1b1a17;white-space:pre-wrap;}
-.im-line.me .who{color:#7d7a72;}
-.im-line.me .say{color:#4a4841;font-size:12.5px;}
-.im-zh{font-size:11px;line-height:1.9;color:#8e8a80;margin-top:4px;padding-left:1px;}
-.im-beat{font-family:var(--tp-font);font-size:11px;color:#a8a396;letter-spacing:1px;line-height:1.9;margin:0 0 14px;padding-left:10px;border-left:2px solid #efeade;}
-.im-input{display:flex;gap:8px;padding:12px 16px 16px;border-top:1px solid #e8e3d6;align-items:flex-end;}
-.im-input textarea{flex:1;min-height:44px;max-height:110px;border:1px solid #dfd9ca;background:#fffdf7;font-family:var(--tp-font);font-size:12.5px;line-height:1.9;color:#2f2d29;padding:9px 11px;border-radius:2px;resize:none;outline:none;}
-.im-send{background:#1b1a17;color:#f4f1e8;border:none;font-family:var(--tp-font);font-size:12px;letter-spacing:2px;padding:12px 16px;border-radius:2px;}
+.im-top{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #e8e3d6;flex:0 0 auto;}
+.im-back{background:none;border:none;font-family:var(--tp-font);font-size:12px;color:#6f6a60;letter-spacing:1px;padding:0;flex:0 0 auto;}
+.im-meta{flex:1;font-family:var(--tp-font);font-size:10.5px;color:#9a968c;letter-spacing:1px;text-align:right;line-height:1.6;}
+.im-gear{background:none;border:1px solid #e0dbcd;border-radius:2px;font-family:var(--tp-font);font-size:11px;color:#6f6a60;letter-spacing:1px;padding:5px 9px;}
+.im-cfg{flex:0 0 auto;max-height:58vh;overflow-y:auto;padding:14px 16px 16px;border-bottom:1px solid #e8e3d6;background:#fbf8ef;}
+.im-cfg[hidden]{display:none;}
+.im-cfg-t{font-family:var(--tp-font);font-size:11px;letter-spacing:2px;color:#a8342b;margin-bottom:12px;}
+.im-lab{display:block;font-family:var(--tp-font);font-size:11px;color:#6f6a60;letter-spacing:1px;margin-bottom:6px;}
+.im-lab span{color:#a8a396;font-size:10px;margin-left:4px;}
+.im-cfg textarea{width:100%;box-sizing:border-box;min-height:52px;border:1px solid #dfd9ca;background:#fffdf7;font-family:var(--tp-font);font-size:12px;line-height:1.9;color:#2f2d29;padding:8px 10px;border-radius:2px;resize:vertical;outline:none;margin-bottom:12px;}
+.im-cfg-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.im-lab2{flex:0 0 62px;font-family:var(--tp-font);font-size:11px;color:#6f6a60;letter-spacing:1px;}
+.im-sel{flex:1;min-width:0;border:1px solid #dfd9ca;background:#fffdf7;font-family:var(--tp-font);font-size:12px;color:#2f2d29;padding:7px 8px;border-radius:2px;outline:none;}
+.im-custom[hidden]{display:none;}
+.im-nums{display:flex;align-items:center;gap:6px;}
+.im-nums input{width:80px;border:1px solid #dfd9ca;background:#fffdf7;font-family:var(--tp-font);font-size:12px;color:#2f2d29;padding:7px 8px;border-radius:2px;outline:none;}
+.im-nums span{font-family:var(--tp-font);font-size:11px;color:#9a968c;}
+.im-cfg-tip{font-family:var(--tp-font);font-size:10px;color:#a8a396;margin:8px 0 10px;letter-spacing:.5px;}
+.im-cfg-save{width:100%;background:#1b1a17;color:#f4f1e8;border:none;font-family:var(--tp-font);font-size:12px;letter-spacing:2px;padding:11px;border-radius:2px;}
+.im-feed{flex:1;overflow-y:auto;padding:18px 20px 10px;-webkit-overflow-scrolling:touch;font-family:var(--tp-font);}
+.im-scene-line{font-size:10.5px;letter-spacing:2px;color:#b3ae9f;margin-bottom:14px;}
+.im-block{margin-bottom:22px;}
+.im-p{font-size:13.5px;line-height:2.1;color:#1b1a17;text-indent:2em;margin:0 0 10px;white-space:pre-wrap;word-break:break-word;}
+.im-p.im-caret{text-indent:0;color:#b3ae9f;}
+.im-p.im-caret:after{content:'▎';margin-left:2px;animation:imBlink 1s steps(2) infinite;}
+@keyframes imBlink{0%{opacity:1}50%{opacity:0}100%{opacity:1}}
+.im-me{margin:0 0 22px;padding:9px 12px;background:#f6f2e6;border-left:2px solid #ddd5c2;}
+.im-me-tag{font-size:9.5px;letter-spacing:2px;color:#8a8578;display:block;margin-bottom:4px;}
+.im-me-txt{font-size:12.5px;line-height:1.95;color:#4a4841;white-space:pre-wrap;word-break:break-word;}
+.im-input{flex:0 0 auto;display:flex;gap:8px;padding:10px 14px calc(12px + env(safe-area-inset-bottom));border-top:1px solid #e8e3d6;align-items:flex-end;background:#fffef9;}
+.im-input textarea{flex:1;min-height:42px;max-height:112px;border:1px solid #dfd9ca;background:#fffdf7;font-family:var(--tp-font);font-size:12.5px;line-height:1.9;color:#2f2d29;padding:9px 11px;border-radius:2px;resize:none;outline:none;}
+.im-send{background:#1b1a17;color:#f4f1e8;border:none;font-family:var(--tp-font);font-size:12px;letter-spacing:2px;padding:12px 14px;border-radius:2px;}
 .im-send:disabled{opacity:.5;}
 .cr-tag.cr-imm-tag{color:#8a5a2b;border-color:#e2cbb2;}
 .cr-tag.cr-anchor{color:#3d5a52;border-color:#b8cbc3;}
@@ -31436,11 +31453,51 @@ window.bsRoomAI = bsRoomAI;
   <div class="im-top">
     <button class="im-back" id="im-back">← 回到信笺</button>
     <div class="im-meta" id="im-meta"></div>
+    <button class="im-gear" id="im-gear">设置</button>
   </div>
-  <div class="im-scene" id="im-scene"></div>
+  <div class="im-cfg" id="im-cfg" hidden>
+    <div class="im-cfg-t">这一页的设定</div>
+    <label class="im-lab">我的身份 <span>可留空，留空即与TA通信的那个人</span></label>
+    <textarea id="im-who" rows="2" placeholder="例如：与TA通信多年的人，如今终于走到了TA的地方；或：TA的同乡，做小买卖的"></textarea>
+    <div class="im-cfg-row">
+      <span class="im-lab2">回复篇幅</span>
+      <select id="im-len" class="im-sel">
+        <option value="300,600">短 · 300~600 字</option>
+        <option value="600,1000">中短 · 600~1000 字</option>
+        <option value="700,1200" selected>中 · 700~1200 字</option>
+        <option value="1200,2000">长 · 1200~2000 字</option>
+        <option value="2000,3200">很长 · 2000~3200 字</option>
+        <option value="custom">自定义</option>
+      </select>
+    </div>
+    <div class="im-cfg-row im-custom" id="im-len-custom" hidden>
+      <span class="im-lab2">自定义字数</span>
+      <div class="im-nums"><input type="number" id="im-min" value="700"><span>到</span><input type="number" id="im-max" value="1200"><span>字</span></div>
+    </div>
+    <div class="im-cfg-row">
+      <span class="im-lab2">文风</span>
+      <select id="im-style" class="im-sel">
+        <option value="novel">叙事小说体</option>
+        <option value="letter">书信体</option>
+        <option value="prose">散文随笔体</option>
+        <option value="diary">日记体</option>
+        <option value="script">剧本分镜体</option>
+      </select>
+    </div>
+    <div class="im-cfg-row">
+      <span class="im-lab2">人称</span>
+      <select id="im-persona" class="im-sel">
+        <option value="second">第二人称（你）</option>
+        <option value="first">第一人称（我）</option>
+        <option value="third">第三人称</option>
+      </select>
+    </div>
+    <div class="im-cfg-tip">设定会保存，之后再进这个场景继续沿用。</div>
+    <button class="im-cfg-save" id="im-cfg-save">保存设定</button>
+  </div>
   <div class="im-feed" id="im-feed"></div>
   <div class="im-input">
-    <textarea id="im-text" placeholder="说点什么，或者做点什么…"></textarea>
+    <textarea id="im-text" placeholder="你要说的话、要做的事…（Enter 发送，Shift+Enter 换行）"></textarea>
     <button class="im-send" id="im-send">在场</button>
   </div>
 </div>
@@ -31753,9 +31810,10 @@ window.bsRoomAI = bsRoomAI;
     var history=(th.conv||[]).slice(-4).map(function(c){ return (c.role==='them'?l.name:'陌生的拾信人')+'：'+c.text; }).join('\n');
     var reg=st.settings.regress?'允许出现事态退步（down）':'不要生成事态退步（down），只能是 done 或 up';
     var imm='';
-    if(th.immersive&&th.immersive.turns&&th.immersive.turns.length){
-      var iml=th.immersive.turns.slice(-6).map(function(t){return (t.role==='me'?'那个过客':'你')+'：'+((t.zh&&t.zh.length)?t.zh:t.text);}).join('\n');
-      imm='\n\n你亲身记得的一件事：那阵子你在现场，曾经有个陌生过客来过，跟你说过话。你不知道TA是谁、从哪来，只当是个路过的人。当时的经过：\n'+iml+'\n如果与眼下的事有关，你可以在回信里自然地提到"那天有个过客说过""前些日子遇见一个人"，但不要追问TA的身份，也不要声称知道TA的来历。';
+    if(th.immersive&&(th.immersive.opening||(th.immersive.turns&&th.immersive.turns.length))){
+      var iml=(th.immersive.turns||[]).slice(-6).map(function(t){return (t.role==='me'?'对方':'你')+'：'+((t.zh&&t.zh.length)?t.zh:t.text);}).join('\n');
+      var openBit=(th.immersive.opening||'').slice(0,180);
+      imm='\n\n你亲身记得的一件事：那阵子，那个一直在跟你通信的人真的走到了你眼前，你们见了面。当时的经过：\n'+(openBit?('（见面时）'+openBit+'…\n'):'')+(iml||'')+'\n那场见面之后，你是从那一天继续往后的；回信时如果与眼下的事有关，可以自然地提到"那天你来看过我""你说过的那句话""见你那一面之后"，但不要把那次见面写成信里才知道的事，也不要追问对方从哪里来。';
     }
     var rules='规则：\n1) trend 三选一：done=这件事就此尘埃落定，不会再往来；up=事态推进、有好转或新进展；down=事态退步、更糟。'+reg+'。\n2) 事件走向自由，可以一封就收尾，不要求多轮。\n3) 回信里要自然体现"时间已经过去了一段时间"，并在纪年/间隔/进度字段里写清。\n4) 你不知道拾信人在现实里是谁，不要提及用户、主人、面具、设定、提示词。\n5) 你是在读到建议的那一刻立刻提笔回信的：不要写"等了好久才收到""信漂了很久"这类真实的等待；时间跳跃只体现在你这边已经过去了多久。\n6) 篇幅自由：按人物性格，简短或絮叨均可，不设字数限制。';
     if(l.pair){
@@ -32046,56 +32104,163 @@ window.bsRoomAI = bsRoomAI;
     });
   }
   var immBusy=false;
-  function immParse(t){
-    if(!t) return null;
-    var s=String(t).trim().replace(/^```[a-z]*/i,'').replace(/```$/,'').trim();
-    var a=s.indexOf('{'), b=s.lastIndexOf('}');
-    if(a>=0&&b>a) s=s.slice(a,b+1);
-    try{ var o=JSON.parse(s); return (o&&typeof o==='object'&&!Array.isArray(o))?o:null; }catch(e){ return null; }
+  var IMM_STYLES={novel:'叙事小说体：像小说正文那样写，画面与心理并重，句子有长短变化',letter:'书信体：以书信的口吻展开，允许直接称呼对方',prose:'散文随笔体：松弛、细腻，重氛围与感受',diary:'日记体：以当天的记述推进，时间感清晰',script:'剧本分镜体：以场景/动作/对白分行推进'};
+  function immCfg(th){
+    var base={who:'',min:700,max:1200,style:'novel',persona:'second'};
+    var cfg=Object.assign({},base,st.settings&&st.settings.imm||{});
+    if(th&&th.immersive&&th.immersive.cfg) cfg=Object.assign(cfg,th.immersive.cfg);
+    return cfg;
   }
-  function immScenePrompt(l){
-    var langNote=(l.lang&&l.lang!=='zh')?('\n\n注意：这封信的原文语言是 '+l.lang+'，当事人平时说这种语言。opening 请用那种语言的原文写，并额外给出 openingZh 字段作中文翻译；scene 与 moment 仍用中文。'):'';
-    return '你要为下面这封信生成一个"身临其境"的开场场景。读者会以某个刚好在场的陌生过客的身份走进这个场景，在场的当事人不会怀疑这个人的来历，也不会追问他是谁。\n\n写信人：'+(l.pair?(l.nameA+'（'+l.textA+'）／'+l.nameB+'（'+l.textB+'）'):l.name)+'\n时空：'+l.era+'，'+l.place+'\n身份：'+l.who+'\n信中说的困境：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」\n\n请写这个场景的开场。只输出严格 JSON 单对象，不要 markdown：\n{"scene":"这个现场的景象：光线、声音、气味、周围的人和物，三到五句，用第三人称白描","moment":"此刻TA正在做什么，一句话","opening":"TA 看到你之后说的第一句话（自然、日常，像对一个刚好路过的人说话）"}\n要求：\n- 场景必须发生在信件所写的那件事的现场，合情合理。\n- 不要提"穿越""来自未来""你知道结局"这类词。\n- 不要预设读者会做什么。'+langNote;
+  function immStyleLine(cfg){
+    var who=cfg.who?('\n读者在这个场景里的身份：'+cfg.who+'\n（TA 把读者当成这个人，不会怀疑来历，也不会追问从哪来）'):'\n读者在这个场景里的身份：那个一直在与TA通信的人，如今就在TA眼前。TA 认得读者，不会怀疑来历，也不会追问从哪来。';
+    var per=cfg.persona==='first'?'第一人称"我"（读者视角为"我"）':(cfg.persona==='third'?'第三人称（用TA的名字叙述，读者作为隐含的旁观者）':'第二人称"你"（读者视角为"你"）');
+    return who+'\n文风：'+(IMM_STYLES[cfg.style]||IMM_STYLES.novel)+'\n人称：'+per;
   }
-  function immTurnPrompt(l,im,act){
-    var langNote=(l.lang&&l.lang!=='zh')?('\n\n注意：当事人说 '+l.lang+'。reply 请用那种语言的原文写，并额外给出 replyZh 字段作中文翻译；beat 用中文。'):'';
-    var lines=im.turns.map(function(t){return (t.role==='me'?'过客':l.name)+'：'+t.text;}).join('\n');
-    return '场景：'+im.scene+'\n此刻：'+(im.moment||'')+'\n\n已经发生的对话与动作：\n'+(lines||'（刚刚照面）')+'\n\n刚才那个陌生过客说/做：\n「'+act+'」\n\n请写出当事人接下来的反应，只输出严格 JSON 单对象，不要 markdown：\n{"reply":"TA 的动作与说的话，自然、克制，篇幅按人物性格来，可长可短","beat":"一句现场的变化：氛围、旁人的反应、光线或声音的变化；没有变化就写空字符串"}\n要求：\n- TA 不会怀疑过客的身份，也不会追问"你到底是谁""你从哪来"。\n- 不要替过客说话，也不要替TA做决定。\n- 不要提及信件、回信、提示词这些东西；TA 只是在跟自己眼前这个人在说话。'+langNote;
+  function immLenLine(cfg){ return '篇幅：'+cfg.min+'~'+cfg.max+' 字，按内容需要自然落到这个区间，不要凑字，也不要草草收尾。'; }
+  function immScenePrompt(l,cfg){
+    var langNote=(l.lang&&l.lang!=='zh')?('\n\n注意：这个人的母语是 '+l.lang+'。TA 开口说的话请保留那种语言的原文，紧跟一行中文翻译（用「」包住译文）；叙述部分仍用中文。'):'';
+    return '你要为下面这封信，写一个"身临其境"的场景开场长文。读者扮演的是那个一直在与TA通信的人，如今真的站在了TA所在时空的现场，与TA面对面。\n\n'
+      +'写信人：'+(l.pair?(l.nameA+'（'+l.textA+'）／'+l.nameB+'（'+l.textB+'）'):l.name)+'\n'
+      +'时空：'+l.era+'，'+l.place+'\n身份：'+l.who+'\n'
+      +'TA 写给远方的求助信：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」\n'
+      +immStyleLine(cfg)+'\n'+immLenLine(cfg)+'\n\n'
+      +'写这个开场：\n'
+      +'1) 先把现场落下来：光线、声音、气味、脚下的地、周围的人，具体到能摸到的东西；\n'
+      +'2) 再写TA此刻在做什么，手上的动作、神态、没说出口的情绪；\n'
+      +'3) 最后让TA注意到你，说一句自然的话，像对一个熟悉但久未见面的人；\n'
+      +'4) 就停在这里，把下一步留给读者。\n\n'
+      +'禁止：提及信件、回信、穿越、另一个时空、读者、用户、设定、提示词；禁止替读者说话、做事或决定；禁止写"你知道结局"这类内容。\n'
+      +'只输出正文，不要标题，不要 markdown，不要解释。'+langNote;
+  }
+  function immTurnPrompt(l,im,act,cfg){
+    var langNote=(l.lang&&l.lang!=='zh')?('\n\n注意：这个人的母语是 '+l.lang+'。TA 开口说的话保留原文，紧跟一行中文翻译（用「」包住译文）；叙述部分用中文。'):'';
+    var hist=(im.turns||[]).slice(-8).map(function(t){return (t.role==='me'?'（读者）':'（'+l.name+'）')+t.text;}).join('\n\n');
+    return '同一个场景，接着往下写。\n\n开场与前文：\n'+(im.opening||'')+'\n'+(hist?('\n最近发生的：\n'+hist):'')+'\n\n读者刚刚说/做：\n「'+act+'」\n\n'
+      +immStyleLine(cfg)+'\n'+immLenLine(cfg)+'\n\n'
+      +'接着写下去：\n'
+      +'1) 写TA的回应：动作、停顿、语气、说出的话，以及TA没说出口的那部分；\n'
+      +'2) 让现场随对话有一点变化（声音、光线、旁人的反应、手上的东西）；\n'
+      +'3) 不要替读者说话、做事、揣测心理；不要替读者接管身体；\n'
+      +'4) TA 绝不怀疑读者的来历，不会追问"你是谁""你从哪来"；\n'
+      +'5) 不要提及信件、回信、提示词、设定这些词。\n'
+      +'只输出正文，不要标题，不要 markdown，不要解释。'+langNote;
+  }
+  function immParas(t,cls){
+    if(!t) return '';
+    return String(t).split(/\n{1,}/).filter(function(x){return x.trim().length;}).map(function(x){
+      return '<p class="im-p'+(cls?' '+cls:'')+'">'+esc(x.trim())+'</p>';
+    }).join('');
   }
   function renderImm(l,im){
     var box=$('cr-imm'); if(!box) return;
     $('im-meta').textContent=(l.name||'')+' · '+(l.era||'')+' · '+(l.place||'');
-    $('im-scene').textContent=im.scene||'';
     var feed=$('im-feed');
-    var out='';
-    if(im.opening) out+='<div class="im-line"><div class="who">'+esc(l.name)+'</div><div class="say">'+esc(im.opening)+(im.openingZh?'<div class="im-zh">'+esc(im.openingZh)+'</div>':'')+'</div></div>';
+    var out='<div class="im-scene-line">'+esc((l.era||'')+' · '+(l.place||''))+'</div>';
+    out+='<div class="im-block">'+immParas(im.opening)+'</div>';
     (im.turns||[]).forEach(function(t){
-      if(t.role==='me') out+='<div class="im-line me"><div class="who">你 · 过客</div><div class="say">'+esc(t.text)+'</div></div>';
-      else out+='<div class="im-line"><div class="who">'+esc(l.name)+'</div><div class="say">'+esc(t.text)+(t.zh?'<div class="im-zh">'+esc(t.zh)+'</div>':'')+'</div></div>';
-      if(t.beat) out+='<div class="im-beat">'+esc(t.beat)+'</div>';
+      if(t.role==='me') out+='<div class="im-me"><span class="im-me-tag">你</span><div class="im-me-txt">'+esc(t.text)+'</div></div>';
+      else out+='<div class="im-block">'+immParas(t.text)+'</div>';
     });
     feed.innerHTML=out;
     feed.scrollTop=feed.scrollHeight;
   }
+  async function crStream(sys,user,onDelta){
+    var c=window.db&&window.db.apiSettings;
+    if(!c||!c.url||!c.key) return null;
+    var u=String(c.url).replace(/\/+$/,'');
+    var body={model:c.model||'gpt-4o-mini',messages:[{role:'system',content:sys},{role:'user',content:user}],stream:true,temperature:.9};
+    var r=null;
+    try{
+      r=await fetch(u+'/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key},body:JSON.stringify(body)});
+    }catch(e){ r=null; }
+    if(!r||!r.ok||!r.body){
+      try{
+        var body2=Object.assign({},body); body2.stream=false;
+        var r2=await fetch(u+'/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key},body:JSON.stringify(body2)});
+        if(!r2||!r2.ok) return null;
+        var d2=await r2.json();
+        var txt2=((((d2.choices||[])[0]||{}).message||{}).content||'').trim();
+        if(txt2) onDelta(txt2,true);
+        return txt2||null;
+      }catch(e2){ return null; }
+    }
+    var reader=r.body.getReader(), dec=new TextDecoder(), buf='', out='';
+    try{
+      while(true){
+        var rd=await reader.read();
+        if(rd.done) break;
+        buf+=dec.decode(rd.value,{stream:true});
+        var parts=buf.split('\n');
+        buf=parts.pop();
+        for(var i=0;i<parts.length;i++){
+          var ln=parts[i].replace(/\r/g,'').trim();
+          if(!ln||ln.indexOf('data:')!==0) continue;
+          var payload=ln.slice(5).trim();
+          if(payload==='[DONE]') { buf=''; break; }
+          try{
+            var j=JSON.parse(payload);
+            var d=(((j.choices||[])[0]||{}).delta||{});
+            var piece=d.content||'';
+            if(piece){ out+=piece; onDelta(out,false); }
+          }catch(e3){}
+        }
+      }
+    }catch(e4){}
+    return out.trim()||null;
+  }
+  function immSetCfg(){
+    var id=window.__immId; var th=st.threads.find(function(t){return t.id===id;});
+    if(!th||!th.immersive) return;
+    var lenSel=$('im-len').value;
+    var min=700,max=1200;
+    if(lenSel==='custom'){ min=Math.max(150,parseInt($('im-min').value,10)||400); max=Math.max(min+100,parseInt($('im-max').value,10)||(min+400)); }
+    else { var sp=lenSel.split(','); min=parseInt(sp[0],10); max=parseInt(sp[1],10); }
+    var cfg={who:$('im-who').value.trim(),min:min,max:max,style:$('im-style').value,persona:$('im-persona').value};
+    th.immersive.cfg=cfg;
+    st.settings.imm=cfg;
+    save();
+    toast('这一页的设定已保存');
+  }
+  function immLoadCfg(th){
+    var cfg=immCfg(th);
+    $('im-cfg').hidden=true;
+    $('im-who').value=cfg.who||'';
+    $('im-style').value=cfg.style||'novel';
+    $('im-persona').value=cfg.persona||'second';
+    var match=(cfg.min+','+cfg.max);
+    var opts=[].slice.call($('im-len').options).map(function(o){return o.value;});
+    if(opts.indexOf(match)>=0){ $('im-len').value=match; $('im-len-custom').hidden=true; }
+    else { $('im-len').value='custom'; $('im-len-custom').hidden=false; $('im-min').value=cfg.min; $('im-max').value=cfg.max; }
+  }
   async function openImm(id){
     var l=getLetter(id); if(!l) return;
     var th=threadOf(l);
-    if(!th.immersive||!th.immersive.scene){
-      if(immBusy) return;
-      immBusy=true;
-      var raw=await callAI('你是一个场景生成器，只输出严格 JSON。',immScenePrompt(l));
-      var o=immParse(raw);
-      immBusy=false;
-      if(!o||!o.scene){ toast('没能走到那里 · 检查 API'); return; }
-      th.immersive={scene:o.scene,moment:o.moment||'',opening:o.opening||'',openingZh:o.openingZh||'',turns:[],ts:Date.now()};
-      save(); log('走到了「'+l.name+'」的那天');
-      renderLift();
-    }
+    window.__immId=id;
+    if(!th.immersive) th.immersive={opening:'',turns:[],ts:Date.now()};
+    var cfg=immCfg(th);
+    immLoadCfg(th);
     renderImm(l,th.immersive);
     $('cr-imm').hidden=false;
     $('im-text').value='';
+    if(!th.immersive.opening){
+      if(immBusy) return;
+      immBusy=true;
+      var btn=$('im-send'); btn.disabled=true;
+      var feed=$('im-feed');
+      feed.innerHTML='<div class="im-scene-line">'+esc((l.era||'')+' · '+(l.place||''))+'</div><div class="im-block" id="im-opening-live"><p class="im-p im-caret">…</p></div>';
+      var live=$('im-opening-live');
+      var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文。只输出正文。',immScenePrompt(l,cfg),function(txt,done){
+        live.innerHTML=immParas(txt,'')+(done?'':'<p class="im-p im-caret"></p>');
+        feed.scrollTop=feed.scrollHeight;
+      });
+      immBusy=false; btn.disabled=false;
+      if(!got){ toast('没能走到那里 · 检查 API'); renderImm(l,th.immersive); return; }
+      th.immersive.opening=got;
+      save(); log('走到了「'+l.name+'」的那天');
+      renderLift();
+      renderImm(l,th.immersive);
+    }
     $('im-text').focus();
-    window.__immId=id;
   }
   function closeImm(){
     $('cr-imm').hidden=true;
@@ -32108,20 +32273,30 @@ window.bsRoomAI = bsRoomAI;
     if(!l||!th||!th.immersive) return;
     var ta=$('im-text'), txt=ta.value.trim();
     if(!txt){ ta.focus(); return; }
+    var cfg=immCfg(th);
     immBusy=true;
     var btn=$('im-send'); btn.disabled=true; btn.textContent='…';
     th.immersive.turns.push({role:'me',text:txt,ts:Date.now()});
     ta.value='';
-    renderImm(l,th.immersive); save();
-    var raw=await callAI('你是一个场景演绎者，只输出严格 JSON。',immTurnPrompt(l,th.immersive,txt));
-    var o=immParse(raw);
-    var reply=o&&(o.reply||o.text)?(o.reply||o.text):null;
-    var beat=o&&o.beat?o.beat:'';
+    renderImm(l,th.immersive);
+    var feed=$('im-feed');
+    var liveWrap=document.createElement('div');
+    liveWrap.className='im-block'; liveWrap.id='im-live';
+    liveWrap.innerHTML=immParas('', '')+'<p class="im-p im-caret"></p>';
+    feed.appendChild(liveWrap); feed.scrollTop=feed.scrollHeight;
+    var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文，只输出正文。',immTurnPrompt(l,th.immersive,txt,cfg),function(t2,done){
+      liveWrap.innerHTML=immParas(t2,'')+(done?'':'<p class="im-p im-caret"></p>');
+      feed.scrollTop=feed.scrollHeight;
+    });
     immBusy=false; btn.disabled=false; btn.textContent='在场';
-    if(!reply){ toast('那边没有回应 · 检查 API'); return; }
-    th.immersive.turns.push({role:'them',text:reply,zh:(o&&o.replyZh)||'',beat:beat,ts:Date.now()});
+    if(!got){
+      th.immersive.turns.pop();
+      if(liveWrap.parentNode) liveWrap.parentNode.removeChild(liveWrap);
+      save(); renderImm(l,th.immersive); toast('那边没有回应 · 检查 API'); return;
+    }
+    th.immersive.turns.push({role:'them',text:got,ts:Date.now()});
     save(); renderImm(l,th.immersive); renderLift();
-    log('在「'+l.name+'」的那天与TA说了话');
+    log('在「'+l.name+'」的那天，说了一段话');
   }
   function toggleFade(id){
     var th=st.threads.find(function(x){return x.id===id;}); if(!th) return;
@@ -32217,6 +32392,9 @@ window.bsRoomAI = bsRoomAI;
     $('cr-back').onclick=close;
     if($('im-back')) $('im-back').onclick=closeImm;
     if($('im-send')) $('im-send').onclick=immSay;
+    if($('im-gear')) $('im-gear').onclick=function(){ var c=$('im-cfg'); c.hidden=!c.hidden; };
+    if($('im-cfg-save')) $('im-cfg-save').onclick=immSetCfg;
+    if($('im-len')) $('im-len').onchange=function(){ $('im-len-custom').hidden=($('im-len').value!=='custom'); };
     if($('im-text')) $('im-text').onkeydown=function(e){ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); immSay(); } };
     $('cr-lift').onclick=function(){ $('cr-lift').style.display=''; lift(); };
     $('cr-relift').onclick=function(){ st.current=null; save(); renderLift(); lift(); };
