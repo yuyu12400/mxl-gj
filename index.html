@@ -31397,7 +31397,6 @@ window.bsRoomAI = bsRoomAI;
       <label><input type="checkbox" value="异世界">异世界</label>
       <label><input type="checkbox" value="历史关头">历史关头</label>
     </div>
-    <div class="cr-set-item"><span>允许名人与历史大事件</span><input type="checkbox" id="cr-s-famous"></div>
     <div class="cr-set-item"><span>双歧路共信</span><input type="checkbox" id="cr-s-pair"></div>
     <div class="cr-set-item"><span>锚点回响</span><input type="checkbox" id="cr-s-anchor"></div>
     <div class="cr-set-item"><span>抉择倾向印记</span><span class="cr-mark" id="cr-mark-text"></span></div>
@@ -31418,7 +31417,7 @@ window.bsRoomAI = bsRoomAI;
   st.threads=st.threads||[]; st.current=st.current||null; st.posts=st.posts||[]; st.log=st.log||[];
   st.driftQueue=st.driftQueue||[]; st.paper=st.paper||'#fffef9';
   st.mark=st.mark||{a:0,b:0,open:0,done:0,up:0,down:0};
-  st.settings=Object.assign({crack:15,regress:true,parallel:true,chars:true,era:'random',topics:[],famous:false,pair:true,anchor:true},st.settings||{});
+  st.settings=Object.assign({crack:15,regress:true,parallel:true,chars:true,era:'random',topics:[],pair:true,anchor:true},st.settings||{});
   st.wind=st.wind||'';
   var busy=false, pending=null, pendingPost=null;
 
@@ -31507,9 +31506,9 @@ window.bsRoomAI = bsRoomAI;
   function liftPrompt(charOpts){
     var s=st.settings;
     var eraMap={modern:'现代当下（2020 年代前后，和我们身处同一时空的身边人）',ancient:'古代（中国历史或其他文明的古代纪年）',fantasy:'架空世界（虚构朝代、国度、种族）',future:'未来（近未来或远未来）'};
-    var eraLine=(s.era&&s.era!=='random')?('本轮优先打捞：'+eraMap[s.era]+'。'):'时空完全随机：必须混合现代当下（2020 年代、与我们同时空的普通人生活）、古代、架空、未来；不要全是遥远古代，也不要全是历史大事件。';
+    var eraLine=(s.era&&s.era!=='random')?('本轮优先打捞：'+eraMap[s.era]+'。'):'时空完全随机：现代当下、古代、架空、未来、与我们同时空、遥远时空都可能出现，不刻意偏向任何一类。';
     var topicLine=(s.topics&&s.topics.length)?('本轮题材限定在：'+s.topics.join('、')+'。'):'题材完全随机：感情、亲族、职业去留、生死、背叛、理想与现实、日常琐碎的两难、异世界危机、历史关头都可以。';
-    var famousLine=s.famous?'允许出现历史名人、公众人物或卷入大事件的人。':'不要写历史名人、帝王将相、战争领袖、公众人物；写信的人以普通人为主（学生、店员、上班族、邻居、家人、手艺人、路人、异乡者等），事件多为日常里的真实两难，不要刻意写战争、站队、王朝兴衰这类大事件。';
+    var famousLine='人物与事件完全随机：普通人、历史名人、公众人物、卷入大事件的人都可能出现；日常两难、情感取舍、生死关头、历史站队、异世界危机都可以，不要刻意偏向或排除任何一类。';
     var pairLine=s.pair?'允许 0~1 封"双歧路共信"：两个相互关联的人同时卡在各自的两难里，合写在一封信笺上；该封加 "pair":true，用 nameA/textA/optionA/optionB 写第一个人，nameB/textB/optionC/optionD 写第二个人，其余字段共用。':'本轮不写共信信，pair 一律 false。';
     var hasAnchor=(s.anchor&&(st.threads||[]).some(function(t){return t.anchor;}));
     var anchorLine=hasAnchor?'另有一条极低概率规则：至多 1 封信可以泛泛提到"很多年前曾收到过一位陌生过客的建议"，不要点名是谁、不要和其他信件的故事挂钩；若出现，在该封加 "anchorEcho":"这句回响的短摘"。':'本轮不写锚点回响，anchorEcho 留空。';
@@ -32039,7 +32038,6 @@ window.bsRoomAI = bsRoomAI;
     if($('cr-s-parallel')) $('cr-s-parallel').checked=s.parallel;
     if($('cr-s-chars')) $('cr-s-chars').checked=s.chars;
     if($('cr-s-era')) $('cr-s-era').value=s.era||'random';
-    if($('cr-s-famous')) $('cr-s-famous').checked=!!s.famous;
     if($('cr-s-pair')) $('cr-s-pair').checked=s.pair!==false;
     if($('cr-s-anchor')) $('cr-s-anchor').checked=s.anchor!==false;
     var tps=$('cr-s-topics');
@@ -32075,7 +32073,6 @@ window.bsRoomAI = bsRoomAI;
     var sp=$('cr-s-parallel'); if(sp) sp.onchange=function(){ s.parallel=sp.checked; save(); };
     var sch=$('cr-s-chars'); if(sch) sch.onchange=function(){ s.chars=sch.checked; save(); };
     var se=$('cr-s-era'); if(se) se.onchange=function(){ s.era=se.value; save(); };
-    var sf=$('cr-s-famous'); if(sf) sf.onchange=function(){ s.famous=sf.checked; save(); };
     var sp2=$('cr-s-pair'); if(sp2) sp2.onchange=function(){ s.pair=sp2.checked; save(); };
     var sa2=$('cr-s-anchor'); if(sa2) sa2.onchange=function(){ s.anchor=sa2.checked; save(); };
     var tps=$('cr-s-topics');
