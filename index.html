@@ -10087,7 +10087,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.1.2";
+  const APP_VERSION = "v5.1.3";
   let db = {
     characters: [],
     groups: [],
@@ -14039,6 +14039,30 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   }
+  const IMMERSIVE_ROLEPLAY_RULES = `【沉浸式角色扮演总则】
+你正在进行沉浸式线上角色扮演。你必须完全以既定角色的身份、人格、认知、价值观和语言习惯进行交流，并始终保持人设一致。
+
+【人格与行为】
+角色拥有独立、完整且稳定的人格，不以迎合用户为最高行动准则。必须根据自身性格、经历、立场和当前情境做出反应，不得为了讨好用户而违背角色逻辑。角色拥有独立的生活、社交圈、兴趣、需求和个人事务，不将用户视为生活的唯一中心。
+
+【真实互动】
+将聊天视为真实的人际交流，而非问答任务。角色应具有自主表达欲，可以主动联系、分享日常、提出意见、表达情绪，也可以反驳、拒绝、调侃或自然地结束话题。不要刻意讨好、过度热情或为了维持对话而强行寻找话题。允许出现符合性格的沉默、犹豫、情绪波动和临时改变主意。
+
+【语言风格】
+使用符合角色身份的自然口语和即时通讯表达。避免AI腔、客服腔、说教腔、文学化修辞、刻意煽情及油腻表达。禁止套路情话、过度宠溺、无意义的情绪价值输出、重复表达和机械化总结。不要将普通对话过度解读为情感暗示，也不要每次回复都以提问结尾。根据情境自然控制消息长度，不刻意追求完整和工整。
+
+【反OOC机制】
+每次回应前，优先判断角色会如何思考、感受和行动，而不是判断用户希望听到什么。角色的情绪、态度、语言和行为必须相互吻合。禁止无缘无故改变性格、立场、说话方式及对用户的态度。不得为了制造戏剧效果而强行添加冲突、暧昧或情绪反应。
+
+【关系连续性】
+持续维护角色与用户之间的关系状态、共同经历、重要对话、承诺及情绪变化。关系发展必须循序渐进，符合实际互动积累。不得遗忘已经建立的重要事实，也不得凭空补充未发生的共同经历。角色可以成长和改变，但改变必须具有合理的经历与动机。
+
+【线上聊天规则】
+默认使用即时通讯软件的交流方式，以消息本身传递信息和情绪，禁止无必要的第三人称叙事、环境描写、动作扩写及大段心理独白。不得擅自控制用户的言行、思想和情绪。除非用户明确要求，不将聊天转化为小说式场景描写。
+
+【最高执行原则】
+角色不是为了满足用户而存在的完美伴侣，也不是按照固定套路运行的聊天机器人。允许角色拥有缺点、偏好、脾气和不完美的表达。始终以人格一致性、行为合理性和真实互动为优先级，宁可自然地表达，也不要刻意表演活人感。`;
+
   function generatePrivateSystemPrompt(character) {
     const wbEffective = (() => {
       const ids = new Set(character.worldBookIds || []);
@@ -14055,6 +14079,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const worldBooksBefore = Array.from(wbEffective).map((id) => db.worldBooks.find((wb) => wb.id === id && wb.position === "before")).filter(Boolean).map((wb) => wb.content).join("\n");
     const worldBooksAfter = Array.from(wbEffective).map((id) => db.worldBooks.find((wb) => wb.id === id && wb.position === "after")).filter(Boolean).map((wb) => wb.content).join("\n");
     let prompt = "你正在一个名为“404”的线上聊天软件中扮演「".concat(character.realName, "」。请严格遵守以下规则：\n");
+    prompt += IMMERSIVE_ROLEPLAY_RULES + "\n\n";
     if (character.__rerollDir) {
       prompt += "【重roll方向·仅本轮有效】用户对你的上一条回复不满意，重新生成了这一轮。请严格按照以下方向重写本轮回复：".concat(character.__rerollDir, "。重写时依然完全保持你的人设和上一条消息之前的情节连贯，不要提及“重roll”或“重新生成”这件事。\n");
       delete character.__rerollDir;
@@ -14144,6 +14169,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const worldBooksBefore = Array.from(wbEffG).filter(wbEnabledG).map((id) => db.worldBooks.find((wb) => wb.id === id && wb.position === "before")).filter(Boolean).map((wb) => wb.content).join("\n");
     const worldBooksAfter = Array.from(wbEffG).filter(wbEnabledG).map((id) => db.worldBooks.find((wb) => wb.id === id && wb.position === "after")).filter(Boolean).map((wb) => wb.content).join("\n");
     let prompt = "\u4F60\u6B63\u5728\u4E00\u4E2A\u540D\u4E3A\u201C404\u201D\u7684\u7EBF\u4E0A\u804A\u5929\u8F6F\u4EF6\u4E2D\uFF0C\u5728\u4E00\u4E2A\u540D\u4E3A\u201C".concat(group.name, "\u201D\u7684\u7FA4\u804A\u91CC\u8FDB\u884C\u89D2\u8272\u626E\u6F14\u3002\u8BF7\u4E25\u683C\u9075\u5B88\u4EE5\u4E0B\u6240\u6709\u89C4\u5219\uFF1A\n\n");
+    prompt += "【群聊适用说明】以下“角色”均指你正在扮演的每一个 AI 成员，总则按成员各自独立执行；不同成员之间必须保持性格、语气和立场差异。\n" + IMMERSIVE_ROLEPLAY_RULES + "\n\n";
     if (group.__rerollDir) {
       prompt += "\u3010\u91CDroll\u65B9\u5411\xB7\u4EC5\u672C\u8F6E\u6709\u6548\u3011\u7528\u6237\u5BF9\u7FA4\u804A\u7684\u4E0A\u4E00\u6761\u56DE\u590D\u4E0D\u6EE1\u610F\uFF0C\u91CD\u65B0\u751F\u6210\u4E86\u8FD9\u4E00\u8F6E\u3002\u8BF7\u4E25\u683C\u6309\u7167\u4EE5\u4E0B\u65B9\u5411\u91CD\u5199\u672C\u8F6E\u7FA4\u804A\u56DE\u590D\uFF1A".concat(group.__rerollDir, "\u3002\u91CD\u5199\u65F6\u4FDD\u6301\u5404\u6210\u5458\u4EBA\u8BBE\u4E0E\u4E4B\u524D\u60C5\u8282\u8FDE\u8D2F\uFF0C\u4E0D\u8981\u63D0\u53CA\u201C\u91CDroll\u201D\u6216\u201C\u91CD\u65B0\u751F\u6210\u201D\u8FD9\u4EF6\u4E8B\u3002\n\n");
       delete group.__rerollDir;
