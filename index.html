@@ -6611,143 +6611,171 @@
         font-family: "Helvetica Neue", "Apple SD Gothic Neo", "Pretendard", -apple-system, "PingFang SC", sans-serif;
       }
 
-      /* ---------- 列表页：大留白 + 细分隔线的编辑式排版 ---------- */
-      #chat-list-screen { background: #ffffff; }
-      #chat-list-screen .app-header {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        background: #ffffff;
-        backdrop-filter: none; -webkit-backdrop-filter: none;
-        border-bottom: 1px solid #ededed;
-        padding: 14px 22px 16px;
+      /* ---------- 列表页：照片横带 + 大字叠排 + 杂志式名单 ---------- */
+      #chat-list-screen { background:#ffffff; position:relative; }
+
+      /* 顶部照片横带（可点换图） */
+      .cl-hero {
+        position:relative; z-index:2; flex:none;
+        height:176px;
+        background:#101012 center/cover no-repeat;
+        cursor:pointer;
+        overflow:visible;
       }
-      #chat-list-screen .title-container {
-        order: 3;
-        flex: 0 0 100%;
-        position: static;
-        transform: none;
-        align-items: flex-start;
-        text-align: left;
-        max-width: 100%;
-        margin-top: 8px;
+      .cl-hero::after {
+        content:''; position:absolute; inset:0; pointer-events:none;
+        background:linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,.20) 42%, rgba(0,0,0,.62) 100%);
       }
-      #chat-list-screen .action-btn-group { order: 2; margin-left: auto; }
-      #chat-list-screen .back-btn {
-        width: 30px; height: 30px;
-        border-radius: 2px;
-        background: transparent;
-        color: var(--ink);
-        font-size: 17px; font-weight: 300;
-        display: flex; align-items: center; justify-content: center;
+      .cl-hero .app-header.cl-topbar {
+        position:absolute; inset:0 0 auto 0; z-index:4;
+        display:flex; align-items:center; justify-content:space-between;
+        background:transparent !important;
+        border:0 !important; box-shadow:none !important;
+        backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+        padding:calc(env(safe-area-inset-top, 0px) + 14px) 20px 0 !important;
+        flex-wrap:nowrap;
       }
-      #chat-list-screen .title {
-        font-size: 30px;
-        font-weight: 700;
-        letter-spacing: -0.045em;
-        line-height: 1.05;
-        color: var(--ink);
-        text-align: left;
+      .cl-hero .cl-back {
+        width:30px; height:30px; padding:0;
+        display:flex; align-items:center; justify-content:center;
+        background:transparent !important; border:0 !important;
+        color:#fff !important; font-size:19px; font-weight:300; line-height:1;
+        opacity:.92;
       }
-      #chat-list-screen .title::before {
-        content: "MESSAGES";
-        display: block;
-        font-size: 9px;
-        font-weight: 500;
-        letter-spacing: 0.34em;
-        color: var(--ink-mute);
-        margin-bottom: 7px;
-        line-height: 1;
+      .cl-top-actions { display:flex; align-items:center; gap:12px; }
+      .cl-hero #create-group-btn.cl-icon {
+        width:30px; height:30px; padding:0; display:flex; align-items:center; justify-content:center;
+        background:transparent !important; border:0 !important; color:#fff !important; font-size:0;
       }
-      #chat-list-screen .action-btn-group { gap: 14px; }
-      #chat-list-screen .back-btn { order: 1; }
-      #chat-list-screen #create-group-btn {
-        background: transparent !important;
-        border: none !important;
-        border-bottom: 1px solid var(--ink) !important;
-        border-radius: 0 !important;
-        padding: 0 0 2px !important;
-        font-size: 10px !important;
-        font-weight: 600 !important;
-        letter-spacing: 0.16em;
-        color: var(--ink) !important;
-        box-shadow: none !important;
+      .cl-icon svg { width:19px; height:19px; stroke:#fff; fill:none; stroke-width:1.4; opacity:.92; }
+      .cl-hero #add-chat-btn.cl-plus {
+        width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center;
+        background:transparent !important;
+        border:1px solid rgba(255,255,255,.85) !important; border-radius:0 !important;
+        color:#fff !important; font-size:15px; font-weight:300; line-height:1;
       }
-      #chat-list-screen #add-chat-btn {
-        width: 30px !important; height: 30px !important;
-        border-radius: 2px !important;
-        background: var(--ink) !important;
-        color: #fff !important;
-        font-size: 16px !important;
-        font-weight: 300 !important;
-        display: flex; align-items: center; justify-content: center;
-        box-shadow: none !important;
+      .cl-kicker {
+        position:absolute; z-index:3; left:24px; top:calc(env(safe-area-inset-top, 0px) + 58px);
+        margin:0; font-size:9px; font-weight:500; letter-spacing:.26em;
+        color:rgba(255,255,255,.78); text-transform:uppercase;
       }
-      #chat-list-screen .content { padding: 6px 0 96px; }
-      #chat-list-container { padding: 0 0 20px; }
-      #chat-list-container .list-item {
-        background: #fff;
-        border-bottom: 1px solid var(--line);
-        border-radius: 0;
-        margin: 0;
-        padding: 20px 22px;
-        box-shadow: none;
-        transition: background .16s ease;
-        align-items: center;
+      .cl-title {
+        position:absolute; z-index:3; left:21px; bottom:16px; margin:0;
+        font-size:44px; line-height:.9; font-weight:800; letter-spacing:-.06em;
+        color:#fff; text-transform:lowercase;
       }
-      #chat-list-container .list-item:active,
-      #chat-list-container .list-item:hover { background: #f7f7f7; }
-      #chat-list-container .chat-item.pinned { background: #fff; box-shadow: none; }
-      #chat-list-container .chat-item.pinned .pin-badge {
-        border: none;
-        color: #b3b3b6;
-        background: transparent;
+
+      /* 右下角小照片卡 + 可编辑图注 */
+      .cl-photo-card {
+        position:absolute; z-index:5; right:20px; top:calc(176px - 28px);
+        width:88px; text-align:center;
       }
-      #chat-list-container .chat-avatar {
-        width: 46px; height: 46px;
-        border-radius: 3px !important;
-        margin-right: 16px;
-        box-shadow: none;
-        background: #f2f2f2;
-        object-fit: cover;
-        filter: grayscale(1) contrast(1.06);
+      .cl-photo-inset {
+        display:block; width:72px; height:88px; margin:0 auto; object-fit:cover;
+        border:1px solid #111; background:#eee; cursor:pointer;
+        filter:grayscale(1) contrast(1.05);
       }
-      #chat-list-container .item-details { min-width: 0; }
-      #chat-list-container .item-name,
-      #chat-list-container .item-preview {
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      .cl-photo-cap {
+        display:block; width:100%; margin-top:7px; padding:0;
+        background:transparent; border:0; cursor:pointer;
+        font:inherit; font-size:7.5px; letter-spacing:.1em; color:#8a8a8c;
+        text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
       }
-      #chat-list-container .item-name {
-        font-size: 15px;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-        color: var(--ink);
+
+      /* 内容区 */
+      #chat-list-screen .cl-content {
+        flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+        padding:88px 0 calc(96px + env(safe-area-inset-bottom, 0px));
+        background:#fff;
       }
-      #chat-list-container .item-preview {
-        font-size: 12px;
-        font-weight: 400;
-        color: var(--ink-mute);
-        line-height: 1.5;
-        letter-spacing: 0.01em;
+
+      /* 搜索行 */
+      .cl-search {
+        display:flex; align-items:center; gap:10px;
+        margin:0 24px; padding:4px 0 10px;
+        border-bottom:1px solid #111;
       }
-      #chat-list-container .item-preview-wrapper { margin-top: 6px; }
-      #chat-list-container .pin-badge {
-        display: inline-flex;
-        align-items: center;
-        border-radius: 0;
-        background: transparent;
-        color: var(--ink-mute);
-        font-size: 9px;
-        font-weight: 600;
-        letter-spacing: 0.18em;
-        padding: 0 0 0 10px;
+      .cl-search svg { width:14px; height:14px; stroke:#111; fill:none; stroke-width:1.5; flex:none; opacity:.85; }
+      .cl-search input {
+        flex:1; min-width:0; padding:0; border:0; outline:0; background:transparent;
+        font:inherit; font-size:12px; letter-spacing:.04em; color:#111;
+        -webkit-appearance:none; appearance:none;
       }
+      .cl-search input::placeholder { color:#a2a2a5; letter-spacing:.08em; }
+      .cl-search .cl-ast { font-size:11px; color:#111; opacity:.7; line-height:1; }
+
+      /* 分组 */
+      .cl-groups { display:block; }
+      .cl-group { display:block; }
+      .cl-group-head {
+        display:flex; align-items:center; gap:12px;
+        margin:16px 24px 0;
+      }
+      .cl-group-label {
+        font-size:9px; font-weight:600; letter-spacing:.24em; color:#111;
+        white-space:nowrap; text-transform:uppercase;
+      }
+      .cl-group-label i { font-style:normal; margin-right:5px; font-size:8px; opacity:.8; }
+      .cl-rule { flex:1; height:1px; background:#111; opacity:.30; }
+
+      /* 名单行 */
+      .cl-list { list-style:none; margin:0; padding:0; }
+      #chat-list-screen .cl-list .list-item {
+        position:relative;
+        display:flex; align-items:center; gap:13px;
+        margin:0; padding:13px 24px;
+        background:#fff; border:0; border-bottom:1px solid #ececec;
+        border-radius:0; box-shadow:none;
+        transition:background .15s ease;
+      }
+      #chat-list-screen .cl-list .list-item:active { background:#f5f5f5; }
+      #chat-list-screen .cl-list .list-item.pinned::before {
+        content:''; position:absolute; left:10px; top:14px; bottom:14px; width:3px;
+        background:#111;
+      }
+      #chat-list-screen .cl-list .list-item.pinned { background:#fafafa; }
+      #chat-list-screen .cl-list .chat-avatar {
+        flex:none; width:44px; height:44px; border-radius:50%;
+        object-fit:cover; filter:grayscale(1) contrast(1.05);
+        border:1px solid #e6e6e6; background:#eee;
+      }
+      #chat-list-screen .cl-list .item-details {
+        flex:1; min-width:0; display:flex; flex-direction:column; gap:5px;
+        padding:0; margin:0; background:none; border:0;
+      }
+      .cl-row-top { display:flex; align-items:baseline; gap:10px; }
+      #chat-list-screen .cl-list .item-name {
+        flex:1; min-width:0; margin:0; padding:0;
+        font-size:13.5px; font-weight:600; letter-spacing:.01em; color:#0b0b0c;
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      }
+      .cl-time {
+        flex:none; font-size:9.5px; font-weight:500; letter-spacing:.12em; color:#8f8f92;
+        font-variant-numeric:tabular-nums;
+      }
+      #chat-list-screen .cl-list .item-preview {
+        margin:0; padding:0;
+        font-size:11px; line-height:1.35; color:#77777a; letter-spacing:.02em;
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      }
+      #chat-list-screen .cl-list .pin-badge { display:none; }
+      .cl-item-empty { display:none !important; }
+
+      /* 空状态 */
       #no-chats-placeholder {
-        color: var(--ink-mute);
-        font-size: 12px;
-        letter-spacing: 0.06em;
-        line-height: 2;
+        color:var(--ink-mute); font-size:12px; letter-spacing:.06em; line-height:2;
+        padding:36px 24px; margin:0; text-align:left;
       }
+      #no-chats-placeholder p { margin:0; }
+
+      /* 底部收束 */
+      .cl-footer {
+        display:flex; align-items:center; justify-content:space-between;
+        margin:18px 24px 0; padding-top:11px;
+        border-top:1px solid #111;
+        font-size:8.5px; font-weight:500; letter-spacing:.2em; color:#111;
+      }
+      .cl-footer span:last-child { color:#8f8f92; }
 
       /* ---------- 聊天页：窄边距、无阴影、黑白对照 ---------- */
       #chat-room-screen { background: #fff; }
@@ -7075,23 +7103,63 @@
       #bottom-nav .nav-item.active { color: #0b0b0c !important; }
     </style>
     <div id="chat-list-screen" class="screen">
-        <header class="app-header">
-            <button class="back-btn" data-target="home-screen">‹</button>
-            <div class="title-container">
-                <h1 class="title">聊天</h1>
+        <div class="cl-hero" id="cl-hero">
+            <header class="app-header cl-topbar">
+                <button class="back-btn cl-back" data-target="home-screen" aria-label="返回">‹</button>
+                <div class="cl-top-actions">
+                    <button class="action-btn cl-icon" id="create-group-btn" aria-label="群聊">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4Z"/></svg>
+                    </button>
+                    <button class="action-btn cl-plus" id="add-chat-btn" aria-label="新建聊天">+</button>
+                </div>
+            </header>
+            <span class="cl-kicker">404 / INBOX</span>
+            <h1 class="cl-title">chat</h1>
+        </div>
+
+        <div class="cl-photo-card">
+            <img class="cl-photo-inset" id="cl-photo-inset" alt="cover photo">
+            <button class="cl-photo-cap" id="cl-photo-cap" type="button">MIRROR / 21:40</button>
+        </div>
+
+        <main class="content cl-content">
+            <div class="cl-search">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+                <input id="cl-search-input" type="search" placeholder="搜索联系人" autocomplete="off">
+                <span class="cl-ast">✳</span>
             </div>
-            <div class="action-btn-group">
-                <button class="action-btn" id="create-group-btn">群聊</button>
-                <button class="action-btn" id="add-chat-btn">+</button>
-            </div>
-        </header>
-        <main class="content">
-            <ul class="list-container" id="chat-list-container"></ul>
-            <div class="placeholder-text" id="no-chats-placeholder" style="display: none;">
-                <p>还没有聊天对象哦~</p>
-                <p>点击右上角的“+”创建一个吧！</p>
+
+            <div id="chat-list-container" class="cl-groups">
+                <section class="cl-group" id="cl-group-pinned">
+                    <div class="cl-group-head">
+                        <span class="cl-group-label"><i>✳</i>PINNED</span>
+                        <i class="cl-rule"></i>
+                    </div>
+                    <ul class="cl-list" id="chat-list-pinned"></ul>
+                </section>
+
+                <section class="cl-group" id="cl-group-all">
+                    <div class="cl-group-head">
+                        <span class="cl-group-label">ALL MESSAGES</span>
+                        <i class="cl-rule"></i>
+                    </div>
+                    <ul class="cl-list" id="chat-list-normal"></ul>
+                </section>
+
+                <div class="placeholder-text" id="no-chats-placeholder" style="display: none;">
+                    <p>还没有聊天对象</p>
+                    <p>点右上角的 + 新建一个</p>
+                </div>
+
+                <footer class="cl-footer">
+                    <span>END OF LIST</span>
+                    <span id="cl-count">00 / 00</span>
+                </footer>
             </div>
         </main>
+
+        <input type="file" id="cl-hero-input" accept="image/*" style="display:none">
+        <input type="file" id="cl-inset-input" accept="image/*" style="display:none">
     </div>
     <div id="chat-room-screen" class="screen">
         <header class="app-header" id="chat-room-header-default">
@@ -9921,18 +9989,147 @@ document.addEventListener("DOMContentLoaded", () => {
     }];
     createContextMenu(menuItems, x, y);
   }
+  /* ===== 404 列表页：照片横带 / 可换图 / 可编辑图注 ===== */
+  const CL_DEFAULT_HERO = "https://media.doubao.com/space/api/box/stream/download/all_by_mount_point/JGQVbk4r2ofcBMx6tDGcDyp2nyW";
+  const CL_DEFAULT_INSET = "https://media.doubao.com/space/api/box/stream/download/all_by_mount_point/RndWbRigroLZzBx12rJcjWO5nBb";
+  const CL_DEFAULT_CAPTION = "MIRROR / 21:40";
+  function clConfig() {
+    if (!db.ui404 || typeof db.ui404 !== "object") db.ui404 = {};
+    const c = db.ui404;
+    if (!c.hero) c.hero = CL_DEFAULT_HERO;
+    if (!c.inset) c.inset = CL_DEFAULT_INSET;
+    if (!c.caption) c.caption = CL_DEFAULT_CAPTION;
+    return c;
+  }
+  function clApplyCovers() {
+    const c = clConfig();
+    const hero = document.getElementById("cl-hero");
+    if (hero) hero.style.backgroundImage = 'url("'.concat(c.hero, '")');
+    const inset = document.getElementById("cl-photo-inset");
+    if (inset) inset.src = c.inset;
+    const cap = document.getElementById("cl-photo-cap");
+    if (cap) cap.textContent = c.caption;
+  }
+  function clFmtTime(ts) {
+    if (!ts) return "NEW";
+    const d = new Date(ts);
+    const now = new Date();
+    const sameDay = d.toDateString() === now.toDateString();
+    const hm = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    if (sameDay) return hm;
+    const y = new Date(now.getTime() - 864e5);
+    if (d.toDateString() === y.toDateString()) return "\u6628\u5929";
+    return String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0");
+  }
+  function clChatTime(chat) {
+    const h = chat.history || [];
+    for (let i = h.length - 1; i >= 0; i--) {
+      const t = h[i].ts || h[i].timestamp;
+      if (t) return t;
+    }
+    return 0;
+  }
+  function clCompressImage(file, maxW, quality, cb) {
+    const reader = new FileReader();
+    reader.onload = () => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const w = Math.round(img.width * scale);
+        const h = Math.round(img.height * scale);
+        const cv = document.createElement("canvas");
+        cv.width = w; cv.height = h;
+        const ctx = cv.getContext("2d");
+        ctx.fillStyle = "#fff"; ctx.fillRect(0, 0, w, h);
+        ctx.drawImage(img, 0, 0, w, h);
+        cb(cv.toDataURL("image/jpeg", quality));
+      };
+      img.onerror = () => showToast("\u56FE\u7247\u8BFB\u53D6\u5931\u8D25");
+      img.src = reader.result;
+    };
+    reader.onerror = () => showToast("\u56FE\u7247\u8BFB\u53D6\u5931\u8D25");
+    reader.readAsDataURL(file);
+  }
+  let clUIReady = false;
+  function clUpdateCount() {
+    const cnt = document.getElementById("cl-count");
+    if (!cnt) return;
+    const visible = [...document.querySelectorAll("#chat-list-container .list-item")].filter((li) => li.style.display !== "none").length;
+    const total = document.querySelectorAll("#chat-list-container .list-item").length;
+    cnt.textContent = String(visible).padStart(2, "0") + " / " + String(total).padStart(2, "0");
+    ["cl-group-pinned", "cl-group-all"].forEach((gid) => {
+      const sec = document.getElementById(gid);
+      if (!sec) return;
+      const has = [...sec.querySelectorAll(".list-item")].some((li) => li.style.display !== "none");
+      sec.style.display = has ? "" : "none";
+    });
+  }
+  function clApplySearch() {
+    const inp = document.getElementById("cl-search-input");
+    if (!inp) return;
+    const q = inp.value.trim().toLowerCase();
+    document.querySelectorAll("#chat-list-container .list-item").forEach((li) => {
+      li.style.display = !q || li.textContent.toLowerCase().includes(q) ? "" : "none";
+    });
+    clUpdateCount();
+  }
+  function clBindUI() {
+    if (clUIReady) { clApplyCovers(); clApplySearch(); return; }
+    const hero = document.getElementById("cl-hero");
+    const heroInput = document.getElementById("cl-hero-input");
+    const insetImg = document.getElementById("cl-photo-inset");
+    const insetInput = document.getElementById("cl-inset-input");
+    const capBtn = document.getElementById("cl-photo-cap");
+    const searchInput = document.getElementById("cl-search-input");
+    if (!hero || !heroInput || !insetImg || !insetInput) return;
+    clUIReady = true;
+    const pick = (input) => { input.value = ""; input.click(); };
+    hero.addEventListener("click", (e) => {
+      if (e.target.closest("button")) return;
+      pick(heroInput);
+    });
+    insetImg.addEventListener("click", (e) => { e.stopPropagation(); pick(insetInput); });
+    heroInput.addEventListener("change", () => {
+      const f = heroInput.files && heroInput.files[0];
+      if (!f) return;
+      clCompressImage(f, 900, 0.7, (data) => {
+        clConfig().hero = data; saveData(); clApplyCovers(); showToast("\u9876\u90E8\u5C01\u9762\u5DF2\u6700\u65B0");
+      });
+    });
+    insetInput.addEventListener("change", () => {
+      const f = insetInput.files && insetInput.files[0];
+      if (!f) return;
+      clCompressImage(f, 420, 0.75, (data) => {
+        clConfig().inset = data; saveData(); clApplyCovers(); showToast("\u5C0F\u7167\u7247\u5DF2\u66F4\u6362");
+      });
+    });
+    if (capBtn) capBtn.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const cur = clConfig().caption || CL_DEFAULT_CAPTION;
+      const val = await uiPrompt("\u56FE\u6CE8\u6587\u5B57\uFF08\u4F8B\u5982 MIRROR / 21:40\uFF09", cur);
+      if (val === null || val === undefined || val === false) return;
+      clConfig().caption = String(val).trim() || CL_DEFAULT_CAPTION;
+      saveData(); clApplyCovers();
+    });
+    if (searchInput) searchInput.addEventListener("input", clApplySearch);
+    clApplyCovers();
+    clApplySearch();
+  }
   function renderChatList() {
-    chatListContainer.innerHTML = "";
+    const cfg = clConfig();
+    const pinnedUl = document.getElementById("chat-list-pinned");
+    const normalUl = document.getElementById("chat-list-normal");
+    if (!pinnedUl || !normalUl) return;
+    pinnedUl.innerHTML = "";
+    normalUl.innerHTML = "";
     const allChats = [...db.characters.map((c) => ({ ...c, type: "private" })), ...db.groups.map((g) => ({
       ...g,
       type: "group"
     }))];
-    noChatsPlaceholder.style.display = db.characters.length + db.groups.length === 0 ? "block" : "none";
+    noChatsPlaceholder.style.display = allChats.length === 0 ? "block" : "none";
     const sortedChats = allChats.sort((a, b) => {
       if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
-      const lastMsgTimeA = a.history && a.history.length > 0 ? a.history[a.history.length - 1].timestamp : 0;
-      const lastMsgTimeB = b.history && b.history.length > 0 ? b.history[b.history.length - 1].timestamp : 0;
-      return lastMsgTimeB - lastMsgTimeA;
+      return clChatTime(b) - clChatTime(a);
     });
     sortedChats.forEach((chat) => {
       let lastMessageText = "\u5F00\u59CB\u804A\u5929\u5427...";
@@ -9988,11 +10185,12 @@ document.addEventListener("DOMContentLoaded", () => {
       li.dataset.id = chat.id;
       li.dataset.type = chat.type;
       const avatarClass = chat.type === "group" ? "group-avatar" : "";
-      const itemName = chat.type === "private" ? chat.remarkName : chat.name;
-      const pinBadgeHTML = chat.isPinned ? '<span class="pin-badge">\u7F6E\u9876</span>' : "";
-      li.innerHTML = '\n                <img src="'.concat(chat.avatar, '" alt="').concat(itemName, '" class="chat-avatar ').concat(avatarClass, '">\n                <div class="item-details">\n                    <div class="item-details-row"><div class="item-name">').concat(itemName, '</div></div>\n                    <div class="item-preview-wrapper"><div class="item-preview">').concat(lastMessageText, "</div>").concat(pinBadgeHTML, "</div>\n                </div>");
-      chatListContainer.appendChild(li);
+      const itemName = chat.type === "private" ? (chat.remarkName || chat.realName || "\u672A\u547D\u540D") : (chat.name || "\u672A\u547D\u540D\u7FA4\u804A");
+      li.innerHTML = '\n                <img src="'.concat(chat.avatar || "", '" alt="').concat(itemName, '" class="chat-avatar ').concat(avatarClass, '">\n                <div class="item-details">\n                    <div class="cl-row-top"><div class="item-name">').concat(itemName, '</div><div class="cl-time">').concat(clFmtTime(clChatTime(chat)), '</div></div>\n                    <div class="item-preview">').concat(lastMessageText, "</div>\n                </div>");
+      (chat.isPinned ? pinnedUl : normalUl).appendChild(li);
     });
+    clBindUI();
+    clUpdateCount();
   }
   window.renderChatList = renderChatList;
   function setupAddCharModal() {
