@@ -10365,7 +10365,7 @@ document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("api-settings-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">API \u8BBE\u7F6E</h1></div><div class="placeholder"></div></header><main class="content"><form id="api-form"><div class="form-group"><label for="api-provider">API \u670D\u52A1\u5546</label><select id="api-provider" name="provider"><option value="newapi">NewAPI (\u81EA\u5B9A\u4E49)</option><option value="deepseek">DeepSeek</option><option value="claude">Claude</option><option value="gemini">Gemini</option></select></div><div class="form-group" style="border:1px solid #e8eaed;border-radius:12px;padding:12px;margin-bottom:14px;"><label style="font-weight:600;display:block;margin-bottom:8px;">API \u9884\u8BBE\uFF08\u4FDD\u5B58\u6574\u5957\u914D\u7F6E\uFF0C\u9009\u4E2D\u5373\u5207\u6362\uFF09</label><select id="api-preset-select" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;background:#fafafa;"></select><input type="text" id="api-preset-name" placeholder="\u9884\u8BBE\u540D\u79F0" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;"><div style="display:flex;gap:8px;margin-top:8px;"><button type="button" class="btn btn-secondary" id="api-preset-save" style="flex:1;padding:7px 10px;font-size:12px;">\u5B58\u4E3A\u9884\u8BBE</button><button type="button" class="btn btn-secondary" id="api-preset-del" style="flex:1;padding:7px 10px;font-size:12px;">\u5220\u9664</button></div></div><div class="form-group"><label for="api-url">API \u5730\u5740\uFF08\u540E\u7F00\u4E0D\u7528\u6DFB\u52A0/v1\uFF09</label><input type="url" id="api-url" name="url" placeholder="\u9009\u62E9\u670D\u52A1\u5546\u53EF\u81EA\u52A8\u586B\u5199" required></div><div class="form-group"><label for="api-key">\u5BC6\u94A5 (Key)</label><input type="password" id="api-key" name="key" placeholder="\u8BF7\u8F93\u5165\u4F60\u7684API\u5BC6\u94A5" required></div><button type="button" class="btn btn-secondary" id="fetch-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u6A21\u578B</span><div class="spinner"></div></button><div class="form-group"><label for="api-model">\u9009\u62E9\u6A21\u578B</label><select id="api-model" name="model" required><option value="">\u8BF7\u5148\u62C9\u53D6\u6A21\u578B\u5217\u8868</option></select></div><div class="form-group"><label style="display:flex; justify-content:space-between; align-items:center;">\u8BC6\u56FE\uFF08\u5F00\u542F\u540EAPI\u4F1A\u8BC6\u522B\u56FE\u7247\u5185\u5BB9\uFF0C\u5168\u5C40\u751F\u6548\uFF09<div class="switch-wrap"><input type="checkbox" id="api-vision-enabled" class="ios-sw"></div></label></div><div class="form-group"><label for="api-stream-mode">\u6D41\u5F0F\u6A21\u5F0F\uFF08\u5168\u5C40\u8F93\u51FA\uFF09</label><select id="api-stream-mode"><option value="auto">\u81EA\u52A8\u68C0\u6D4B\uFF08\u4F18\u5148\u6D41\u5F0F\uFF0C\u5931\u8D25\u81EA\u52A8\u56DE\u9000\u975E\u6D41\u5F0F\uFF09</option><option value="stream">\u4EC5\u6D41\u5F0F</option><option value="nonstream">\u4EC5\u975E\u6D41\u5F0F</option></select></div><div class="form-group"><label>\u6E29\u5EA6\uFF080~2\uFF0C\u8D8A\u4F4E\u8D8A\u7A33\u5B9A\uFF0C\u8D8A\u9AD8\u8D8A\u6709\u60F3\u8C61\u529B\uFF09<span id="api-temp-val" style="color:#9aa0a6;">1.0</span></label><input type="range" id="api-temperature" min="0" max="2" step="0.1" value="1.0" style="width:100%;"></div><div class="form-group" style="border-top:1px dashed #e8eaed; padding-top:12px; margin-top:12px;"><label style="font-weight:600; display:flex; justify-content:space-between; align-items:center;">AI \u751F\u56FE\uFF08\u89D2\u8272\u53D1\u56FE\u65F6\u4F7F\u7528\uFF0C\u4F5C\u7528\u4E8E\u7EBF\u4E0A\uFF09<div class="switch-wrap"><input type="checkbox" id="img-gen-enabled" class="ios-sw"></div></label><div style="font-size:11px;color:#999;margin:4px 0 10px;">\u624B\u52A8\u5F00\u542F\u540E\uFF0C\u89D2\u8272\u53D1\u56FE\u4F1A\u8C03\u7528\u751F\u56FE API\uFF0C\u6309\u5267\u60C5\u3001\u4EBA\u8BBE\u548C\u804A\u5929\u5185\u5BB9\u751F\u6210\u5BF9\u5E94\u56FE\u7247\uFF1B\u672A\u5F00\u542F\u5219\u4ECD\u53D1\u9001\u6A21\u62DF\u56FE\u7247\u3002</div></div><div class="form-group"><label for="img-gen-url">\u751F\u56FE API \u5730\u5740\uFF08OpenAI \u517C\u5BB9\uFF0C\u542B /v1\uFF09</label><input type="url" id="img-gen-url" placeholder="https://api.openai.com/v1"></div><div class="form-group"><label for="img-gen-key">\u751F\u56FE API \u5BC6\u94A5</label><input type="password" id="img-gen-key" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3B API \u5BC6\u94A5"></div><button type="button" class="btn btn-secondary" id="fetch-img-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u751F\u56FE\u6A21\u578B</span><div class="spinner"></div></button><div class="form-group"><label for="img-gen-model">\u751F\u56FE\u6A21\u578B</label><select id="img-gen-model"><option value="">\u8BF7\u5148\u62C9\u53D6\u751F\u56FE\u6A21\u578B</option></select></div><div class="form-group"><label for="img-gen-size">\u751F\u6210\u5C3A\u5BF8</label><select id="img-gen-size"><option value="1024x1024">1024\xD71024\uFF08\u65B9\u5F62\uFF09</option><option value="1024x1792">1024\xD71792\uFF08\u7AD6\u7248\uFF09</option><option value="1792x1024">1792\xD71024\uFF08\u6A2A\u7248\uFF09</option><option value="512x512">512\xD7512\uFF08\u5FEB\u901F\uFF09</option></select></div>\n<div class="form-group"><label for="img-gen-pos-prompt">\u6B63\u5411\u63D0\u793A\u8BCD\uFF08AI\u4F1A\u81EA\u52A8\u878D\u5165\u5267\u60C5\u3001\u4EBA\u8BBE\u3001\u804A\u5929\u5185\u5BB9\u540E\u8FFD\u52A0\uFF09</label><textarea id="img-gen-pos-prompt" rows="3" placeholder="\u9ED8\u8BA4\uFF1A\u7CBE\u81F4\u97E9\u7CFB/\u5199\u5B9E\u98CE\uFF0C\u5149\u5F71\u67D4\u548C\uFF0C\u6784\u56FE\u9AD8\u7EA7\uFF0C\u8D28\u611F\u7EC6\u817B"></textarea></div>\n<div class="form-group"><label for="img-gen-neg-prompt">\u53CD\u5411\u63D0\u793A\u8BCD\uFF08\u4E0D\u5E0C\u671B\u51FA\u73B0\u7684\u5143\u7D20\uFF09</label><textarea id="img-gen-neg-prompt" rows="2" placeholder="\u4F8B\u5982\uFF1A\u4F4E\u8D28\u91CF\u3001\u6A21\u7CCA\u3001\u7578\u53D8\u3001\u591A\u4F59\u80A2\u4F53\u3001\u6587\u5B57\u3001\u6C34\u5370"></textarea></div>\n<div class="form-group" style="border-top:1px dashed #e8eaed;padding-top:12px;"><label style="font-weight:600;">\u751F\u56FE\u63D0\u793A\u8BCD\u9884\u8BBE</label><select id="img-gen-preset-select" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;background:#fafafa;"></select><input type="text" id="img-gen-preset-name" placeholder="\u9884\u8BBE\u540D\u79F0" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;"><div style="display:flex;gap:8px;margin-top:8px;"><button type="button" class="btn btn-secondary" id="img-gen-preset-save" style="flex:1;padding:7px 10px;font-size:12px;">\u5B58\u4E3A\u9884\u8BBE</button><button type="button" class="btn btn-secondary" id="img-gen-preset-del" style="flex:1;padding:7px 10px;font-size:12px;">\u5220\u9664</button></div></div><div class="form-group" style="border-top:1px dashed #e8eaed; padding-top:12px; margin-top:12px;"><label style="font-weight:600;">\u603B\u7ED3 API\uFF08\u7559\u7A7A\u5219\u4F7F\u7528\u4E3B API\uFF09</label></div><div class="form-group"><label for="api-summary-url">\u603B\u7ED3 API \u5730\u5740</label><input type="url" id="api-summary-url" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3BAPI"></div><div class="form-group"><label for="api-summary-key">\u603B\u7ED3 API \u5BC6\u94A5</label><input type="password" id="api-summary-key" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3BAPI"></div><div class="form-group"><label for="api-summary-model">\u603B\u7ED3 API \u6A21\u578B</label><select id="api-summary-model"><option value="">\u8BF7\u5148\u62C9\u53D6\u603B\u7ED3\u6A21\u578B</option></select></div><button type="button" class="btn btn-secondary" id="fetch-summary-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u603B\u7ED3\u6A21\u578B</span><div class="spinner"></div></button><button type="submit" class="btn btn-primary" id="save-btn"><span class="btn-text">\u4FDD \u5B58</span><div class="spinner"></div></button></form></main>';
   document.getElementById("wallpaper-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u66F4\u6362\u58C1\u7EB8</h1></div><div class="placeholder"></div></header><main class="content"><div class="wallpaper-preview" id="wallpaper-preview"><span>\u5F53\u524D\u58C1\u7EB8\u9884\u89C8</span></div><input type="file" id="wallpaper-upload" accept="image/*" style="display: none;"><label for="wallpaper-upload" class="btn btn-primary">\u4ECE\u76F8\u518C\u9009\u62E9\u65B0\u58C1\u7EB8</label></main>';
   document.getElementById("font-settings-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u5B57\u4F53\u8BBE\u7F6E</h1></div><div class="placeholder"></div></header><main class="content"><form id="font-settings-form"><div class="form-group"><label for="font-url">\u5B57\u4F53\u94FE\u63A5 (ttf, woff, woff2)</label><input type="url" id="font-url" placeholder="https://.../font.ttf" required></div><p style="font-size:12px; color:#888; text-align:center;">\u793A\u4F8B: https://lf3-static.bytednsdoc.com/obj/eden-cn/jplptk/ljhwZthlaukjlkulzlp/portal/fonts/HarmonyOS_Sans_SC_Regular.woff2</p><button type="submit" class="btn btn-primary">\u5E94\u7528\u5B57\u4F53</button><button type="button" class="btn btn-neutral" id="restore-default-font-btn" style="margin-top: 15px;">\u6062\u590D\u9ED8\u8BA4\u5B57\u4F53</button></form>\n                <div style="height:1px;background:#eee;margin:18px 0;"></div>\n                <div style="padding:0 2px;">\n                    <div style="font-size:15px;font-weight:700;color:#333;margin-bottom:4px;">\u5168\u5C40\u5B57\u4F53\u5927\u5C0F</div>\n                    <div style="font-size:12px;color:#999;margin-bottom:14px;">\u8C03\u6574\u540E\u5E94\u7528\u5230\u6240\u6709\u754C\u9762\uFF08\u4E3B\u5C4F\u5E55\u3001\u804A\u5929\u3001\u8BBA\u575B\u3001\u5916\u5356\u7B49\uFF09</div>\n                    <div style="display:flex;align-items:center;gap:10px;">\n                        <span style="font-size:12px;color:#999;">\u5C0F</span>\n                        <input type="range" id="font-scale-slider" min="80" max="140" value="100" style="flex:1;accent-color:#17171b;">\n                        <span style="font-size:12px;color:#999;">\u5927</span>\n                    </div>\n                    <div style="text-align:center;margin-top:8px;font-size:14px;font-weight:700;color:#17171b;"><span id="font-scale-val">100</span>%</div>\n                    <button type="button" class="btn btn-primary" id="font-scale-apply" style="margin-top:10px;">\u5E94\u7528\u5B57\u53F7</button>\n                </div></main>';
-  document.getElementById("customize-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u4E3B\u5C4F\u5E55\u81EA\u5B9A\u4E49</h1></div><div class="placeholder"></div></header><main class="content"><form id="customize-form"></form></main>';
+  document.getElementById("customize-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u5916\u89C2</h1></div><div class="placeholder"></div></header><main class="content"><form id="customize-form"></form></main>';
   document.getElementById("tutorial-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u6559\u7A0B</h1></div><div class="placeholder"></div></header><main class="content" id="tutorial-content-area"></main>';
   const colorThemes = {
     "white_pink": {
@@ -10429,7 +10429,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "api-settings-screen": { name: "api", url: "https://i.postimg.cc/50FqT8GL/chan-125.png" },
     "wallpaper-screen": { name: "\u58C1\u7EB8", url: "https://i.postimg.cc/3wqFttL3/chan-90.png" },
     "world-book-screen": { name: "\u4E16\u754C\u4E66", url: "https://i.postimg.cc/prCWkrKT/chan-74.png" },
-    "customize-screen": { name: "\u81EA\u5B9A\u4E49", url: "https://i.postimg.cc/vZVdC7gt/chan-133.png" },
+    "customize-screen": { name: "\u5916\u89C2", url: "https://i.postimg.cc/vZVdC7gt/chan-133.png" },
     "phone-screen": { name: "\u67E5\u624B\u673A", url: "" },
     "food-app-screen": { name: "\u5916\u5356", url: "" },
     "couple-screen": { name: "\u60C5\u4FA3\u7A7A\u95F4", url: "" },
@@ -10444,7 +10444,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.3.2";
+  const APP_VERSION = "v5.3.3";
   let db = {
     characters: [],
     groups: [],
@@ -12255,39 +12255,48 @@ document.addEventListener("DOMContentLoaded", () => {
     const HW_CAM = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="14" r="3.6"/></svg>';
     const HW_PEN = '<svg viewBox="0 0 24 24" width="9" height="9" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a 1 1 0 0 0 0-1.41l-2.34-2.34a 1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
     const hwNm = function (t) { return (defaultIcons && defaultIcons[t] && defaultIcons[t].name) || t; };
+    const hwTxt = function (k, d) { return escapeHtml((db.widgetTexts && db.widgetTexts[k]) || d); };
     const hwPh = function (id) { const s = getIcon(id); return s ? '<img class="hw-pimg" src="' + s + '" alt="">' : '<span class="hw-ph ph-x"></span>'; };
     const hwCam = function (id) { return getIcon(id) ? '' : '<span class="hw-cam">' + HW_CAM + '</span>'; };
     const hwApp = function (t, cn, en, on) {
       const src = getIcon(t);
-      return '<a href="#" class="app-icon hw-app' + (src ? ' has-img' : '') + (on ? ' is-on' : '') + '" data-target="' + t + '">'
+      return '<a href="#" class="app-icon hw-app' + (src ? ' has-img' : '') + (on ? ' is-on' : '') + '" draggable="false" data-target="' + t + '">'
         + '<button type="button" class="icon-edit-btn" data-icon-id="' + t + '" title="换图">' + HW_PEN + '</button>'
         + '<span class="icon-default">' + (appIconSvgs[t] || '') + '</span>'
-        + '<img src="' + src + '" alt="" class="icon-img">'
+        + '<img src="' + (src || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7') + '" alt="" class="icon-img">'
         + '<span class="app-name">' + escapeHtml(cn || hwNm(t)) + '</span>'
         + '<span class="hw-en">' + en + '</span></a>';
+    };
+    const hwGrid = function (pageKey, items, cls) {
+      const saved = (db.desktopOrder && db.desktopOrder[pageKey]) || [];
+      const byId = {}, out = [];
+      items.forEach(function (it) { byId[it[0]] = it; });
+      saved.forEach(function (id) { if (byId[id] && out.indexOf(byId[id]) < 0) out.push(byId[id]); });
+      items.forEach(function (it) { if (out.indexOf(it) < 0) out.push(it); });
+      return '<div class="' + cls + '">' + out.map(function (it) { return hwApp(it[0], it[1], it[2], it[3]); }).join('') + '</div>';
     };
 
     /* ---------- 第一页 ---------- */
     const hwPage1 = '<div class="hw-canvas">'
       + '<div class="hw-t"><span id="time-display">02:48</span></div>'
-      + '<div class="hw-meta"><b>01 / 03</b><span id="date-display">11.25 WED</span> · v5.3.2</div>'
-      + '<div class="hw-archwrap" style="left:12px;top:96px;width:258px;height:336px">'
-      + '<span class="hw-tag">OUR MOMENT</span>'
+      + '<div class="hw-meta"><b>01 / 03</b><span id="date-display">11.25 WED</span> · v5.3.3</div>'
+      + '<div class="hw-archwrap" data-hw-block="p1-arch" style="left:12px;top:96px;width:258px;height:336px">'
+      + '<span class="hw-tag" data-edit-key="hw-tag1">' + hwTxt('hw-tag1', 'OUR MOMENT') + '</span>'
       + '<div class="hw-arch" data-photo-widget="home-photo-1">' + hwPh('home-photo-1') + hwCam('home-photo-1')
-      + '<div class="hw-archfoot"><span>更换照片</span><span>&#10010; REPLACE</span></div></div></div>'
-      + '<div class="hw-orbit" style="left:232px;top:96px;width:156px;height:156px">'
-      + '<div class="hw-cphoto" data-photo-widget="home-photo-2" style="left:26px;top:16px;width:104px;height:104px">' + hwPh('home-photo-2') + hwCam('home-photo-2') + '<span class="hw-cband">LOVE</span></div></div>'
-      + '<div class="hw-orbit" style="left:216px;top:196px;width:156px;height:156px">'
-      + '<div class="hw-cphoto" data-photo-widget="home-photo-3" style="left:24px;top:36px;width:108px;height:108px">' + hwPh('home-photo-3') + hwCam('home-photo-3') + '<span class="hw-cband">US</span></div></div>'
+      + '<div class="hw-archfoot"><span data-edit-key="hw-replace1">' + hwTxt('hw-replace1', '更换照片') + '</span><span data-edit-key="hw-replace2">' + hwTxt('hw-replace2', '✚ REPLACE') + '</span></div></div></div>'
+      + '<div class="hw-orbit" data-hw-block="p1-orbit1" style="left:232px;top:96px;width:156px;height:156px">'
+      + '<div class="hw-cphoto" data-photo-widget="home-photo-2" style="left:26px;top:16px;width:104px;height:104px">' + hwPh('home-photo-2') + hwCam('home-photo-2') + '<span class="hw-cband" data-edit-key="hw-band1">' + hwTxt('hw-band1', 'LOVE') + '</span></div></div>'
+      + '<div class="hw-orbit" data-hw-block="p1-orbit2" style="left:216px;top:196px;width:156px;height:156px">'
+      + '<div class="hw-cphoto" data-photo-widget="home-photo-3" style="left:24px;top:36px;width:108px;height:108px">' + hwPh('home-photo-3') + hwCam('home-photo-3') + '<span class="hw-cband" data-edit-key="hw-band2">' + hwTxt('hw-band2', 'US') + '</span></div></div>'
       + '<div class="hw-dotb" style="right:4px;top:296px"></div>'
-      + '<div class="hw-we">we were there.</div>'
-      + '<div class="hw-wesub">OUR MOMENT / 3 PHOTOS</div>'
-      + '<div class="hw-vinyl"><div class="hw-vd" data-photo-widget="hw-vinyl-img"><span class="hw-vring"></span><div class="hw-vcore">'
+      + '<div class="hw-we" data-edit-key="hw-we">' + hwTxt('hw-we', 'we were there.') + '</div>'
+      + '<div class="hw-wesub" data-edit-key="hw-wesub">' + hwTxt('hw-wesub', 'OUR MOMENT / 3 PHOTOS') + '</div>'
+      + '<div class="hw-vinyl" data-hw-block="p1-vinyl"><div class="hw-vd" data-photo-widget="hw-vinyl-img"><span class="hw-vring"></span><div class="hw-vcore">'
       + (getIcon('hw-vinyl-img') ? '<img class="hw-pimg" src="' + getIcon('hw-vinyl-img') + '" alt="" style="border-radius:50%">' : '<span class="hw-ph ph-x" style="display:flex;align-items:center;justify-content:center">&#9835;</span>')
       + '</div></div></div>'
-      + '<div class="hw-kicker">NOW PLAYING &#183; 404 RADIO</div>'
-      + '<div class="hw-song">our song</div>'
-      + '<div class="hw-artist">UNKNOWN ARTIST &#183; 00:00 / 03:45</div>'
+      + '<div class="hw-kicker" data-edit-key="hw-kicker">' + hwTxt('hw-kicker', 'NOW PLAYING · 404 RADIO') + '</div>'
+      + '<div class="hw-song" data-edit-key="hw-song">' + hwTxt('hw-song', 'our song') + '</div>'
+      + '<div class="hw-artist" data-edit-key="hw-artist">' + hwTxt('hw-artist', 'UNKNOWN ARTIST · 00:00 / 03:45') + '</div>'
       + '<div class="hw-wavepath"><svg viewBox="0 0 240 30" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1"><polyline points="0,15 10,15 14,8 18,24 22,3 26,27 30,12 34,19 38,9 42,22 46,14 50,17 54,10 58,20 62,13 66,15 74,15 82,9 86,22 90,4 94,26 98,11 102,18 106,7 110,23 114,14 118,16 122,9 126,19 130,15 136,15 142,12 146,17 150,6 154,24 158,10 162,20 166,12 170,18 174,14 178,16 182,10 186,19 190,15 196,15 202,13 206,16 210,11 214,18 218,14 222,15 228,15 240,15"/></svg></div>'
       + '<div class="hw-controls">'
       + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20C6 16 3 13 3 9.2A4.7 4.7 0 0 1 12 6.8 4.7 4.7 0 0 1 21 9.2c0 3.8-3 6.8-9 10.8z"/></svg>'
@@ -12297,44 +12306,41 @@ document.addEventListener("DOMContentLoaded", () => {
       + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'
       + '</div>'
       + '<div class="hw-rule"></div>'
-      + '<div class="hw-mhead"><span>MESSAGES / 他 &#215; 我</span><b>09:26</b></div>'
+      + '<div class="hw-mhead"><span data-edit-key="hw-mhead">' + hwTxt('hw-mhead', 'MESSAGES / 他 × 我') + '</span><b data-edit-key="hw-mnew">' + hwTxt('hw-mnew', '09:26') + '</b></div>'
       + '<div class="hw-msg m1"><div class="hw-ava" data-widget-ava="hw-bubble-ava1">' + (getIcon('hw-bubble-ava1') ? '<img src="' + getIcon('hw-bubble-ava1') + '" alt="">' : '他') + '</div>'
-      + '<span class="hw-mtext"><b>他</b><span data-edit-key="hw-bubble1">' + escapeHtml((db.widgetTexts && db.widgetTexts['hw-bubble1']) || '今天过得好不好？') + '</span></span>'
+      + '<span class="hw-mtext"><b data-edit-key="hw-bubble-name">' + hwTxt('hw-bubble-name', '他') + '</b><span data-edit-key="hw-bubble1">' + hwTxt('hw-bubble1', '今天过得好不好？') + '</span></span>'
       + '<span class="hw-mtime">09:25</span></div>'
       + '<div class="hw-msg m2"><div class="hw-ava" data-widget-ava="hw-bubble-ava2">' + (getIcon('hw-bubble-ava2') ? '<img src="' + getIcon('hw-bubble-ava2') + '" alt="">' : '我') + '</div>'
-      + '<span class="hw-mtext"><b>我</b><span data-edit-key="hw-bubble2">' + escapeHtml((db.widgetTexts && db.widgetTexts['hw-bubble2']) || '我挺好的，你呢？') + '</span></span>'
+      + '<span class="hw-mtext"><b>我</b><span data-edit-key="hw-bubble2">' + hwTxt('hw-bubble2', '我挺好的，你呢？') + '</span></span>'
       + '<span class="hw-mtime">09:26</span></div>'
-      + '<div class="hw-grid g6">'
-      + hwApp('chat-list-screen', '404', 'CHAT') + hwApp('api-settings-screen', 'api', 'SETUP') + hwApp('wallpaper-screen', '壁纸', 'WALL')
-      + hwApp('world-book-screen', '世界书', 'WORLD') + hwApp('customize-screen', '自定义', 'EDIT') + hwApp('tutorial-screen', '教程', 'GUIDE')
-      + '</div></div>';
+      + hwGrid('p1', [['chat-list-screen', '404', 'CHAT'], ['api-settings-screen', 'api', 'SETUP'], ['wallpaper-screen', '壁纸', 'WALL'], ['world-book-screen', '世界书', 'WORLD'], ['customize-screen', '外观', 'LOOK'], ['tutorial-screen', '教程', 'GUIDE']], 'hw-grid g6')
+      + '</div>';
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">02:48 / 11.25 WED / V5.3.2</div>'
+      + '<div class="hw-p2top">02:48 / 11.25 WED / V5.3.3</div>'
       + '<div class="hw-p2num">02 / 03</div>'
-      + '<div class="hw-p2title">第二页 · 我们</div>'
+      + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
       + '<div class="hw-p2rule"></div>'
-      + '<div class="hw-000">000</div>'
-      + '<div class="hw-000s">DAYS TOGETHER</div>'
-      + '<div class="hw-arch-him"><div class="hw-arch" data-photo-widget="hw-duo-img1">' + hwPh('hw-duo-img1') + hwCam('hw-duo-img1')
-      + '<div class="hw-archfoot"><span>HIM / 更换</span></div></div></div>'
-      + '<div class="hw-arch-me"><div class="hw-arch" data-photo-widget="hw-duo-img2">' + hwPh('hw-duo-img2') + hwCam('hw-duo-img2')
-      + '<div class="hw-archfoot"><span>ME / 更换</span></div></div></div>'
+      + '<div class="hw-000" data-edit-key="hw-000">' + hwTxt('hw-000', '000') + '</div>'
+      + '<div class="hw-000s" data-edit-key="hw-000s">' + hwTxt('hw-000s', 'DAYS TOGETHER') + '</div>'
+      + '<div class="hw-polaroid rot-l" data-photo-widget="hw-duo-img1" data-hw-block="p2-pola1">'
+      + '<div class="hw-pol-photo">' + hwPh('hw-duo-img1') + hwCam('hw-duo-img1') + '</div>'
+      + '<div class="hw-pol-cap" data-edit-key="hw-pol-cap1">' + hwTxt('hw-pol-cap1', 'HIM / 更换') + '</div></div>'
+      + '<div class="hw-polaroid rot-r" data-photo-widget="hw-duo-img2" data-hw-block="p2-pola2">'
+      + '<div class="hw-pol-photo">' + hwPh('hw-duo-img2') + hwCam('hw-duo-img2') + '</div>'
+      + '<div class="hw-pol-cap" data-edit-key="hw-pol-cap2">' + hwTxt('hw-pol-cap2', 'ME / 更换') + '</div></div>'
       + '<div class="hw-wave-deco"><svg viewBox="0 0 170 26" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1"><polyline points="0,13 12,13 16,6 20,20 24,2 28,24 32,9 36,17 40,7 44,21 48,12 52,15 58,15 64,11 68,18 72,5 76,22 80,10 84,16 88,12 92,14 98,14 106,9 110,19 114,4 118,23 122,11 126,16 132,13 140,13"/></svg></div>'
-      + '<div class="hw-story">our story</div>'
-      + '<div class="hw-storysub">我们的故事，还在继续。</div>'
-      + '<div class="hw-mom c1" data-photo-widget="home-photo-4">' + hwPh('home-photo-4') + hwCam('home-photo-4') + '<span class="hw-cband">01 · 初见</span></div>'
-      + '<div class="hw-mom c2" data-photo-widget="home-photo-5">' + hwPh('home-photo-5') + hwCam('home-photo-5') + '<span class="hw-cband">02 · 陪伴</span></div>'
-      + '<div class="hw-mom c3" data-photo-widget="home-photo-6">' + hwPh('home-photo-6') + hwCam('home-photo-6') + '<span class="hw-cband">03 · 现在</span></div>'
-      + '<div class="hw-momtxt"><b>moments.</b><span>三张圆形照片。<br>替换成回忆。</span></div>'
-      + '<div class="hw-grid g6b">'
-      + hwApp('offline-home-screen', '线下', 'OFFLINE') + hwApp('archive-screen', '档案', 'FILE') + hwApp('memory-screen', '记忆', 'MEMORY')
-      + hwApp('phone-screen', '查手机', 'PHONE', true) + hwApp('food-app-screen', '外卖', 'FOOD') + hwApp('couple-screen', '情侣空间', 'LOVE')
-      + '</div>'
-      + '<div class="hw-still">还是你。</div>'
-      + '<div class="hw-stillsub">STILL MY FAVOURITE PERSON / 2026</div>'
+      + '<div class="hw-story" data-edit-key="hw-story">' + hwTxt('hw-story', 'our story') + '</div>'
+      + '<div class="hw-storysub" data-edit-key="hw-storysub">' + hwTxt('hw-storysub', '我们的故事，还在继续。') + '</div>'
+      + '<div class="hw-mom c1" data-photo-widget="home-photo-4" data-hw-block="p2-mom1">' + hwPh('home-photo-4') + hwCam('home-photo-4') + '<span class="hw-cband" data-edit-key="hw-mom1">' + hwTxt('hw-mom1', '01 · 初见') + '</span></div>'
+      + '<div class="hw-mom c2" data-photo-widget="home-photo-5" data-hw-block="p2-mom2">' + hwPh('home-photo-5') + hwCam('home-photo-5') + '<span class="hw-cband" data-edit-key="hw-mom2">' + hwTxt('hw-mom2', '02 · 陪伴') + '</span></div>'
+      + '<div class="hw-mom c3" data-photo-widget="home-photo-6" data-hw-block="p2-mom3">' + hwPh('home-photo-6') + hwCam('home-photo-6') + '<span class="hw-cband" data-edit-key="hw-mom3">' + hwTxt('hw-mom3', '03 · 现在') + '</span></div>'
+      + '<div class="hw-momtxt"><b data-edit-key="hw-momtitle">' + hwTxt('hw-momtitle', 'moments.') + '</b><span data-edit-key="hw-momdesc">' + hwTxt('hw-momdesc', '三张圆形照片，替换成回忆。') + '</span></div>'
+      + hwGrid('p2', [['offline-home-screen', '线下', 'OFFLINE'], ['archive-screen', '档案', 'FILE'], ['memory-screen', '记忆', 'MEMORY'], ['phone-screen', '查手机', 'PHONE', true], ['food-app-screen', '外卖', 'FOOD'], ['couple-screen', '情侣空间', 'LOVE']], 'hw-grid g6b')
+      + '<div class="hw-still" data-edit-key="hw-still">' + hwTxt('hw-still', '还是你。') + '</div>'
+      + '<div class="hw-stillsub" data-edit-key="hw-stillsub">' + hwTxt('hw-stillsub', 'STILL MY FAVOURITE PERSON / 2026') + '</div>'
       + '</div>';
 
     /* ---------- 第三页 ---------- */
@@ -12346,23 +12352,20 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-dark">'
       + '<div class="hw-t"><span style="color:#f6f6fa">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b>11.25 WED &#183; V5.3.2<br>第三页 · 论坛<br>NIGHT INDEX / 008</div>'
-      + '<div class="hw-forum">FORUM</div>'
+      + '<div class="hw-meta"><b>03 / 03</b>11.25 WED &#183; V5.3.3<br>第三页 · 论坛<br>NIGHT INDEX / 008</div>'
+      + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
-      + '<div class="hw-cal25">25</div>'
-      + '<div class="hw-month">NOVEMBER &#183; WEDNESDAY</div>'
+      + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
+      + '<div class="hw-month" data-edit-key="hw-month">' + hwTxt('hw-month', 'NOVEMBER · WEDNESDAY') + '</div>'
       + hwCalCells
-      + '<div class="hw-caps">'
+      + '<div class="hw-caps" data-hw-block="p3-caps">'
       + '<span class="hw-capico"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5l12 7-12 7z"/></svg></span>'
-      + '<span class="hw-captxt"><em>TONIGHT / 一起看 &#183; 播客台</em><b>stay a while.</b><i>PLAY SOMETHING IN THE DARK</i></span>'
+      + '<span class="hw-captxt"><em data-edit-key="hw-cap-em">' + hwTxt('hw-cap-em', 'TONIGHT / 一起看 · 播客台') + '</em><b data-edit-key="hw-cap-t">' + hwTxt('hw-cap-t', 'stay a while.') + '</b><i data-edit-key="hw-cap-sub">' + hwTxt('hw-cap-sub', 'PLAY SOMETHING IN THE DARK') + '</i></span>'
       + '<span class="hw-capwave"><svg viewBox="0 0 84 16" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1"><polyline points="0,8 8,8 11,3 14,13 17,1 20,14 23,6 26,10 30,4 34,12 38,8 42,9 46,5 50,12 54,8 58,8 64,6 68,10 72,3 76,13 80,8 84,8"/></svg></span>'
       + '</div>'
-      + '<div class="hw-p3grid">'
-      + hwApp('pdd-screen', '拼多多', 'SHOP') + hwApp('forum-screen', '论坛', 'FORUM') + hwApp('music-app-screen', '音乐', 'MUSIC', true) + hwApp('movie-screen', '一起看', 'WATCH')
-      + hwApp('bookstore-screen', '书城', 'BOOKS') + hwApp('podcast-screen', '播客台', 'PODCAST')
-      + '</div>'
-      + '<div class="hw-awake">still awake.</div>'
-      + '<div class="hw-awakesub">02:48 / NO ONE ONLINE</div>'
+      + hwGrid('p3', [['pdd-screen', '拼多多', 'SHOP'], ['forum-screen', '论坛', 'FORUM'], ['music-app-screen', '音乐', 'MUSIC', true], ['movie-screen', '一起看', 'WATCH'], ['bookstore-screen', '书城', 'BOOKS'], ['podcast-screen', '播客台', 'PODCAST']], 'hw-p3grid')
+      + '<div class="hw-awake" data-edit-key="hw-awake">' + hwTxt('hw-awake', 'still awake.') + '</div>'
+      + '<div class="hw-awakesub" data-edit-key="hw-awakesub">' + hwTxt('hw-awakesub', '02:48 / NO ONE ONLINE') + '</div>'
       + '</div>';
 
     const homeScreenHTML = ''
@@ -12373,20 +12376,29 @@ document.addEventListener("DOMContentLoaded", () => {
       + '</div>'
       + '<div class="page-dots" id="home-page-dots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="page-num" id="home-page-num">1 / 3</span></div>'
       + '<div class="dock">'
-      + '<a href="#" class="app-icon" id="day-mode-btn"><span class="icon-default">' + (appIconSvgs['day-mode-btn'] || '') + '</span><img src="' + getIcon('day-mode-btn') + '" alt="日间" class="icon-img"></a>'
-      + '<a href="#" class="app-icon" id="night-mode-btn"><span class="icon-default">' + (appIconSvgs['night-mode-btn'] || '') + '</span><img src="' + getIcon('night-mode-btn') + '" alt="夜间" class="icon-img"></a>'
-      + '<a href="#" class="app-icon' + (getIcon('font-settings-screen') ? ' has-img' : '') + '" data-target="font-settings-screen"><button type="button" class="icon-edit-btn" data-icon-id="font-settings-screen" title="换图">' + HW_PEN + '</button><span class="icon-default">' + (appIconSvgs['font-settings-screen'] || '') + '</span><img src="' + getIcon('font-settings-screen') + '" alt="字体" class="icon-img"></a>'
+      + '<a href="#" class="app-icon" id="day-mode-btn"><span class="icon-default">' + (appIconSvgs['day-mode-btn'] || '') + '</span><img src="' + (getIcon('day-mode-btn') || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7') + '" alt="日间" class="icon-img"></a>'
+      + '<a href="#" class="app-icon" id="night-mode-btn"><span class="icon-default">' + (appIconSvgs['night-mode-btn'] || '') + '</span><img src="' + (getIcon('night-mode-btn') || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7') + '" alt="夜间" class="icon-img"></a>'
+      + '<a href="#" class="app-icon' + (getIcon('font-settings-screen') ? ' has-img' : '') + '" data-target="font-settings-screen"><button type="button" class="icon-edit-btn" data-icon-id="font-settings-screen" title="换图">' + HW_PEN + '</button><span class="icon-default">' + (appIconSvgs['font-settings-screen'] || '') + '</span><img src="' + (getIcon('font-settings-screen') || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7') + '" alt="字体" class="icon-img"></a>'
       + '</div>';
 
     homeScreen.innerHTML = homeScreenHTML;
+
+    const hwApplyPos = function () {
+      const pos = db.desktopPos || {};
+      homeScreen.querySelectorAll('[data-hw-block]').forEach(function (el) {
+        const p = pos[el.dataset.hwBlock];
+        if (p) el.style.translate = (p.x || 0) + 'px ' + (p.y || 0) + 'px';
+      });
+    };
+    hwApplyPos();
     (function hwFit() {
       const scr = document.getElementById('home-screen');
       if (!scr) return;
       const fit = function () {
         const page = scr.querySelector('.home-page');
-        if (!page) return;
-        const w = page.clientWidth || scr.clientWidth || 390;
-        const h = page.clientHeight || scr.clientHeight || 700;
+        let w = (page && page.clientWidth) || 0;
+        let h = (page && page.clientHeight) || 0;
+        if (w < 200 || h < 320) return;
         const s = Math.min((w - 6) / 430, (h - 4) / 836);
         scr.style.setProperty('--hw-s', String(Math.max(0.55, Math.min(1.1, s))));
         const p3 = scr.querySelector('.hw-p3grid');
@@ -12395,19 +12407,110 @@ document.addEventListener("DOMContentLoaded", () => {
           if (a.dataset.tpIcon) a.classList.add('is-on');
           if (p3 && a.parentElement !== p3) p3.appendChild(a);
         });
-        scr.classList.toggle('has-wallpaper', !!(scr.style.backgroundImage && scr.style.backgroundImage !== 'none'));
+        scr.classList.toggle('has-wallpaper', !!db.wallpaper);
       };
       fit();
       setTimeout(fit, 60);
-      setTimeout(fit, 300);
+      setTimeout(fit, 400);
       try {
         new MutationObserver(function () { setTimeout(fit, 30); }).observe(scr, { childList: true, subtree: true });
+      } catch (e) {}
+      try {
+        new ResizeObserver(function () { setTimeout(fit, 20); }).observe(scr);
       } catch (e) {}
       if (!window.__hwFitBound) {
         window.__hwFitBound = true;
         window.addEventListener('resize', function () { setTimeout(fit, 40); });
         window.addEventListener('orientationchange', function () { setTimeout(fit, 120); });
       }
+    })();
+
+    (function hwBindDrag() {
+      if (window.__hwDragBound) return;
+      window.__hwDragBound = true;
+      const scr = document.getElementById('home-screen');
+      let timer = null, el = null, isApp = false, dragging = false, sx = 0, sy = 0, key = '';
+      window.__hwDragBlockUntil = 0;
+      scr.addEventListener('pointerdown', function (e) {
+        if (e.target.closest('.icon-edit-btn')) return;
+        if (e.target.closest('.hw-controls')) return;
+        const app = e.target.closest('.hw-app');
+        const blk = e.target.closest('[data-hw-block]');
+        el = app || blk;
+        if (!el) return;
+        isApp = !!app;
+        key = isApp ? '' : (el.dataset.hwBlock || '');
+        sx = e.clientX; sy = e.clientY; dragging = false;
+        timer = setTimeout(function () {
+          timer = null; dragging = true;
+          el.classList.add('hw-dragging');
+          try { navigator.vibrate && navigator.vibrate(10); } catch (err) {}
+        }, 460);
+      }, { passive: true, capture: true });
+      window.addEventListener('pointermove', function (e) {
+        if (timer && (Math.abs(e.clientX - sx) > 10 || Math.abs(e.clientY - sy) > 10)) {
+          clearTimeout(timer); timer = null; el = null; return;
+        }
+        if (!dragging || !el) return;
+        e.preventDefault();
+        el.style.translate = (e.clientX - sx) + 'px ' + (e.clientY - sy) + 'px';
+        if (isApp && el.parentElement) {
+          el.parentElement.querySelectorAll('.hw-app').forEach(function (s) { s.classList.remove('hw-drop-target'); });
+          let best = null, bd = 1e9;
+          el.parentElement.querySelectorAll('.hw-app').forEach(function (s) {
+            if (s === el) return;
+            const r = s.getBoundingClientRect();
+            const d = Math.pow(r.x + r.width / 2 - e.clientX, 2) + Math.pow(r.y + r.height / 2 - e.clientY, 2);
+            if (d < bd) { bd = d; best = s; }
+          });
+          if (best) best.classList.add('hw-drop-target');
+        }
+      }, { passive: false });
+      window.addEventListener('pointerup', function (e) {
+        if (timer) { clearTimeout(timer); timer = null; el = null; return; }
+        if (!dragging || !el) { el = null; return; }
+        dragging = false;
+        const dx = e.clientX - sx, dy = e.clientY - sy;
+        el.classList.remove('hw-dragging');
+        window.__hwDragBlockUntil = Date.now() + 260;
+        if (isApp) {
+          const grid = el.parentElement;
+          let best = null, bd = 1e9;
+          grid.querySelectorAll('.hw-app').forEach(function (s) {
+            if (s === el) return;
+            const r = s.getBoundingClientRect();
+            const d = Math.pow(r.x + r.width / 2 - e.clientX, 2) + Math.pow(r.y + r.height / 2 - e.clientY, 2);
+            if (d < bd) { bd = d; best = s; }
+          });
+          grid.querySelectorAll('.hw-drop-target').forEach(function (s) { s.classList.remove('hw-drop-target'); });
+          if (Math.abs(dx) < 6 && Math.abs(dy) < 6) {
+            try { openIconMenu(el.dataset.target, el.querySelector('img'), el); } catch (err) {}
+          } else if (best) {
+            const r = best.getBoundingClientRect();
+            grid.insertBefore(el, e.clientX > r.x + r.width / 2 ? best.nextSibling : best);
+            el.style.translate = '';
+            if (db.desktopOrder) {} else { db.desktopOrder = {}; }
+            scr.querySelectorAll('.home-page').forEach(function (pg, i) {
+              const g = pg.querySelector('.hw-grid, .hw-p3grid');
+              if (g) db.desktopOrder['p' + (i + 1)] = Array.from(g.querySelectorAll('a[data-target]')).map(function (a) { return a.dataset.target; });
+            });
+            saveData();
+            showToast('图标位置已保存');
+          }
+        } else {
+          const all = db.desktopPos = db.desktopPos || {};
+          const p = all[key] || { x: 0, y: 0 };
+          p.x = (p.x || 0) + dx; p.y = (p.y || 0) + dy;
+          all[key] = p;
+          el.style.translate = p.x + 'px ' + p.y + 'px';
+          saveData();
+          showToast('组件位置已保存');
+        }
+        el = null;
+      }, { passive: true });
+      scr.addEventListener('click', function (e) {
+        if (Date.now() < window.__hwDragBlockUntil) { e.preventDefault(); e.stopPropagation(); }
+      }, true);
     })();
     const pagesEl = document.getElementById("home-pages");
     const dotsEl = document.getElementById("home-page-dots");
@@ -12446,7 +12549,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelector('[data-target="offline-home-screen"]').addEventListener("click", openOfflineHome);
     document.querySelector('[data-target="archive-screen"]').addEventListener("click", renderArchiveList);
     document.querySelector('[data-target="memory-screen"]').addEventListener("click", renderMemoryScreen);
-    homeScreen.addEventListener("click", (e) => {
+    if (window.__hwHomeH) { try { homeScreen.removeEventListener("click", window.__hwHomeH, true); } catch (e) {} }
+    window.__hwHomeH = (e) => {
       if (window.__polaSuppress && Date.now() < window.__polaSuppress) {
         e.preventDefault();
         e.stopPropagation();
@@ -12457,7 +12561,7 @@ document.addEventListener("DOMContentLoaded", () => {
         e.preventDefault();
         e.stopPropagation();
         const key = editEl.dataset.editKey;
-        showWidgetTextEditor(key, db.widgetTexts && db.widgetTexts[key] || "");
+        showWidgetTextEditor(key, (db.widgetTexts && db.widgetTexts[key]) || (editEl.textContent || "").trim());
         return;
       }
       const photoBtn = e.target.closest("[data-photo-btn]");
@@ -12503,7 +12607,8 @@ document.addEventListener("DOMContentLoaded", () => {
           pickIconImage(icon.dataset.target, img2);
         }
       }
-    }, true);
+    };
+    homeScreen.addEventListener("click", window.__hwHomeH, true);
   }
   function showWidgetTextEditor(key, current) {
     const ov = document.createElement("div");
@@ -12601,6 +12706,8 @@ document.addEventListener("DOMContentLoaded", () => {
           if (imgEl) {
             if (imgEl.tagName === "IMG") {
               imgEl.src = dataUrl;
+              imgEl.style.display = "";
+              imgEl.removeAttribute("data-fb");
               const icon = imgEl.closest(".app-icon");
               if (icon) icon.classList.add("has-img");
               if (imgEl.id === "home-photo-img") {
@@ -12612,6 +12719,15 @@ document.addEventListener("DOMContentLoaded", () => {
               imgEl.innerHTML = '<img src="'.concat(dataUrl, '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">');
             }
           }
+          try {
+            const host = imgEl && imgEl.closest ? (imgEl.closest("[data-photo-widget]") || imgEl.closest("[data-widget-ava]")) : null;
+            if (host) {
+              host.classList.add("has-img");
+              const cam = host.querySelector(".hw-cam");
+              if (cam) cam.remove();
+            }
+            if (!imgEl) { setupHomeScreen(); renderCustomizeForm(); }
+          } catch (e5) {}
           showToast("\u684C\u9762\u56FE\u7247\u5DF2\u66F4\u6362");
           try {
             if (typeof initPolaCarousel === "function") initPolaCarousel();
@@ -12676,6 +12792,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function applyWallpaper(url) {
     homeScreen.style.backgroundImage = url ? "url(".concat(url, ")") : "none";
+    homeScreen.classList.toggle("has-wallpaper", !!url);
+    db.wallpaper = url || "";
   }
   async function applyHomeScreenMode(mode) {
     if (mode === "day") {
@@ -12701,6 +12819,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
     customizeForm.addEventListener("click", async (e) => {
+      if (e.target.matches(".upload-icon-btn")) {
+        const iconId = e.target.dataset.id;
+        pickIconImage(iconId, null);
+        return;
+      }
       if (e.target.matches(".reset-icon-btn")) {
         const iconId = e.target.dataset.id;
         delete db.customIcons[iconId];
@@ -12715,7 +12838,7 @@ document.addEventListener("DOMContentLoaded", () => {
     customizeForm.innerHTML = "";
     Object.entries(defaultIcons).forEach(([id, { name, url }]) => {
       const currentIcon = db.customIcons[id] || url;
-      const itemHTML = '\n                <div class="icon-custom-item">\n                    <img src="'.concat(currentIcon, '" alt="').concat(name, '" class="icon-preview" id="icon-preview-').concat(id, '">\n                    <div class="icon-details">\n                        <p>').concat(name || "\u6A21\u5F0F\u5207\u6362", '</p>\n                        <input type="url" class="form-group" placeholder="\u7C98\u8D34\u65B0\u7684\u56FE\u6807URL" value="').concat(db.customIcons[id] || "", '" data-id="').concat(id, '">\n                    </div>\n                    <button type="button" class="reset-icon-btn" data-id="').concat(id, '">\u91CD\u7F6E</button>\n                </div>');
+      const itemHTML = '\n                <div class="icon-custom-item">\n                    <img src="'.concat(currentIcon, '" alt="').concat(name, '" class="icon-preview" id="icon-preview-').concat(id, '">\n                    <div class="icon-details">\n                        <p>').concat(name || "\u6A21\u5F0F\u5207\u6362", '</p>\n                        <input type="url" class="form-group" placeholder="\u7C98\u8D34\u65B0\u7684\u56FE\u6807URL" value="').concat(db.customIcons[id] || "", '" data-id="').concat(id, '">\n                    </div>\n                    <button type="button" class="upload-icon-btn" data-id="').concat(id, '">\u672C\u5730\u4E0A\u4F20</button>\n                    <button type="button" class="reset-icon-btn" data-id="').concat(id, '">\u91CD\u7F6E</button>\n                </div>');
       customizeForm.insertAdjacentHTML("beforeend", itemHTML);
     });
   }
@@ -34963,26 +35086,29 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.3.2 ================= */
-#home-screen{display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;padding:0;overflow:hidden}
+/* ================= 404 桌面复刻 v5.3.3 ================= */
+.screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
+#home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
 #home-screen .home-page{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background-color:#f4f3f4}
 #home-screen .home-page.pg-light{background-image:radial-gradient(rgba(20,20,24,.15) .8px,transparent 1px);background-size:14px 14px;background-position:5px 5px}
 #home-screen .home-page.pg-dark{background-color:#0d0d10;background-image:radial-gradient(rgba(255,255,255,.13) .8px,transparent 1px);background-size:14px 14px;background-position:5px 5px}
-#home-screen.has-wallpaper .home-page{background-image:none;background-color:transparent}
+#home-screen.has-wallpaper .home-page.pg-light{background-image:none;background-color:transparent}
+.has-wallpaper .home-page.pg-dark{background-color:#0f0f12}
 .hw-canvas{position:relative;width:430px;height:836px;flex:0 0 auto;zoom:var(--hw-s,.82);color:#1a1a1e;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","PingFang SC","Helvetica Neue",Arial,sans-serif;-webkit-font-smoothing:antialiased}
 .hw-canvas *{box-sizing:border-box;margin:0;padding:0}
-.pg-dark .hw-canvas{color:#f0f0f4}
+.hw-canvas.pg-dark{color:#f0f0f4}
 .hw-canvas .hw-pimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
 .hw-canvas .hw-ph{position:absolute;inset:0;display:block}
 .hw-canvas .hw-cam{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:rgba(250,250,251,.82);color:#4a4a52;display:flex;align-items:center;justify-content:center;z-index:2}
 .hw-canvas .hw-cam svg{width:12px;height:12px}
+.hw-canvas .has-img .hw-cam,.hw-canvas [data-photo-widget].has-img .hw-cam{display:none}
 /* 页眉 */
 .hw-t{position:absolute;left:16px;top:2px;font-size:58px;line-height:.96;font-weight:500;letter-spacing:-2.4px;font-variant-numeric:tabular-nums}
 .hw-meta{position:absolute;right:16px;top:12px;text-align:right;font-size:7.5px;letter-spacing:1.6px;line-height:2;color:#8b8b93;font-weight:600}
 .hw-meta b{display:block;color:#2a2a30;font-weight:700;font-size:8px;letter-spacing:1.5px}
-.pg-dark .hw-meta{color:#8a8a94}
-.pg-dark .hw-meta b{color:#e8e8ee}
+.hw-canvas.pg-dark .hw-meta{color:#8a8a94}
+.hw-canvas.pg-dark .hw-meta b{color:#e8e8ee}
 /* 拱形主图 */
 .hw-archwrap{position:absolute}
 .hw-arch{position:relative;width:100%;height:100%;border-radius:130px 130px 10px 10px;overflow:hidden;background:linear-gradient(172deg,#f8f7f9 0%,#e6e5e9 34%,#a9a8b0 100%)}
@@ -34991,7 +35117,7 @@ window.bsRoomAI = bsRoomAI;
 /* 圆环 */
 .hw-orbit{position:absolute;border:1px solid rgba(30,30,36,.18);border-radius:50%}
 .hw-orbit .hw-cphoto{position:absolute;border-radius:50%;overflow:hidden;background:linear-gradient(150deg,#f3f2f4,#b7b6be)}
-.hw-cband{position:absolute;left:0;right:0;bottom:0;height:17px;background:rgba(120,120,128,.35);color:#fff;font-size:6px;letter-spacing:1.6px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2}
+.hw-cband{position:absolute;left:6px;right:6px;bottom:7px;height:16px;border-radius:9px;background:rgba(120,120,128,.35);color:#fff;font-size:6px;letter-spacing:1.6px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:2}
 .hw-dotb{position:absolute;width:5px;height:5px;border-radius:50%;background:#1a1a1e}
 /* 文字块 */
 .hw-we{position:absolute;right:16px;top:360px;text-align:right;font-family:"Times New Roman","Songti SC",serif;font-style:italic;font-size:22px;letter-spacing:-.2px;color:#1c1c21}
@@ -35030,13 +35156,14 @@ window.bsRoomAI = bsRoomAI;
 .hw-canvas .hw-app .icon-default,.hw-canvas .hw-app .icon-img{width:48px;height:48px;margin:0;border-radius:13px;background:#ececef;display:flex;align-items:center;justify-content:center;color:#1d1d22}
 .hw-canvas .hw-app .icon-default svg{width:21px;height:21px}
 .hw-canvas .hw-app:not(.has-img) .icon-img{display:none}
+.hw-canvas .hw-app.has-img .icon-default{display:none!important}
 .hw-canvas .hw-app.is-on .icon-default{background:#17171b;color:#fff}
 .hw-canvas .hw-app .app-name{text-shadow:none!important;font-size:7.5px;line-height:1.2;margin-top:5px;color:#2c2c33;font-weight:500;letter-spacing:.2px;white-space:nowrap;max-width:56px;overflow:hidden;text-overflow:ellipsis}
 .hw-canvas .hw-app .hw-en{font-size:5px;letter-spacing:1.1px;color:#a8a8b0;margin-top:2px;font-weight:700;white-space:nowrap}
-.pg-dark .hw-canvas .hw-app .icon-default,.pg-dark .hw-canvas .hw-app .icon-img{background:#1c1c21;color:#f2f2f6}
-.pg-dark .hw-canvas .hw-app.is-on .icon-default{background:#fff;color:#111}
-.pg-dark .hw-canvas .hw-app .app-name{color:#d8d8e0}
-.pg-dark .hw-canvas .hw-app .hw-en{color:#5f5f69}
+.hw-canvas.pg-dark .hw-app .icon-default,.hw-canvas.pg-dark .hw-app .icon-img{background:#1c1c21;color:#f2f2f6}
+.hw-canvas.pg-dark .hw-app.is-on .icon-default{background:#fff;color:#111}
+.hw-canvas.pg-dark .hw-app .app-name{color:#d8d8e0}
+.hw-canvas.pg-dark .hw-app .hw-en{color:#5f5f69}
 .hw-canvas .icon-edit-btn{position:absolute;top:-4px;right:-6px;z-index:4;opacity:0;transform:scale(.9);transition:opacity .18s}
 .hw-canvas .hw-app:active .icon-edit-btn,.hw-canvas .hw-app:hover .icon-edit-btn{opacity:1}
 /* 第二页 */
@@ -35057,7 +35184,7 @@ window.bsRoomAI = bsRoomAI;
 .hw-storysub{position:absolute;left:16px;top:438px;font-size:6.5px;letter-spacing:1.4px;color:#9d9da5;font-weight:600}
 .hw-mom{position:absolute;top:462px;width:64px;height:64px;border-radius:50%;overflow:hidden;background:linear-gradient(150deg,#f1f0f2,#b3b2ba)}
 .hw-mom.c1{left:16px}.hw-mom.c2{left:90px}.hw-mom.c3{left:164px}
-.hw-mom .hw-cband{height:16px;font-size:5.5px}
+.hw-mom .hw-cband{height:14px;font-size:5.5px;bottom:6px}
 .hw-momtxt{position:absolute;left:242px;top:466px;width:172px}
 .hw-momtxt b{display:block;font-family:"Times New Roman","Songti SC",serif;font-style:italic;font-size:20px;font-weight:400;color:#1b1b20}
 .hw-momtxt span{display:block;margin-top:8px;font-size:6.5px;line-height:1.9;letter-spacing:.4px;color:#9d9da5}
@@ -35100,6 +35227,8 @@ window.bsRoomAI = bsRoomAI;
 #home-screen .dock .icon-default,#home-screen .dock .icon-img{width:22px;height:22px;margin:0;border-radius:6px;color:#20202a}
 #home-screen .dock .icon-default svg{width:19px;height:19px}
 #home-screen .dock .app-name{display:none}
+#home-screen .dock .app-icon.has-img .icon-default{display:none!important}
+#home-screen .dock .app-icon:not(.has-img) .icon-img{display:none}
 #home-screen .dock .icon-edit-btn{opacity:0;transition:opacity .18s}
 #home-screen .dock .app-icon:active .icon-edit-btn{opacity:1}
 /* 注入图标（时空邮局 / 十字路口）归位 */
@@ -35110,6 +35239,36 @@ window.bsRoomAI = bsRoomAI;
 #home-screen .hw-p3grid .hw-inj.is-on .icon-default{background:#fff!important;color:#111!important}
 #home-screen .hw-p3grid .hw-inj .app-name{font-size:7.5px!important;line-height:1.2;margin-top:5px;color:#d8d8e0!important;font-weight:500;white-space:nowrap;text-shadow:none!important;opacity:1!important}
 
+
+/* 拍立得 */
+.hw-polaroid{position:absolute;background:#fff;border-radius:3px;padding:9px 9px 32px;box-shadow:0 14px 30px rgba(0,0,0,.14),0 1px 0 rgba(0,0,0,.05);z-index:2}
+.hw-polaroid.rot-l{left:14px;top:106px;width:188px;height:242px;transform:rotate(-4.5deg)}
+.hw-polaroid.rot-r{left:230px;top:184px;width:154px;height:200px;transform:rotate(5deg)}
+.hw-pol-photo{position:relative;width:100%;height:100%;overflow:hidden;background:linear-gradient(160deg,#f6f5f7,#b7b6be)}
+.hw-pol-cap{position:absolute;left:0;right:0;bottom:9px;text-align:center;font-size:7px;letter-spacing:1.8px;color:#6b6b73;font-weight:700}
+.hw-pol-photo .hw-cam{background:rgba(255,255,255,.9)}
+/* 拖动 */
+.hw-canvas .hw-app,.hw-canvas [data-hw-block]{touch-action:pan-y}
+.hw-dragging{opacity:.92;z-index:30;filter:drop-shadow(0 12px 18px rgba(0,0,0,.18));transition:none!important}
+.hw-dragging *{pointer-events:none!important}
+.hw-drop-target{outline:1px dashed rgba(30,30,36,.45);outline-offset:5px;border-radius:10px}
+
+/* 覆盖旧液态玻璃的 !important */
+#home-screen .hw-canvas .hw-app .app-name{color:#2c2c33!important;text-shadow:none!important;font-weight:600!important;letter-spacing:.2px!important}
+#home-screen .hw-canvas.pg-dark .hw-app .app-name{color:#d8d8e0!important}
+#home-screen .hw-canvas.pg-dark .hw-app .hw-en{color:#5f5f69!important}
+#home-screen .hw-canvas .hw-app .icon-default{color:#1d1d22!important;filter:none!important}
+#home-screen .hw-canvas.pg-dark .hw-app .icon-default{color:#f4f4f8!important}
+#home-screen .hw-canvas .hw-app .icon-img{box-shadow:none!important}
+#home-screen .hw-canvas .hw-app:hover{background:transparent!important}
+#home-screen .hw-canvas .hw-app.is-on .icon-default{background:#17171b!important;color:#fff!important}
+#home-screen .hw-canvas.pg-dark .hw-app.is-on .icon-default{background:#fff!important;color:#111!important}
+#home-screen .hw-canvas.pg-dark .hw-app.is-on .app-name{color:#f4f4f8!important}
+
+#home-screen .hw-canvas.pg-dark .hw-inj .icon-default{box-shadow:none!important;border:0!important;filter:none!important}
+
+#home-screen .hw-canvas .hw-polaroid{background:#fff!important;border:0!important;box-shadow:0 14px 30px rgba(0,0,0,.14)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
+#home-screen .hw-canvas .hw-polaroid::before{content:none!important;display:none!important}
 </style>
 
 <div id="time-mail-screen" class="screen tp-screen">
