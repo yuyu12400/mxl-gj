@@ -8427,6 +8427,277 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         color: #0a0a0a;
         opacity: .55;
       }
+
+      /* ===== Threads 个人主页 ===== */
+      #profile-screen.profile-threads-screen { background:#ffffff; }
+      #profile-screen .content.profile-threads-content {
+        padding: 0 0 calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+        background:#ffffff;
+      }
+      .profile-cover {
+        position: relative;
+        height: calc(clamp(238px, 30vh, 286px) + env(safe-area-inset-top, 0px));
+        background-color:#1a1a1c;
+        background-repeat:no-repeat;
+        background-position:center 38%;
+        background-size:cover;
+        overflow:hidden;
+      }
+      .profile-cover::before {
+        content:"";
+        position:absolute; inset:0 0 auto 0;
+        height:120px;
+        background:linear-gradient(180deg, rgba(0,0,0,.34), rgba(0,0,0,0));
+        pointer-events:none;
+      }
+      .profile-cover::after {
+        content:"";
+        position:absolute; left:0; right:0; bottom:0;
+        height:108px;
+        background:linear-gradient(180deg, rgba(255,255,255,0), #ffffff 82%);
+        pointer-events:none;
+      }
+      .profile-cover-icon {
+        position:absolute;
+        top:calc(13px + env(safe-area-inset-top, 0px));
+        z-index:3;
+        width:38px; height:38px;
+        border-radius:50%;
+        border:1px solid rgba(255,255,255,.22);
+        background:rgba(255,255,255,.72);
+        color:#0a0a0a;
+        display:flex; align-items:center; justify-content:center;
+        font-size:22px; line-height:1; padding:0;
+        -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+        cursor:pointer;
+      }
+      .profile-cover-icon:active { transform:scale(.94); }
+      .profile-cover-back { left:16px; padding-bottom:3px; }
+      .profile-cover-more { right:16px; letter-spacing:.12em; font-size:16px; }
+      .profile-cover-change {
+        position:absolute; right:16px; bottom:26px; z-index:3;
+        height:32px; padding:0 12px;
+        border-radius:999px;
+        border:1px solid rgba(255,255,255,.26);
+        background:rgba(18,18,20,.28);
+        color:#fff;
+        -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+        display:flex; align-items:center; gap:6px;
+        font-size:calc(var(--app-fs,1) * 10.5px);
+        letter-spacing:.06em; cursor:pointer;
+        white-space:nowrap;
+      }
+      .profile-cover-change svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.5; }
+      .profile-cover-change:active { opacity:.72; }
+      .profile-main {
+        position:relative;
+        margin-top:-64px;
+        padding:0 22px 0;
+        background:linear-gradient(180deg, rgba(255,255,255,0) 0, rgba(255,255,255,.9) 54px, #ffffff 94px);
+      }
+      .profile-avatar-wrap {
+        width:112px; height:112px;
+        margin:0 auto;
+        position:relative;
+        z-index:4;
+      }
+      #profile-screen .profile-avatar {
+        display:block;
+        width:112px !important; height:112px !important;
+        border-radius:50% !important;
+        object-fit:cover;
+        border:3px solid #ffffff !important;
+        filter:none !important;
+        box-shadow:0 2px 18px rgba(0,0,0,.12) !important;
+        background:#f4f4f4;
+      }
+      #profile-screen .profile-avatar { cursor:pointer; }
+      .profile-avatar-camera {
+        position:absolute; right:2px; bottom:2px;
+        width:28px; height:28px; border-radius:50%;
+        border:1px solid #e5e5e5;
+        background:#ffffff; color:#0a0a0a;
+        display:flex; align-items:center; justify-content:center;
+        padding:0; cursor:pointer;
+        box-shadow:0 2px 8px rgba(0,0,0,.08);
+      }
+      .profile-avatar-camera svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.45; }
+      .profile-name {
+        margin-top:11px;
+        text-align:center;
+        font-size:calc(var(--app-fs,1) * 28px);
+        font-weight:750;
+        letter-spacing:-.055em;
+        line-height:1.1;
+        color:#0a0a0a;
+      }
+      .profile-handle {
+        margin-top:8px;
+        text-align:center;
+        font-size:calc(var(--app-fs,1) * 12px);
+        letter-spacing:.08em;
+        color:#9a9a9e;
+      }
+      .profile-bio {
+        max-width:330px;
+        margin:16px auto 0;
+        text-align:center;
+        font-size:calc(var(--app-fs,1) * 14.5px);
+        line-height:1.72;
+        letter-spacing:.01em;
+        color:#0a0a0a;
+        white-space:pre-line;
+      }
+      .profile-stats {
+        margin-top:18px;
+        display:flex; align-items:baseline; justify-content:center;
+        gap:24px;
+        color:#8f8f94;
+      }
+      .profile-stats span { display:inline-flex; align-items:baseline; gap:6px; white-space:nowrap; }
+      .profile-stats b { font-size:calc(var(--app-fs,1) * 18px); font-weight:700; color:#0a0a0a; letter-spacing:-.03em; }
+      .profile-stats em { font-style:normal; font-size:calc(var(--app-fs,1) * 11px); color:#929296; }
+      .profile-actions {
+        margin-top:19px;
+        display:grid; grid-template-columns:1fr 1fr; gap:10px;
+      }
+      .profile-btn {
+        height:44px; border-radius:999px;
+        font-size:calc(var(--app-fs,1) * 13px);
+        font-weight:650; letter-spacing:.02em;
+        cursor:pointer; transition:transform .12s ease, opacity .12s ease;
+      }
+      .profile-btn:active { transform:scale(.98); opacity:.8; }
+      .profile-btn-primary { background:#0a0a0a; border:1px solid #0a0a0a; color:#fff; }
+      .profile-btn-ghost { background:#fff; border:1px solid #0a0a0a; color:#0a0a0a; }
+      .profile-tabs {
+        margin-top:24px;
+        display:grid; grid-template-columns:repeat(3,1fr);
+        border-bottom:1px solid #ededed;
+      }
+      .profile-tab {
+        position:relative;
+        height:52px; padding:0;
+        border:0; background:transparent;
+        color:#9a9a9e;
+        font-size:calc(var(--app-fs,1) * 13px);
+        letter-spacing:.02em;
+        cursor:pointer;
+      }
+      .profile-tab.active { color:#0a0a0a; font-weight:700; }
+      .profile-tab.active::after {
+        content:"";
+        position:absolute; left:50%; bottom:-1px;
+        width:30px; height:2px; margin-left:-15px;
+        background:#0a0a0a;
+      }
+      .profile-feed-list { min-height:160px; }
+      .profile-post {
+        display:grid;
+        grid-template-columns:40px minmax(0,1fr);
+        column-gap:11px;
+        padding:17px 0 15px;
+        border-bottom:1px solid #ededed;
+      }
+      .profile-post-avatar {
+        width:38px; height:38px; border-radius:50%;
+        object-fit:cover; background:#f4f4f4;
+        border:1px solid #e9e9e9;
+      }
+      .profile-post-body { min-width:0; }
+      .profile-post-head {
+        display:flex; align-items:center; gap:7px; flex-wrap:wrap;
+        line-height:1.1;
+      }
+      .profile-post-name { font-size:calc(var(--app-fs,1) * 13.5px); font-weight:700; color:#0a0a0a; }
+      .profile-post-time { font-size:calc(var(--app-fs,1) * 11px); color:#929296; }
+      .profile-post-kind { margin-left:auto; font-size:calc(var(--app-fs,1) * 9px); letter-spacing:.14em; color:#b0b0b4; text-transform:uppercase; }
+      .profile-post-text {
+        margin-top:6px;
+        font-size:calc(var(--app-fs,1) * 14.5px);
+        line-height:1.62;
+        color:#0a0a0a;
+        white-space:pre-line;
+        overflow-wrap:anywhere;
+      }
+      .profile-post-image {
+        width:100%; aspect-ratio:16/9; object-fit:cover;
+        display:block; margin-top:10px;
+        border-radius:3px; background:#f2f2f2;
+      }
+      .profile-post-actions {
+        display:flex; align-items:center; gap:17px;
+        margin-top:10px;
+        color:#8a8a8e;
+        font-size:calc(var(--app-fs,1) * 11px);
+      }
+      .profile-post-actions span { display:inline-flex; align-items:center; gap:4px; }
+      .profile-post-actions svg { width:14px; height:14px; fill:none; stroke:currentColor; stroke-width:1.7; }
+      .profile-reply-context {
+        margin-top:3px; margin-bottom:5px;
+        font-size:calc(var(--app-fs,1) * 10.5px); color:#a0a0a4;
+        white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+      }
+      .profile-empty {
+        padding:52px 12px 60px;
+        text-align:center;
+        color:#8f8f94;
+        font-size:calc(var(--app-fs,1) * 12px);
+        letter-spacing:.03em;
+        line-height:1.8;
+      }
+      .profile-empty b { display:block; color:#0a0a0a; font-size:calc(var(--app-fs,1) * 14px); letter-spacing:-.01em; margin-bottom:6px; }
+      .profile-empty button {
+        display:block; margin:16px auto 0; height:36px; padding:0 16px;
+        border:1px solid #0a0a0a; border-radius:999px;
+        background:#fff; color:#0a0a0a;
+        font-size:calc(var(--app-fs,1) * 11px);
+        cursor:pointer;
+      }
+      .profile-sheet-overlay {
+        position:fixed; inset:0; z-index:10020;
+        background:rgba(0,0,0,.28);
+        display:none; align-items:flex-end; justify-content:center;
+      }
+      .profile-sheet-overlay.visible { display:flex; }
+      .profile-sheet {
+        width:100%; max-width:520px;
+        background:#fff;
+        border-top:1px solid #0a0a0a;
+        padding:10px 20px calc(18px + env(safe-area-inset-bottom,0px));
+        animation:slideUp .22s ease-out;
+      }
+      .profile-sheet-handle {
+        width:32px; height:3px; border-radius:2px;
+        background:#d8d8dc; margin:0 auto 10px;
+      }
+      .profile-sheet button {
+        width:100%; min-height:50px;
+        border:0; border-bottom:1px solid #ededed;
+        background:#fff; color:#0a0a0a;
+        text-align:left;
+        font-size:calc(var(--app-fs,1) * 13px);
+        display:flex; align-items:center; justify-content:space-between;
+        cursor:pointer;
+      }
+      .profile-sheet button:last-child { border-bottom:0; }
+      .profile-sheet button span { color:#9a9a9e; font-size:18px; }
+      .profile-edit-cover-row { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px; }
+      .profile-edit-cover-row label, .profile-edit-cover-row button {
+        flex:1; min-width:110px; height:38px;
+        border:1px solid #0a0a0a; border-radius:999px;
+        display:flex; align-items:center; justify-content:center;
+        font-size:calc(var(--app-fs,1) * 11px);
+        cursor:pointer; background:#fff; color:#0a0a0a;
+      }
+      .profile-edit-cover-row label { background:#0a0a0a; color:#fff; }
+      @media (max-width: 380px) {
+        .profile-main { padding-left:18px; padding-right:18px; }
+        .profile-name { font-size:calc(var(--app-fs,1) * 26px); }
+        .profile-stats { gap:18px; }
+        .profile-cover-change { right:12px; bottom:23px; }
+      }
+
     </style>
     <div id="chat-list-screen" class="screen">
         <div class="cl-hero" id="cl-hero">
@@ -9020,7 +9291,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                 </div>
                 <div class="form-group">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <label for="setting-real-time" style="margin-bottom:0;">感知现实时间（AI会知道当前真实时间）</label>
+                        <label for="setting-real-time" style="margin-bottom:0;">时间感知（开启后才会注入当前时间和消息时间线）</label>
                         <input type="checkbox" id="setting-real-time" class="ios-sw" >
                     </div>
                 </div>
@@ -9109,6 +9380,13 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                 <div class="form-group"><label for="setting-group-my-persona">我的人设</label><textarea id="setting-group-my-persona" placeholder="描述你希望在此群聊中扮演的形象。"></textarea></div>
                 <hr style="border:none; border-top:1px solid #eee; margin: 20px 0;">
                 <div class="form-group">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                        <label for="setting-group-real-time" style="margin-bottom:0;font-size:13px;">时间感知（开启后才会向群聊注入当前时间线）</label>
+                        <input type="checkbox" id="setting-group-real-time" class="ios-sw">
+                    </div>
+                    <div style="font-size:11px;color:#9aa0a6;line-height:1.6;">关闭后群聊 AI 完全不感知当前真实时间和消息间隔。</div>
+                </div>
+                <div class="form-group">
                     <label>群成员</label>
                     <div class="group-members-list" id="group-members-list-container"></div>
                 </div>
@@ -9177,30 +9455,43 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     </nav>
 
     <!-- ===== 我的 ===== -->
-    <div id="profile-screen" class="screen screen-with-nav">
-        <header class="app-header">
-            <button class="back-btn" data-target="chat-list-screen">‹</button>
-            <div class="title-container">
-                <h1 class="title">我的</h1>
-            </div>
-            <div class="placeholder"></div>
-        </header>
-        <main class="content">
-            <div class="profile-header" data-tap-mask style="cursor:pointer;">
-                <img id="profile-avatar" class="profile-avatar" src="https://i.postimg.cc/GtbTnxhP/o-o-1.jpg" alt="头像">
-                <div class="profile-name" id="profile-name">我</div>
-                <div class="profile-sub" id="profile-sub">点击头像创建 / 选择你的用户面具</div>
+    <div id="profile-screen" class="screen screen-with-nav profile-threads-screen">
+        <main class="content profile-threads-content">
+            <section class="profile-cover" id="profile-cover">
+                <button type="button" class="profile-cover-icon profile-cover-back" data-target="chat-list-screen" aria-label="返回">‹</button>
+                <button type="button" class="profile-cover-icon profile-cover-more" id="profile-more-btn" aria-label="更多">···</button>
+                <button type="button" class="profile-cover-change" id="profile-cover-change-btn">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M5 17l5-5 3 3 3-3 3 3"/></svg>
+                    <span>更换背景</span>
+                </button>
+            </section>
+            <div class="profile-main">
+                <div class="profile-avatar-wrap">
+                    <img id="profile-avatar" class="profile-avatar" src="https://i.postimg.cc/GtbTnxhP/o-o-1.jpg" alt="头像">
+                    <button type="button" class="profile-avatar-camera" id="profile-avatar-camera" aria-label="更换头像">
+                        <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M5 17l5-5 3 3 3-3 3 3"/></svg>
+                    </button>
+                </div>
+                <h1 class="profile-name" id="profile-name">我</h1>
+                <div class="profile-handle" id="profile-handle">@404 / ME</div>
+                <div class="profile-bio" id="profile-bio">在 404 里，换一个名字说话。</div>
+                <div class="profile-stats">
+                    <span><b id="profile-stat-posts">0</b><em>动态</em></span>
+                    <span><b id="profile-stat-following">12</b><em>关注</em></span>
+                    <span><b id="profile-stat-followers">86</b><em>关注者</em></span>
+                </div>
                 <div class="profile-actions">
-                    <button type="button" class="btn btn-primary" id="open-mask-btn">切换面具</button>
-                    <button type="button" class="btn btn-secondary" id="open-wallet-btn">钱包</button>
+                    <button type="button" class="profile-btn profile-btn-primary" id="profile-edit-btn">编辑主页</button>
+                    <button type="button" class="profile-btn profile-btn-ghost" id="profile-share-btn">分享主页</button>
                 </div>
-            </div>
-            <div class="profile-menu">
-                <div class="profile-menu-item" id="open-writings-btn">
-                    <svg viewBox="0 0 24 24"><path d="M6 2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2zm2 4v2h8V6H8zm0 4v2h8v-2H8zm0 4v2h5v-2H8z"/></svg>
-                    <span class="m-label">线下文稿库</span><span class="m-arrow">›</span>
+                <div class="profile-tabs" id="profile-tabs">
+                    <button type="button" class="profile-tab active" data-ptab="posts">动态</button>
+                    <button type="button" class="profile-tab" data-ptab="replies">回复</button>
+                    <button type="button" class="profile-tab" data-ptab="reposts">转发</button>
                 </div>
+                <div class="profile-feed-list" id="profile-feed-list"></div>
             </div>
+            <input type="file" id="profile-cover-upload" accept="image/*" style="display:none;">
         </main>
     </div>
 
@@ -9679,6 +9970,37 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         </div>
     </div>
 
+    <!-- ===== 个人主页更多菜单 / 编辑 ===== -->
+    <div id="profile-more-sheet" class="profile-sheet-overlay">
+        <div class="profile-sheet">
+            <div class="profile-sheet-handle"></div>
+            <button type="button" data-profile-action="edit">编辑主页<span>›</span></button>
+            <button type="button" data-profile-action="mask">切换面具<span>›</span></button>
+            <button type="button" data-profile-action="wallet">钱包<span>›</span></button>
+            <button type="button" data-profile-action="writings">线下文稿库<span>›</span></button>
+            <button type="button" data-profile-action="feed-settings">动态设置<span>›</span></button>
+        </div>
+    </div>
+    <div id="profile-edit-modal" class="modal-overlay">
+        <div class="modal-window">
+            <h3>编辑主页</h3>
+            <form id="profile-edit-form">
+                <div class="profile-edit-cover-row">
+                    <label for="profile-cover-upload">更换封面</label>
+                    <button type="button" id="profile-edit-cover-reset">恢复默认封面</button>
+                </div>
+                <div class="form-group"><label for="profile-edit-name">主页名字</label><input type="text" id="profile-edit-name" maxlength="24" placeholder="我"></div>
+                <div class="form-group"><label for="profile-edit-handle">主页账号</label><input type="text" id="profile-edit-handle" maxlength="28" placeholder="@404 / ME"></div>
+                <div class="form-group"><label for="profile-edit-bio">简介</label><textarea id="profile-edit-bio" rows="3" maxlength="120" placeholder="在 404 里，换一个名字说话。"></textarea></div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                    <div class="form-group"><label for="profile-edit-following">关注数</label><input type="number" id="profile-edit-following" min="0" placeholder="12"></div>
+                    <div class="form-group"><label for="profile-edit-followers">关注者数</label><input type="number" id="profile-edit-followers" min="0" placeholder="86"></div>
+                </div>
+                <button type="submit" class="btn btn-primary">保存</button>
+            </form>
+        </div>
+    </div>
+
     <!-- ===== 发布动态弹窗 ===== -->
     <div id="publish-feed-modal" class="modal-overlay">
         <div class="modal-window">
@@ -10087,7 +10409,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.1.3";
+  const APP_VERSION = "v5.2.0";
   let db = {
     characters: [],
     groups: [],
@@ -10367,7 +10689,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!db.groups) db.groups = [];
     if (!db.myStickers) db.myStickers = [];
     if (!db.homeScreenMode) db.homeScreenMode = "night";
-    if (db.realTimeSensing === void 0) db.realTimeSensing = true;
+    if (db.realTimeSensing === void 0) db.realTimeSensing = false;
+    if (!db.timeSenseOptInMigrated) {
+      db.realTimeSensing = false;
+      db.timeSenseOptInMigrated = true;
+    }
     if (!db.offlineGlobal) db.offlineGlobal = { stylePresets: [], preset: "novel", customStyle: "", persona: "first", minChars: 400, maxChars: 1200, realTimeSensing: true, summaryEnabled: true, summaryRounds: 6, summaryCount: 4, summaryPrompt: "", rememberOnline: true, readOnlineRounds: 0, useCustomBubbleCss: false, customBubbleCss: "", chainEnabled: true, chainTemplate: "", activePresetId: "" };
     if (!db.phoneData) db.phoneData = {};
     if (!db.offlinePresets) db.offlinePresets = [];
@@ -10382,6 +10708,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!db.fontUrl) db.fontUrl = "";
     if (!db.customIcons) db.customIcons = {};
     if (!db.memories) db.memories = [];
+    if (!db.profile || typeof db.profile !== "object") db.profile = {};
+    if (db.profile.cover === void 0) db.profile.cover = "";
+    if (db.profile.name === void 0) db.profile.name = "";
+    if (db.profile.handle === void 0) db.profile.handle = "";
+    if (db.profile.bio === void 0) db.profile.bio = "";
+    if (db.profile.following === void 0) db.profile.following = 12;
+    if (db.profile.followers === void 0) db.profile.followers = 86;
     if (!db.timeSense || typeof db.timeSense !== "object") db.timeSense = {};
     if (!db.timeSense.version) db.timeSense.version = 1;
     if (!db.timeSense.life || typeof db.timeSense.life !== "object") db.timeSense.life = {};
@@ -11131,8 +11464,7 @@ document.addEventListener("DOMContentLoaded", () => {
       lines.push("5. 当前正在睡觉/凌晨时，回复可以更短、更困、更慢；如果被消息吵醒，可以自然带一点迷糊，但不要责怪对方。");
       lines.push("6. 对方提到之前的约定、工作安排或生活事件时，先对照 D 和 B 的时间，再决定是已发生、正在进行还是还没到。");
       lines.push("7. 这些时间标记只供你理解，不要在回复里复述“系统时间/时间线/时间戳”等词，也不要为了证明自己知道时间而报时。");
-      if (db.realTimeSensing === false) lines.push("8. 当前“感知现实时间”开关关闭：你仍知道准确时间，但除非对方明确问，否则不要主动提时间。");
-      lines.push("9. 历史里标为“时间未记录”的消息，只能当作顺序参考，不能替它编一个具体时间。");
+      lines.push("8. 历史里标为“时间未记录”的消息，只能当作顺序参考，不能替它编一个具体时间。");
       lines.push("【时间感知系统结束】");
       return {
         now: nowTs,
@@ -11195,6 +11527,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return [item];
     }
     function feedBlock(char, eventTs) {
+      if (db.realTimeSensing === false) return "";
       const nowTs = Date.now();
       const period = periodInfo(nowTs);
       const key = dayKey(nowTs);
@@ -14328,8 +14661,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!historySlice.length) {
         historySlice = [{ role: "user", content: "\u5BF9\u65B9\u521A\u5411\u4F60\u53D1\u51FA\u4E86\u60C5\u4FA3\u7A7A\u95F4\u9080\u8BF7\u3002" }];
       }
-      const timeContext = TimeSense.build(chat, historySlice, {});
-      const prefaceFor = function (idx) { return TimeSense.prefixFor(timeContext.rows[idx]); };
+      const timeSenseOn = db.realTimeSensing !== false;
+      const timeContext = timeSenseOn ? TimeSense.build(chat, historySlice, {}) : null;
+      const prefaceFor = function (idx) {
+        return timeSenseOn && timeContext ? TimeSense.prefixFor(timeContext.rows[idx]) : "";
+      };
       if (provider === "gemini") {
         let contents = historySlice.map((msg, idx) => {
           const role = msg.role === "assistant" ? "model" : "user";
@@ -14361,11 +14697,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         requestBody = {
           contents,
-          system_instruction: { parts: [{ text: systemPrompt }, { text: timeContext.block }] },
+          system_instruction: { parts: timeContext ? [{ text: systemPrompt }, { text: timeContext.block }] : [{ text: systemPrompt }] },
           generationConfig: { maxOutputTokens: 8192 }
         };
       } else {
-        const messages = [{ role: "system", content: systemPrompt }, { role: "system", content: timeContext.block }];
+        const messages = timeContext ? [{ role: "system", content: systemPrompt }, { role: "system", content: timeContext.block }] : [{ role: "system", content: systemPrompt }];
         historySlice.forEach(function (msg, idx) {
           const preface = prefaceFor(idx);
           let content;
@@ -16948,6 +17284,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("setting-group-my-nickname").value = group.me.nickname;
     document.getElementById("setting-group-my-persona").value = group.me.persona;
     themeSelect.value = group.theme || "white_pink";
+    const groupRealTime = document.getElementById("setting-group-real-time");
+    if (groupRealTime) groupRealTime.checked = db.realTimeSensing !== false;
     const gBam = document.getElementById("setting-group-bubble-avatar-mode");
     if (gBam) gBam.value = group.bubbleAvatarMode || "none";
     document.getElementById("setting-group-max-memory").value = group.maxMemory;
@@ -17045,6 +17383,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const group = db.groups.find((g) => g.id === currentChatId);
     if (!group) return;
     const oldName = group.name;
+    const groupRealTimeEl = document.getElementById("setting-group-real-time");
+    if (groupRealTimeEl) db.realTimeSensing = groupRealTimeEl.checked;
     const newName = document.getElementById("setting-group-name").value;
     if (oldName !== newName) {
       group.name = newName;
@@ -17237,40 +17577,177 @@ document.addEventListener("DOMContentLoaded", () => {
     addCard.addEventListener("click", () => openMaskModal());
     container.appendChild(addCard);
   }
+  const PROFILE_DEFAULT_COVER = "https://media.doubao.com/space/api/box/stream/download/all_by_mount_point/VfBObMmltoQUv1xxzs9cg6PinNe";
+  function profileAvatarFallback() {
+    const mask = getCurrentMask();
+    return (mask && mask.avatar) || "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg";
+  }
+  function openProfileEditModal() {
+    const mask = getCurrentMask();
+    const p = db.profile || {};
+    document.getElementById("profile-edit-name").value = p.name || (mask && mask.name) || "";
+    document.getElementById("profile-edit-handle").value = p.handle || "@404 / ME";
+    document.getElementById("profile-edit-bio").value = p.bio || "在 404 里，换一个名字说话。";
+    document.getElementById("profile-edit-following").value = p.following === void 0 ? 12 : p.following;
+    document.getElementById("profile-edit-followers").value = p.followers === void 0 ? 86 : p.followers;
+    document.getElementById("profile-edit-modal").classList.add("visible");
+  }
+  function openDynamicSettingsModal() {
+    const modal = document.getElementById("dynamic-settings-modal");
+    if (!modal) return;
+    if (!db.feedSettings) db.feedSettings = { enabled: true, intervalMinutes: 30, lastPostTs: 0 };
+    const auto = document.getElementById("feed-auto-enabled");
+    const interval = document.getElementById("feed-interval");
+    if (auto) auto.checked = !!db.feedSettings.enabled;
+    if (interval) interval.value = db.feedSettings.intervalMinutes || 30;
+    if (typeof renderManualFeedCharList === "function") renderManualFeedCharList();
+    modal.classList.add("visible");
+  }
+  async function copyTextFallback(text) {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (e) {}
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      const ok = document.execCommand("copy");
+      ta.remove();
+      return ok;
+    } catch (e) { return false; }
+  }
+  async function shareProfileHome() {
+    const name = (db.profile && db.profile.name) || (getCurrentMask() && getCurrentMask().name) || "我";
+    const url = location.href.split("#")[0];
+    const text = name + "的 404 主页\n" + url;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: name + "的 404 主页", text: text, url: url });
+        return;
+      } catch (e) {
+        if (e && e.name === "AbortError") return;
+      }
+    }
+    const ok = await copyTextFallback(text);
+    showToast(ok ? "主页链接已复制" : "分享失败，请手动复制链接");
+  }
+  async function setProfileCoverFromFile(file) {
+    if (!file) return;
+    try {
+      const dataUrl = await compressImage(file, { quality: 0.86, maxWidth: 1600, maxHeight: 900 });
+      db.profile.cover = dataUrl;
+      await saveData();
+      renderProfile();
+      showToast("封面已更新");
+    } catch (e) {
+      showToast("封面读取失败");
+    }
+  }
   function setupProfileSystem() {
-    var _a, _b, _c, _d, _e, _f, _g, _h;
-    (_a = document.getElementById("profile-avatar")) == null ? void 0 : _a.addEventListener("click", () => {
-      switchScreen("mask-screen");
-      renderMaskGrid();
+    const avatar = document.getElementById("profile-avatar");
+    const camera = document.getElementById("profile-avatar-camera");
+    const openMasks = () => { switchScreen("mask-screen"); renderMaskGrid(); };
+    if (avatar) avatar.addEventListener("click", openMasks);
+    if (camera) camera.addEventListener("click", openMasks);
+
+    const moreBtn = document.getElementById("profile-more-btn");
+    const moreSheet = document.getElementById("profile-more-sheet");
+    if (moreBtn && moreSheet) {
+      moreBtn.addEventListener("click", () => moreSheet.classList.add("visible"));
+      moreSheet.addEventListener("click", (e) => {
+        if (e.target === moreSheet) moreSheet.classList.remove("visible");
+      });
+      moreSheet.querySelectorAll("[data-profile-action]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const action = btn.dataset.profileAction;
+          moreSheet.classList.remove("visible");
+          if (action === "edit") openProfileEditModal();
+          if (action === "mask") openMasks();
+          if (action === "wallet") { switchScreen("wallet-screen"); renderWallet(); }
+          if (action === "writings") { switchScreen("writings-screen"); renderWritings(); }
+          if (action === "feed-settings") openDynamicSettingsModal();
+        });
+      });
+    }
+
+    const coverBtn = document.getElementById("profile-cover-change-btn");
+    const coverInput = document.getElementById("profile-cover-upload");
+    if (coverBtn && coverInput) coverBtn.addEventListener("click", () => coverInput.click());
+    if (coverInput) {
+      coverInput.addEventListener("change", async () => {
+        await setProfileCoverFromFile(coverInput.files && coverInput.files[0]);
+        coverInput.value = "";
+      });
+    }
+
+    const editBtn = document.getElementById("profile-edit-btn");
+    if (editBtn) editBtn.addEventListener("click", openProfileEditModal);
+    const shareBtn = document.getElementById("profile-share-btn");
+    if (shareBtn) shareBtn.addEventListener("click", shareProfileHome);
+
+    const editModal = document.getElementById("profile-edit-modal");
+    if (editModal) editModal.addEventListener("click", (e) => {
+      if (e.target === editModal) editModal.classList.remove("visible");
     });
-    (_b = document.getElementById("open-mask-btn")) == null ? void 0 : _b.addEventListener("click", () => {
-      switchScreen("mask-screen");
-      renderMaskGrid();
+    const editForm = document.getElementById("profile-edit-form");
+    if (editForm) editForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!db.profile) db.profile = {};
+      db.profile.name = document.getElementById("profile-edit-name").value.trim();
+      db.profile.handle = document.getElementById("profile-edit-handle").value.trim();
+      db.profile.bio = document.getElementById("profile-edit-bio").value.trim();
+      db.profile.following = Math.max(0, parseInt(document.getElementById("profile-edit-following").value) || 0);
+      db.profile.followers = Math.max(0, parseInt(document.getElementById("profile-edit-followers").value) || 0);
+      await saveData();
+      editModal.classList.remove("visible");
+      renderProfile();
+      showToast("主页已保存");
     });
-    (_c = document.getElementById("open-wallet-btn")) == null ? void 0 : _c.addEventListener("click", () => {
-      switchScreen("wallet-screen");
-      renderWallet();
+    const coverReset = document.getElementById("profile-edit-cover-reset");
+    if (coverReset) coverReset.addEventListener("click", async () => {
+      db.profile.cover = "";
+      await saveData();
+      renderProfile();
+      showToast("已恢复默认封面");
     });
-    (_d = document.getElementById("open-switch-mask-btn")) == null ? void 0 : _d.addEventListener("click", () => {
-      switchScreen("mask-screen");
-      renderMaskGrid();
+
+    const tabs = document.getElementById("profile-tabs");
+    if (tabs) tabs.addEventListener("click", (e) => {
+      const btn = e.target.closest(".profile-tab");
+      if (!btn) return;
+      window.__profileTab = btn.dataset.ptab || "posts";
+      tabs.querySelectorAll(".profile-tab").forEach((t) => t.classList.toggle("active", t === btn));
+      renderProfileFeed();
     });
-    (_e = document.getElementById("open-dynamic-settings-icon-btn")) == null ? void 0 : _e.addEventListener("click", () => {
-      const modal = document.getElementById("dynamic-settings-modal");
-      document.getElementById("feed-auto-enabled").checked = !!db.feedSettings.enabled;
-      document.getElementById("feed-interval").value = db.feedSettings.intervalMinutes || 30;
-      renderManualFeedCharList();
+
+    const feedList = document.getElementById("profile-feed-list");
+    if (feedList) feedList.addEventListener("click", (e) => {
+      if (!e.target.closest("[data-profile-publish]")) return;
+      const modal = document.getElementById("publish-feed-modal");
+      if (!modal) return;
+      const text = document.getElementById("feed-text-input");
+      const preview = document.getElementById("feed-image-preview");
+      if (text) text.value = "";
+      if (preview) preview.innerHTML = "";
       modal.classList.add("visible");
     });
-    (_f = document.getElementById("manual-feed-send-btn")) == null ? void 0 : _f.addEventListener("click", async () => {
+
+    const openDynamicSettingsBtn = document.getElementById("open-dynamic-settings-icon-btn");
+    if (openDynamicSettingsBtn) openDynamicSettingsBtn.addEventListener("click", openDynamicSettingsModal);
+
+    const manualFeedBtn = document.getElementById("manual-feed-send-btn");
+    if (manualFeedBtn) manualFeedBtn.addEventListener("click", async () => {
       const ids = [...document.querySelectorAll("#manual-feed-char-list .offline-char-chip.selected")].map((el) => el.dataset.id);
       const count = Math.min(5, Math.max(1, parseInt(document.getElementById("manual-feed-count").value) || 1));
-      if (!ids.length) {
-        showToast("\u5148\u9009\u62E9\u8981\u53D1\u52A8\u6001\u7684\u89D2\u8272");
-        return;
-      }
+      if (!ids.length) { showToast("先选择要发动静的角色"); return; }
       const hint = document.getElementById("manual-feed-hint");
-      hint.textContent = "\u6B63\u5728\u4E3A ".concat(ids.length, " \u4E2A\u89D2\u8272\u751F\u6210 ").concat(count * ids.length, " \u6761\u52A8\u6001...");
+      if (hint) hint.textContent = "正在为 " + ids.length + " 个角色生成 " + (count * ids.length) + " 条动态...";
       let total = 0;
       for (const id of ids) {
         const char = db.characters.find((c) => c.id === id);
@@ -17284,39 +17761,128 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       await saveData();
       db.feedSettings.lastPostTs = Date.now();
-      hint.textContent = "";
+      if (hint) hint.textContent = "";
       if (document.getElementById("dynamic-screen").classList.contains("active")) renderFeeds();
-      showToast("\u5DF2\u53D1\u5E03 ".concat(total, " \u6761\u52A8\u6001"));
+      showToast("已发布 " + total + " 条动态");
     });
-    (_g = document.getElementById("open-writings-btn")) == null ? void 0 : _g.addEventListener("click", () => {
-      switchScreen("writings-screen");
-      renderWritings();
-    });
-    (_h = document.getElementById("dynamic-settings-form")) == null ? void 0 : _h.addEventListener("submit", async (e) => {
+
+    const settingsForm = document.getElementById("dynamic-settings-form");
+    if (settingsForm) settingsForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       db.feedSettings.enabled = document.getElementById("feed-auto-enabled").checked;
       db.feedSettings.intervalMinutes = Math.max(1, parseInt(document.getElementById("feed-interval").value) || 30);
       db.feedSettings.lastPostTs = 0;
       await saveData();
       document.getElementById("dynamic-settings-modal").classList.remove("visible");
-      showToast("\u52A8\u6001\u8BBE\u7F6E\u5DF2\u4FDD\u5B58");
+      showToast("动态设置已保存");
     });
   }
   function renderProfile() {
     const mask = getCurrentMask();
+    const p = db.profile || {};
+    const coverEl = document.getElementById("profile-cover");
     const avatarEl = document.getElementById("profile-avatar");
     const nameEl = document.getElementById("profile-name");
-    const subEl = document.getElementById("profile-sub");
+    const handleEl = document.getElementById("profile-handle");
+    const bioEl = document.getElementById("profile-bio");
     if (!avatarEl) return;
-    if (mask) {
-      avatarEl.src = mask.avatar;
-      nameEl.textContent = mask.name;
-      subEl.textContent = mask.persona ? "\u5F53\u524D\u9762\u5177\uFF1A" + mask.persona.slice(0, 24) + "\u2026" : "\u5F53\u524D\u9762\u5177\u5DF2\u5C31\u7EEA\uFF0C\u70B9\u51FB\u5934\u50CF\u53EF\u5207\u6362";
-    } else {
-      avatarEl.src = "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg";
-      nameEl.textContent = "\u6211";
-      subEl.textContent = "\u70B9\u51FB\u5934\u50CF\u521B\u5EFA / \u9009\u62E9\u4F60\u7684\u7528\u6237\u9762\u5177";
+
+    if (avatarEl) avatarEl.src = (mask && mask.avatar) || p.avatar || "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg";
+    const displayName = p.name || (mask && mask.name) || "我";
+    if (nameEl) nameEl.textContent = displayName;
+    if (handleEl) handleEl.textContent = p.handle || "@404 / ME";
+    if (bioEl) bioEl.textContent = p.bio || "在 404 里，换一个名字说话。";
+    if (coverEl) {
+      const cover = p.cover || PROFILE_DEFAULT_COVER;
+      coverEl.style.backgroundImage = 'url("' + String(cover).replace(/"/g, "%22") + '")';
     }
+    const posts = (db.feeds || []).filter((f) => f && f.authorType === "user").sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    const statPosts = document.getElementById("profile-stat-posts");
+    const statFollowing = document.getElementById("profile-stat-following");
+    const statFollowers = document.getElementById("profile-stat-followers");
+    if (statPosts) statPosts.textContent = posts.length;
+    if (statFollowing) statFollowing.textContent = p.following === void 0 ? 12 : p.following;
+    if (statFollowers) statFollowers.textContent = p.followers === void 0 ? 86 : p.followers;
+    const tabs = document.getElementById("profile-tabs");
+    if (tabs) {
+      const current = window.__profileTab || "posts";
+      tabs.querySelectorAll(".profile-tab").forEach((t) => t.classList.toggle("active", t.dataset.ptab === current));
+    }
+    renderProfileFeed();
+  }
+  function renderProfileFeed() {
+    const list = document.getElementById("profile-feed-list");
+    if (!list) return;
+    const tab = window.__profileTab || "posts";
+    const mask = getCurrentMask();
+    const fallbackAvatar = (mask && mask.avatar) || "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg";
+    const posts = (db.feeds || []).filter((f) => f && f.authorType === "user").sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    const esc = (v) => escapeHtml(String(v == null ? "" : v));
+    const actionSvg = (kind) => {
+      if (kind === "heart") return '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
+      if (kind === "comment") return '<svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 20l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>';
+      return '<svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg>';
+    };
+    const postHtml = (f, index, kind) => {
+      const name = f.authorName || "我";
+      const avatar = f.authorAvatar || fallbackAvatar;
+      const time = f.ts ? feedTimeText(f.ts) : "";
+      const content = f.content ? '<div class="profile-post-text">' + esc(f.content).replace(/\n/g, "<br>") + '</div>' : "";
+      const image = f.image ? '<img class="profile-post-image" src="' + esc(f.image) + '" alt="">' : "";
+      const likes = (f.likes || []).length;
+      const comments = (f.comments || []).length;
+      return '<article class="profile-post" data-profile-open-feed="' + esc(f.id) + '">' +
+        '<img class="profile-post-avatar" src="' + esc(avatar) + '" alt="">' +
+        '<div class="profile-post-body">' +
+          '<div class="profile-post-head"><span class="profile-post-name">' + esc(name) + '</span><span class="profile-post-time">' + esc(time) + '</span><span class="profile-post-kind">' + (kind || "THREAD / " + String(index + 1).padStart(2, "0")) + '</span></div>' +
+          content + image +
+          '<div class="profile-post-actions"><span>' + actionSvg("heart") + likes + '</span><span>' + actionSvg("comment") + comments + '</span><span>' + actionSvg("repost") + '0</span></div>' +
+        '</div>' +
+      '</article>';
+    };
+    if (tab === "posts") {
+      if (!posts.length) {
+        list.innerHTML = '<div class="profile-empty"><b>还没有发布过动态</b><span>发一条，让主页先有第一句话。</span><button type="button" data-profile-publish>去发一条</button></div>';
+        return;
+      }
+      list.innerHTML = posts.slice(0, 20).map((f, i) => postHtml(f, i)).join("");
+      return;
+    }
+    if (tab === "replies") {
+      const rows = [];
+      (db.feeds || []).forEach((f) => {
+        (f.comments || []).forEach((c) => {
+          if (c.authorType === "user" || c.authorName === "我") {
+            rows.push({ c: c, f: f });
+          }
+        });
+      });
+      rows.sort((a, b) => (b.c.ts || 0) - (a.c.ts || 0));
+      if (!rows.length) {
+        list.innerHTML = '<div class="profile-empty"><b>还没有回复过别人</b><span>你在动态下面的回复会出现在这里。</span></div>';
+        return;
+      }
+      list.innerHTML = rows.slice(0, 20).map(({ c, f }, i) => {
+        const avatar = c.authorAvatar || fallbackAvatar;
+        const context = c.replyTo ? "回复 @" + c.replyTo : "回复 @" + (f.authorName || "动态");
+        const parent = String(f.content || "").slice(0, 42);
+        return '<article class="profile-post">' +
+          '<img class="profile-post-avatar" src="' + esc(avatar) + '" alt="">' +
+          '<div class="profile-post-body">' +
+            '<div class="profile-post-head"><span class="profile-post-name">' + esc(c.authorName || "我") + '</span><span class="profile-post-time">' + esc(feedTimeText(c.ts)) + '</span><span class="profile-post-kind">REPLY</span></div>' +
+            '<div class="profile-reply-context">' + esc(context) + ' · ' + esc(parent) + '</div>' +
+            '<div class="profile-post-text">' + esc(c.content || "").replace(/\n/g, "<br>") + '</div>' +
+          '</div>' +
+        '</article>';
+      }).join("");
+      return;
+    }
+    const reps = posts.filter((f) => /^\s*转发\s*@/.test(String(f.content || "")));
+    if (!reps.length) {
+      list.innerHTML = '<div class="profile-empty"><b>还没有转发过动态</b><span>你转发的动态会出现在这里。</span></div>';
+      return;
+    }
+    list.innerHTML = reps.slice(0, 20).map((f, i) => postHtml(f, i, "REPOST")).join("");
   }
   function setupWalletApp() {
     var _a, _b, _c;
@@ -18368,6 +18934,7 @@ document.addEventListener("DOMContentLoaded", () => {
       await saveData();
       document.getElementById("publish-feed-modal").classList.remove("visible");
       renderFeeds();
+      if (typeof renderProfile === "function") renderProfile();
       showToast("\u52A8\u6001\u5DF2\u53D1\u5E03");
       const feedId = db.feeds[0] ? db.feeds[0].id : null;
       if (feedId) {
