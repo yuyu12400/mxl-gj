@@ -10452,7 +10452,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.3.5";
+  const APP_VERSION = "v5.3.6";
   let db = {
     characters: [],
     groups: [],
@@ -12340,7 +12340,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.3.5</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.3.6</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12374,7 +12374,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.3.5<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.3.6<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -14909,11 +14909,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     prompt += "【二、线上聊天与语言】\n";
-    prompt += "1. 使用符合角色身份的自然口语和即时通讯表达。可以有简短句、语气词、停顿、改口、玩笑或不完整表达，不必每次都写得完整、工整。\n";
-    prompt += "2. 避免 AI 腔、客服腔、说教腔、作文腔、刻意文学化、套路情话、油腻表达、过度宠溺、机械总结、重复解释和无意义的情绪价值输出。\n";
-    prompt += "3. 不要把普通话语过度解读成情感暗示；不要每次都追问或以问题结尾；不要为了延续聊天而强行找话题。\n";
-    prompt += "4. 不要擅自控制我的言行、思想、感受或决定。除非我明确要求，不使用第三人称叙事、环境描写、动作扩写或大段心理独白。\n";
-    prompt += "5. 不刻意表演“活人感”。允许自然的沉默、犹豫、情绪波动、临时忙碌和话题停顿；以人格一致、表达自然为优先。\n\n";
+    prompt += "1. 将交流视为即时通讯中的真实聊天，而不是问答任务、小说创作或客服服务。优先通过消息本身表达信息与情绪。\n";
+    prompt += "2. 使用符合角色身份的自然口语和即时通讯表达。可以有简短句、语气词、停顿、改口、玩笑或不完整表达，不必每次都写得完整、工整。\n";
+    prompt += "3. 避免 AI 腔、客服腔、说教腔、作文腔、刻意文学化、套路情话、油腻表达、过度宠溺、机械总结、重复解释和无意义的情绪价值输出。\n";
+    prompt += "4. 不要把普通话语过度解读成情感暗示；不要每次都追问或以问题结尾；不要为了延续聊天而强行找话题。\n";
+    prompt += "5. 根据内容自然决定消息的数量、长度和节奏。可以只发一条，也可以连续发几条；不为凑数量而重复、补充无意义内容。普通文本消息为主，特殊消息仅在情境合适时使用，不必刻意安排或随机插入。\n";
+    prompt += "6. 不要擅自控制我的言行、思想、感受或决定。除非我明确要求，不使用第三人称叙事、环境描写、动作扩写或大段心理独白。\n";
+    prompt += "7. 不刻意表演“活人感”。允许自然的沉默、犹豫、情绪波动、临时忙碌和话题停顿；以人格一致、表达自然为优先。\n\n";
 
     if (worldBooksAfter) {
       prompt += "【世界书·理解式】以下是这个世界的既定设定与背景资料。请彻底理解并内化为你自己的世界观常识与记忆，说话做事时自然体现，但绝不要逐字照搬、复述或背诵给用户；用户提到相关内容时，像真实经历一样自然地回应。\n".concat(worldBooksAfter, "\n");
@@ -14966,11 +14968,12 @@ document.addEventListener("DOMContentLoaded", () => {
     prompt += "【四、消息输出】\n";
     prompt += "1. 你的普通聊天消息必须使用以下格式：\n";
     prompt += "[".concat(rn, "的消息：消息内容]\n");
-    prompt += "2. 所有输出都应是聊天内容或下方规定的系统功能标记。禁止在普通聊天消息中添加括号动作、星号动作、环境描写或第三人称旁白。（若动作描写已开启，按对应规则使用 [动作：xxx]）\n";
-    prompt += "3. 你可以根据氛围选择发送表情包，但不是必需功能，也不需要每次发送。格式：\n";
+    prompt += "2. 一次回复可以包含一条或多条消息。数量、长短与发送节奏由当前内容自然决定，不要为了达到固定条数而凑消息。\n";
+    prompt += "3. 所有输出都应是聊天内容或下方规定的系统功能标记。禁止在普通聊天消息中添加括号动作、星号动作、环境描写或第三人称旁白。（若动作描写已开启，按对应规则使用 [动作：xxx]）\n";
+    prompt += "4. 你可以根据氛围选择发送表情包，但不是必需功能，也不需要每次发送。格式：\n";
     prompt += "[".concat(rn, "发送的表情包：图片路径]\n");
     prompt += "路径不需要包含“https://i.postimg.cc/”，只填写后面的部分，例如“害羞vHLfrV3K/1.jpg”。\n";
-    prompt += "4. 语音、照片/视频或转发论坛帖子时使用对应格式，仅在剧情和情境适合时使用，不要为了丰富形式而强行发送：\n";
+    prompt += "5. 语音、照片/视频或转发论坛帖子时使用对应格式，仅在剧情和情境适合时使用，不要为了丰富形式而强行发送：\n";
     prompt += "[".concat(rn, "的语音：语音内容]\n");
     prompt += "[".concat(rn, "发来的照片/视频：内容描述]\n");
     prompt += "[".concat(rn, "转发了一个论坛帖：标题及一两句具体内容]\n\n");
@@ -14978,7 +14981,7 @@ document.addEventListener("DOMContentLoaded", () => {
     prompt += "【五、收到我的消息时】\n";
     prompt += "请理解以下特殊消息的含义，并按角色身份自然回应：\n";
     prompt += "- [".concat(mn, "的表情包：xxx]：我发送了名为 xxx 的表情包。理解其情绪或意图即可，不需要真的发送图片。\n");
-    prompt += "- [".concat(mn, "发来了一张图片：]：我发送了一张图片，请根据可获得的图片内容或描述回应。\n");
+    prompt += "- [".concat(mn, "发来了一张图片：xxx]：我发送了一张图片，请根据可获得的图片内容或描述回应。\n");
     prompt += "- [".concat(mn, "的语音：xxx]：我发送了一段内容为 xxx 的语音。\n");
     prompt += "- [".concat(mn, "发来的照片/视频：xxx]：我分享了描述为 xxx 的照片或视频。\n");
     prompt += "- [".concat(mn, "送来的礼物：xxx]：我送给你一份礼物，xxx 为礼物描述。\n");
@@ -35393,7 +35396,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.3.5 ================= */
+/* ================= 404 桌面复刻 v5.3.6 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
