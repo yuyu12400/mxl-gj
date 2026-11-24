@@ -10444,7 +10444,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.3.3";
+  const APP_VERSION = "v5.3.4";
   let db = {
     characters: [],
     groups: [],
@@ -11644,13 +11644,16 @@ document.addEventListener("DOMContentLoaded", () => {
     menu.style.top = ny + "px";
     clearTimeout(__ctxMenuCloseTimer);
     __ctxMenuCloseTimer = setTimeout(() => {
-      const onDocPointerUp = (ev) => {
+      const onDocDown = (ev) => {
         if (menu.contains(ev.target)) return;
-        document.removeEventListener("pointerup", onDocPointerUp, true);
+        document.removeEventListener("pointerdown", onDocDown, true);
+        document.removeEventListener("touchstart", onDocDown, true);
         removeContextMenu();
       };
-      document.addEventListener("pointerup", onDocPointerUp, true);
-    }, 520);
+      /* 只在菜单出现之后「新按下」的点击才关闭，避免长按松手的那一下把菜单关掉 */
+      document.addEventListener("pointerdown", onDocDown, true);
+      document.addEventListener("touchstart", onDocDown, true);
+    }, 120);
   }
   function removeContextMenu() {
     clearTimeout(__ctxMenuCloseTimer);
@@ -11823,7 +11826,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!window.__earlyNavBound) {
       window.__earlyNavBound = 1;
       document.addEventListener("click", (e) => {
-        const nav = e.target.closest(".app-icon[data-target], .back-btn[data-target]");
+        const nav = e.target.closest(".app-icon[data-target], .back-btn[data-target], .profile-cover-back[data-target]");
         if (!nav) return;
         e.preventDefault();
         switchScreen(nav.getAttribute("data-target"));
@@ -12129,6 +12132,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (wd) wd.textContent = WEEK_CN[now.getDay()];
     const my = document.getElementById("today-monyear");
     if (my) my.textContent = "".concat(now.getMonth() + 1, "\u6708");
+    const t3 = document.getElementById("time-display3");
+    if (t3) t3.textContent = "".concat(pad(now.getHours()), ":").concat(pad(now.getMinutes()));
+    const d3 = document.getElementById("date-display3");
+    if (d3) d3.textContent = "".concat(now.getFullYear(), "\u5E74").concat(now.getMonth() + 1, "\u6708").concat(now.getDate(), "\u65E5 \xB7 ").concat(WEEK_CN[now.getDay()]);
   }
   function renderCalWidget() {
     const grid = document.getElementById("cal-grid");
@@ -12252,6 +12259,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const allChars = db.characters || [];
     const duo1 = allChars[0] || null;
     const duo2 = allChars[1] || null;
+    const PX = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+    const hwClockDate = () => {
+      const n = new Date(), p2 = (x) => String(x).padStart(2, "0");
+      const MN = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+      const WD = ["SUN","MON","TUE","WED","THU","FRI","SAT"];
+      return p2(n.getHours()) + ":" + p2(n.getMinutes()) + " / " + p2(n.getDate()) + "." + p2(n.getMonth() + 1) + " " + WD[n.getDay()];
+    };
     const HW_CAM = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M3 8h4l2-3h6l2 3h4v12H3z"/><circle cx="12" cy="14" r="3.6"/></svg>';
     const HW_PEN = '<svg viewBox="0 0 24 24" width="9" height="9" fill="currentColor"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a 1 1 0 0 0 0-1.41l-2.34-2.34a 1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>';
     const hwNm = function (t) { return (defaultIcons && defaultIcons[t] && defaultIcons[t].name) || t; };
@@ -12279,7 +12293,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ---------- 第一页 ---------- */
     const hwPage1 = '<div class="hw-canvas">'
       + '<div class="hw-t"><span id="time-display">02:48</span></div>'
-      + '<div class="hw-meta"><b>01 / 03</b><span id="date-display">11.25 WED</span> · v5.3.3</div>'
+      + '<div class="hw-meta"><b>01 / 03</b><span id="date-display">11.25 WED</span> · ' + APP_VERSION + '</div>'
       + '<div class="hw-archwrap" data-hw-block="p1-arch" style="left:12px;top:96px;width:258px;height:336px">'
       + '<span class="hw-tag" data-edit-key="hw-tag1">' + hwTxt('hw-tag1', 'OUR MOMENT') + '</span>'
       + '<div class="hw-arch" data-photo-widget="home-photo-1">' + hwPh('home-photo-1') + hwCam('home-photo-1')
@@ -12291,19 +12305,19 @@ document.addEventListener("DOMContentLoaded", () => {
       + '<div class="hw-dotb" style="right:4px;top:296px"></div>'
       + '<div class="hw-we" data-edit-key="hw-we">' + hwTxt('hw-we', 'we were there.') + '</div>'
       + '<div class="hw-wesub" data-edit-key="hw-wesub">' + hwTxt('hw-wesub', 'OUR MOMENT / 3 PHOTOS') + '</div>'
-      + '<div class="hw-vinyl" data-hw-block="p1-vinyl"><div class="hw-vd" data-photo-widget="hw-vinyl-img"><span class="hw-vring"></span><div class="hw-vcore">'
+      + '<div class="hw-vinyl"><div class="hw-vd paused" data-photo-widget="hw-vinyl-img"><span class="hw-vring"></span><div class="hw-vcore">'
       + (getIcon('hw-vinyl-img') ? '<img class="hw-pimg" src="' + getIcon('hw-vinyl-img') + '" alt="" style="border-radius:50%">' : '<span class="hw-ph ph-x" style="display:flex;align-items:center;justify-content:center">&#9835;</span>')
       + '</div></div></div>'
       + '<div class="hw-kicker" data-edit-key="hw-kicker">' + hwTxt('hw-kicker', 'NOW PLAYING · 404 RADIO') + '</div>'
-      + '<div class="hw-song" data-edit-key="hw-song">' + hwTxt('hw-song', 'our song') + '</div>'
-      + '<div class="hw-artist" data-edit-key="hw-artist">' + hwTxt('hw-artist', 'UNKNOWN ARTIST · 00:00 / 03:45') + '</div>'
-      + '<div class="hw-wavepath"><svg viewBox="0 0 240 30" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1"><polyline points="0,15 10,15 14,8 18,24 22,3 26,27 30,12 34,19 38,9 42,22 46,14 50,17 54,10 58,20 62,13 66,15 74,15 82,9 86,22 90,4 94,26 98,11 102,18 106,7 110,23 114,14 118,16 122,9 126,19 130,15 136,15 142,12 146,17 150,6 154,24 158,10 162,20 166,12 170,18 174,14 178,16 182,10 186,19 190,15 196,15 202,13 206,16 210,11 214,18 218,14 222,15 228,15 240,15"/></svg></div>'
+      + '<div class="hw-song" id="hw-song-t" data-edit-key="hw-song">' + hwTxt('hw-song', 'our song') + '</div>'
+      + '<div class="hw-artist" id="hw-artist-t" data-edit-key="hw-artist">' + hwTxt('hw-artist', 'UNKNOWN ARTIST · 00:00 / 03:45') + '</div>'
+      + '<div class="hw-wavepath" id="hw-wave"><svg viewBox="0 0 240 30" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1"><polyline points="0,15 10,15 14,8 18,24 22,3 26,27 30,12 34,19 38,9 42,22 46,14 50,17 54,10 58,20 62,13 66,15 74,15 82,9 86,22 90,4 94,26 98,11 102,18 106,7 110,23 114,14 118,16 122,9 126,19 130,15 136,15 142,12 146,17 150,6 154,24 158,10 162,20 166,12 170,18 174,14 178,16 182,10 186,19 190,15 196,15 202,13 206,16 210,11 214,18 218,14 222,15 228,15 240,15"/></svg></div>'
       + '<div class="hw-controls">'
-      + '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20C6 16 3 13 3 9.2A4.7 4.7 0 0 1 12 6.8 4.7 4.7 0 0 1 21 9.2c0 3.8-3 6.8-9 10.8z"/></svg>'
-      + '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l-5-7z"/><rect x="17" y="5" width="2.4" height="14"/></svg>'
-      + '<span class="hw-playbtn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5l12 7-12 7z"/></svg></span>'
-      + '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5v14l5-7z"/><rect x="4.6" y="5" width="2.4" height="14"/></svg>'
-      + '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18l-6-4-6 4z"/></svg>'
+      + '<span class="hw-cbtn hw-heart" role="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 20C6 16 3 13 3 9.2A4.7 4.7 0 0 1 12 6.8 4.7 4.7 0 0 1 21 9.2c0 3.8-3 6.8-9 10.8z"/></svg></span>'
+      + '<span class="hw-cbtn hw-prev" role="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l-5-7z"/><rect x="17" y="5" width="2.4" height="14"/></svg></span>'
+      + '<span class="hw-playbtn" role="button"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5l12 7-12 7z"/></svg></span>'
+      + '<span class="hw-cbtn hw-next" role="button"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M16 5v14l5-7z"/><rect x="4.6" y="5" width="2.4" height="14"/></svg></span>'
+      + '<span class="hw-cbtn hw-book" role="button"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 3h12v18l-6-4-6 4z"/></svg></span>'
       + '</div>'
       + '<div class="hw-rule"></div>'
       + '<div class="hw-mhead"><span data-edit-key="hw-mhead">' + hwTxt('hw-mhead', 'MESSAGES / 他 × 我') + '</span><b data-edit-key="hw-mnew">' + hwTxt('hw-mnew', '09:26') + '</b></div>'
@@ -12313,12 +12327,12 @@ document.addEventListener("DOMContentLoaded", () => {
       + '<div class="hw-msg m2"><div class="hw-ava" data-widget-ava="hw-bubble-ava2">' + (getIcon('hw-bubble-ava2') ? '<img src="' + getIcon('hw-bubble-ava2') + '" alt="">' : '我') + '</div>'
       + '<span class="hw-mtext"><b>我</b><span data-edit-key="hw-bubble2">' + hwTxt('hw-bubble2', '我挺好的，你呢？') + '</span></span>'
       + '<span class="hw-mtime">09:26</span></div>'
-      + hwGrid('p1', [['chat-list-screen', '404', 'CHAT'], ['api-settings-screen', 'api', 'SETUP'], ['wallpaper-screen', '壁纸', 'WALL'], ['world-book-screen', '世界书', 'WORLD'], ['customize-screen', '外观', 'LOOK'], ['tutorial-screen', '教程', 'GUIDE']], 'hw-grid g6')
+      + hwGrid('p1', [['api-settings-screen', 'api', 'SETUP'], ['wallpaper-screen', '壁纸', 'WALL'], ['world-book-screen', '世界书', 'WORLD'], ['customize-screen', '外观', 'LOOK'], ['tutorial-screen', '教程', 'GUIDE']], 'hw-grid g5')
       + '</div>';
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">02:48 / 11.25 WED / V5.3.3</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.3.4</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12338,7 +12352,7 @@ document.addEventListener("DOMContentLoaded", () => {
       + '<div class="hw-mom c2" data-photo-widget="home-photo-5" data-hw-block="p2-mom2">' + hwPh('home-photo-5') + hwCam('home-photo-5') + '<span class="hw-cband" data-edit-key="hw-mom2">' + hwTxt('hw-mom2', '02 · 陪伴') + '</span></div>'
       + '<div class="hw-mom c3" data-photo-widget="home-photo-6" data-hw-block="p2-mom3">' + hwPh('home-photo-6') + hwCam('home-photo-6') + '<span class="hw-cband" data-edit-key="hw-mom3">' + hwTxt('hw-mom3', '03 · 现在') + '</span></div>'
       + '<div class="hw-momtxt"><b data-edit-key="hw-momtitle">' + hwTxt('hw-momtitle', 'moments.') + '</b><span data-edit-key="hw-momdesc">' + hwTxt('hw-momdesc', '三张圆形照片，替换成回忆。') + '</span></div>'
-      + hwGrid('p2', [['offline-home-screen', '线下', 'OFFLINE'], ['archive-screen', '档案', 'FILE'], ['memory-screen', '记忆', 'MEMORY'], ['phone-screen', '查手机', 'PHONE', true], ['food-app-screen', '外卖', 'FOOD'], ['couple-screen', '情侣空间', 'LOVE']], 'hw-grid g6b')
+      + hwGrid('p2', [['offline-home-screen', '线下', 'OFFLINE'], ['memory-screen', '记忆', 'MEMORY'], ['phone-screen', '查手机', 'PHONE', true], ['food-app-screen', '外卖', 'FOOD'], ['couple-screen', '情侣空间', 'LOVE']], 'hw-grid g5b')
       + '<div class="hw-still" data-edit-key="hw-still">' + hwTxt('hw-still', '还是你。') + '</div>'
       + '<div class="hw-stillsub" data-edit-key="hw-stillsub">' + hwTxt('hw-stillsub', 'STILL MY FAVOURITE PERSON / 2026') + '</div>'
       + '</div>';
@@ -12350,9 +12364,9 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let i = 1; i <= 28; i++) cells += '<span class="' + (i === 25 ? 'on' : '') + '">' + i + '</span>';
       return '<div class="hw-calgrid">' + heads + cells + '</div>';
     })();
-    const hwPage3 = '<div class="hw-canvas pg-dark">'
-      + '<div class="hw-t"><span style="color:#f6f6fa">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b>11.25 WED &#183; V5.3.3<br>第三页 · 论坛<br>NIGHT INDEX / 008</div>'
+    const hwPage3 = '<div class="hw-canvas pg-light">'
+      + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.3.4<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -12372,25 +12386,66 @@ document.addEventListener("DOMContentLoaded", () => {
       + '<div class="home-pages" id="home-pages">'
       + '<div class="home-page pg-light">' + hwPage1 + '</div>'
       + '<div class="home-page pg-light">' + hwPage2 + '</div>'
-      + '<div class="home-page pg-dark">' + hwPage3 + '</div>'
+      + '<div class="home-page pg-light">' + hwPage3 + '</div>'
       + '</div>'
       + '<div class="page-dots" id="home-page-dots"><span class="dot on"></span><span class="dot"></span><span class="dot"></span><span class="page-num" id="home-page-num">1 / 3</span></div>'
       + '<div class="dock">'
-      + '<a href="#" class="app-icon" id="day-mode-btn"><span class="icon-default">' + (appIconSvgs['day-mode-btn'] || '') + '</span><img src="' + (getIcon('day-mode-btn') || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7') + '" alt="日间" class="icon-img"></a>'
-      + '<a href="#" class="app-icon" id="night-mode-btn"><span class="icon-default">' + (appIconSvgs['night-mode-btn'] || '') + '</span><img src="' + (getIcon('night-mode-btn') || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7') + '" alt="夜间" class="icon-img"></a>'
-      + '<a href="#" class="app-icon' + (getIcon('font-settings-screen') ? ' has-img' : '') + '" data-target="font-settings-screen"><button type="button" class="icon-edit-btn" data-icon-id="font-settings-screen" title="换图">' + HW_PEN + '</button><span class="icon-default">' + (appIconSvgs['font-settings-screen'] || '') + '</span><img src="' + (getIcon('font-settings-screen') || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7') + '" alt="字体" class="icon-img"></a>'
+      + '<a href="#" draggable="false" class="app-icon hw-dock-app' + (getIcon('chat-list-screen') ? ' has-img' : '') + '" data-target="chat-list-screen"><button type="button" class="icon-edit-btn" data-icon-id="chat-list-screen" title="换图">' + HW_PEN + '</button><span class="icon-default">' + (appIconSvgs['chat-list-screen'] || '') + '</span><img src="' + (getIcon('chat-list-screen') || PX) + '" alt="聊天" class="icon-img"><span class="app-name">聊天</span><span class="hw-en">CHAT</span></a>'
+      + '<a href="#" draggable="false" class="app-icon hw-dock-app' + (getIcon('archive-screen') ? ' has-img' : '') + '" data-target="archive-screen"><button type="button" class="icon-edit-btn" data-icon-id="archive-screen" title="换图">' + HW_PEN + '</button><span class="icon-default">' + (appIconSvgs['archive-screen'] || '') + '</span><img src="' + (getIcon('archive-screen') || PX) + '" alt="档案" class="icon-img"><span class="app-name">档案</span><span class="hw-en">FILE</span></a>'
+      + '<a href="#" draggable="false" class="app-icon hw-dock-app' + (getIcon('font-settings-screen') ? ' has-img' : '') + '" data-target="font-settings-screen"><button type="button" class="icon-edit-btn" data-icon-id="font-settings-screen" title="换图">' + HW_PEN + '</button><span class="icon-default">' + (appIconSvgs['font-settings-screen'] || '') + '</span><img src="' + (getIcon('font-settings-screen') || PX) + '" alt="字体" class="icon-img"><span class="app-name">字体</span><span class="hw-en">TYPE</span></a>'
       + '</div>';
 
     homeScreen.innerHTML = homeScreenHTML;
 
-    const hwApplyPos = function () {
-      const pos = db.desktopPos || {};
-      homeScreen.querySelectorAll('[data-hw-block]').forEach(function (el) {
-        const p = pos[el.dataset.hwBlock];
-        if (p) el.style.translate = (p.x || 0) + 'px ' + (p.y || 0) + 'px';
-      });
+
+    window.hwUploadSong = function () {
+      const inp = document.createElement('input');
+      inp.type = 'file'; inp.accept = 'audio/*';
+      inp.onchange = function () {
+        const f = inp.files && inp.files[0]; if (!f) return;
+        const rd = new FileReader();
+        rd.onload = function () {
+          const m = (typeof muDB === 'function') ? muDB() : (db.music || (db.music = {}));
+          const s2 = { id: 'local_' + Date.now(), title: (f.name || '').replace(/\.[^.]+$/, ''), artist: '本地音乐', url: rd.result, art: '', dur: 0, source: '本地' };
+          (m.songs || (m.songs = [])).push(s2);
+          if (typeof saveData === 'function') saveData();
+          if (typeof muPlay === 'function') muPlay(s2, [s2]);
+          showToast('已开始播放《' + s2.title + '》');
+          setTimeout(hwSyncPlayer, 300);
+        };
+        rd.readAsDataURL(f);
+      };
+      inp.click();
     };
-    hwApplyPos();
+    window.hwSyncPlayer = function () {
+      const q = function (s) { return document.getElementById(s); };
+      const song = (typeof MS !== 'undefined' && MS) ? MS.cur : null;
+      const a = (typeof muAudio === 'function') ? muAudio() : null;
+      const titleEl = q('hw-song-t'), artistEl = q('hw-artist-t');
+      if (titleEl && song && song.title && !(db.widgetTexts && db.widgetTexts['hw-song'])) titleEl.textContent = song.title;
+      if (artistEl && !(db.widgetTexts && db.widgetTexts['hw-artist'])) {
+        if (song) {
+          const cur = a ? (a.currentTime || 0) : 0;
+          const dur = a && isFinite(a.duration) ? a.duration : (song.dur || 0);
+          const fmt = function (n) { n = Math.max(0, Math.floor(n || 0)); return String(Math.floor(n / 60)).padStart(2, '0') + ':' + String(n % 60).padStart(2, '0'); };
+          artistEl.textContent = String(song.artist || 'UNKNOWN ARTIST').toUpperCase() + ' · ' + fmt(cur) + ' / ' + fmt(dur);
+        } else {
+          artistEl.textContent = 'UNKNOWN ARTIST · 00:00 / 03:45';
+        }
+      }
+      const playing = !!(typeof MS !== 'undefined' && MS && MS.playing);
+      const vd = homeScreen.querySelector('.hw-vd');
+      if (vd) vd.classList.toggle('paused', !playing);
+      const wave = q('hw-wave');
+      if (wave) wave.classList.toggle('playing', playing);
+      const btn = homeScreen.querySelector('.hw-playbtn');
+      if (btn) btn.innerHTML = playing
+        ? '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 5h4v14H6zM14 5h4v14h-4z"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5l12 7-12 7z"/></svg>';
+    };
+    if (!window.__hwPlayerTimer) {
+      window.__hwPlayerTimer = setInterval(function () { try { window.hwSyncPlayer(); } catch (e) {} }, 1000);
+    }
     (function hwFit() {
       const scr = document.getElementById('home-screen');
       if (!scr) return;
@@ -12425,6 +12480,39 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     })();
 
+    (function hwBindPlayer() {
+      const q = function (s) { return homeScreen.querySelector(s); };
+      const openMusic = function () { switchScreen('music-app-screen'); };
+      const pickSong = function () {
+        const ov = document.createElement('div');
+        ov.className = 'modal-overlay visible'; ov.style.zIndex = '380';
+        ov.innerHTML = '<div class="modal-window" style="width:82%;max-width:300px;padding:18px;text-align:center;">\n<div style="font-size:15px;font-weight:700;color:#22252c;margin-bottom:4px;">还没有正在播放的歌</div>\n<div style="font-size:11px;color:#8a8ea0;margin-bottom:14px;">去音乐 APP 选一首，或上传你本地的歌</div>\n<button class="btn btn-primary" data-hwp="upload" style="width:100%;margin-bottom:8px;padding:11px;border-radius:12px;border:none;">上传本地歌曲</button>\n<button class="btn" data-hwp="music" style="width:100%;margin-bottom:8px;padding:11px;border-radius:12px;border:none;background:#f2f3f5;color:#333;">打开音乐 APP</button>\n<button class="btn" data-hwp="cancel" style="width:100%;padding:9px;border-radius:12px;border:none;background:none;color:#9aa0a6;">取消</button></div>';
+        document.body.appendChild(ov);
+        ov.addEventListener('click', function (e) {
+          const b = e.target.closest('[data-hwp]');
+          if (e.target === ov || (b && b.dataset.hwp === 'cancel')) { ov.remove(); return; }
+          if (!b) return;
+          if (b.dataset.hwp === 'music') { ov.remove(); openMusic(); return; }
+          if (b.dataset.hwp === 'upload') { ov.remove(); hwUploadSong(); }
+        });
+      };
+      const bind = function (sel, fn) {
+        const el = q(sel); if (!el || el.dataset.bound) return;
+        el.dataset.bound = '1';
+        el.addEventListener('click', function (ev) { ev.preventDefault(); ev.stopPropagation(); fn(); });
+      };
+      bind('.hw-playbtn', function () {
+        if (typeof MS === 'undefined' || !MS.cur) { pickSong(); return; }
+        muToggle(); hwSyncPlayer();
+      });
+      bind('.hw-prev', function () { if (typeof MS !== 'undefined' && MS.queue && MS.queue.length) muPrev(); else pickSong(); hwSyncPlayer(); });
+      bind('.hw-next', function () { if (typeof MS !== 'undefined' && MS.queue && MS.queue.length) muNext(false); else pickSong(); hwSyncPlayer(); });
+      bind('.hw-heart', function () { showToast('已喜欢这首歌'); });
+      bind('.hw-book', openMusic);
+      window.__hwUploadSong = hwUploadSong;
+      hwSyncPlayer();
+    })();
+
     (function hwBindDrag() {
       if (window.__hwDragBound) return;
       window.__hwDragBound = true;
@@ -12435,10 +12523,9 @@ document.addEventListener("DOMContentLoaded", () => {
         if (e.target.closest('.icon-edit-btn')) return;
         if (e.target.closest('.hw-controls')) return;
         const app = e.target.closest('.hw-app');
-        const blk = e.target.closest('[data-hw-block]');
-        el = app || blk;
+        el = app;
         if (!el) return;
-        isApp = !!app;
+        isApp = true;
         key = isApp ? '' : (el.dataset.hwBlock || '');
         sx = e.clientX; sy = e.clientY; dragging = false;
         timer = setTimeout(function () {
@@ -12497,14 +12584,6 @@ document.addEventListener("DOMContentLoaded", () => {
             saveData();
             showToast('图标位置已保存');
           }
-        } else {
-          const all = db.desktopPos = db.desktopPos || {};
-          const p = all[key] || { x: 0, y: 0 };
-          p.x = (p.x || 0) + dx; p.y = (p.y || 0) + dy;
-          all[key] = p;
-          el.style.translate = p.x + 'px ' + p.y + 'px';
-          saveData();
-          showToast('组件位置已保存');
         }
         el = null;
       }, { passive: true });
@@ -12946,6 +13025,11 @@ document.addEventListener("DOMContentLoaded", () => {
     chatListContainer.addEventListener("click", (e) => {
       const chatItem = e.target.closest(".chat-item");
       if (chatItem) {
+        if (Date.now() - (window.__chatLongPressAt || 0) < 800) {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
         currentChatId = chatItem.dataset.id;
         currentChatType = chatItem.dataset.type;
         openChatRoom(currentChatId, currentChatType);
@@ -12970,6 +13054,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function handleChatListLongPress(chatId, chatType, x, y) {
     clearTimeout(longPressTimer);
+    window.__chatLongPressAt = Date.now();
     const chatItem = chatType === "private" ? db.characters.find((c) => c.id === chatId) : db.groups.find((g) => g.id === chatId);
     if (!chatItem) return;
     const itemName = chatType === "private" ? chatItem.remarkName : chatItem.name;
@@ -14974,7 +15059,15 @@ document.addEventListener("DOMContentLoaded", () => {
   async function getAiReply() {
     var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l;
     if (chatGen[curChatKey()]) return;
-    const { url, key, model, provider } = db.apiSettings;
+    let { url, key, model, provider } = db.apiSettings;
+    if (typeof url === "string") {
+      url = url.trim().replace(/\s+/g, "");
+      if (url && !/^https?:\/\//i.test(url)) url = "https://" + url;
+      url = url.replace(/\/+$/, "");
+      url = url.replace(/\/v1\/chat\/completions$/i, "").replace(/\/v1$/i, "");
+      url = url.replace(/\/+$/, "");
+      db.apiSettings.url = url;
+    }
     if (!url || !key || !model) {
       showToast("\u8BF7\u5148\u5728\u201Capi\u201D\u5E94\u7528\u4E2D\u5B8C\u6210\u8BBE\u7F6E\uFF01");
       switchScreen("api-settings-screen");
@@ -15195,7 +15288,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (error) {
       console.error("AI\u56DE\u590D\u5931\u8D25:", error);
-      showToast("AI\u56DE\u590D\u5931\u8D25: ".concat(error.message));
+      const rawMsg = String((error && error.message) || error || "");
+      const friendly = /did not match the expected pattern/i.test(rawMsg)
+        ? "\u63A5\u53E3\u5730\u5740\u683C\u5F0F\u4E0D\u5BF9\uFF1A\u8BF7\u586B https:// \u5F00\u5934\u7684\u5B8C\u6574\u5730\u5740\uFF08\u4E0D\u8981\u5E26\u7A7A\u683C\u3001\u4E0D\u8981\u5E26\u7ED3\u5C3E\u659C\u6760\uFF0C\u4E5F\u4E0D\u8981\u5E26 /v1\uFF09"
+        : rawMsg;
+      showToast("AI\u56DE\u590D\u5931\u8D25: ".concat(friendly));
     } finally {
       if (typeof myKey !== "undefined") chatGen[myKey] = false;
       getReplyBtn.disabled = false;
@@ -17174,9 +17271,16 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const v = (id) => { const el = document.getElementById(id); return el ? String(el.value || "") : ""; };
       const chk = (id) => { const el = document.getElementById(id); return !!(el && el.checked); };
+      const normUrl = function (u) {
+        u = String(u || "").trim().replace(/\s+/g, "");
+        if (u && !/^https?:\/\//i.test(u)) u = "https://" + u;
+        u = u.replace(/\/+$/, "");
+        u = u.replace(/\/v1\/chat\/completions$/i, "").replace(/\/v1$/i, "");
+        return u.replace(/\/+$/, "");
+      };
       const snap = {
         provider: v("api-provider") || (db.apiSettings && db.apiSettings.provider) || "newapi",
-        url: v("api-url") || (db.apiSettings && db.apiSettings.url) || "",
+        url: normUrl(v("api-url") || (db.apiSettings && db.apiSettings.url) || ""),
         key: v("api-key") || (db.apiSettings && db.apiSettings.key) || "",
         model: v("api-model") || (db.apiSettings && db.apiSettings.model) || "",
         visionEnabled: chk("api-vision-enabled"),
@@ -18964,6 +19068,115 @@ document.addEventListener("DOMContentLoaded", () => {
       listEl.appendChild(li);
     });
   }
+  function archiveMaskBadge() {
+    const n = (db.masks || []).length;
+    return n > 1 ? " · 点按管理/切换" : " · 点按新建或管理";
+  }
+  function openArchiveMaskManager() {
+    const ov = document.createElement("div");
+    ov.className = "modal-overlay visible";
+    ov.style.zIndex = "520";
+    const rows = (db.masks || []).map(function (m) {
+      return '<div class="amk-row" data-mid="' + m.id + '" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0f0;">'
+        + '<img src="' + escapeHtml(m.avatar || '') + '" style="width:38px;height:38px;border-radius:50%;object-fit:cover;flex:0 0 auto;background:#eee;">'
+        + '<div style="flex:1;min-width:0;text-align:left;">'
+        + '<div style="font-size:13px;font-weight:700;color:#1c1c22;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(m.name || '未命名') + (m.id === db.activeMaskId ? ' <span style="font-size:10px;color:#8a8ea0;">使用中</span>' : '') + '</div>'
+        + '<div style="font-size:10px;color:#9aa0a6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml((m.persona || '未设置人设').slice(0, 24)) + '</div>'
+        + '</div>'
+        + '<button type="button" class="amk-edit" data-edit="' + m.id + '" style="border:none;background:#f2f3f5;color:#333;font-size:11px;padding:6px 9px;border-radius:8px;">编辑</button>'
+        + '<button type="button" class="amk-del" data-del="' + m.id + '" style="border:none;background:none;color:#d05454;font-size:11px;padding:6px 4px;">删除</button>'
+        + '</div>';
+    }).join('');
+    ov.innerHTML = '<div class="modal-window" style="width:88%;max-width:330px;padding:18px;max-height:76vh;overflow:auto;">'
+      + '<div style="font-size:15px;font-weight:700;color:#22252c;margin-bottom:2px;">用户面具</div>'
+      + '<div style="font-size:11px;color:#8a8ea0;margin-bottom:10px;">在 404 里以哪张脸说话。可新建、修改、删除。</div>'
+      + (rows || '<div style="font-size:12px;color:#9aa0a6;padding:10px 0;">还没有面具，先建一个吧。</div>')
+      + '<button type="button" class="amk-new" style="width:100%;margin-top:12px;padding:11px;border-radius:12px;border:none;background:#17171b;color:#fff;font-size:13px;font-weight:600;">＋ 新建面具</button>'
+      + '<button type="button" class="amk-close" style="width:100%;margin-top:8px;padding:9px;border-radius:12px;border:none;background:none;color:#9aa0a6;font-size:12px;">关闭</button>'
+      + '</div>';
+    document.body.appendChild(ov);
+    ov.addEventListener("click", function (e) {
+      if (e.target === ov || e.target.closest(".amk-close")) { ov.remove(); return; }
+      if (e.target.closest(".amk-new")) { ov.remove(); openArchiveMaskEditor(null); return; }
+      const ed = e.target.closest("[data-edit]");
+      if (ed) { ov.remove(); openArchiveMaskEditor(ed.dataset.edit); return; }
+      const dl = e.target.closest("[data-del]");
+      if (dl) {
+        const mid = dl.dataset.del;
+        uiConfirm("删除这个面具？", "删除", true).then(function (ok) {
+          if (!ok) return;
+          db.masks = (db.masks || []).filter(function (x) { return x.id !== mid; });
+          if (db.activeMaskId === mid) db.activeMaskId = null;
+          (db.characters || []).forEach(function (c) { c.maskIds = (c.maskIds || []).filter(function (i) { return i !== mid; }); });
+          saveData();
+          ov.remove();
+          renderArchiveList();
+          renderProfile();
+          showToast("面具已删除");
+        });
+        return;
+      }
+      const row = e.target.closest("[data-mid]");
+      if (row) {
+        db.activeMaskId = row.dataset.mid;
+        saveData();
+        ov.remove();
+        renderArchiveList();
+        renderProfile();
+        showToast("已切换用户面具：" + ((db.masks.find(function (x) { return x.id === row.dataset.mid; }) || {}).name || ""));
+      }
+    });
+  }
+  function openArchiveMaskEditor(maskId) {
+    const m = maskId ? (db.masks || []).find(function (x) { return x.id === maskId; }) : null;
+    const ov = document.createElement("div");
+    ov.className = "modal-overlay visible";
+    ov.style.zIndex = "540";
+    ov.innerHTML = '<div class="modal-window" style="width:88%;max-width:330px;padding:18px;">'
+      + '<div style="font-size:15px;font-weight:700;color:#22252c;margin-bottom:12px;">' + (m ? "编辑面具" : "新建面具") + '</div>'
+      + '<div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">'
+      + '<img class="amke-ava" src="' + escapeHtml((m && m.avatar) || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg") + '" style="width:54px;height:54px;border-radius:50%;object-fit:cover;background:#eee;flex:0 0 auto;">'
+      + '<button type="button" class="amke-pick" style="border:none;background:#f2f3f5;color:#333;font-size:12px;padding:8px 12px;border-radius:10px;">上传头像</button>'
+      + '<input type="file" class="amke-file" accept="image/*" style="display:none;">'
+      + '</div>'
+      + '<input class="amke-name" placeholder="面具名字" value="' + escapeHtml((m && m.name) || "") + '" style="width:100%;padding:11px;border:1px solid #e6e7e9;border-radius:12px;font-size:13px;margin-bottom:10px;box-sizing:border-box;">'
+      + '<textarea class="amke-persona" placeholder="面具人设：身份、性格、说话方式、与角色的关系…" style="width:100%;height:110px;padding:11px;border:1px solid #e6e7e9;border-radius:12px;font-size:13px;box-sizing:border-box;resize:none;">' + escapeHtml((m && m.persona) || "") + '</textarea>'
+      + '<button type="button" class="amke-save" style="width:100%;margin-top:12px;padding:11px;border-radius:12px;border:none;background:#17171b;color:#fff;font-size:13px;font-weight:600;">保存</button>'
+      + '<button type="button" class="amke-cancel" style="width:100%;margin-top:8px;padding:9px;border-radius:12px;border:none;background:none;color:#9aa0a6;font-size:12px;">取消</button>'
+      + '</div>';
+    document.body.appendChild(ov);
+    let ava = (m && m.avatar) || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
+    ov.querySelector(".amke-pick").onclick = function () { ov.querySelector(".amke-file").click(); };
+    ov.querySelector(".amke-file").onchange = function (e) {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      compressImage(f, { quality: 0.82, maxWidth: 400, maxHeight: 400 }).then(function (u) {
+        ava = u;
+        ov.querySelector(".amke-ava").src = u;
+      }).catch(function () { showToast("头像读取失败"); });
+    };
+    ov.querySelector(".amke-save").onclick = function () {
+      const name = ov.querySelector(".amke-name").value.trim();
+      const persona = ov.querySelector(".amke-persona").value.trim();
+      if (!name) { showToast("请填写面具名字"); return; }
+      db.masks = db.masks || [];
+      if (m) {
+        m.name = name; m.persona = persona; m.avatar = ava;
+      } else {
+        const nm = { id: "mask_" + Date.now(), name: name, avatar: ava, persona: persona };
+        db.masks.push(nm);
+        db.activeMaskId = nm.id;
+      }
+      saveData();
+      ov.remove();
+      renderArchiveList();
+      renderProfile();
+      showToast(m ? "面具已更新" : "面具已创建");
+    };
+    ov.addEventListener("click", function (e) {
+      if (e.target === ov || e.target.closest(".amke-cancel")) ov.remove();
+    });
+  }
   function renderArchiveList() {
     const listEl = document.getElementById("archive-char-list");
     const hint = document.getElementById("archive-empty-hint");
@@ -18984,28 +19197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     maskCard.style.margin = "0 0 12px";
     maskCard.innerHTML = '<svg viewBox="0 0 24 24" width="42" height="42" fill="none" stroke="#1a1a1a" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8z"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></svg>\n                <div class="mcc-info">\n                    <div class="mcc-name">\u7528\u6237\u9762\u5177</div>\n                    <div class="mcc-meta" id="archive-mask-meta">'.concat(curMask ? escapeHtml(curMask.name) + (db.masks.length > 1 ? " \xB7 \u70B9\u51FB\u5207\u6362" : "") : "\u672A\u9009\u62E9 \xB7 \u70B9\u51FB\u9009\u62E9", '</div>\n                </div>\n                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#b0b4bb; margin-left:auto; flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>');
     maskCard.addEventListener("click", () => {
-      if (!db.masks.length) {
-        showToast("\u8FD8\u6CA1\u6709\u7528\u6237\u9762\u5177\uFF0C\u8BF7\u5148\u5728\u300C\u6211\u7684 \u2192 \u6211\u7684\u9762\u5177\u300D\u521B\u5EFA");
-        return;
-      }
-      const ov = document.createElement("div");
-      ov.className = "modal-overlay visible";
-      ov.style.zIndex = "500";
-      ov.innerHTML = '<div class="modal-window" style="width:84%; max-width:320px; padding:18px;">\n                    <div style="font-size:15px;font-weight:700;margin-bottom:10px;color:#22252c;">\u9009\u62E9\u7528\u6237\u9762\u5177</div>\n                    <div style="max-height:46vh;overflow-y:auto;">'.concat(db.masks.map((m) => '<button data-mask-id="'.concat(m.id, '" style="display:flex;align-items:center;gap:11px;width:100%;padding:11px 6px;border:none;border-bottom:1px solid #f2f3f5;background:none;cursor:pointer;font-family:inherit;font-size:14px;color:#22252c;text-align:left;').concat(m.id === db.activeMaskId ? "opacity:1" : "opacity:.75", '"><span style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#c9d2dd,#8fa2b8);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;overflow:hidden;font-size:14px;">').concat(m.avatar ? '<img src="'.concat(escapeHtml(m.avatar), '" style="width:100%;height:100%;object-fit:cover;">') : escapeHtml((m.name || "\u6211")[0]), '</span><span style="flex:1;text-align:left;">').concat(escapeHtml(m.name)).concat(m.id === db.activeMaskId ? '<span style="font-size:10px;color:#ff6b33;margin-left:6px;">\u5F53\u524D</span>' : "", "</span>").concat(m.id === db.activeMaskId ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#ff6b33" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>' : "", "</button>")).join(""), '</div>\n                    <div style="margin-top:12px;"><button class="btn btn-neutral" style="width:100%;padding:11px;border:none;border-radius:12px;background:#f2f3f5;font-size:14px;cursor:pointer;color:#3c3f44;" data-mask-cancel="1">\u53D6\u6D88</button></div>\n                </div>');
-      document.body.appendChild(ov);
-      ov.querySelectorAll("[data-mask-id]").forEach((btn) => btn.addEventListener("click", () => {
-        const mid = btn.dataset.maskId;
-        db.activeMaskId = mid;
-        saveData();
-        ov.remove();
-        renderArchiveList();
-        showToast("\u5DF2\u5207\u6362\u7528\u6237\u9762\u5177\uFF1A" + (db.masks.find((m) => m.id === mid) || {}).name);
-      }));
-      const cb = ov.querySelector("[data-mask-cancel]");
-      if (cb) cb.addEventListener("click", () => ov.remove());
-      ov.addEventListener("click", (e) => {
-        if (e.target === ov) ov.remove();
-      });
+      openArchiveMaskManager();
     });
     listEl.appendChild(maskCard);
     if (!db.characters.length) {
@@ -35086,7 +35278,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.3.3 ================= */
+/* ================= 404 桌面复刻 v5.3.4 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
@@ -35123,8 +35315,8 @@ window.bsRoomAI = bsRoomAI;
 .hw-we{position:absolute;right:16px;top:360px;text-align:right;font-family:"Times New Roman","Songti SC",serif;font-style:italic;font-size:22px;letter-spacing:-.2px;color:#1c1c21}
 .hw-wesub{position:absolute;right:16px;top:390px;text-align:right;font-size:6.5px;letter-spacing:2px;color:#9a9aa2;font-weight:600}
 /* 黑胶 + 播放器 */
-.hw-vinyl{position:absolute;left:-12px;top:432px;width:162px;height:162px;z-index:1}
-.hw-vd{position:relative;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 36% 28%,#3d3d44 0%,#17171b 52%,#08080b 100%);box-shadow:0 12px 28px rgba(0,0,0,.26);overflow:hidden;display:flex;align-items:center;justify-content:center}
+.hw-vinyl{position:absolute;left:10px;top:452px;width:134px;height:134px;z-index:1}
+.hw-vd{position:relative;width:100%;height:100%;border-radius:50%;background:repeating-radial-gradient(circle at 50% 50%,rgba(255,255,255,.075) 0 1px,rgba(10,10,14,.05) 1px 3.4px),conic-gradient(from 0deg,rgba(255,255,255,.14),rgba(255,255,255,.03) 22%,rgba(255,255,255,.16) 48%,rgba(255,255,255,.03) 74%,rgba(255,255,255,.14)),radial-gradient(circle at 36% 28%,rgba(88,88,102,.55) 0%,rgba(34,34,42,.55) 55%,rgba(12,12,16,.62) 100%);border:1px solid rgba(255,255,255,.12);box-shadow:0 10px 22px rgba(0,0,0,.18);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);animation:hwspin 16s linear infinite;overflow:hidden;display:flex;align-items:center;justify-content:center}
 .hw-vring{position:absolute;inset:11px;border-radius:50%;border:1px solid rgba(255,255,255,.09);box-shadow:inset 0 0 0 7px rgba(255,255,255,.025)}
 .hw-vcore{position:relative;width:50px;height:50px;border-radius:50%;overflow:hidden;background:#2a2a30;display:flex;align-items:center;justify-content:center;color:#b9b9c2;font-size:15px;border:1px solid rgba(255,255,255,.16)}
 .hw-kicker{position:absolute;left:176px;top:452px;font-size:6.5px;letter-spacing:2px;color:#9a9aa2;font-weight:700}
@@ -35150,6 +35342,7 @@ window.bsRoomAI = bsRoomAI;
 .hw-mtime{font-size:7px;color:#a4a4ac;flex:0 0 auto}
 /* 图标方块 */
 .hw-grid{position:absolute;display:flex;justify-content:space-between}
+.hw-grid.g5{left:14px;right:16px;top:688px}
 .hw-grid.g6{left:14px;right:16px;top:688px}
 .hw-canvas .hw-app{width:48px;min-height:0;padding:0;background:none;box-shadow:none;border-radius:0;display:flex;flex-direction:column;align-items:center;position:relative}
 .hw-canvas .hw-app::before{display:none}
@@ -35188,14 +35381,15 @@ window.bsRoomAI = bsRoomAI;
 .hw-momtxt{position:absolute;left:242px;top:466px;width:172px}
 .hw-momtxt b{display:block;font-family:"Times New Roman","Songti SC",serif;font-style:italic;font-size:20px;font-weight:400;color:#1b1b20}
 .hw-momtxt span{display:block;margin-top:8px;font-size:6.5px;line-height:1.9;letter-spacing:.4px;color:#9d9da5}
+.hw-grid.g5b{left:16px;right:16px;top:578px}
 .hw-grid.g6b{left:16px;right:16px;top:578px}
 .hw-still{position:absolute;left:16px;top:742px;font-size:27px;font-weight:600;letter-spacing:-.4px;color:#18181d}
 .hw-stillsub{position:absolute;left:16px;top:782px;font-size:6.5px;letter-spacing:2px;color:#a0a0a8;font-weight:700}
 /* 第三页 */
-.hw-forum{position:absolute;left:16px;top:64px;font-size:44px;font-weight:400;letter-spacing:-1px;line-height:1;color:#f4f4f8}
+.hw-forum{position:absolute;left:16px;top:64px;font-size:44px;font-weight:400;letter-spacing:-1px;line-height:1;color:#16161a}
 .hw-p3rule{position:absolute;left:16px;right:16px;top:112px;height:1px;background:rgba(255,255,255,.14)}
-.hw-cal25{position:absolute;left:10px;top:112px;font-size:126px;font-weight:300;letter-spacing:-6px;line-height:.9;color:#f4f4f7}
-.hw-month{position:absolute;left:16px;top:250px;font-size:7px;letter-spacing:2.4px;color:#8d8d97;font-weight:700}
+.hw-cal25{position:absolute;left:10px;top:112px;font-size:126px;font-weight:300;letter-spacing:-6px;line-height:.9;color:#16161a}
+.hw-month{position:absolute;left:16px;top:250px;font-size:7px;letter-spacing:2.4px;color:#8a8a94;font-weight:700}
 .hw-calgrid{position:absolute;right:16px;top:118px;width:196px;display:grid;grid-template-columns:repeat(7,1fr);gap:4px 0}
 .hw-calgrid span{font-size:8px;color:#6f6f79;text-align:center;line-height:1.9;font-weight:500}
 .hw-calgrid span.hd{font-size:6px;color:#585862;letter-spacing:1px;font-weight:700}
@@ -35210,12 +35404,12 @@ window.bsRoomAI = bsRoomAI;
 .hw-capwave{width:84px;height:16px;color:#7c7c88;flex:0 0 auto}
 .hw-p3grid{position:absolute;left:24px;width:278px;top:436px;display:flex;flex-wrap:wrap;justify-content:space-between;row-gap:22px}
 .hw-p3grid .hw-app{width:56px}
-.hw-p3grid .hw-app .icon-default,.hw-p3grid .hw-app .icon-img{width:56px;height:56px;border-radius:14px;background:#1d1d22;color:#f4f4f8}
+.hw-p3grid .hw-app .icon-default,.hw-p3grid .hw-app .icon-img{width:56px;height:56px;border-radius:14px;background:#fff;color:#1d1d22;box-shadow:0 1px 4px rgba(0,0,0,.07)}
 .hw-p3grid .hw-app .icon-default svg{width:22px;height:22px}
-.hw-p3grid .hw-app.is-on .icon-default{background:#fff;color:#111}
+.hw-p3grid .hw-app.is-on .icon-default{background:#17171b;color:#fff}
 .hw-p3grid .hw-inj .icon-default svg{width:22px;height:22px}
-.hw-awake{position:absolute;left:16px;top:744px;font-family:"Times New Roman","Songti SC",serif;font-style:italic;font-size:25px;color:#f0f0f5}
-.hw-awakesub{position:absolute;left:16px;top:784px;font-size:6px;letter-spacing:2px;color:#6a6a76;font-weight:700}
+.hw-awake{position:absolute;left:16px;top:744px;font-family:"Times New Roman","Songti SC",serif;font-style:italic;font-size:25px;color:#16161a}
+.hw-awakesub{position:absolute;left:16px;top:784px;font-size:6px;letter-spacing:2px;color:#8a8a94;font-weight:700}
 /* 底部 */
 #home-screen .page-dots{padding:6px 16px 4px;gap:6px;justify-content:center}
 #home-screen .page-dots .dot{width:4px;height:4px;background:rgba(20,20,24,.28)}
@@ -35234,9 +35428,9 @@ window.bsRoomAI = bsRoomAI;
 /* 注入图标（时空邮局 / 十字路口）归位 */
 #home-screen .hw-p3grid .hw-inj::before{display:none!important}
 #home-screen .hw-p3grid .hw-inj{width:56px!important;min-height:0!important;padding:0!important;background:none!important;box-shadow:none!important;border-radius:0!important;display:flex;flex-direction:column;align-items:center;position:relative}
-#home-screen .hw-p3grid .hw-inj .icon-default{width:56px!important;height:56px!important;border-radius:14px!important;background:#1d1d22!important;color:#f4f4f8!important;display:flex;align-items:center;justify-content:center;margin:0;box-shadow:none!important;border:0!important}
+#home-screen .hw-p3grid .hw-inj .icon-default{width:56px!important;height:56px!important;border-radius:14px!important;background:#fff!important;color:#1d1d22!important;box-shadow:0 1px 4px rgba(0,0,0,.07)!important;display:flex;align-items:center;justify-content:center;margin:0;box-shadow:none!important;border:0!important}
 #home-screen .hw-p3grid .hw-inj .icon-default svg{width:22px;height:22px}
-#home-screen .hw-p3grid .hw-inj.is-on .icon-default{background:#fff!important;color:#111!important}
+#home-screen .hw-p3grid .hw-inj.is-on .icon-default{background:#17171b!important;color:#fff!important}
 #home-screen .hw-p3grid .hw-inj .app-name{font-size:7.5px!important;line-height:1.2;margin-top:5px;color:#d8d8e0!important;font-weight:500;white-space:nowrap;text-shadow:none!important;opacity:1!important}
 
 
@@ -35269,6 +35463,40 @@ window.bsRoomAI = bsRoomAI;
 
 #home-screen .hw-canvas .hw-polaroid{background:#fff!important;border:0!important;box-shadow:0 14px 30px rgba(0,0,0,.14)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 #home-screen .hw-canvas .hw-polaroid::before{content:none!important;display:none!important}
+
+.hw-caps{border-color:rgba(20,20,24,.14)!important;background:rgba(255,255,255,.92)!important;box-shadow:0 8px 20px rgba(0,0,0,.06)}
+.hw-capico{background:#f0f0f2!important;color:#2a2a31!important}
+.hw-captxt em{color:#8a8a94!important}
+.hw-captxt b{color:#1a1a1e!important}
+.hw-captxt i{color:#8a8a94!important}
+.hw-capwave{color:#9a9aa4!important}
+.hw-p3rule{background:rgba(20,20,24,.16)!important}
+/* Dock：聊天 / 档案 / 字体 */
+#home-screen .dock{min-height:0;margin:4px 14px 10px;padding:10px 10px 8px;border-radius:26px;background:rgba(255,255,255,.96);border:1px solid rgba(0,0,0,.05);box-shadow:0 2px 12px rgba(0,0,0,.06);display:flex;justify-content:space-around;align-items:center}
+#home-screen .dock .hw-dock-app{width:64px;height:auto;flex-direction:column;display:flex;align-items:center;position:relative;background:none!important;box-shadow:none!important}
+#home-screen .dock .hw-dock-app .icon-default,#home-screen .dock .hw-dock-app .icon-img{width:32px;height:32px;border-radius:10px;background:#f1f1f4;display:flex;align-items:center;justify-content:center;color:#20202a;margin:0}
+#home-screen .dock .hw-dock-app .icon-default svg{width:18px;height:18px}
+#home-screen .dock .hw-dock-app .app-name{display:block;font-size:8px;font-weight:600;color:#2c2c33;margin-top:5px;letter-spacing:.2px}
+#home-screen .dock .hw-dock-app .hw-en{display:block;font-size:4.6px;letter-spacing:1px;color:#a8a8b0;margin-top:1px;font-weight:700}
+#home-screen .dock .hw-dock-app.has-img .icon-default{display:none!important}
+#home-screen .dock .hw-dock-app:not(.has-img) .icon-img{display:none}
+
+#home-screen .hw-p3grid .hw-inj .icon-default{background:#fff!important;color:#1d1d22!important;box-shadow:0 1px 4px rgba(0,0,0,.07)!important}
+#home-screen .hw-p3grid .hw-inj.is-on .icon-default{background:#fff!important;color:#1d1d22!important}
+#home-screen .hw-p3grid .hw-inj .app-name{color:#2c2c33!important;text-shadow:none!important;font-weight:600!important}
+#home-screen .hw-p3grid .hw-inj .hw-en{color:#a8a8b0!important}
+#home-screen .hw-p3grid .hw-app.is-on .icon-default{background:#fff!important;color:#15151a!important}
+#home-screen .hw-p3grid .hw-app.is-on .app-name{color:#15151a!important;font-weight:700!important}
+#home-screen .hw-p3grid .hw-inj.is-on .icon-default{background:#fff!important;color:#15151a!important}
+
+@keyframes hwspin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.hw-vd.paused{animation-play-state:paused}
+.hw-vring{inset:9px!important;border:1px solid rgba(255,255,255,.13)!important;box-shadow:inset 0 0 0 5px rgba(255,255,255,.035),inset 0 0 0 9px rgba(255,255,255,.02)!important}
+.hw-vcore{width:44px!important;height:44px!important;background:rgba(20,20,26,.55)!important;border-color:rgba(255,255,255,.16)!important;color:#e6e6ee!important}
+.hw-wavepath.playing svg{animation:hwwave 3.2s linear infinite}
+@keyframes hwwave{from{transform:translateX(0)}to{transform:translateX(-24px)}}
+.hw-cbtn{display:flex;align-items:center;justify-content:center;width:22px;height:22px;cursor:pointer}
+.hw-playbtn{cursor:pointer}
 </style>
 
 <div id="time-mail-screen" class="screen tp-screen">
