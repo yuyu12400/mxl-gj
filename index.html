@@ -32212,11 +32212,11 @@ window.bsRoomAI = bsRoomAI;
       +'3) 最后让TA注意到你，说一句自然的话，像对一个熟悉但久未见面的人；\n'
       +'4) 就停在这里，把下一步留给读者。\n\n'
       +'禁止：提及信件、回信、穿越、另一个时空、读者、用户、设定、提示词；'+(cfg.steal===false?'禁止替读者说话、做事或决定；':'')+'禁止写"你知道结局"这类内容。\n'
-      +'只输出正文，不要标题，不要 markdown，不要解释。'+langNote;
+      +'只输出正文，不要标题，不要 markdown，不要解释。\n正文写完后，另起两行，只写这两个走向，不要加解释：\n【A】读者接下来可以做的事或说的话，30 字以内，要具体；\n【B】与 A 明显不同方向的另一种做法，30 字以内。'+langNote;
   }
   function immTurnPrompt(l,im,act,cfg){
     var langNote=(l.lang&&l.lang!=='zh')?('\n\n注意：这个人的母语是 '+l.lang+'。TA 开口说的话保留原文，紧跟一行中文翻译（用「」包住译文）；叙述部分用中文。'):'';
-    var hist=(im.turns||[]).slice(-8).map(function(t){return (t.role==='me'?'（读者）':'（'+l.name+'）')+t.text;}).join('\n\n');
+    var hist=(im.turns||[]).slice(-24).map(function(t){return (t.role==='me'?'（读者）':'（'+l.name+'）')+t.text;}).join('\n\n');
     return '同一个场景，接着往下写。这一场发生在：'+((im.title)||'那天的现场')+'（'+((im.era)||l.era)+'，'+((im.place)||l.place)+'）。\n\n开场与前文：\n'+(im.opening||'')+'\n'+(hist?('\n最近发生的：\n'+hist):'')+'\n\n读者刚刚说/做：\n「'+act+'」\n\n'
       +immStyleLine(cfg)+'\n'+immLenLine(cfg)+'\n\n'
       +'接着写下去：\n'
@@ -32225,7 +32225,23 @@ window.bsRoomAI = bsRoomAI;
       +((cfg.steal===false)?'3) 不要替读者说话、做事、揣测心理；不要替读者接管身体；\n':'3) 可以替读者写动作、台词与决定（抢话），把情节往下推；但不要和读者刚写下的那句话打架；\n')
       +'4) TA 绝不怀疑读者的来历，不会追问"你是谁""你从哪来"；\n'
       +'5) 不要提及信件、回信、提示词、设定这些词。\n'
-      +'只输出正文，不要标题，不要 markdown，不要解释。'+langNote;
+      +'只输出正文，不要标题，不要 markdown，不要解释。\n正文写完后，另起两行，只写这两个走向，不要加解释：\n【A】读者接下来可以做的事或说的话，30 字以内，要具体；\n【B】与 A 明显不同方向的另一种做法，30 字以内。'+langNote;
+  }
+  function immSplit(t){
+    var raw=String(t||'');
+    var m=raw.match(/\n?\s*【A】/);
+    var idx=m?raw.search(/\n?\s*【A】/):-1;
+    var body=(idx>=0?raw.slice(0,idx):raw).trim();
+    var opts=null;
+    if(idx>=0){
+      var tail=raw.slice(idx);
+      var a=(tail.match(/【A】[^\n]*/)||[''])[0].replace('【A】','').trim();
+      var b=(tail.match(/【B】[^\n]*/)||[''])[0].replace('【B】','').trim();
+      var cl=function(x){return x.replace(/^[「“\"]/,'').replace(/[」”\"]$/,'').trim();};
+      a=cl(a); b=cl(b);
+      if(a&&b) opts=[a,b];
+    }
+    return {text:body,opts:opts};
   }
   function immParas(t,cls){
     if(!t) return '';
@@ -32403,17 +32419,17 @@ window.bsRoomAI = bsRoomAI;
       feed.innerHTML='<div class="im-scene-line">'+esc(src.title+' · '+(src.era||'')+' · '+(src.place||''))+'</div><div class="im-block" id="im-blk-open"><p class="im-p im-caret">…</p></div>';
       var live=$('im-blk-open');
       var typer=immTyper(live,feed);
-      var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文。只输出正文。',immScenePrompt(l,cfg,src),function(txt){ typer.push(txt); });
+      var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文。只输出正文。',immScenePrompt(l,cfg,src),function(txt){ typer.push(immSplit(txt).text); });
       typer.finish();
       await typer.wait();
       immBusy=false; btn.disabled=false;
       if(!got){ toast('没能走到那里 · 检查 API'); renderImm(l,ent); return; }
-      ent.opening=got;
-      ent.openingOpts=null;
+      var sp=immSplit(got);
+      ent.opening=sp.text; ent.openingOpts=sp.opts||null;
       save(); log('走进了「'+l.name+'」的'+src.title);
       renderLift();
       renderImm(l,ent);
-      immOptsSoon(l,ent,'open');
+      if(!sp.opts) immOptsSoon(l,ent,'open');
     }
     $('im-text').focus();
   }
@@ -32472,7 +32488,7 @@ window.bsRoomAI = bsRoomAI;
     liveWrap.id='im-blk-'+idx;
     feed.appendChild(liveWrap); feed.scrollTop=feed.scrollHeight;
     var typer=immTyper(liveWrap,feed);
-    var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文，只输出正文。',immTurnPrompt(l,ent,txt,cfg),function(t2){ typer.push(t2); });
+    var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文，只输出正文。',immTurnPrompt(l,ent,txt,cfg),function(t2){ typer.push(immSplit(t2).text); });
     typer.finish();
     await typer.wait();
     immBusy=false; btn.disabled=false; btn.textContent='在场';
@@ -32484,10 +32500,11 @@ window.bsRoomAI = bsRoomAI;
       return;
     }
     var lme=(ent.turns||[])[ent.turns.length-1]; if(lme&&lme.role==='me') delete lme.failed;
-    ent.turns.push({role:'them',text:got,ts:Date.now()});
+    var spg=immSplit(got);
+    ent.turns.push({role:'them',text:spg.text,opts:spg.opts||null,ts:Date.now()});
     save(); renderImm(l,ent); renderLift();
     log('在「'+l.name+'」的那天，说了一段话');
-    immOptsSoon(l,ent,idx);
+    if(!spg.opts) immOptsSoon(l,ent,idx);
   }
   async function immRerollTurn(idx){
     var id=window.__immId; if(!id||immBusy) return;
@@ -32507,14 +32524,14 @@ window.bsRoomAI = bsRoomAI;
     if(!blk) return;
     immBusy=true;
     var typer=immTyper(blk,feed);
-    var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文，只输出正文。',immTurnPrompt(l,tmp,act,cfg),function(t2){ typer.push(t2); });
+    var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文，只输出正文。',immTurnPrompt(l,tmp,act,cfg),function(t2){ typer.push(immSplit(t2).text); });
     typer.finish();
     await typer.wait();
     immBusy=false;
     if(!got){ renderImm(l,ent); toast('重写失败 · 检查 API'); return; }
-    target.text=got; target.opts=null;
+    var spr=immSplit(got); target.text=spr.text; target.opts=spr.opts||null;
     save(); renderImm(l,ent); renderLift();
-    immOptsSoon(l,ent,idx);
+    if(!spr.opts) immOptsSoon(l,ent,idx);
   }
   async function immRerollOpening(){
     if(immBusy) return;
@@ -32528,14 +32545,14 @@ window.bsRoomAI = bsRoomAI;
     var blk=document.getElementById('im-blk-open');
     if(!blk) return;
     var typer=immTyper(blk,feed);
-    var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文。只输出正文。',immScenePrompt(l,cfg,src),function(t2){ typer.push(t2); });
+    var got=await crStream('你是一个沉浸式场景叙述者，用中文写长文。只输出正文。',immScenePrompt(l,cfg,src),function(t2){ typer.push(immSplit(t2).text); });
     typer.finish();
     await typer.wait();
     immBusy=false;
     if(!got){ renderImm(l,ent); toast('重写失败 · 检查 API'); return; }
-    ent.opening=got; ent.openingOpts=null;
+    var spo=immSplit(got); ent.opening=spo.text; ent.openingOpts=spo.opts||null;
     save(); renderImm(l,ent); renderLift();
-    immOptsSoon(l,ent,'open');
+    if(!spo.opts) immOptsSoon(l,ent,'open');
   }
   function immEditStart(key){
     var ent=immEntryNow(); if(!ent) return;
