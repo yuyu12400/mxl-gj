@@ -6930,10 +6930,10 @@
 }
 #dynamic-screen .feed-comment-input input::placeholder { color:#8f8f91; }
 #dynamic-screen .feed-comment-submit {
-  width:36px; height:26px; flex:none; padding:0 !important;
+  width:auto; height:auto; flex:none; padding:2px 1px 3px !important;
   border:0 !important; border-radius:0 !important;
-  background:#0a0a0a !important; color:#fff !important;
-  font-size:8px !important; font-weight:700; letter-spacing:.02em;
+  background:transparent !important; color:#0a0a0a !important;
+  font-size:9.5px !important; font-weight:800; letter-spacing:.02em;
 }
 #dynamic-screen .feed-empty { padding:44px 0; font-size:10px; letter-spacing:.04em; color:#7c7c7f; }
 
@@ -7200,7 +7200,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
       .cl-footer span:last-child { color:#8f8f92; }
 
       /* ---------- 聊天页：窄边距、无阴影、黑白对照 ---------- */
-      #chat-room-screen { background: #fff; }
+      #chat-room-screen { background-color: #ffffff; background-repeat: no-repeat; background-position: center; background-size: cover; }
       #chat-room-screen .app-header {
         background: #ffffff;
         backdrop-filter: none; -webkit-backdrop-filter: none;
@@ -7847,7 +7847,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
 
       #chat-room-screen #message-area {
         padding: 16px 18px 8px;
-        background: #fff;
+        background: transparent;
       }
       #chat-room-screen #message-area::before {
         content: "CONVERSATION / " attr(data-conversation);
@@ -9044,7 +9044,11 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                     </div>
                 </div>
                 <div class="settings-subhead">SURFACE / 聊天背景</div>
-                <div class="form-group"><label for="setting-chat-bg-upload" class="btn btn-primary">更换聊天背景</label><input type="file" id="setting-chat-bg-upload" accept="image/*" style="display:none;"></div>
+                <div class="form-group" style="display:flex;gap:8px;flex-wrap:wrap;">
+                  <label for="setting-chat-bg-upload" class="btn btn-primary">更换聊天背景</label>
+                  <input type="file" id="setting-chat-bg-upload" accept="image/*" style="display:none;">
+                  <button type="button" id="setting-chat-bg-reset" class="btn">恢复原生纯白</button>
+                </div>
                 <button type="submit" class="btn btn-primary">保存设置</button>
             </form>
             <hr style="border:none; border-top:1px solid #eee; margin: 20px 0;">
@@ -10083,7 +10087,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.1.1";
+  const APP_VERSION = "v5.1.2";
   let db = {
     characters: [],
     groups: [],
@@ -15911,6 +15915,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (cbChar) cbChar.addEventListener("click", () => document.getElementById("setting-char-avatar-upload").click());
     const cbMy = document.getElementById("setting-my-avatar-box");
     if (cbMy) cbMy.addEventListener("click", () => document.getElementById("setting-my-avatar-upload").click());
+    document.getElementById("setting-chat-bg-reset")?.addEventListener("click", async () => {
+      const char = db.characters.find((c) => c.id === currentChatId);
+      if (!char) return;
+      char.chatBg = "";
+      chatRoomScreen.style.backgroundImage = "none";
+      chatRoomScreen.style.backgroundColor = "#ffffff";
+      await saveData();
+      showToast("已恢复原生纯白背景");
+    });
     document.getElementById("setting-chat-bg-upload").addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (file) {
@@ -18728,6 +18741,9 @@ document.addEventListener("DOMContentLoaded", () => {
       feed.comments.push({ authorType: "char", authorName: char.remarkName || char.realName, authorAvatar: char.avatar, content, ts: Date.now() });
       existing.push(normalized);
       pushMemory(char.id, "online", "（朋友圈）".concat(mask ? mask.name : char.myName, "发过一条动态：「").concat(feedBrief, "」，我看过并评论了。"), "fact");
+      if (Math.random() < 0.3) {
+        charInitiatePrivateChat(feed, char, mask);
+      }
     }
     await saveData();
     renderFeeds();
