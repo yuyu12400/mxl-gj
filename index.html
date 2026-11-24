@@ -6617,14 +6617,16 @@
       /* 顶部照片横带（可点换图） */
       .cl-hero {
         position:relative; z-index:2; flex:none;
-        height:176px;
-        background:#101012 center/cover no-repeat;
+        height:184px;
+        background:#ffffff;
         cursor:pointer;
         overflow:visible;
       }
-      .cl-hero::after {
-        content:''; position:absolute; inset:0; pointer-events:none;
-        background:linear-gradient(180deg, rgba(0,0,0,.42) 0%, rgba(0,0,0,.20) 42%, rgba(0,0,0,.62) 100%);
+      .cl-hero-photo {
+        position:absolute; inset:0;
+        background:#101012 center/cover no-repeat;
+        -webkit-mask-image:linear-gradient(180deg,#000 0%,#000 84%,rgba(0,0,0,.78) 90%,rgba(0,0,0,.30) 96%,transparent 100%);
+        mask-image:linear-gradient(180deg,#000 0%,#000 84%,rgba(0,0,0,.78) 90%,rgba(0,0,0,.30) 96%,transparent 100%);
       }
       .cl-hero .app-header.cl-topbar {
         position:absolute; inset:0 0 auto 0; z-index:4;
@@ -6657,35 +6659,38 @@
       .cl-kicker {
         position:absolute; z-index:3; left:24px; top:calc(env(safe-area-inset-top, 0px) + 58px);
         margin:0; font-size:9px; font-weight:500; letter-spacing:.26em;
-        color:rgba(255,255,255,.78); text-transform:uppercase;
+        color:rgba(255,255,255,.82); text-transform:uppercase;
+        text-shadow:0 1px 10px rgba(0,0,0,.45);
       }
       .cl-title {
-        position:absolute; z-index:3; left:21px; bottom:16px; margin:0;
+        position:absolute; z-index:3; left:21px; bottom:42px; margin:0;
         font-size:44px; line-height:.9; font-weight:800; letter-spacing:-.06em;
         color:#fff; text-transform:lowercase;
+        text-shadow:0 2px 18px rgba(0,0,0,.42), 0 1px 2px rgba(0,0,0,.35);
       }
 
       /* 右下角小照片卡 + 可编辑图注 */
       .cl-photo-card {
-        position:absolute; z-index:5; right:20px; top:calc(176px - 28px);
-        width:88px; text-align:center;
+        position:absolute; z-index:5; right:16px; top:calc(184px - 28px);
+        width:100px; text-align:center; pointer-events:auto;
       }
       .cl-photo-inset {
         display:block; width:72px; height:88px; margin:0 auto; object-fit:cover;
-        border:1px solid #111; background:#eee; cursor:pointer;
+        border:1px solid #111; background:#eee; cursor:pointer; pointer-events:none;
         filter:grayscale(1) contrast(1.05);
       }
       .cl-photo-cap {
         display:block; width:100%; margin-top:7px; padding:0;
         background:transparent; border:0; cursor:pointer;
         font:inherit; font-size:7.5px; letter-spacing:.1em; color:#8a8a8c;
-        text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+        text-align:center; white-space:normal; overflow:visible; text-overflow:clip;
+        line-height:1.5; word-break:break-word;
       }
 
       /* 内容区 */
       #chat-list-screen .cl-content {
         flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
-        padding:88px 0 calc(96px + env(safe-area-inset-bottom, 0px));
+        padding:60px 0 calc(120px + env(safe-area-inset-bottom, 0px));
         background:#fff;
       }
 
@@ -7101,9 +7106,127 @@
       }
       #bottom-nav .nav-item { color: #a5a5a8 !important; font-size: 10px; letter-spacing: 0.08em; }
       #bottom-nav .nav-item.active { color: #0b0b0c !important; }
+
+      /* 编辑式小注：填补照片卡与搜索之间的空白 */
+      .cl-editorial {
+        display:flex; align-items:flex-end; gap:18px;
+        margin:0 24px 0; padding:0;
+      }
+      .cl-ed-no {
+        font-size:34px; line-height:.82; font-weight:700; letter-spacing:-.04em; color:#0b0b0c;
+        font-variant-numeric:tabular-nums;
+      }
+      .cl-ed-copy { display:flex; flex-direction:column; gap:4px; padding-bottom:1px; }
+      .cl-ed-label { font-size:7.5px; letter-spacing:.2em; color:#111; text-transform:uppercase; }
+      .cl-ed-quote { font-size:10px; letter-spacing:.06em; color:#77777a; }
+      .cl-search { margin:14px 24px 0; }
+
+      /* ---------- 联系人列表（档案角色） ---------- */
+      #contacts-screen { background:#fff; position:relative; }
+      .ct-header {
+        position:relative; flex:none;
+        padding:calc(env(safe-area-inset-top, 0px) + 48px) 24px 16px;
+        border-bottom:1px solid #111;
+      }
+      .ct-back {
+        position:absolute; left:14px; top:calc(env(safe-area-inset-top, 0px) + 8px);
+        width:30px; height:30px; padding:0; display:flex; align-items:center; justify-content:center;
+        background:transparent !important; border:0 !important; color:#111 !important;
+        font-size:19px; font-weight:300; line-height:1;
+      }
+      .ct-kicker {
+        display:block; margin:0 0 7px; font-size:8px; font-weight:500;
+        letter-spacing:.24em; color:#8a8a8c; text-transform:uppercase;
+      }
+      .ct-title {
+        margin:0; font-size:42px; line-height:.92; font-weight:800;
+        letter-spacing:-.055em; color:#0b0b0c; text-transform:lowercase;
+      }
+      .ct-count {
+        position:absolute; right:24px; bottom:19px;
+        font-size:8px; letter-spacing:.16em; color:#8a8a8c;
+      }
+      .ct-content {
+        flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch;
+        background:#fff; padding:0 0 calc(120px + env(safe-area-inset-bottom, 0px));
+      }
+      .ct-search {
+        display:flex; align-items:center; gap:10px;
+        margin:20px 24px 0; padding:4px 0 10px;
+        border-bottom:1px solid #111;
+      }
+      .ct-search svg { width:14px; height:14px; stroke:#111; fill:none; stroke-width:1.5; flex:none; opacity:.85; }
+      .ct-search input {
+        flex:1; min-width:0; padding:0; border:0; outline:0; background:transparent;
+        font:inherit; font-size:12px; letter-spacing:.04em; color:#111;
+        -webkit-appearance:none; appearance:none;
+      }
+      .ct-search input::placeholder { color:#a2a2a5; letter-spacing:.08em; }
+      .ct-ast { font-size:11px; color:#111; opacity:.7; line-height:1; }
+      .ct-group-head { display:flex; align-items:center; gap:12px; margin:18px 24px 0; }
+      .ct-group-label { font-size:9px; font-weight:600; letter-spacing:.24em; color:#111; white-space:nowrap; }
+      .ct-rule { flex:1; height:1px; background:#111; opacity:.30; }
+      .ct-list { list-style:none; margin:8px 0 0; padding:0; }
+      .ct-item {
+        display:flex; align-items:center; gap:11px;
+        padding:12px 24px; border-bottom:1px solid #ececec;
+        background:#fff; cursor:pointer;
+      }
+      .ct-item:active { background:#f5f5f5; }
+      .ct-index { flex:none; width:20px; font-size:8px; letter-spacing:.06em; color:#a0a0a3; font-variant-numeric:tabular-nums; }
+      .ct-avatar {
+        flex:none; width:44px; height:44px; border-radius:50%; object-fit:cover;
+        border:1px solid #e6e6e6; background:#eee;
+        filter:grayscale(1) contrast(1.05);
+      }
+      .ct-info { flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; }
+      .ct-name { font-size:13.5px; font-weight:600; letter-spacing:.01em; color:#0b0b0c; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .ct-meta { font-size:10px; letter-spacing:.03em; color:#838387; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+      .ct-arrow { flex:none; font-size:11px; color:#111; opacity:.55; }
+      .ct-empty { padding:36px 24px; color:#9b9b9e; font-size:12px; line-height:2; letter-spacing:.06em; }
+      .ct-empty p { margin:0; }
+      .ct-footer {
+        display:flex; align-items:center; justify-content:space-between;
+        margin:22px 24px 0; padding-top:11px; border-top:1px solid #111;
+        font-size:8px; letter-spacing:.18em; color:#111;
+      }
+      .ct-footer span:last-child { color:#8a8a8c; }
+
+      /* ---------- 底栏：悬浮卡片 ---------- */
+      #bottom-nav {
+        left:14px !important; right:14px !important;
+        bottom:calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+        height:62px !important;
+        padding:4px !important; gap:2px !important;
+        background:rgba(255,255,255,.96) !important;
+        border:1px solid #111 !important;
+        border-radius:20px !important;
+        box-shadow:0 10px 26px rgba(0,0,0,.14) !important;
+        backdrop-filter:blur(18px) saturate(1.2) !important;
+        -webkit-backdrop-filter:blur(18px) saturate(1.2) !important;
+      }
+      #bottom-nav .nav-item {
+        border-radius:16px !important;
+        padding:0 !important; gap:4px !important;
+        font-size:8px !important; font-weight:500 !important;
+        letter-spacing:.16em !important; text-transform:uppercase;
+        color:#86868a !important;
+        transition:background .15s ease,color .15s ease;
+      }
+      #bottom-nav .nav-item.active {
+        background:#0b0b0c !important; color:#fff !important; font-weight:600 !important;
+      }
+      #bottom-nav .nav-item.active svg { transform:none !important; }
+      #bottom-nav .nav-item svg {
+        width:18px !important; height:18px !important;
+        fill:none !important; stroke:currentColor !important;
+        stroke-width:1.5 !important; stroke-linecap:round; stroke-linejoin:round;
+      }
+      .screen-with-nav .content { padding-bottom:calc(120px + env(safe-area-inset-bottom, 0px)); }
     </style>
     <div id="chat-list-screen" class="screen">
         <div class="cl-hero" id="cl-hero">
+            <div class="cl-hero-photo" id="cl-hero-photo"></div>
             <header class="app-header cl-topbar">
                 <button class="back-btn cl-back" data-target="home-screen" aria-label="返回">‹</button>
                 <div class="cl-top-actions">
@@ -7123,6 +7246,14 @@
         </div>
 
         <main class="content cl-content">
+            <div class="cl-editorial">
+                <div class="cl-ed-no" id="cl-ed-no">04</div>
+                <div class="cl-ed-copy">
+                    <span class="cl-ed-label">CONVERSATIONS / NOV 24</span>
+                    <span class="cl-ed-quote">只留下想回的对话</span>
+                </div>
+            </div>
+
             <div class="cl-search">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
                 <input id="cl-search-input" type="search" placeholder="搜索联系人" autocomplete="off">
@@ -7160,6 +7291,34 @@
 
         <input type="file" id="cl-hero-input" accept="image/*" style="display:none">
         <input type="file" id="cl-inset-input" accept="image/*" style="display:none">
+    </div>
+    <div id="contacts-screen" class="screen screen-with-nav">
+        <header class="ct-header">
+            <button class="back-btn ct-back" data-target="chat-list-screen" aria-label="返回">‹</button>
+            <span class="ct-kicker">404 / ARCHIVE</span>
+            <h1 class="ct-title">contacts</h1>
+            <span class="ct-count" id="ct-count">00 / PEOPLE</span>
+        </header>
+        <main class="content ct-content">
+            <div class="ct-search">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+                <input id="ct-search-input" type="search" placeholder="搜索档案角色" autocomplete="off">
+                <span class="ct-ast">✳</span>
+            </div>
+            <div class="ct-group-head">
+                <span class="ct-group-label">ALL CHARACTERS</span>
+                <i class="ct-rule"></i>
+            </div>
+            <ul class="ct-list" id="contact-list"></ul>
+            <div class="ct-empty" id="contact-empty" style="display:none;">
+                <p>档案里还没有角色</p>
+                <p>去「档案」创建一个，就会出现在这里</p>
+            </div>
+            <footer class="ct-footer">
+                <span>ARCHIVE INDEX</span>
+                <span id="ct-foot-count">00</span>
+            </footer>
+        </main>
     </div>
     <div id="chat-room-screen" class="screen">
         <header class="app-header" id="chat-room-header-default">
@@ -7728,16 +7887,20 @@
     <!-- ===== 底部导航栏 ===== -->
     <nav id="bottom-nav" class="bottom-nav" style="display:none;">
         <div class="nav-item active" data-tab="chat">
-            <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
-            <span>聊天</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 5.5h15v9.5H10l-5.5 4.5V5.5Z"/><path d="M9 10h6"/></svg>
+            <span>chat</span>
+        </div>
+        <div class="nav-item" data-tab="contacts">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9.2" cy="8" r="3"/><path d="M3.8 19c.6-3.2 2.8-4.9 5.4-4.9s4.8 1.7 5.4 4.9"/><path d="M15.6 5.6a2.8 2.8 0 0 1 0 5.2"/><path d="M17 14.6c1.7.6 2.7 2 3.1 4.4"/></svg>
+            <span>people</span>
         </div>
         <div class="nav-item" data-tab="feed">
-            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="8.5" cy="10.5" r="1.5"/><circle cx="15.5" cy="10.5" r="1.5"/><path d="M12 15c-2.5 0-4.5 1.3-5.2 3.2 1.5 1.1 3.3 1.8 5.2 1.8s3.7-.7 5.2-1.8C16.5 16.3 14.5 15 12 15z"/></svg>
-            <span>动态</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.8" y="3.8" width="16.4" height="16.4" rx="3.2"/><path d="M7.8 9h8.4M7.8 12.2h5.6"/></svg>
+            <span>feed</span>
         </div>
         <div class="nav-item" data-tab="me">
-            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
-            <span>我的</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2"/><path d="M5.5 19.2c.7-3.4 3.1-5.2 6.5-5.2s5.8 1.8 6.5 5.2"/></svg>
+            <span>me</span>
         </div>
     </nav>
 
@@ -9075,9 +9238,9 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll(".settings-sidebar").forEach((o) => o.classList.remove("visible", "open"));
     const bottomNav = document.getElementById("bottom-nav");
     if (bottomNav) {
-      const navScreens = ["chat-list-screen", "dynamic-screen", "profile-screen"];
+      const navScreens = ["chat-list-screen", "dynamic-screen", "profile-screen", "contacts-screen"];
       bottomNav.style.display = navScreens.includes(targetId) ? "flex" : "none";
-      const tabMap = { "chat-list-screen": "chat", "dynamic-screen": "feed", "profile-screen": "me" };
+      const tabMap = { "chat-list-screen": "chat", "dynamic-screen": "feed", "profile-screen": "me", "contacts-screen": "contacts" };
       if (tabMap[targetId]) {
         bottomNav.querySelectorAll(".nav-item").forEach((n) => n.classList.toggle("active", n.dataset.tab === tabMap[targetId]));
       }
@@ -9088,6 +9251,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (targetId === "profile-screen") renderProfile();
     if (targetId === "mask-screen") renderMaskGrid();
     if (targetId === "dynamic-screen") renderFeeds();
+    if (targetId === "contacts-screen") renderContactList();
+    if (targetId === "chat-list-screen" && typeof window.clApplyCovers === "function") window.clApplyCovers();
     if (targetId === "wallet-screen") renderWallet();
     if (targetId === "writings-screen") renderWritings();
     if (targetId === "food-app-screen") {
@@ -10003,12 +10168,21 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function clApplyCovers() {
     const c = clConfig();
-    const hero = document.getElementById("cl-hero");
-    if (hero) hero.style.backgroundImage = 'url("'.concat(c.hero, '")');
+    const heroPhoto = document.getElementById("cl-hero-photo");
+    if (heroPhoto) heroPhoto.style.backgroundImage = 'url("'.concat(c.hero, '")');
     const inset = document.getElementById("cl-photo-inset");
     if (inset) inset.src = c.inset;
     const cap = document.getElementById("cl-photo-cap");
     if (cap) cap.textContent = c.caption;
+    requestAnimationFrame(() => {
+      const card = document.querySelector(".cl-photo-card");
+      const content = document.querySelector("#chat-list-screen .cl-content");
+      if (!card || !content) return;
+      const cardRect = card.getBoundingClientRect();
+      if (!cardRect.height) return;
+      const pad = Math.round(cardRect.bottom - content.getBoundingClientRect().top - 44);
+      content.style.paddingTop = Math.max(60, pad) + "px";
+    });
   }
   function clFmtTime(ts) {
     if (!ts) return "NEW";
@@ -10073,6 +10247,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     clUpdateCount();
   }
+  window.clApplyCovers = clApplyCovers;
   function clBindUI() {
     if (clUIReady) { clApplyCovers(); clApplySearch(); return; }
     const hero = document.getElementById("cl-hero");
@@ -10088,7 +10263,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (e.target.closest("button")) return;
       pick(heroInput);
     });
-    insetImg.addEventListener("click", (e) => { e.stopPropagation(); pick(insetInput); });
+    const insetCard = insetImg.closest(".cl-photo-card");
+    if (insetCard) insetCard.addEventListener("click", (e) => {
+      if (e.target.closest("#cl-photo-cap")) return;
+      e.stopPropagation();
+      pick(insetInput);
+    });
     heroInput.addEventListener("change", () => {
       const f = heroInput.files && heroInput.files[0];
       if (!f) return;
@@ -10131,6 +10311,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
       return clChatTime(b) - clChatTime(a);
     });
+    const edNo = document.getElementById("cl-ed-no");
+    if (edNo) edNo.textContent = String(allChats.length).padStart(2, "0");
+    const edLabel = document.querySelector(".cl-ed-label");
+    if (edLabel) {
+      const now = new Date();
+      const MON = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+      edLabel.textContent = "CONVERSATIONS / " + MON[now.getMonth()] + " " + String(now.getDate()).padStart(2, "0");
+    }
     sortedChats.forEach((chat) => {
       let lastMessageText = "\u5F00\u59CB\u804A\u5929\u5427...";
       if (chat.history && chat.history.length > 0) {
@@ -10193,6 +10381,69 @@ document.addEventListener("DOMContentLoaded", () => {
     clUpdateCount();
   }
   window.renderChatList = renderChatList;
+
+  /* ===== 联系人列表：当前档案里的全部角色 ===== */
+  let ctUIReady = false;
+  function ctApplySearch() {
+    const inp = document.getElementById("ct-search-input");
+    const ul = document.getElementById("contact-list");
+    if (!inp || !ul) return;
+    const q = inp.value.trim().toLowerCase();
+    let shown = 0;
+    [...ul.querySelectorAll(".ct-item")].forEach((li) => {
+      const hit = !q || li.textContent.toLowerCase().includes(q);
+      li.style.display = hit ? "" : "none";
+      if (hit) shown++;
+    });
+    const foot = document.getElementById("ct-foot-count");
+    if (foot) foot.textContent = String(shown).padStart(2, "0");
+  }
+  function setupContactsScreen() {
+    if (ctUIReady) return;
+    const ul = document.getElementById("contact-list");
+    if (!ul) return;
+    ctUIReady = true;
+    ul.addEventListener("click", (e) => {
+      const item = e.target.closest(".ct-item");
+      if (!item) return;
+      currentChatId = item.dataset.id;
+      currentChatType = "private";
+      openChatRoom(currentChatId, currentChatType);
+    });
+    const inp = document.getElementById("ct-search-input");
+    if (inp) inp.addEventListener("input", ctApplySearch);
+  }
+  function renderContactList() {
+    setupContactsScreen();
+    const ul = document.getElementById("contact-list");
+    if (!ul) return;
+    const empty = document.getElementById("contact-empty");
+    const chars = [...db.characters].sort((a, b) => {
+      if (!!a.isPinned !== !!b.isPinned) return a.isPinned ? -1 : 1;
+      const an = a.remarkName || a.realName || "";
+      const bn = b.remarkName || b.realName || "";
+      return an.localeCompare(bn, "zh-Hans-CN");
+    });
+    ul.innerHTML = "";
+    if (empty) empty.style.display = chars.length ? "none" : "block";
+    const countEl = document.getElementById("ct-count");
+    if (countEl) countEl.textContent = String(chars.length).padStart(2, "0") + " / PEOPLE";
+    chars.forEach((c, i) => {
+      const name = c.remarkName || c.realName || "未命名";
+      const n = (c.history || []).length;
+      const meta = (c.status || "角色") + " · " + (n ? n + " 条记录" : "还没有对话");
+      const li = document.createElement("li");
+      li.className = "ct-item";
+      li.dataset.id = c.id;
+      li.innerHTML = '<span class="ct-index">'.concat(String(i + 1).padStart(2, "0"), '</span>')
+        + '<img class="ct-avatar" src="'.concat(c.avatar || "", '" alt="').concat(name, '">')
+        + '<div class="ct-info"><div class="ct-name">'.concat(name, '</div><div class="ct-meta">').concat(meta, '</div></div>')
+        + '<span class="ct-arrow">→</span>';
+      ul.appendChild(li);
+    });
+    ctApplySearch();
+  }
+  window.renderContactList = renderContactList;
   function setupAddCharModal() {
     addCharForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -15712,6 +15963,10 @@ document.addEventListener("DOMContentLoaded", () => {
       item.addEventListener("click", () => {
         const tab = item.dataset.tab;
         if (tab === "chat") switchScreen("chat-list-screen");
+        if (tab === "contacts") {
+          switchScreen("contacts-screen");
+          renderContactList();
+        }
         if (tab === "feed") {
           switchScreen("dynamic-screen");
           renderFeeds();
