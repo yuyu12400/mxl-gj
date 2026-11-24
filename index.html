@@ -17,9 +17,12 @@
     /* ===== Service Worker 注册（PWA 离线缓存）：页面加载后注册，新版经 skipWaiting/clients.claim 自动接管 ===== */
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("./sw.js").catch(function (err) {
+        navigator.serviceWorker.register("./sw.js").then(function(){
+          try { navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({type:'noop'}); } catch(e){}
+        }).catch(function (err) {
           console.warn("Service Worker 注册失败：", err);
         });
+        /* 新版 SW 接管：只静默接管，不自动刷新（避免正在写场景时被强制重载） */
       });
     }
     </script>
@@ -30698,6 +30701,8 @@ window.bsRoomAI = bsRoomAI;
 .cr-pair-block .who{font-size:10px;color:#9a968c;font-family:var(--tp-font);margin-bottom:3px;}
 .cr-imm{position:fixed;inset:0;z-index:70;background:var(--cr-paper,#fffef9);display:flex;flex-direction:column;}
 .cr-imm[hidden]{display:none;}
+.im-round{font-size:11px;letter-spacing:.12em;color:#a89b82;margin:14px 0 2px;}
+.im-opt-mk{border-style:dashed !important;color:#8a7d66 !important;}
 .im-top{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #e8e3d6;flex:0 0 auto;flex-wrap:wrap;}
 .im-top #im-meta{flex:1 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .im-back{background:none;border:none;font-family:var(--tp-font);font-size:12px;color:#6f6a60;letter-spacing:1px;padding:0;flex:0 0 auto;}
@@ -32236,7 +32241,7 @@ window.bsRoomAI = bsRoomAI;
   function immOptsHTML(opts,key){
     opts=opts||[];
     var tail='<button class="im-opt" data-imm-self="1">或者，自己写一句…</button>';
-    if(!opts.length) return '<div class="im-opts" id="im-opts-'+key+'"><span class="im-opt-h">接着可以</span>'+tail+'</div>';
+    if(!opts.length) return '<div class="im-opts" id="im-opts-'+key+'"><span class="im-opt-h">接着可以</span><button class="im-opt im-opt-mk" data-imm-mk="'+key+'">生成两个走向</button>'+tail+'</div>';
     return '<div class="im-opts" id="im-opts-'+key+'"><span class="im-opt-h">接着可以</span>'+
       opts.map(function(o,j){return '<button class="im-opt" data-imm-opt="'+key+':'+j+'">'+(j===0?'A':'B')+' · '+esc(o)+'</button>';}).join('')+tail+'</div>';
   }
@@ -32245,12 +32250,15 @@ window.bsRoomAI = bsRoomAI;
     $('im-meta').textContent=(l.name||'')+' · '+(l.era||'')+' · '+(l.place||'');
     var feed=$('im-feed');
     var out='<div class="im-scene-line">'+esc((im.title||'TA 写这封信的那天')+' · '+((im.era)||l.era||'')+' · '+((im.place)||l.place||''))+'</div>';
+    var round=0;
     var last=im.turns&&im.turns.length?im.turns.length-1:-1;
     var lastTyped=-1; for(var q=(im.turns||[]).length-1;q>=0;q--){ if(im.turns[q].role==='them'){ lastTyped=q; break; } }
     if(im.opening) out+='<div class="im-block" id="im-blk-open">'+immParas(im.opening)+immBar('open','them')+'</div>'+(last<0?immOptsHTML(im.openingOpts,'open'):'');
     (im.turns||[]).forEach(function(t,i){
       if(t.role==='me'){
-        out+='<div class="im-me" id="im-blk-'+i+'"><span class="im-me-tag">你</span><div class="im-me-txt">'+esc(t.text)+'</div>'+immBar(i,'me')+'</div>';
+        round++;
+        out+='<div class="im-round">第 '+round+' 回合</div>';
+        out+='<div class="im-me" id="im-blk-'+i+'"><span class="im-me-tag">你</span><div class="im-me-txt">'+esc(t.text)+'</div>'+(t.failed?'<div class="im-opts"><span class="im-opt-h">这句没等到回应</span><button class="im-opt im-opt-mk" data-imm-retry="'+i+'">重试这一句</button></div>':'')+immBar(i,'me')+'</div>';
       } else {
         out+='<div class="im-block" id="im-blk-'+i+'">'+immParas(t.text)+immBar(i,'them')+'</div>';
         if(i===lastTyped) out+=immOptsHTML(t.opts,i);
@@ -32266,7 +32274,7 @@ window.bsRoomAI = bsRoomAI;
     el.innerHTML='<p class="im-p im-caret"></p>';
     var timer=setInterval(function(){
       if(s.shown<s.txt.length){
-        s.shown=Math.min(s.txt.length,s.shown+5);
+        s.shown=Math.min(s.txt.length,s.shown+2);
         el.innerHTML=immParas(s.txt.slice(0,s.shown),'')+'<p class="im-p im-caret"></p>';
         if(feed) feed.scrollTop=feed.scrollHeight;
       } else if(s.f){
@@ -32276,18 +32284,38 @@ window.bsRoomAI = bsRoomAI;
         if(onDone) onDone();
         if(resolveDone) resolveDone();
       }
-    },28);
+    },26);
     return {push:function(t){ s.txt=String(t||''); }, finish:function(){ s.f=true; }, wait:function(){ return doneP; }};
+  }
+  var __crLastApi=0;
+  var __crBackoff=0;
+  async function crGap(){
+    var now=Date.now(); var wait=Math.max(0,1500-(now-__crLastApi),__crBackoff-now);
+    if(wait>0) await new Promise(function(r){ setTimeout(r,wait); });
+    __crLastApi=Date.now();
   }
   async function crStream(sys,user,onDelta){
     var c=window.db&&window.db.apiSettings;
     if(!c||!c.url||!c.key) return null;
+    await crGap();
     var u=String(c.url).replace(/\/+$/,'');
     var body={model:c.model||'gpt-4o-mini',messages:[{role:'system',content:sys},{role:'user',content:user}],stream:true,temperature:.9};
     var r=null;
     try{
       r=await fetch(u+'/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key},body:JSON.stringify(body)});
     }catch(e){ r=null; }
+    if(r&&(r.status===429||r.status===503)){
+      var told=false;
+      for(var t=0;t<2;t++){
+        var waitMs=(r&&r.status===429)?(3000*(t+1)):(1500*(t+1));
+        __crBackoff=Date.now()+waitMs;
+        if(!told&&typeof toast==='function'){ told=true; toast('接口限流（429），等 '+(waitMs/1000)+' 秒后自动重试'); }
+        await new Promise(function(rs){ setTimeout(rs,waitMs); });
+        __crLastApi=Date.now();
+        try{ r=await fetch(u+'/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+c.key},body:JSON.stringify(body)}); }catch(e){ r=null; }
+        if(r&&r.ok&&r.body) break;
+      }
+    }
     if(!r||!r.ok||!r.body){
       try{
         var body2=Object.assign({},body); body2.stream=false;
@@ -32385,7 +32413,7 @@ window.bsRoomAI = bsRoomAI;
       save(); log('走进了「'+l.name+'」的'+src.title);
       renderLift();
       renderImm(l,ent);
-      immGenOpts(l,ent,'open');
+      immOptsSoon(l,ent,'open');
     }
     $('im-text').focus();
   }
@@ -32393,6 +32421,13 @@ window.bsRoomAI = bsRoomAI;
     $('cr-imm').hidden=true;
     window.__immId=null; window.__immKey=null;
     renderLift(); renderFile();
+  }
+  function immOptsSoon(l,ent,key){
+    setTimeout(function(){
+      if(window.__immId!==l.id) return;
+      if(immBusy) return;
+      immGenOpts(l,ent,key);
+    },1200);
   }
   async function immGenOpts(l,ent,key){
     var srcTxt=String(key==='open')?String(ent.opening||''):String((ent.turns[+key]||{}).text||'');
@@ -32406,24 +32441,29 @@ window.bsRoomAI = bsRoomAI;
       '这是一段小说正文，读者扮演"你"。\n前情提要：'+String(ent.opening||'').slice(0,300)+'\n读者刚说/做：'+(me||'（无）')+'\n对方刚写下：\n'+srcTxt.slice(0,800)+
       '\n\n请给出读者接下来可以做的两个不同方向，各一句、30 字以内，必须是具体的动作或台词，两条要明显分歧。只输出 {"a":"…","b":"…"}');
     var o=immParse(raw);
-    if(!o||!o.a||!o.b) return;
+    if(!o||!o.a||!o.b){ if(typeof toast==='function') toast('两个走向没生成出来，点“生成两个走向”可重试'); return; }
     if(key==='open'){ ent.openingOpts=[o.a,o.b]; }
     else { var t=ent.turns[+key]; if(!t) return; t.opts=[o.a,o.b]; }
     save(); renderImm(l,ent);
   }
-  async function immSay(optText){
+  async function immSay(optText,again){
     var id=window.__immId; if(!id||immBusy) return;
     var l=getLetter(id); var th=st.threads.find(function(t){return t.id===id;});
     var ent=immEntryNow();
     if(!l||!th||!ent) return;
     var ta=$('im-text');
-    var txt=(typeof optText==='string'&&optText)?optText:ta.value.trim();
+    var lastMe='';
+    var ts0=ent.turns||[];
+    for(var q=ts0.length-1;q>=0;q--){ if(ts0[q].role==='me'){ lastMe=ts0[q].text; break; } }
+    var txt=(typeof optText==='string'&&optText)?optText:(again?(lastMe||''):ta.value.trim());
     if(!txt){ ta.focus(); return; }
     var cfg=immCfg(th,ent);
     immBusy=true;
     var btn=$('im-send'); btn.disabled=true; btn.textContent='…';
-    ent.turns.push({role:'me',text:txt,ts:Date.now()});
-    ta.value='';
+    if(!again){
+      ent.turns.push({role:'me',text:txt,ts:Date.now()});
+      ta.value='';
+    }
     renderImm(l,ent);
     var feed=$('im-feed');
     var liveWrap=document.createElement('div');
@@ -32437,13 +32477,17 @@ window.bsRoomAI = bsRoomAI;
     await typer.wait();
     immBusy=false; btn.disabled=false; btn.textContent='在场';
     if(!got){
-      ent.turns.pop();
-      save(); renderImm(l,ent); toast('那边没有回应 · 检查 API'); return;
+      var lt=(ent.turns||[])[ent.turns.length-1];
+      if(lt&&lt.role==='me') lt.failed=true;
+      save(); renderImm(l,ent);
+      toast('那边没接上（可能限流）· 点下面「重试」或稍等再发');
+      return;
     }
+    var lme=(ent.turns||[])[ent.turns.length-1]; if(lme&&lme.role==='me') delete lme.failed;
     ent.turns.push({role:'them',text:got,ts:Date.now()});
     save(); renderImm(l,ent); renderLift();
     log('在「'+l.name+'」的那天，说了一段话');
-    immGenOpts(l,ent,idx);
+    immOptsSoon(l,ent,idx);
   }
   async function immRerollTurn(idx){
     var id=window.__immId; if(!id||immBusy) return;
@@ -32470,7 +32514,7 @@ window.bsRoomAI = bsRoomAI;
     if(!got){ renderImm(l,ent); toast('重写失败 · 检查 API'); return; }
     target.text=got; target.opts=null;
     save(); renderImm(l,ent); renderLift();
-    immGenOpts(l,ent,idx);
+    immOptsSoon(l,ent,idx);
   }
   async function immRerollOpening(){
     if(immBusy) return;
@@ -32491,7 +32535,7 @@ window.bsRoomAI = bsRoomAI;
     if(!got){ renderImm(l,ent); toast('重写失败 · 检查 API'); return; }
     ent.opening=got; ent.openingOpts=null;
     save(); renderImm(l,ent); renderLift();
-    immGenOpts(l,ent,'open');
+    immOptsSoon(l,ent,'open');
   }
   function immEditStart(key){
     var ent=immEntryNow(); if(!ent) return;
@@ -32638,9 +32682,17 @@ window.bsRoomAI = bsRoomAI;
     if($('im-del')) $('im-del').onclick=immDel;
     if($('im-feed')){
       $('im-feed').addEventListener('click',function(e){
-        var b=e.target.closest('[data-imm-self],[data-imm-opt],[data-imm-op]');
+        var b=e.target.closest('[data-imm-self],[data-imm-opt],[data-imm-op],[data-imm-retry],[data-imm-mk]');
         if(!b) return;
         if(b.hasAttribute&&b.hasAttribute('data-imm-self')){ $('im-text').focus(); return; }
+        if(b.hasAttribute&&b.hasAttribute('data-imm-retry')){
+          var ri=parseInt(b.getAttribute('data-imm-retry'),10);
+          var e4=immEntryNow(); if(e4){ var mt=(e4.turns||[])[ri]; if(mt){ delete mt.failed; save(); renderImm(l0(),e4); immSay(mt.text,true); } }
+          return;
+        }
+        if(b.hasAttribute&&b.hasAttribute('data-imm-mk')){
+          var mk=b.getAttribute('data-imm-mk'); var e3=immEntryNow(); if(e3) immGenOpts(l0(),e3,mk); return;
+        }
         var opt=b.getAttribute&&b.getAttribute('data-imm-opt');
         if(opt){
           var kk=opt.split(':')[0], jj=parseInt(opt.split(':')[1],10);

@@ -1,7 +1,7 @@
 /* 麻辣香锅鸡 Service Worker：离线缓存应用外壳（所有资源内联在 index.html）
    缓存策略改为 network-first：每次打开都优先取最新版，网络失败才回退缓存
    解决"部署新版后浏览器一直返回旧版缓存"的问题 */
-const CACHE_NAME = 'mxl-gj-shell-v13';
+const CACHE_NAME = 'mxl-gj-shell-v14';
 const APP_SHELL = ['./', './index.html', './manifest.json', './icon.svg', './icon.png', './icon-192.png', './icon-maskable.png'];
 
 self.addEventListener('install', (e) => {
@@ -26,17 +26,15 @@ self.addEventListener('fetch', (e) => {
     const req = e.request;
     if (req.method !== 'GET') return;
     if (req.mode === 'navigate') {
+        /* 页面：网络优先，断网才回退缓存，保证部署新版后立刻拿到新内容 */
         e.respondWith(
-            caches.match(req).then((hit) => {
-                const network = fetch(req).then((res) => {
-                    if (res && res.status === 200) {
-                        const clone = res.clone();
-                        caches.open(CACHE_NAME).then((c) => c.put(req, clone));
-                    }
-                    return res;
-                }).catch(() => hit);
-                return hit || network;
-            })
+            fetch(req, { cache: 'no-store' }).then((res) => {
+                if (res && res.status === 200) {
+                    const clone = res.clone();
+                    caches.open(CACHE_NAME).then((c) => c.put(req, clone));
+                }
+                return res;
+            }).catch(() => caches.match(req).then((hit) => hit || caches.match('./index.html')))
         );
         return;
     }
