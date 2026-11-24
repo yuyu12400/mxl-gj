@@ -7312,6 +7312,33 @@
         color: #0a0a0a;
         text-transform: uppercase;
       }
+      #chat-room-screen .chat-header-tag {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 7px;
+        font-size: calc(var(--app-fs, 1) * 6.5px);
+        font-weight: 700;
+        letter-spacing: .16em;
+        line-height: 1.2;
+        color: #0a0a0a;
+        opacity: .58;
+        text-transform: uppercase;
+      }
+      #chat-room-screen .chat-header-tag::before {
+        content: "";
+        width: 14px;
+        height: 1px;
+        flex: none;
+        background: #0a0a0a;
+      }
+      #chat-room-screen .chat-header-tag::after {
+        content: "";
+        width: 4px;
+        height: 4px;
+        flex: none;
+        background: #0a0a0a;
+      }
       #chat-room-screen .online-indicator {
         width: 5px; height: 5px;
         border-radius: 0;
@@ -7352,6 +7379,27 @@
         width: 76px;
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
+      }
+      .chat-hero-avatar::before,
+      .chat-hero-avatar::after {
+        content: "";
+        position: absolute;
+        width: 11px;
+        height: 11px;
+        border: 1px solid #0a0a0a;
+        pointer-events: none;
+      }
+      .chat-hero-avatar::before {
+        left: -7px;
+        top: -7px;
+        border-right: 0;
+        border-bottom: 0;
+      }
+      .chat-hero-avatar::after {
+        right: -7px;
+        bottom: 25px;
+        border-left: 0;
+        border-top: 0;
       }
       .chat-hero-avatar img {
         display: block;
@@ -7413,7 +7461,7 @@
         width: 100%;
         box-sizing: border-box;
         margin: 0;
-        padding: 0 2px 5px;
+        padding: 0 2px 3px;
       }
       #chat-room-screen .message-wrapper.sent .message-info {
         justify-content: flex-end;
@@ -7443,11 +7491,11 @@
       #chat-room-screen .message-bubble {
         max-width: min(74vw, 286px);
         margin: 0;
-        padding: calc(var(--app-fs, 1) * 8px) calc(var(--app-fs, 1) * 12px) calc(var(--app-fs, 1) * 9px);
+        padding: calc(var(--app-fs, 1) * 5px) calc(var(--app-fs, 1) * 12px) calc(var(--app-fs, 1) * 6px);
         border: 1px solid transparent;
         border-radius: 16px !important;
         font-size: calc(var(--app-fs, 1) * 13.2px);
-        line-height: 1.55;
+        line-height: 1.45;
         overflow: hidden;
         letter-spacing: .005em;
         box-shadow: none;
@@ -7464,9 +7512,27 @@
         box-shadow: 0 6px 12px -6px rgba(0,0,0,.24);
       }
       #chat-room-screen .message-wrapper.received .message-bubble:active { box-shadow: 0 3px 8px -5px rgba(0,0,0,.18); }
-      #chat-room-screen .message-wrapper { margin-bottom: 13px; }
-      #chat-room-screen .message-wrapper.group-message { margin-bottom: 16px; }
+      #chat-room-screen .message-wrapper { margin-bottom: 9px; }
+      #chat-room-screen .message-wrapper.group-message { margin-bottom: 12px; }
 
+      #chat-room-screen .image-bubble {
+        width: 230px;
+        max-width: 230px;
+        aspect-ratio: 1 / 1;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background: #fff;
+        border: 1px solid #0a0a0a;
+        border-radius: 0 !important;
+        box-shadow: none;
+      }
+      #chat-room-screen .image-bubble img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: inherit;
+      }
       #chat-room-screen .pv-card {
         width: 230px;
         margin: 0;
@@ -8047,6 +8113,7 @@
                     <div class="online-indicator"></div>
                     <span id="chat-room-status-text">在线</span>
                 </div>
+                <div class="chat-header-tag" id="chat-room-header-tag">PRIVATE ARCHIVE / READING</div>
             </div>
             <div class="chat-hero-avatar" id="chat-hero-avatar">
                 <img id="chat-hero-avatar-img" src="" alt="">
@@ -8471,6 +8538,7 @@
                 </div>
                 <div class="form-group" style="text-align:center; padding:0 0 2px;"><span id="setting-relation-display" style="font-size:13px; color:var(--primary-color);"></span></div>
                 <div class="form-group"><label for="setting-char-remark">角色备注 (昵称)</label><input type="text" id="setting-char-remark"></div>
+                <div class="form-group"><label for="setting-chat-header-tag">顶栏装饰文字</label><input type="text" id="setting-chat-header-tag" maxlength="24" placeholder="留空则使用默认档案标签"></div>
                 <div class="form-group" style="display:none;"><label for="setting-char-persona">角色人设</label><textarea id="setting-char-persona" placeholder="详细描述角色的性格、背景、说话风格等。"></textarea></div>
                 <div class="form-group"><label for="setting-my-name">我的姓名</label><input type="text" id="setting-my-name"></div>
                 <div class="form-group" style="display:none;"><label for="setting-my-persona">我的人设</label><textarea id="setting-my-persona" placeholder="描述你希望在对话中扮演的形象。"></textarea></div>
@@ -10085,6 +10153,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   const pad = (num) => num.toString().padStart(2, "0");
+  const sameMsgId = (a, b) => String(a ?? "") === String(b ?? "");
   function createContextMenu(items, x, y) {
     removeContextMenu();
     const menu = document.createElement("div");
@@ -10258,7 +10327,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (currentChatType === "group") {
           const g = db.groups.find((x) => x.id === currentChatId);
           if (g) {
-            const msg2 = g.history.find((m) => m.id === msgId);
+            const msg2 = g.history.find((m) => sameMsgId(m.id, msgId));
             if (msg2 && msg2.senderId) {
               const sender = (g.members || []).find((m) => m.id === msg2.senderId);
               if (sender) {
@@ -10270,7 +10339,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
         if (!chat) return;
-        const msg = chat.history.find((m) => m.id === msgId);
+        const msg = chat.history.find((m) => sameMsgId(m.id, msgId));
         if (!msg || !msg.sideNote) {
           showToast("\u672C\u8F6E\u6CA1\u6709\u751F\u6210\u5FC3\u58F0");
           return;
@@ -11479,7 +11548,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const messageWrapper = transferCard.closest(".message-wrapper");
           const messageId = messageWrapper.dataset.id;
           const character = db.characters.find((c) => c.id === currentChatId);
-          const message = character.history.find((m) => m.id === messageId);
+          const message = character.history.find((m) => sameMsgId(m.id, messageId));
           if (message && message.transferStatus === "pending") {
             handleReceivedTransferClick(messageId);
           }
@@ -11577,7 +11646,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isInMultiSelectMode) return;
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
     if (!chat) return;
-    const message = chat.history.find((m) => m.id === messageId);
+    const message = chat.history.find((m) => sameMsgId(m.id, messageId));
     if (!message) return;
     let name;
     if (message.role === "user") {
@@ -11614,7 +11683,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clearTimeout(longPressTimer);
     const messageId = messageWrapper.dataset.id;
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
-    const message = chat.history.find((m) => m.id === messageId);
+    const message = chat.history.find((m) => sameMsgId(m.id, messageId));
     if (!message) return;
     const isImageRecognitionMsg = message.parts && message.parts.some((p) => p.type === "image");
     const isVoiceMessage = /\[.*?的语音：.*?\]/.test(message.content);
@@ -11643,7 +11712,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
     if (!chat) return;
     const hist = chat.history || [];
-    const idx = hist.findIndex((m) => m && (m.id === messageId || (m.id || "").indexOf(messageId) === 0));
+    const idx = hist.findIndex((m) => m && sameMsgId(m.id, messageId));
     if (idx < 0) {
       showToast("\u672A\u627E\u5230\u8BE5\u6D88\u606F");
       return;
@@ -11671,7 +11740,7 @@ document.addEventListener("DOMContentLoaded", () => {
     exitMultiSelectMode();
     editingMessageId = messageId;
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
-    const message = chat.history.find((m) => m.id === messageId);
+    const message = chat.history.find((m) => sameMsgId(m.id, messageId));
     if (!message) return;
     const match = message.content.match(/\[.*?的消息：([\s\S]+)\]/);
     const contentToEdit = match ? match[1].trim() : message.content;
@@ -11682,7 +11751,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   async function saveMessageEdit() {
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
-    const messageIndex = chat.history.findIndex((m) => m.id === editingMessageId);
+    const messageIndex = chat.history.findIndex((m) => sameMsgId(m.id, editingMessageId));
     if (messageIndex === -1) return;
     const newText = messageEditInput.value.trim();
     if (newText) {
@@ -11749,7 +11818,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selectedMessageIds.size === 0) return;
     const deletedCount = selectedMessageIds.size;
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
-    chat.history = chat.history.filter((m) => !selectedMessageIds.has(m.id));
+    chat.history = chat.history.filter((m) => !selectedMessageIds.has(String(m.id)));
     await saveData();
     currentPage = 1;
     renderMessages(false, true);
@@ -11773,11 +11842,16 @@ document.addEventListener("DOMContentLoaded", () => {
       heroAvatar.setAttribute("data-chat-id", chatId);
     }
     const subtitle = document.getElementById("chat-room-subtitle");
+    const headerTag = document.getElementById("chat-room-header-tag");
     if (type === "private") {
       subtitle.style.display = "flex";
       chatRoomStatusText.textContent = chat.status || "\u5728\u7EBF";
     } else {
       subtitle.style.display = "none";
+    }
+    if (headerTag) {
+      headerTag.textContent = (chat.headerTag && chat.headerTag.trim()) || "PRIVATE ARCHIVE / READING";
+      headerTag.style.display = type === "private" ? "flex" : "none";
     }
     getReplyBtn.style.display = "inline-flex";
     chatRoomScreen.style.backgroundImage = chat.chatBg ? "url(".concat(chat.chatBg, ")") : "none";
@@ -11828,18 +11902,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const existingLoadBtn = document.getElementById("load-more-btn");
     if (existingLoadBtn) existingLoadBtn.remove();
     messageArea.prepend(fragment);
-    const firstConversationId = (chat.history || []).find((m) => m && m.role && !["action", "call_end", "system", "system_note"].includes(m.type) && !m.withdrawn && m.status !== "revoked");
-    const firstId = firstConversationId ? String(firstConversationId.id) : "";
-    let firstAvatarMarked = false;
-    messageArea.querySelectorAll(".message-wrapper[data-id]").forEach((w) => {
-      const isFirst = !!firstId && String(w.dataset.id) === firstId;
-      w.classList.toggle("first-avatar", isFirst);
-      if (isFirst) firstAvatarMarked = true;
+    let prevMessageSender = null;
+    messageArea.querySelectorAll(".message-wrapper.sent, .message-wrapper.received").forEach((w) => {
+      const senderKey = w.dataset.sender || (w.classList.contains("sent") ? "user_me" : "ta");
+      const isStreakFirst = prevMessageSender !== senderKey;
+      w.classList.toggle("first-avatar", isStreakFirst);
+      prevMessageSender = senderKey;
     });
-    if (!firstAvatarMarked) {
-      const topRendered = messageArea.querySelector(".message-wrapper[data-id]");
-      if (topRendered) topRendered.classList.add("first-avatar");
-    }
     if (totalMessages > currentPage * MESSAGES_PER_PAGE) {
       const loadMoreButton = document.createElement("button");
       loadMoreButton.id = "load-more-btn";
@@ -11995,6 +12064,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentChatType === "group" && !isSent) {
       wrapper.classList.add("group-message");
     }
+    wrapper.dataset.sender = messageSenderId || (isSent ? "user_me" : "ta");
     const bubbleRow = document.createElement("div");
     bubbleRow.className = "message-bubble-row";
     const speakerLabel = isSent
@@ -13581,7 +13651,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const cardSel = ".chat-loc-card,.chat-food-receipt,.transfer-card,.gift-card,.image-bubble,.pdd-share-card,.pdd-pin-card";
       ma.querySelectorAll(".message-wrapper[data-id]").forEach((w) => {
         const id = w.getAttribute("data-id");
-        const msg = (chat.history || []).find((m) => m && m.id === id);
+        const msg = (chat.history || []).find((m) => m && sameMsgId(m.id, id));
         if (!msg || !msg.content || !SPECIAL.test(String(msg.content))) return;
         if (w.querySelector(cardSel)) return;
         const fresh = createMessageBubbleElement(msg);
@@ -13602,7 +13672,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const cardSel = ".chat-loc-card,.chat-food-receipt,.transfer-card,.gift-card,.image-bubble,.pdd-share-card,.pdd-pin-card";
       ma.querySelectorAll(".message-wrapper[data-id]").forEach((w) => {
         const id = w.getAttribute("data-id");
-        const msg = (chat.history || []).find((m) => m && m.id === id);
+        const msg = (chat.history || []).find((m) => m && sameMsgId(m.id, id));
         if (!msg || !msg.content || !SPECIAL.test(String(msg.content))) return;
         if (w.querySelector(cardSel)) return;
         const fresh = createMessageBubbleElement(msg);
@@ -13944,7 +14014,7 @@ document.addEventListener("DOMContentLoaded", () => {
               target = aiMsgs[aiMsgs.length - nth] || null;
             }
           } else {
-            target = targetChat.history.find((m) => m.id === revokeTarget && m.role === "assistant" && m.status !== "revoked");
+            target = targetChat.history.find((m) => sameMsgId(m.id, revokeTarget) && m.role === "assistant" && m.status !== "revoked");
           }
           if (target) {
             target.status = "revoked";
@@ -14224,7 +14294,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function respondToTransfer(action) {
     if (!currentTransferMessageId) return;
     const character = db.characters.find((c) => c.id === currentChatId);
-    const message = character.history.find((m) => m.id === currentTransferMessageId);
+    const message = character.history.find((m) => sameMsgId(m.id, currentTransferMessageId));
     if (message) {
       message.transferStatus = action;
       const cardOnScreen = messageArea.querySelector('.message-wrapper[data-id="'.concat(currentTransferMessageId, '"] .transfer-card'));
@@ -14769,6 +14839,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       document.getElementById("setting-char-avatar-preview").src = e.avatar;
       document.getElementById("setting-char-remark").value = e.remarkName;
+      const headerTagInput = document.getElementById("setting-chat-header-tag");
+      if (headerTagInput) headerTagInput.value = e.headerTag || "";
       document.getElementById("setting-char-persona").value = e.persona;
       document.getElementById("setting-my-avatar-preview").src = e.myAvatar;
       document.getElementById("setting-my-name").value = e.myName;
@@ -14856,6 +14928,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e) {
       e.avatar = document.getElementById("setting-char-avatar-preview").src;
       e.remarkName = document.getElementById("setting-char-remark").value;
+      const headerTagInput = document.getElementById("setting-chat-header-tag");
+      e.headerTag = headerTagInput ? headerTagInput.value.trim() : "";
       e.persona = document.getElementById("setting-char-persona").value;
       e.myAvatar = document.getElementById("setting-my-avatar-preview").src;
       e.myName = document.getElementById("setting-my-name").value;
@@ -14864,6 +14938,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const bam2 = document.getElementById("setting-bubble-avatar-mode");
       if (bam2) e.bubbleAvatarMode = bam2.value;
       applyBubbleAvatarMode(e);
+      const headerTagEl = document.getElementById("chat-room-header-tag");
+      if (headerTagEl) headerTagEl.textContent = e.headerTag || "PRIVATE ARCHIVE / READING";
       e.maxMemory = document.getElementById("setting-max-memory").value;
       const oc2 = getOfflineChat(e.id);
       oc2.summaryEnabled = document.getElementById("setting-summary-enabled").checked;
