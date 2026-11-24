@@ -7233,7 +7233,7 @@
         position: relative;
         display: block;
         height: auto;
-        min-height: 146px;
+        min-height: 158px;
         padding: 14px 20px 0;
         background: #fff;
         border-bottom: 1px solid #0a0a0a;
@@ -7250,10 +7250,19 @@
         font-size: calc(var(--app-fs, 1) * 26px); font-weight: 300; line-height: 1;
       }
       #chat-room-screen .title-container {
-        padding: 24px 84px 0 0;
+        padding: 24px 96px 0 0;
         min-width: 0;
       }
+      #chat-room-header-default .title-container {
+        left: 64px;
+        right: 108px;
+        max-width: none;
+        padding: 24px 0 0 0;
+      }
       .chat-edit-kicker {
+        display: flex;
+        align-items: center;
+        gap: 7px;
         margin: 0 0 9px;
         font-size: calc(var(--app-fs, 1) * 6.5px);
         font-weight: 600;
@@ -7262,18 +7271,34 @@
         color: #0a0a0a;
         text-transform: uppercase;
       }
+      .chat-edit-kicker::before {
+        content: "";
+        width: 5px; height: 5px;
+        flex: none;
+        background: #0a0a0a;
+      }
+      .chat-edit-kicker::after {
+        content: "";
+        width: 26px; height: 1px;
+        flex: none;
+        background: #0a0a0a;
+        opacity: .55;
+      }
       #chat-room-screen .title-container .title,
       #chat-room-screen #chat-room-title {
         margin: 0;
         max-width: 100%;
         font-size: calc(var(--app-fs, 1) * 26px);
         font-weight: 900;
-        line-height: .96;
-        letter-spacing: -.075em;
+        line-height: 1.02;
+        letter-spacing: -.06em;
         color: #0a0a0a;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        overflow: visible;
+        text-overflow: clip;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        max-height: 2.08em;
       }
       #chat-room-screen .subtitle {
         display: flex;
@@ -7323,17 +7348,18 @@
 
       .chat-hero-avatar {
         position: absolute;
-        right: 20px; top: 46px;
-        width: 70px;
+        right: 20px; top: 40px;
+        width: 76px;
         cursor: pointer;
         -webkit-tap-highlight-color: transparent;
       }
       .chat-hero-avatar img {
         display: block;
-        width: 70px; height: 56px;
+        width: 76px; height: 76px;
         object-fit: cover;
-        object-position: center 24%;
+        object-position: center 30%;
         border: 1px solid #0a0a0a;
+        box-shadow: 4px 4px 0 #0a0a0a;
         background: linear-gradient(135deg, #f0d1bd 0%, #dbe7f2 100%);
         filter: none !important;
         pointer-events: none;
@@ -7367,7 +7393,7 @@
         color: #0a0a0a;
         text-transform: uppercase;
       }
-      #chat-room-screen .message-wrapper { margin-bottom: 2px; animation: none; }
+      #chat-room-screen .message-wrapper { margin-bottom: 12px; animation: none; }
       #chat-room-screen .message-bubble-row {
         flex-direction: column;
         align-items: flex-start;
@@ -7383,8 +7409,11 @@
         flex-direction: row;
         align-items: center;
         justify-content: flex-start;
-        gap: 7px;
-        margin: 0 2px 2px;
+        gap: 6px;
+        width: 100%;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0 2px 5px;
       }
       #chat-room-screen .message-wrapper.sent .message-info {
         justify-content: flex-end;
@@ -7395,30 +7424,31 @@
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
-        font-size: calc(var(--app-fs, 1) * 6.5px);
-        font-weight: 600;
-        letter-spacing: .14em;
+        font-size: calc(var(--app-fs, 1) * 7.5px);
+        font-weight: 700;
+        letter-spacing: .12em;
         line-height: 1;
         color: #0a0a0a;
         text-transform: uppercase;
       }
       #chat-room-screen .message-time {
         margin: 0;
-        font-size: calc(var(--app-fs, 1) * 6.4px);
+        font-size: calc(var(--app-fs, 1) * 7px);
         font-weight: 500;
         letter-spacing: .08em;
         line-height: 1;
         color: #0a0a0a;
-        opacity: .58;
+        opacity: .5;
       }
       #chat-room-screen .message-bubble {
         max-width: min(74vw, 286px);
         margin: 0;
-        padding: calc(var(--app-fs, 1) * 5px) calc(var(--app-fs, 1) * 9px) calc(var(--app-fs, 1) * 6px);
+        padding: calc(var(--app-fs, 1) * 8px) calc(var(--app-fs, 1) * 12px) calc(var(--app-fs, 1) * 9px);
         border: 1px solid transparent;
-        border-radius: 0 !important;
-        font-size: calc(var(--app-fs, 1) * 12.4px);
-        line-height: 1.5;
+        border-radius: 16px !important;
+        font-size: calc(var(--app-fs, 1) * 13.2px);
+        line-height: 1.55;
+        overflow: hidden;
         letter-spacing: .005em;
         box-shadow: none;
       }
@@ -7430,12 +7460,12 @@
       #chat-room-screen .message-bubble.received {
         background: #fff;
         color: #0a0a0a;
-        border-color: transparent;
+        border-color: rgba(10,10,10,.12);
         box-shadow: 0 6px 12px -6px rgba(0,0,0,.24);
       }
       #chat-room-screen .message-wrapper.received .message-bubble:active { box-shadow: 0 3px 8px -5px rgba(0,0,0,.18); }
-      #chat-room-screen .message-wrapper { margin-bottom: 8px; }
-      #chat-room-screen .message-wrapper.group-message { margin-bottom: 11px; }
+      #chat-room-screen .message-wrapper { margin-bottom: 13px; }
+      #chat-room-screen .message-wrapper.group-message { margin-bottom: 16px; }
 
       #chat-room-screen .pv-card {
         width: 230px;
@@ -7540,6 +7570,101 @@
         font-size: calc(var(--app-fs, 1) * 7.5px);
         letter-spacing: .16em;
         text-transform: uppercase;
+      }
+
+      /* ---------- 加号面板：黑白编辑式 ---------- */
+      #sticker-expand-panel {
+        bottom: 78px;
+        left: 18px;
+        right: 18px;
+        padding: 30px 12px 12px;
+        background: #fff;
+        border: 1px solid #0a0a0a;
+        border-radius: 18px;
+        box-shadow: 0 14px 30px rgba(0,0,0,.14);
+      }
+      #sticker-expand-panel::before {
+        content: "MORE / 01";
+        position: absolute;
+        top: 11px; left: 14px;
+        font-size: calc(var(--app-fs, 1) * 6.5px);
+        font-weight: 700;
+        letter-spacing: .18em;
+        color: #0a0a0a;
+      }
+      #sticker-expand-panel .sticker-bar-btn {
+        height: 64px;
+        background: #fff;
+        border: 1px solid #0a0a0a;
+        border-radius: 10px;
+        color: #0a0a0a;
+      }
+      #sticker-expand-panel .sticker-bar-btn svg {
+        width: 20px;
+        height: 20px;
+        color: #0a0a0a;
+        fill: none;
+        stroke: #0a0a0a;
+      }
+      #sticker-expand-panel .sticker-label {
+        margin-top: 5px;
+        color: #0a0a0a;
+        font-size: calc(var(--app-fs, 1) * 7px);
+        font-weight: 600;
+        letter-spacing: .06em;
+      }
+
+      /* ---------- 加号面板：黑白编辑式 ---------- */
+      #sticker-modal {
+        height: 38%;
+        max-height: 300px;
+        background: #fff;
+        border-top: 1px solid #0a0a0a;
+        border-radius: 18px 18px 0 0;
+        box-shadow: 0 -12px 28px rgba(0,0,0,.12);
+      }
+      #sticker-modal .header {
+        padding: 14px 18px;
+        border-bottom: 1px solid #0a0a0a;
+        color: #0a0a0a;
+        font-size: calc(var(--app-fs, 1) * 7px);
+        font-weight: 700;
+        letter-spacing: .18em;
+        text-transform: uppercase;
+      }
+      #add-new-sticker-btn {
+        padding: 7px 10px !important;
+        background: #0a0a0a !important;
+        color: #fff !important;
+        border: 1px solid #0a0a0a !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        font-size: calc(var(--app-fs, 1) * 6.5px) !important;
+        font-weight: 600 !important;
+        letter-spacing: .12em !important;
+        text-transform: uppercase;
+      }
+      #sticker-modal .sticker-grid {
+        padding: 14px 18px;
+        gap: 12px;
+        grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+      }
+      #sticker-modal .sticker-item {
+        padding: 6px;
+        border: 1px solid #0a0a0a;
+        border-radius: 10px;
+        background: #fff;
+      }
+      #sticker-modal .sticker-item img {
+        width: 56px;
+        height: 56px;
+      }
+      #sticker-modal .sticker-item span {
+        margin-top: 4px;
+        color: #0a0a0a;
+        font-size: calc(var(--app-fs, 1) * 6.5px);
+        font-weight: 600;
+        letter-spacing: .06em;
       }
 
       /* ---------- 聊天气泡头像：不显示 / 每条显示 / 仅首条 ---------- */
@@ -11704,9 +11829,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (existingLoadBtn) existingLoadBtn.remove();
     messageArea.prepend(fragment);
     const firstConversationId = (chat.history || []).find((m) => m && m.role && !["action", "call_end", "system", "system_note"].includes(m.type) && !m.withdrawn && m.status !== "revoked");
+    const firstId = firstConversationId ? String(firstConversationId.id) : "";
+    let firstAvatarMarked = false;
     messageArea.querySelectorAll(".message-wrapper[data-id]").forEach((w) => {
-      w.classList.toggle("first-avatar", !!firstConversationId && w.dataset.id === firstConversationId.id);
+      const isFirst = !!firstId && String(w.dataset.id) === firstId;
+      w.classList.toggle("first-avatar", isFirst);
+      if (isFirst) firstAvatarMarked = true;
     });
+    if (!firstAvatarMarked) {
+      const topRendered = messageArea.querySelector(".message-wrapper[data-id]");
+      if (topRendered) topRendered.classList.add("first-avatar");
+    }
     if (totalMessages > currentPage * MESSAGES_PER_PAGE) {
       const loadMoreButton = document.createElement("button");
       loadMoreButton.id = "load-more-btn";
