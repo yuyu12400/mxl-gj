@@ -6544,6 +6544,330 @@
 
         </style>
     <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Great+Vibes&display=swap">
+
+<style id="settings-dynamic-refresh">
+/* ============================================================
+   404 / 设置页 · 无横线分组版
+   ============================================================ */
+#chat-settings-screen { background:#ffffff; color:#0a0a0a; }
+#chat-settings-screen .settings-app-header {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  padding:18px 24px 0 !important;
+  min-height:0; border-bottom:0 !important; background:#fff !important;
+}
+#chat-settings-screen .settings-app-header .back-btn {
+  padding:0 !important; width:18px; height:26px; flex:none;
+  font-size:22px; line-height:1; font-weight:300; color:#0a0a0a !important;
+}
+#chat-settings-screen .settings-title-wrap { flex:1; min-width:0; padding-left:12px; }
+#chat-settings-screen .settings-kicker {
+  display:flex; align-items:center; gap:7px;
+  font-size:8px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+  color:#0a0a0a;
+}
+#chat-settings-screen .settings-kicker i { width:5px; height:5px; background:#0a0a0a; }
+#chat-settings-screen .settings-kicker em { width:22px; height:1px; background:#0a0a0a; display:inline-block; }
+#chat-settings-screen .settings-app-header .title {
+  margin-top:9px !important;
+  font-size:38px !important; line-height:.94 !important; font-weight:900 !important;
+  letter-spacing:-.06em !important; color:#0a0a0a !important;
+}
+#chat-settings-screen .settings-head-side { display:flex; flex-direction:column; align-items:flex-end; gap:7px; flex:none; }
+#chat-settings-screen .settings-header-avatar {
+  width:48px; height:48px; object-fit:cover; display:block;
+  border:1px solid #0a0a0a; box-shadow:3px 3px 0 #0a0a0a; background:#fff;
+}
+#chat-settings-screen .settings-head-side span { font-size:6.5px; font-weight:700; letter-spacing:.15em; }
+#chat-settings-screen .content.settings-page-content { padding:20px 24px 38px !important; background:#fff; }
+#chat-settings-screen #chat-settings-form { margin:0; }
+#chat-settings-screen hr { display:none !important; }
+
+#chat-settings-screen .settings-section-head {
+  display:flex; align-items:baseline; gap:8px; margin:33px 0 4px;
+}
+#chat-settings-screen .settings-section-head .no { font-size:14px; font-weight:300; letter-spacing:.02em; }
+#chat-settings-screen .settings-section-head .ttl { font-size:9px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; }
+#chat-settings-screen .settings-section-head .note { margin-left:auto; font-size:7px; font-weight:500; letter-spacing:.08em; }
+#chat-settings-screen .settings-subhead {
+  margin:22px 0 2px; font-size:8px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+}
+#chat-settings-screen .settings-legacy-title { display:none !important; }
+
+#chat-settings-screen #chat-settings-form .form-group {
+  display:flex; align-items:center; justify-content:space-between; gap:14px;
+  margin:0 !important; padding:9px 0;
+}
+#chat-settings-screen #chat-settings-form .form-group:has(textarea) { display:block; }
+#chat-settings-screen #chat-settings-form .form-group > label {
+  flex:1; min-width:0; margin:0 !important;
+  font-size:12.5px !important; font-weight:500 !important;
+  letter-spacing:0 !important; text-transform:none !important;
+  color:#0a0a0a !important; line-height:1.35;
+}
+#chat-settings-screen #chat-settings-form .form-group > div {
+  width:auto !important; flex:0 1 auto !important; min-width:0;
+}
+#chat-settings-screen #chat-settings-form .form-group > div > input[type=number] {
+  width:52px !important; max-width:52px !important; flex:0 0 52px !important;
+  text-align:center; padding-left:0 !important; padding-right:0 !important;
+}
+#chat-settings-screen #chat-settings-form input[type=text],
+#chat-settings-screen #chat-settings-form input[type=number],
+#chat-settings-screen #chat-settings-form select {
+  flex:0 1 auto; width:52%; max-width:56%; min-width:0;
+  background:transparent !important; border:0 !important; border-bottom:1px solid transparent !important;
+  border-radius:0 !important; padding:3px 0 !important;
+  font-size:11.5px; font-weight:600; text-align:right; color:#0a0a0a !important;
+  box-shadow:none !important;
+}
+#chat-settings-screen #chat-settings-form input[type=number] { width:64px; max-width:64px; }
+#chat-settings-screen #chat-settings-form input:focus,
+#chat-settings-screen #chat-settings-form select:focus {
+  outline:none; border-bottom-color:#0a0a0a !important;
+}
+#chat-settings-screen #chat-settings-form select { appearance:none; -webkit-appearance:none; }
+#chat-settings-screen #chat-settings-form textarea {
+  width:100% !important; margin-top:7px;
+  background:#fff !important; border:1px solid #0a0a0a !important; border-radius:0 !important;
+  padding:9px 10px !important; font-size:10.5px !important; line-height:1.55 !important;
+  color:#0a0a0a !important; box-shadow:none !important;
+}
+#chat-settings-screen #chat-settings-form .form-group div[style*="display:flex"] { gap:12px; }
+#chat-settings-screen #chat-settings-form .form-group div[style*="display:flex"] label {
+  font-size:12.5px !important; font-weight:500 !important; letter-spacing:0 !important;
+  text-transform:none !important; color:#0a0a0a !important; margin:0 !important;
+}
+
+/* 头像 / 关系 / 已挂载 */
+#chat-settings-screen .avatar-pair { display:flex; gap:20px; align-items:flex-start; padding:8px 0 4px; }
+#chat-settings-screen .avatar-setting { width:auto; display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
+#chat-settings-screen .avatar-preview {
+  width:52px !important; height:52px !important; object-fit:cover;
+  border:1px solid #0a0a0a !important; border-radius:0 !important;
+  filter:none !important; box-shadow:none !important;
+}
+#chat-settings-screen .avatar-cap { font-size:7px !important; letter-spacing:.14em !important; color:#0a0a0a !important; }
+#chat-settings-screen #setting-relation-display {
+  font-size:8px !important; letter-spacing:.12em; text-transform:uppercase;
+  color:#0a0a0a !important; text-align:left !important;
+}
+#chat-settings-screen #setting-wb-display {
+  background:transparent !important; border:0 !important; border-radius:0 !important;
+  padding:0 !important; color:#0a0a0a !important; font-size:8.5px !important; line-height:1.5;
+}
+#chat-settings-screen #setting-wb-display b { font-weight:700; }
+
+/* 开关 / 状态统计 / 说明 */
+#chat-settings-screen input[type=checkbox].ios-sw {
+  width:32px !important; height:18px !important; border-radius:0 !important;
+  border:1px solid #0a0a0a !important; background:#fff !important;
+  position:relative; flex:none; margin:0 !important;
+}
+#chat-settings-screen input[type=checkbox].ios-sw::after {
+  content:""; position:absolute; top:2px; left:2px; width:9px; height:12px;
+  border-radius:0 !important; background:#0a0a0a; box-shadow:none !important;
+}
+#chat-settings-screen input[type=checkbox].ios-sw:checked { background:#0a0a0a !important; }
+#chat-settings-screen input[type=checkbox].ios-sw:checked::after { left:auto; right:2px; background:#fff; }
+#chat-settings-screen #chat-settings-form .form-group div[style*="background:#f8f9fa"] {
+  background:transparent !important; border:0 !important; border-radius:0 !important;
+  padding:4px 0 !important; color:#0a0a0a !important;
+  font-size:8px !important; letter-spacing:.04em;
+}
+#chat-settings-screen #chat-settings-form .form-group div[style*="background:#f8f9fa"] b { color:#0a0a0a !important; font-weight:800; }
+
+/* 按钮 */
+#chat-settings-screen .btn { border-radius:0 !important; box-shadow:none !important; letter-spacing:.06em; }
+#chat-settings-screen #link-world-book-btn,
+#chat-settings-screen #phone-btn {
+  display:flex !important; align-items:center; width:100% !important;
+  background:transparent !important; color:#0a0a0a !important;
+  border:0 !important; border-radius:0 !important; padding:12px 0 !important;
+  font-size:12.5px !important; font-weight:500 !important; text-align:left !important;
+}
+#chat-settings-screen #link-world-book-btn::after,
+#chat-settings-screen #phone-btn::after { content:"›"; margin-left:auto; font-weight:300; }
+#chat-settings-screen #setting-summary-now-btn {
+  width:100%; height:38px; border:1px solid #0a0a0a; background:#fff; color:#0a0a0a;
+  font-size:9px; font-weight:700; letter-spacing:.12em; text-transform:uppercase;
+}
+#chat-settings-screen #chat-settings-form button[type=submit],
+#chat-settings-screen #chat-settings-form .btn-primary {
+  width:100%; height:46px; background:#0a0a0a !important; color:#fff !important;
+  border:1px solid #0a0a0a !important; border-radius:0 !important;
+  font-size:10px; font-weight:700; letter-spacing:.24em; text-transform:uppercase;
+}
+#chat-settings-screen #setting-chat-bg-upload { display:none !important; }
+#chat-settings-screen #chat-settings-form label[for="setting-chat-bg-upload"] {
+  display:block !important; width:auto !important; flex:1 1 auto !important;
+  background:transparent !important; color:#0a0a0a !important;
+  border:0 !important; border-radius:0 !important; box-shadow:none !important;
+  padding:12px 0 !important; margin:0 !important;
+  font-size:12.5px !important; font-weight:500 !important;
+  letter-spacing:0 !important; text-transform:none !important; text-align:left !important;
+}
+#chat-settings-screen #open-archive-page-btn,
+#chat-settings-screen #clear-chat-history-btn {
+  display:block; width:100%; background:transparent !important; color:#0a0a0a !important;
+  border:0 !important; border-radius:0 !important; padding:12px 0 !important;
+  font-size:11px !important; font-weight:500 !important; text-align:left !important;
+}
+
+/* 自定义气泡 */
+#chat-settings-screen #private-bubble-css-preview {
+  background:#fff !important; border:1px solid #0a0a0a !important; border-radius:0 !important;
+  padding:14px !important; gap:9px !important;
+}
+#chat-settings-screen .bubble-css-preview .message-bubble { max-width:76%; }
+#chat-settings-screen #setting-custom-bubble-css {
+  font-family:"SFMono-Regular", Consolas, monospace; min-height:118px;
+  font-size:9.5px !important;
+}
+#chat-settings-screen #custom-css-tools {
+  display:flex; align-items:center; justify-content:space-between; gap:8px; margin-top:9px;
+}
+#chat-settings-screen #copy-original-bubble-css-btn,
+#chat-settings-screen #reset-custom-bubble-css-btn {
+  width:auto !important; padding:0 0 3px !important;
+  border:0 !important; border-bottom:1px solid #0a0a0a !important;
+  background:transparent !important; color:#0a0a0a !important;
+  font-size:9px !important; font-weight:700 !important; letter-spacing:.06em;
+  text-transform:none !important;
+}
+
+/* ============================================================
+   404 / 动态页 · Threads 结构，黑白精修
+   ============================================================ */
+#dynamic-screen { background:#fff; }
+#dynamic-screen .feed-header {
+  position:relative; display:flex; align-items:center;
+  height:56px; padding:8px 18px 6px !important;
+  border-bottom:0 !important; background:#fff !important;
+}
+#dynamic-screen .feed-brand {
+  display:flex; align-items:center; gap:6px;
+  font-size:8px; font-weight:700; letter-spacing:.15em; text-transform:uppercase;
+}
+#dynamic-screen .feed-brand i { width:5px; height:5px; background:#0a0a0a; }
+#dynamic-screen .feed-title {
+  position:absolute; left:50%; transform:translateX(-50%);
+  display:flex; align-items:center; gap:7px;
+  font-size:18px; font-weight:800; letter-spacing:.01em;
+}
+#dynamic-screen .feed-title i { width:5px; height:5px; background:#0a0a0a; }
+#dynamic-screen .feed-tools { margin-left:auto; display:flex; align-items:center; gap:12px; }
+#dynamic-screen #open-dynamic-settings-icon-btn {
+  width:30px; height:30px; padding:0 !important; display:flex; align-items:center; justify-content:center;
+}
+#dynamic-screen #open-dynamic-settings-icon-btn svg { width:20px; height:20px; stroke:#0a0a0a !important; }
+#dynamic-screen .feed-tabs {
+  display:flex; align-items:center; gap:20px;
+  height:38px; padding:0 18px; border-bottom:1px solid #0a0a0a;
+}
+#dynamic-screen .feed-tab {
+  appearance:none; border:0; background:transparent; padding:0 0 3px;
+  font-family:inherit; font-size:10px; font-weight:600; letter-spacing:.1em; color:#0a0a0a;
+}
+#dynamic-screen .feed-tab.on { font-weight:800; border-bottom:2px solid #0a0a0a; }
+#dynamic-screen .feed-tabs .right { margin-left:auto; font-size:8px; font-weight:600; letter-spacing:.1em; }
+#dynamic-screen .content { padding:0 18px 118px !important; background:#fff; }
+
+#dynamic-screen .feed-item {
+  padding:14px 0 0 !important; background:#fff !important;
+  border:0 !important; border-bottom:0 !important; border-radius:0 !important;
+  box-shadow:none !important; margin:0 !important;
+}
+#dynamic-screen .feed-item + .feed-item { border-top:0 !important; margin-top:18px; }
+#dynamic-screen .feed-head {
+  display:flex; align-items:center; gap:9px;
+  padding:0 !important; border:0 !important;
+}
+#dynamic-screen .feed-head img.avatar,
+#dynamic-screen .feed-head .feed-avatar {
+  width:36px; height:36px; border-radius:50%; object-fit:cover; flex:none;
+  border:1px solid #0a0a0a; background:#fff;
+}
+#dynamic-screen .feed-who { display:flex; flex-direction:column; gap:2px; min-width:0; }
+#dynamic-screen .f-name { font-size:12.5px; font-weight:700; letter-spacing:-.01em; line-height:1.1; }
+#dynamic-screen .f-time { font-size:8px; font-weight:500; letter-spacing:.08em; }
+#dynamic-screen .feed-body {
+  margin:8px 0 0 45px; padding:0 !important;
+  font-size:14px; line-height:1.5; letter-spacing:-.01em;
+  color:#0a0a0a !important; white-space:pre-wrap; word-break:break-word;
+}
+#dynamic-screen .feed-img {
+  display:block; width:calc(100% - 45px); max-height:300px;
+  margin:10px 0 0 45px; object-fit:cover; border-radius:16px; background:#fff;
+}
+#dynamic-screen .feed-text-card {
+  width:min(282px, calc(100% - 45px)); aspect-ratio:4 / 5; margin:10px 0 0 45px;
+  background:#0a0a0a; color:#fff; border-radius:16px;
+  padding:19px 18px 15px; display:flex; flex-direction:column; justify-content:space-between;
+  overflow:hidden;
+}
+#dynamic-screen .ftc-kicker { font-size:6.5px; font-weight:700; letter-spacing:.18em; }
+#dynamic-screen .ftc-text {
+  font-family:"Noto Serif SC","Songti SC",serif; font-size:24px; line-height:1.34;
+  font-weight:600; letter-spacing:-.02em; word-break:break-word;
+}
+#dynamic-screen .ftc-meta { font-size:6.5px; font-weight:600; letter-spacing:.16em; text-align:right; }
+#dynamic-screen .feed-img-desc { display:none !important; }
+#dynamic-screen .feed-actions {
+  display:flex; align-items:center; gap:24px; height:30px;
+  margin:7px 0 0 45px; padding:0 !important; border-top:0 !important;
+}
+#dynamic-screen .feed-action {
+  display:inline-flex; align-items:center; gap:5px;
+  background:transparent; border:0; border-radius:0; padding:0 !important;
+  color:#0a0a0a; font-family:inherit; font-size:9.5px; font-weight:600; letter-spacing:.04em;
+}
+#dynamic-screen .feed-action svg {
+  width:18px; height:18px; fill:none; stroke:#0a0a0a;
+  stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;
+}
+#dynamic-screen .feed-like-btn svg path { fill:none; }
+#dynamic-screen .feed-like-btn.liked svg path { fill:#0a0a0a; }
+#dynamic-screen .feed-comments {
+  display:flex; flex-direction:column; gap:8px;
+  margin:9px 0 0 45px; padding:0 !important;
+}
+#dynamic-screen .feed-comment { display:flex; align-items:flex-start; gap:7px; }
+#dynamic-screen .c-avatar { width:22px; height:22px; border-radius:50%; object-fit:cover; border:1px solid #0a0a0a; flex:none; }
+#dynamic-screen .c-body { min-width:0; line-height:1.45; }
+#dynamic-screen .c-name { font-size:9.5px; font-weight:700; letter-spacing:.01em; }
+#dynamic-screen .c-name-to { font-weight:500; }
+#dynamic-screen .c-reply { font-size:8px; font-weight:500; }
+#dynamic-screen .c-text { font-size:10.5px; font-weight:400; word-break:break-word; }
+#dynamic-screen .c-reply-btn { color:#0a0a0a !important; font-size:8px !important; margin-left:6px !important; }
+#dynamic-screen .feed-comment-input {
+  display:flex; align-items:center; gap:8px;
+  margin:9px 0 0 45px; padding:3px 0 5px !important;
+  border-top:0 !important; border-bottom:1px solid #0a0a0a;
+}
+#dynamic-screen .feed-comment-input input {
+  flex:1; min-width:0; border:0; background:transparent; padding:2px 0;
+  font-family:inherit; font-size:10.5px; color:#0a0a0a; outline:none;
+}
+#dynamic-screen .feed-comment-submit {
+  width:34px; height:26px; flex:none; padding:0 !important;
+  border:0 !important; border-radius:0 !important;
+  background:#0a0a0a !important; color:#fff !important;
+  font-size:8px !important; font-weight:700; letter-spacing:.02em;
+}
+#dynamic-screen .feed-empty { padding:44px 0; font-size:10px; letter-spacing:.04em; }
+#dynamic-screen #publish-feed-btn {
+  position:fixed !important; right:18px; bottom:calc(84px + env(safe-area-inset-bottom));
+  width:46px; height:46px; padding:0 !important; border-radius:50% !important;
+  background:#0a0a0a !important; color:#fff !important;
+  font-size:25px !important; font-weight:300 !important; line-height:1 !important;
+  z-index:40; box-shadow:0 6px 18px rgba(0,0,0,.22);
+}
+@media (max-width:390px) {
+  #dynamic-screen .ftc-text { font-size:25px; }
+  #chat-settings-screen .settings-app-header .title { font-size:34px !important; }
+}
+</style>
+
 </head>
 
 <body>
@@ -7493,7 +7817,7 @@
         margin: 0;
         padding: calc(var(--app-fs, 1) * 5px) calc(var(--app-fs, 1) * 12px) calc(var(--app-fs, 1) * 6px);
         border: 1px solid transparent;
-        border-radius: 16px !important;
+        border-radius: 16px;
         font-size: calc(var(--app-fs, 1) * 13.2px);
         line-height: 1.45;
         overflow: hidden;
@@ -7524,7 +7848,7 @@
         overflow: hidden;
         background: #fff;
         border: 1px solid #0a0a0a;
-        border-radius: 0 !important;
+        border-radius: 0;
         box-shadow: none;
       }
       #chat-room-screen .image-bubble img {
@@ -7538,7 +7862,7 @@
         margin: 0;
         background: #fff;
         border: 1px solid #0a0a0a;
-        border-radius: 0 !important;
+        border-radius: 0;
         box-shadow: none;
       }
       #chat-room-screen .pv-card-content {
@@ -8515,15 +8839,20 @@
     </div>
 
     <div id="chat-settings-screen" class="screen">
-        <header class="app-header">
+        <header class="app-header settings-app-header">
             <button class="back-btn" data-target="chat-room-screen">‹</button>
-            <div class="title-container">
-                <h1 class="title">聊天设置</h1>
+            <div class="settings-title-wrap">
+                <div class="settings-kicker"><i></i>404 / SETTINGS<em></em></div>
+                <h1 class="title">设置</h1>
             </div>
-            <div class="placeholder"></div>
+            <div class="settings-head-side">
+                <img id="setting-header-avatar" class="settings-header-avatar" src="https://i.postimg.cc/Y96LPskq/o-o-2.jpg" alt="角色头像">
+                <span>02 / PRIVATE</span>
+            </div>
         </header>
         <main class="content settings-page-content">
             <form id="chat-settings-form">
+                <div class="settings-section-head"><span class="no">01</span><span class="ttl">人物 / IDENTITY</span><span class="note">角色 · 我 · 关系</span></div>
                 <div class="avatar-pair">
                     <div class="avatar-setting pair" id="setting-char-avatar-box">
                         <img src="" alt="角色头像" id="setting-char-avatar-preview" class="avatar-preview">
@@ -8550,25 +8879,30 @@
                 <div class="form-group">
                     <button type="button" class="btn btn-secondary" id="phone-btn" style="background:var(--secondary-color);">查看Ta的手机</button>
                 </div>
+                <div class="settings-section-head"><span class="no">02</span><span class="ttl">气泡 / BUBBLE</span><span class="note">外观</span></div>
                 <div class="form-group"><label for="setting-bubble-avatar-mode">聊天气泡头像</label><select id="setting-bubble-avatar-mode">
                     <option value="none">不显示头像</option>
                     <option value="all">每条消息都显示</option>
                     <option value="first">仅首条消息显示</option>
                 </select></div>
                 <div class="form-group"><label for="setting-theme-color">主题颜色 (对方/我方)</label><select id="setting-theme-color"></select></div>
-                <hr style="border:none; border-top:1px solid #eee; margin: 20px 0;">
+                <div class="settings-subhead">CUSTOM BUBBLE / 自定义</div>
                 <div class="form-group">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                         <label for="setting-use-custom-css" style="margin-bottom:0;">自定义气泡样式</label>
                         <input type="checkbox" id="setting-use-custom-css" class="ios-sw" >
                     </div>
+                    <div id="custom-css-tools">
+                        <button type="button" id="copy-original-bubble-css-btn">复制聊天气泡 CSS</button>
+                        <button type="button" id="reset-custom-bubble-css-btn">恢复默认</button>
+                    </div>
                     <div id="private-bubble-css-preview" class="bubble-css-preview" style="background: #ffffff; border: 1px solid #eee; border-radius: 10px; padding: 15px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 10px;"></div>
                     <textarea id="setting-custom-bubble-css" rows="6" placeholder="在此输入CSS代码...&#10;例如：&#10;.message-bubble.sent { background-color: #A5D6A7; }&#10;.message-bubble.received { background-color: #E1E1E1; }" disabled></textarea>
-                    <button type="button" class="btn btn-neutral" id="reset-custom-bubble-css-btn" style="margin-top: 10px; width: auto; padding: 5px 15px; font-size: 14px;">恢复默认</button>
+                    <div style="font-size:8px; letter-spacing:.04em; margin-top:7px; line-height:1.5;">复制后修改，再粘贴回输入框，保存后生效。</div>
                 </div>
+                <div class="settings-section-head"><span class="no">03</span><span class="ttl">记忆 / MEMORY</span><span class="note">线上单聊</span></div>
                 <div class="form-group"><label for="setting-max-memory">最大记忆轮数</label><input type="number" id="setting-max-memory" value="10" min="1"></div>
-                <hr style="border:none; border-top:1px solid #eee; margin: 20px 0;">
-                <div style="font-size:14px; font-weight:600; margin-bottom:10px;">记忆总结（线上单聊）</div>
+                <div class="settings-subhead settings-legacy-title">记忆总结</div>
                 <div class="form-group">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                         <label for="setting-summary-enabled" style="margin-bottom:0;">自动总结并入记忆库</label>
@@ -8580,6 +8914,7 @@
                 <div class="form-group" style="font-size:12px;color:#9aa0a6;background:#f8f9fa;border-radius:8px;padding:8px 10px;">当前已聊 <b id="setting-sum-total" style="color:#333;">0</b> 轮 · <b id="setting-sum-msgs" style="color:#333;">0</b> 条 · 已总结到第 <b id="setting-sum-cursor" style="color:#333;">0</b> 轮</div>
                 <div class="form-group"><label>总结轮数区间（下次自动从断点继续）</label><div style="display:flex;align-items:center;gap:8px;"><input type="number" id="setting-summary-from" min="1" value="1" style="flex:1;min-width:0;"><span style="color:#9aa0a6;font-size:12px;">到</span><input type="number" id="setting-summary-to" min="1" style="flex:1;min-width:0;"></div></div>
                 <button type="button" class="btn btn-secondary" id="setting-summary-now-btn">立即总结并存入记忆库</button>
+                <div class="settings-section-head"><span class="no">04</span><span class="ttl">运行 / BEHAVIOR</span><span class="note">4 项</span></div>
                 <div class="form-group">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <label for="setting-remember-online" style="margin-bottom:0;">线上对话也自动沉淀记忆</label>
@@ -8598,6 +8933,7 @@
                         <input type="checkbox" id="setting-action-desc" class="ios-sw" >
                     </div>
                 </div>
+                <div class="settings-section-head"><span class="no">05</span><span class="ttl">屏蔽 / BLOCK</span><span class="note">双向</span></div>
                 <div class="form-group">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
                         <label for="setting-i-block" style="margin-bottom:0;">拉黑这个角色（Ta不知道你能看到）</label>
@@ -8610,7 +8946,7 @@
                         <input type="checkbox" id="setting-char-block" class="ios-sw" >
                     </div>
                 </div>
-                <hr style="border:none; border-top:1px solid #eee; margin:20px 0;">
+                <div class="settings-subhead">SURFACE / 聊天背景</div>
                 <div class="form-group"><label for="setting-chat-bg-upload" class="btn btn-primary">更换聊天背景</label><input type="file" id="setting-chat-bg-upload" accept="image/*" style="display:none;"></div>
                 <button type="submit" class="btn btn-primary">保存设置</button>
             </form>
@@ -8930,17 +9266,21 @@
 
     <!-- ===== 动态 ===== -->
     <div id="dynamic-screen" class="screen screen-with-nav">
-        <header class="app-header">
-            <div class="title-container">
-                <h1 class="title">动态</h1>
-            </div>
-            <div style="display:flex; align-items:center; gap:10px;">
+        <header class="app-header feed-header">
+            <div class="feed-brand"><i></i>404 / FEED</div>
+            <div class="feed-title"><i></i>动态</div>
+            <div class="feed-tools">
                 <button class="icon-btn" id="open-dynamic-settings-icon-btn" title="动态设置" style="border:none; background:transparent; cursor:pointer; padding:4px;">
-                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#3c3c43;"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
                 </button>
-                <button class="action-btn" id="publish-feed-btn" style="font-size:14px; font-weight:600; width:auto; padding:6px 12px; border-radius:10px; background-color:var(--primary-color); color:var(--white-color);">发布</button>
+                <button class="action-btn" id="publish-feed-btn" aria-label="发布动态">＋</button>
             </div>
         </header>
+        <div class="feed-tabs">
+            <button type="button" class="feed-tab on" data-feed-tab="all">推荐</button>
+            <button type="button" class="feed-tab" data-feed-tab="following">关注</button>
+            <span class="right">今日 · <b id="feed-today-count">00</b></span>
+        </div>
         <main class="content" id="feed-list-container"></main>
     </div>
 
@@ -9639,7 +9979,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.0.0";
+  const APP_VERSION = "v5.0.1";
   let db = {
     characters: [],
     groups: [],
@@ -10187,6 +10527,77 @@ document.addEventListener("DOMContentLoaded", () => {
     const menu = document.querySelector(".context-menu");
     if (menu) menu.remove();
   }
+  function scopeBubbleCss(css, rootSelector) {
+    let out = String(css || "");
+    out = out.replace(/#chat-room-screen\.chat-active-[A-Za-z0-9_-]+/g, rootSelector);
+    out = out.replace(/#chat-room-screen/g, rootSelector);
+    out = out.replace(/(^|[\n,{}])([ \t]*)(\.(?:message-bubble|image-bubble|pv-card|message-wrapper|message-info|message-time|message-speaker)(?:[\w.#:\[\]()="'~*+-]*)?)/g, function(m, pre, ws, sel) {
+      return pre + ws + rootSelector + " " + sel;
+    });
+    return out;
+  }
+  function getOriginalBubbleCss() {
+    return [
+      "/* 404 / 原始聊天气泡 CSS（复制后修改，再粘贴回输入框） */",
+      "#chat-room-screen .message-bubble {",
+      "  max-width: min(74vw, 286px);",
+      "  margin: 0;",
+      "  padding: calc(var(--app-fs, 1) * 5px) calc(var(--app-fs, 1) * 12px) calc(var(--app-fs, 1) * 6px);",
+      "  border: 1px solid transparent;",
+      "  border-radius: 16px;",
+      "  font-size: calc(var(--app-fs, 1) * 13.2px);",
+      "  line-height: 1.45;",
+      "  overflow: hidden;",
+      "  letter-spacing: .005em;",
+      "  box-shadow: none;",
+      "}",
+      "",
+      "#chat-room-screen .message-bubble.sent {",
+      "  background: #0a0a0a;",
+      "  color: #fff;",
+      "  border-color: #0a0a0a;",
+      "}",
+      "",
+      "#chat-room-screen .message-bubble.received {",
+      "  background: #fff;",
+      "  color: #0a0a0a;",
+      "  border-color: rgba(10,10,10,.12);",
+      "  box-shadow: 0 6px 12px -6px rgba(0,0,0,.24);",
+      "}",
+      "",
+      "#chat-room-screen .message-wrapper {",
+      "  margin-bottom: 9px;",
+      "}",
+      "",
+      "#chat-room-screen .image-bubble {",
+      "  width: 230px;",
+      "  max-width: 230px;",
+      "  aspect-ratio: 1 / 1;",
+      "  padding: 0;",
+      "  overflow: hidden;",
+      "  background: #fff;",
+      "  border: 1px solid #0a0a0a;",
+      "  border-radius: 0;",
+      "  box-shadow: none;",
+      "}",
+      "",
+      "#chat-room-screen .image-bubble img {",
+      "  width: 100%;",
+      "  height: 100%;",
+      "  object-fit: cover;",
+      "  border-radius: inherit;",
+      "}",
+      "",
+      "#chat-room-screen .pv-card {",
+      "  width: 230px;",
+      "  margin: 0;",
+      "  background: #fff;",
+      "  border: 1px solid #0a0a0a;",
+      "  border-radius: 0;",
+      "  box-shadow: none;",
+      "}"
+    ].join("\n");
+  }
   function updateCustomBubbleStyle(chatId, css, enabled) {
     const styleId = "custom-bubble-style-for-".concat(chatId);
     let styleElement = document.getElementById(styleId);
@@ -10196,8 +10607,8 @@ document.addEventListener("DOMContentLoaded", () => {
         styleElement.id = styleId;
         document.head.appendChild(styleElement);
       }
-      const scopedCss = css.replace(/(\.message-bubble(?:\.sent|\.received)?)/g, "#chat-room-screen.chat-active-".concat(chatId, " $1"));
-      styleElement.innerHTML = scopedCss;
+      const rootSelector = "#chat-room-screen.chat-active-".concat(chatId);
+      styleElement.innerHTML = scopeBubbleCss(css, rootSelector);
     } else {
       if (styleElement) styleElement.remove();
     }
@@ -10211,21 +10622,19 @@ document.addEventListener("DOMContentLoaded", () => {
     previewContainer.innerHTML = "";
     const sentBubble = document.createElement("div");
     sentBubble.className = "message-bubble sent";
-    sentBubble.textContent = "\u8FD9\u662F\u6211\u65B9\u6C14\u6CE1\u3002";
+    sentBubble.textContent = "这是我方气泡。";
     sentBubble.style.alignSelf = "flex-end";
-    sentBubble.style.borderBottomRightRadius = "5px";
     const receivedBubble = document.createElement("div");
     receivedBubble.className = "message-bubble received";
-    receivedBubble.textContent = "\u8FD9\u662F\u5BF9\u65B9\u6C14\u6CE1\u3002";
+    receivedBubble.textContent = "这是对方气泡。";
     receivedBubble.style.alignSelf = "flex-start";
-    receivedBubble.style.borderBottomLeftRadius = "5px";
-    [sentBubble, receivedBubble].forEach((bubble) => {
-      bubble.style.maxWidth = "70%";
-      bubble.style.padding = "8px 12px";
-      bubble.style.wordWrap = "break-word";
-      bubble.style.lineHeight = "1.4";
-    });
     if (useDefault || !css) {
+      [sentBubble, receivedBubble].forEach((bubble) => {
+        bubble.style.maxWidth = "70%";
+        bubble.style.padding = "8px 12px";
+        bubble.style.wordWrap = "break-word";
+        bubble.style.lineHeight = "1.4";
+      });
       sentBubble.style.backgroundColor = theme.sent.bg;
       sentBubble.style.color = theme.sent.text;
       sentBubble.style.borderRadius = "18px";
@@ -10236,7 +10645,7 @@ document.addEventListener("DOMContentLoaded", () => {
       receivedBubble.style.borderBottomLeftRadius = "5px";
     } else {
       const styleTag = document.createElement("style");
-      const scopedCss = css.replace(/(\.message-bubble(?:\.sent|\.received)?)/g, "#".concat(previewContainer.id, " $1"));
+      const scopedCss = scopeBubbleCss(css, "#" + previewContainer.id);
       styleTag.textContent = scopedCss;
       previewContainer.appendChild(styleTag);
     }
@@ -14704,6 +15113,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const theme = colorThemes[themeKey];
         updateBubbleCssPreview(privatePreviewBox, customCssTextarea.value, !e.target.checked, theme);
       }
+      if (e.target.checked) updateCustomBubbleStyle(currentChatId, customCssTextarea.value, true);
+      else updateCustomBubbleStyle(currentChatId, "", false);
     });
     customCssTextarea.addEventListener("input", (e) => {
       const char = db.characters.find((c) => c.id === currentChatId);
@@ -14711,8 +15122,32 @@ document.addEventListener("DOMContentLoaded", () => {
         const themeKey = char.theme || "white_pink";
         const theme = colorThemes[themeKey];
         updateBubbleCssPreview(privatePreviewBox, e.target.value, false, theme);
+        updateCustomBubbleStyle(currentChatId, e.target.value, true);
       }
     });
+    const copyOriginalCssBtn = document.getElementById("copy-original-bubble-css-btn");
+    if (copyOriginalCssBtn) {
+      copyOriginalCssBtn.addEventListener("click", async () => {
+        const originalCss = getOriginalBubbleCss();
+        try {
+          await navigator.clipboard.writeText(originalCss);
+        } catch (err) {
+          customCssTextarea.value = originalCss;
+          customCssTextarea.disabled = false;
+          useCustomCssCheckbox.checked = true;
+          showToast("已填入原始 CSS，可直接修改");
+          return;
+        }
+        if (!customCssTextarea.value.trim()) {
+          customCssTextarea.value = originalCss;
+          customCssTextarea.disabled = false;
+          useCustomCssCheckbox.checked = true;
+          updateBubbleCssPreview(privatePreviewBox, originalCss, false, colorThemes[(db.characters.find((c) => c.id === currentChatId) || {}).theme || "white_pink"]);
+          updateCustomBubbleStyle(currentChatId, originalCss, true);
+        }
+        showToast("已复制原始 CSS，修改后粘贴回输入框保存");
+      });
+    }
     resetCustomCssBtn.addEventListener("click", () => {
       const char = db.characters.find((c) => c.id === currentChatId);
       if (char) {
@@ -14722,6 +15157,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const themeKey = char.theme || "white_pink";
         const theme = colorThemes[themeKey];
         updateBubbleCssPreview(privatePreviewBox, "", true, theme);
+        updateCustomBubbleStyle(currentChatId, "", false);
         showToast("\u6837\u5F0F\u5DF2\u91CD\u7F6E\u4E3A\u9ED8\u8BA4");
       }
     });
@@ -14838,6 +15274,8 @@ document.addEventListener("DOMContentLoaded", () => {
         relEl.textContent = rl ? "\u4F60\u548CTa\u7684\u5173\u7CFB\uFF1A" + rl : "";
       }
       document.getElementById("setting-char-avatar-preview").src = e.avatar;
+      const headerAva = document.getElementById("setting-header-avatar");
+      if (headerAva) headerAva.src = e.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
       document.getElementById("setting-char-remark").value = e.remarkName;
       const headerTagInput = document.getElementById("setting-chat-header-tag");
       if (headerTagInput) headerTagInput.value = e.headerTag || "";
@@ -14927,6 +15365,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const e = db.characters.find((e2) => e2.id === currentChatId);
     if (e) {
       e.avatar = document.getElementById("setting-char-avatar-preview").src;
+      const headerAvaSave = document.getElementById("setting-header-avatar");
+      if (headerAvaSave) headerAvaSave.src = e.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
       e.remarkName = document.getElementById("setting-char-remark").value;
       const headerTagInput = document.getElementById("setting-chat-header-tag");
       e.headerTag = headerTagInput ? headerTagInput.value.trim() : "";
@@ -16074,7 +16514,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!char) continue;
         for (let i = 0; i < count; i++) {
           const gen = await generateCharFeed(char);
-          db.feeds.unshift({ id: "feed_" + Date.now() + "_" + Math.random().toString(36).slice(2, 5), authorType: "char", authorId: char.id, authorName: char.remarkName || char.realName, authorAvatar: char.avatar, content: gen, image: null, likes: [], comments: [], ts: Date.now() });
+          const textImage = Math.random() < 0.28 ? await generateCharTextImage(char, gen) : null;
+          db.feeds.unshift(makeCharFeedPayload(char, gen, textImage));
           total += 1;
         }
       }
@@ -17107,6 +17548,12 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("feed-image-input").value = "";
       document.getElementById("publish-feed-modal").classList.add("visible");
     });
+    document.querySelectorAll("#dynamic-screen .feed-tab").forEach((tabBtn) => {
+      tabBtn.addEventListener("click", () => {
+        window.__feedTab = tabBtn.dataset.feedTab || "all";
+        renderFeeds();
+      });
+    });
     (_b = document.getElementById("feed-image-input")) == null ? void 0 : _b.addEventListener("change", async (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -17144,9 +17591,9 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("publish-feed-modal").classList.remove("visible");
       renderFeeds();
       showToast("\u52A8\u6001\u5DF2\u53D1\u5E03");
-      if (image && db.apiSettings && db.apiSettings.visionEnabled) {
+      if (image && db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
         const feed = db.feeds[0];
-        const desc = await describeImageWithAPI(image);
+        const desc = await describeImageWithAPI(image, true);
         if (desc) {
           feed.imageDesc = desc;
           await saveData();
@@ -17163,6 +17610,30 @@ document.addEventListener("DOMContentLoaded", () => {
     (_d = document.getElementById("feed-list-container")) == null ? void 0 : _d.addEventListener("click", async (e) => {
       const likeBtn = e.target.closest(".feed-like-btn");
       const commentBtn = e.target.closest(".feed-comment-submit");
+      const shareBtn = e.target.closest(".feed-share-btn");
+      const repostBtn = e.target.closest(".feed-repost-btn");
+      if (shareBtn) {
+        const feed = db.feeds.find((f) => f.id === shareBtn.dataset.id);
+        if (!feed) return;
+        const text = feed.content || (feed.textImage && (feed.textImage.text || feed.textImage)) || "";
+        try {
+          await navigator.clipboard.writeText(String(text));
+          showToast("已复制动态文字");
+        } catch (err) {
+          showToast("复制失败");
+        }
+        return;
+      }
+      if (repostBtn) {
+        const feed = db.feeds.find((f) => f.id === repostBtn.dataset.id);
+        if (!feed) return;
+        const text = feed.content || (feed.textImage && (feed.textImage.text || feed.textImage)) || "";
+        document.getElementById("feed-text-input").value = "转发 @" + (feed.authorName || "") + "：" + text;
+        document.getElementById("feed-image-preview").innerHTML = "";
+        document.getElementById("feed-image-input").value = "";
+        document.getElementById("publish-feed-modal").classList.add("visible");
+        return;
+      }
       if (likeBtn) {
         const feed = db.feeds.find((f) => f.id === likeBtn.dataset.id);
         if (!feed) return;
@@ -17207,17 +17678,31 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderFeeds() {
     const container = document.getElementById("feed-list-container");
     if (!container) return;
+    const tab = window.__feedTab || "all";
+    document.querySelectorAll("#dynamic-screen .feed-tab").forEach((b) => {
+      b.classList.toggle("on", (b.dataset.feedTab || "all") === tab);
+    });
+    const today = new Date();
+    const todayCount = db.feeds.filter((f) => {
+      const d = new Date(f.ts);
+      return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate();
+    }).length;
+    const todayEl = document.getElementById("feed-today-count");
+    if (todayEl) todayEl.textContent = String(todayCount).padStart(2, "0");
+
     container.innerHTML = "";
-    if (!db.feeds.length) {
-      container.innerHTML = '<div class="offline-empty-hint" style="padding:60px 0;">\u8FD8\u6CA1\u6709\u52A8\u6001\uFF0C\u70B9\u53F3\u4E0A\u89D2"\u53D1\u5E03"\u8BF4\u70B9\u4EC0\u4E48\uFF0C\u6216\u7B49\u89D2\u8272\u4EEC\u53D1\u52A8\u6001</div>';
+    let feeds = [...db.feeds].sort((a, b) => b.ts - a.ts);
+    if (tab === "following") feeds = feeds.filter((f) => f.authorType === "char");
+    if (!feeds.length) {
+      container.innerHTML = '<div class="offline-empty-hint feed-empty">' + (tab === "following" ? "关注的角色还没有发动态。" : "还没有动态。点右下角的 ＋ 发一条，或等角色们发动态。") + '</div>';
       return;
     }
-    [...db.feeds].sort((a, b) => b.ts - a.ts).forEach((feed) => {
+    feeds.forEach((feed) => {
       const item = document.createElement("div");
       item.className = "feed-item";
-      const liked = feed.likes.includes("user");
+      const liked = (feed.likes || []).includes("user");
       const likeNames = (feed.likes || []).map((k) => {
-        if (k === "user") return "\u6211";
+        if (k === "user") return "我";
         if (k.indexOf("char_") === 0) {
           const c = db.characters.find((x) => x.id === k.slice(5));
           return c ? c.remarkName || c.realName : "";
@@ -17226,9 +17711,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }).filter(Boolean);
       const charObj = feed.authorType === "char" ? db.characters.find((c) => c.id === feed.authorId) : null;
       const avatar = feed.authorAvatar || (charObj ? charObj.avatar : "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg");
-      const name = feed.authorName || (charObj ? charObj.remarkName : "\u6211");
-      const commentsHtml = (feed.comments || []).map((c) => '\n                    <div class="feed-comment">\n                        <img class="c-avatar" src="'.concat(escapeHtml(c.authorAvatar || "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg"), '" alt="">\n                        <div>\n                            <span class="c-name">').concat(escapeHtml(c.authorName), "</span>").concat(c.replyTo ? '<span class="c-reply"> \u56DE\u590D </span><span class="c-name c-name-to">'.concat(escapeHtml(c.replyTo), "</span>") : "", '<span class="c-text">\uFF1A').concat(escapeHtml(c.content), '</span>\n                            <span class="c-reply-btn" data-feed="').concat(feed.id, '" data-name="').concat(escapeHtml(c.authorName), '" style="cursor:pointer; color:var(--primary-color); font-size:11px; margin-left:6px;">\u56DE\u590D</span>\n                        </div>\n                    </div>')).join("");
-      item.innerHTML = '\n                    <div class="feed-head">\n                        <img src="'.concat(escapeHtml(avatar), '" alt="">\n                        <div><div class="f-name">').concat(escapeHtml(name), '</div><div class="f-time">').concat(feedTimeText(feed.ts), "</div></div>\n                    </div>\n                    ").concat(feed.content ? '<div class="feed-body">'.concat(escapeHtml(feed.content), "</div>") : "", "\n                    ").concat(feed.image ? '<img class="feed-img" src="'.concat(escapeHtml(feed.image), '" alt="">') : "", "\n                    ").concat(feed.imageDesc ? '<div class="feed-img-desc">\u56FE\u7247\uFF1A'.concat(escapeHtml(feed.imageDesc), "</div>") : "", '\n                    <div class="feed-actions">\n                        <span class="feed-action feed-like-btn ').concat(liked ? "liked" : "", '" data-id="').concat(feed.id, '">\n                            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>\n                            <span>').concat(likeNames.length ? likeNames.slice(0, 3).join("\u3001") + (likeNames.length > 3 ? " \u7B49".concat(likeNames.length, "\u4EBA") : "") + " \u8D5E\u4E86" : "\u8D5E", '</span>\n                        </span>\n                        <span class="feed-action"><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg><span>\u8BC4\u8BBA ').concat(feed.comments.length || "", "</span></span>\n                    </div>\n                    ").concat(commentsHtml ? '<div class="feed-comments">'.concat(commentsHtml, "</div>") : "", '\n                    <div class="feed-comment-input">\n                        <input id="feed-cmt-input-').concat(feed.id, '" placeholder="\u8BF4\u70B9\u4EC0\u4E48...">\n                        <button type="button" class="feed-action feed-comment-submit" data-id="').concat(feed.id, '" style="border:none; background:var(--primary-color); color:#fff; border-radius:20px; padding:6px 14px; font-size:12px;">\u53D1\u9001</button>\n                    </div>');
+      const name = feed.authorName || (charObj ? charObj.remarkName : "我");
+      const textImage = feed.textImage && (typeof feed.textImage === "string" ? { text: feed.textImage } : feed.textImage);
+      const comments = feed.comments || [];
+      const commentsHtml = comments.map((c) => '\n        <div class="feed-comment">\n          <img class="c-avatar" src="' + escapeHtml(c.authorAvatar || "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg") + '" alt="">\n          <div class="c-body">\n            <span class="c-name">' + escapeHtml(c.authorName || "我") + '</span>' + (c.replyTo ? '<span class="c-reply"> 回复 </span><span class="c-name c-name-to">' + escapeHtml(c.replyTo) + '</span>' : "") + '\n            <span class="c-text">：' + escapeHtml(String(c.content || "")) + '</span>\n            <span class="c-reply-btn" data-feed="' + feed.id + '" data-name="' + escapeHtml(c.authorName || "") + '">回复</span>\n          </div>\n        </div>').join("");
+      const likeTitle = likeNames.length ? likeNames.slice(0, 4).join("、") + (likeNames.length > 4 ? " 等" + likeNames.length + "人" : "") + " 赞了" : "赞";
+      item.innerHTML = '\n        <div class="feed-head">\n          <img class="avatar" src="' + escapeHtml(avatar) + '" alt="">\n          <div class="feed-who"><div class="f-name">' + escapeHtml(name) + '</div><div class="f-time">' + feedTimeText(feed.ts) + '</div></div>\n        </div>\n        ' + (feed.content ? '<div class="feed-body">' + escapeHtml(feed.content).replace(/\n/g, "<br>") + '</div>' : "") + '\n        ' + (feed.image ? '<img class="feed-img" src="' + escapeHtml(feed.image) + '" alt="">' : "") + '\n        ' + (textImage && textImage.text ? '<div class="feed-text-card"><div class="ftc-kicker">404 / NOTE</div><div class="ftc-text">' + escapeHtml(textImage.text).replace(/\n/g, "<br>") + '</div><div class="ftc-meta">TEXT IMAGE / 404</div></div>' : "") + '\n        <div class="feed-actions">\n          <button type="button" class="feed-action feed-like-btn ' + (liked ? "liked" : "") + '" data-id="' + feed.id + '" title="' + escapeHtml(likeTitle) + '">\n            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>\n            <span>' + (feed.likes || []).length + '</span>\n          </button>\n          <span class="feed-action"><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg><span>' + comments.length + '</span></span>\n          <button type="button" class="feed-action feed-repost-btn" data-id="' + feed.id + '" title="转发这条动态"><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg><span>0</span></button>\n          <button type="button" class="feed-action feed-share-btn" data-id="' + feed.id + '" title="复制动态文字"><svg viewBox="0 0 24 24"><path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4 18-7z"/></svg></button>\n        </div>\n        ' + (commentsHtml ? '<div class="feed-comments">' + commentsHtml + '</div>' : "") + '\n        <div class="feed-comment-input">\n          <input id="feed-cmt-input-' + feed.id + '" placeholder="回复…">\n          <button type="button" class="feed-action feed-comment-submit" data-id="' + feed.id + '">回复</button>\n        </div>';
       (function(fid) {
         item.querySelectorAll(".c-reply-btn").forEach((btn) => {
           btn.addEventListener("click", () => {
@@ -17237,7 +17725,7 @@ document.addEventListener("DOMContentLoaded", () => {
             window.__feedReplyTo[fid] = name2;
             const inp = document.getElementById("feed-cmt-input-" + fid);
             if (inp) {
-              inp.placeholder = "\u56DE\u590D " + name2;
+              inp.placeholder = "回复 " + name2;
               inp.focus();
             }
           });
@@ -17249,10 +17737,12 @@ document.addEventListener("DOMContentLoaded", () => {
   async function charReplyToComment(feed, userText, replyToName, targetChar) {
     const char = targetChar || db.characters.find((c) => c.id === feed.authorId);
     if (!char) return;
-    const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u73B0\u5728\u6709\u4EBA\u5728\u4F60\uFF08\u6216\u4E0E\u4F60\u76F8\u5173\uFF09\u7684\u670B\u53CB\u5708\u52A8\u6001\u4E0B\u8BC4\u8BBA/\u56DE\u590D\u4E86\uFF1A\u300C").concat(userText, "\u300D\u3002\u8BF7\u4EE5\u8FD9\u4E2A\u89D2\u8272\u7684\u53E3\u543B\uFF0C\u81EA\u7136\u5730\u56DE\u590D\u5BF9\u65B9\u3002\u82E5\u8FD9\u662F\u5BF9\u65B9\u7B2C\u4E8C\u6B21\u6216\u66F4\u591A\u6B21\u56DE\u590D\u4F60\uFF0C\u5C31\u987A\u7740\u8BDD\u9898\u7EE7\u7EED\u804A\u4E0B\u53BB\uFF0C\u53EF\u4EE5\u63A5\u4E0A\u4E00\u53E5\uFF0C\u8BA9\u5BF9\u8BDD\u50CF\u771F\u5B9E\u670B\u53CB\u5708\u4E92\u52A8\u4E00\u6837\u5EF6\u7EED\u3002\u7528\u4E00\u53E520-60\u5B57\u7684\u81EA\u7136\u56DE\u590D\u3002\u4E25\u7981\u627F\u8BA4\u81EA\u5DF1\u662FAI\u3001\u4EBA\u673A\u6216\u7A0B\u5E8F\u3002\u4FDD\u6301\u6D3B\u4EBA\u611F\uFF0C\u50CF\u771F\u5B9E\u7684\u4EBA\u5728\u670B\u53CB\u5708\u56DE\u590D\u670B\u53CB\u4E00\u6837\u3002");
-    const reply = await offlineRequest(sys, [{ role: "user", content: "\u8BF7\u56DE\u590D\u8FD9\u6761\u8BC4\u8BBA\u3002" }], 200, true);
+    const feedBrief = feedBriefOf(feed, 150);
+    const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。这是在朋友圈动态「").concat(feedBrief, "」下面，对方（").concat(replyToName || "朋友", "）回复你：「").concat(userText, "」。请以这个角色的口吻自然回复，20-60字。要求：1. 接住对方这句话，不要另起话题；2. 可以引用动态或图片里的一个具体细节；3. 不要写成总结、鸡汤或文案；4. 不要和之前的评论用同一种句式；5. 严禁承认自己是AI、人机或程序。保持活人感，像真实的人在朋友圈回复朋友一样。");
+    const reply = await offlineRequest(sys, [{ role: "user", content: "请回复这条评论。" }], 200, true);
     const charName = char.remarkName || char.realName;
-    let content = reply && reply.trim() ? reply.trim().slice(0, 200) : FEED_TEMPLATES[Math.floor(Math.random() * FEED_TEMPLATES.length)] || "\u54C8\u54C8\uFF0C\u8BF4\u5F97\u6709\u9053\u7406\u3002";
+    const fallbackReplies = ["看到了，先记着。", "你倒是会挑重点。", "行，这次听你的。", "别急，我还没说完。", "这个细节你也注意到了。", "那下次你来。"];
+    let content = reply && reply.trim() ? reply.trim().slice(0, 200) : fallbackReplies[(charName.length + (userText || "").length) % fallbackReplies.length];
     if (content.indexOf(charName + "\uFF1A") === 0) content = content.slice((charName + "\uFF1A").length);
     if (content.indexOf("\uFF1A") === 0) content = content.slice(1);
     const myMask = getCurrentMask();
@@ -17284,40 +17774,94 @@ document.addEventListener("DOMContentLoaded", () => {
       box.appendChild(chip);
     });
   }
-  async function describeImageWithAPI(dataUrl) {
+  async function describeImageWithAPI(dataUrl, force) {
     var _a, _b, _c, _d, _e, _f, _g;
     const { url, key, model, provider } = db.apiSettings;
-    if (!url || !key || !model || !db.apiSettings.visionEnabled) return null;
+    if (!url || !key || !model) return null;
+    if (!db.apiSettings.visionEnabled && !force) return null;
     try {
       if (provider === "gemini") {
         const match = dataUrl.match(/^data:(image\/(.+));base64,(.*)$/);
         if (!match) return null;
-        const body2 = { contents: [{ role: "user", parts: [{ text: "\u8BF7\u7528\u4E2D\u6587\u7B80\u8981\u63CF\u8FF0\u8FD9\u5F20\u56FE\u7247\u7684\u5185\u5BB9\uFF0830\u5B57\u5185\uFF09\uFF0C\u5305\u62EC\u4E3B\u4F53\u3001\u573A\u666F\u3001\u6C1B\u56F4\u3002" }, { inline_data: { mime_type: match[1], data: match[3] } }] }], generationConfig: { maxOutputTokens: 100 } };
+        const body2 = { contents: [{ role: "user", parts: [{ text: "请用中文简要描述这张图片的内容（30字内），包括主体、场景、氛围、可见文字。" }, { inline_data: { mime_type: match[1], data: match[3] } }] }], generationConfig: { maxOutputTokens: 100 } };
         const res2 = await fetch("".concat(url, "/v1beta/models/").concat(model, ":generateContent?key=").concat(getRandomValue(key)), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body2) });
         if (!res2.ok) return null;
         const data2 = await res2.json();
-        return (((_d = (_c = (_b = (_a = data2.candidates) == null ? void 0 : _a[0]) == null ? void 0 : _b.content) == null ? void 0 : _c.parts) == null ? void 0 : _d.map((p) => p.text || "").join("")) || "").trim().slice(0, 80);
+        return (((_d = (_c = (_b = (_a = data2.candidates) == null ? void 0 : _a[0]) == null ? void 0 : _b.content) == null ? void 0 : _c.parts) == null ? void 0 : _d.map((p) => p.text || "").join("")) || "").trim().slice(0, 100);
       }
-      const body = { model, messages: [{ role: "user", content: [{ type: "text", text: "\u8BF7\u7528\u4E2D\u6587\u7B80\u8981\u63CF\u8FF0\u8FD9\u5F20\u56FE\u7247\u7684\u5185\u5BB9\uFF0830\u5B57\u5185\uFF09\uFF0C\u5305\u62EC\u4E3B\u4F53\u3001\u573A\u666F\u3001\u6C1B\u56F4\u3002" }, { type: "image_url", image_url: { url: dataUrl } }] }], max_tokens: 100, stream: false };
+      const body = { model, messages: [{ role: "user", content: [{ type: "text", text: "请用中文简要描述这张图片的内容（30字内），包括主体、场景、氛围、可见文字。" }, { type: "image_url", image_url: { url: dataUrl } }] }], max_tokens: 100, stream: false };
       const res = await fetch("".concat(url, "/v1/chat/completions"), { method: "POST", headers: { "Content-Type": "application/json", Authorization: "Bearer ".concat(key) }, body: JSON.stringify(body) });
       if (!res.ok) return null;
       const data = await res.json();
-      return (((_g = (_f = (_e = data.choices) == null ? void 0 : _e[0]) == null ? void 0 : _f.message) == null ? void 0 : _g.content) || "").trim().slice(0, 80);
+      return (((_g = (_f = (_e = data.choices) == null ? void 0 : _e[0]) == null ? void 0 : _f.message) == null ? void 0 : _g.content) || "").trim().slice(0, 100);
     } catch (e) {
       return null;
     }
+  }
+  function feedBriefOf(feed, maxLen) {
+    if (!feed) return "";
+    const bits = [];
+    if (feed.content) bits.push(String(feed.content));
+    if (feed.imageDesc) bits.push("图片内容：" + String(feed.imageDesc));
+    else if (feed.image) bits.push("图片（尚未识别）");
+    if (feed.textImage) {
+      const t = typeof feed.textImage === "string" ? feed.textImage : feed.textImage.text;
+      if (t) bits.push("文字图片：" + String(t));
+    }
+    if (feed.quoteOf) bits.push("转发自：" + String(feed.quoteOf));
+    return bits.join("｜").slice(0, maxLen || 220);
+  }
+  async function ensureFeedImageDesc(feed) {
+    if (!feed || !feed.image || feed.imageDesc) return feed.imageDesc || "";
+    if (!db.apiSettings || !db.apiSettings.url || !db.apiSettings.key || !db.apiSettings.model) return "";
+    const desc = await describeImageWithAPI(feed.image, true);
+    if (desc) {
+      feed.imageDesc = desc;
+      await saveData();
+      if (document.getElementById("dynamic-screen").classList.contains("active")) renderFeeds();
+    }
+    return desc || "";
   }
   async function generateCharFeed(char) {
     let content = FEED_TEMPLATES[Math.floor(Math.random() * FEED_TEMPLATES.length)];
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
       const memories = getCharacterMemories(char.id);
-      const memText = memories.length ? "\n\u4F60\u6700\u8FD1\u7684\u8BB0\u5FC6\uFF08\u53EF\u4EE5\u53D6\u6750\uFF09\uFF1A" + memories.slice(0, 5).map((m) => "-" + m.content).join("\n") : "";
-      const recent = (char.history || []).slice(-6).map((h) => "".concat(h.role === "assistant" ? char.remarkName || char.realName : char.myName, "\uFF1A").concat(String(h.content || "").slice(0, 80))).join("\n");
-      const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u73B0\u5728\u8981\u53D1\u5E03\u4E00\u6761\u670B\u53CB\u5708\u52A8\u6001\uFF0C\u5185\u5BB9\u5173\u4E8E\u4F60\u4ECA\u5929\u7684\u751F\u6D3B\u3001\u5FC3\u60C5\u6216\u89C1\u95FB\uFF0C30-70\u5B57\uFF0C\u81EA\u7136\u3001\u6709\u751F\u6D3B\u6C14\u606F\u3002\u53EF\u4EE5\u7ED3\u5408\u4F60\u7684\u8BB0\u5FC6\u4E0E\u6700\u8FD1\u7684\u804A\u5929\u5185\u5BB9\uFF0C\u4E5F\u53EF\u4EE5\u81EA\u7531\u53D1\u6325\u3002\u4E25\u7981\u63D0\u5230\u81EA\u5DF1\u662FAI\u6216\u4EBA\u673A\u3002").concat(memText).concat(recent ? "\n\u6700\u8FD1\u804A\u5929\uFF08\u53EF\u9009\u7D20\u6750\uFF09\uFF1A\n" + recent : "");
-      const gen = await offlineRequest(sys, [{ role: "user", content: "\u5199\u4E00\u6761\u670B\u53CB\u5708\u52A8\u6001\u3002" }], 150, true);
+      const memText = memories.length ? "\n你最近的记忆（可以取材）：" + memories.slice(0, 5).map((m) => "-" + m.content).join("\n") : "";
+      const recent = (char.history || []).slice(-6).map((h) => "".concat(h.role === "assistant" ? char.remarkName || char.realName : char.myName, "：").concat(String(h.content || "").slice(0, 80))).join("\n");
+      const oldFeeds = (db.feeds || []).filter((f) => f.authorId === char.id).slice(0, 4).map((f) => "- " + String(f.content || (f.textImage && f.textImage.text) || "").slice(0, 60)).join("\n");
+      const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你现在要发布一条朋友圈动态，内容关于你今天的真实生活、心情或见闻，30-70字，自然、有生活气息，不要像文案或鸡汤。可以结合你的记忆与最近的聊天内容，也可以自由发挥。不要重复你最近发过的动态，不要每条都用同一种句式和情绪。严禁提到自己是AI或人机。").concat(memText).concat(recent ? "\n最近聊天（可选素材）：\n" + recent : "").concat(oldFeeds ? "\n最近已发过（不要重复）：\n" + oldFeeds : "");
+      const gen = await offlineRequest(sys, [{ role: "user", content: "写一条朋友圈动态。" }], 150, true);
       if (gen && gen.trim()) content = gen.trim().slice(0, 120);
     }
     return content;
+  }
+  async function generateCharTextImage(char, source) {
+    let text = String(source || "").replace(/[\r\n]+/g, " ").replace(/^["“”]+|["“”]+$/g, "").trim();
+    if (!text) text = "有些话，留在草稿里就好。";
+    if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
+      const sys = "你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。请从下面这条动态里提炼一句适合做成文字图片的短句，12-26字，保留你的口吻和画面感，像随手写下来的一行字。不要解释，不要总结，不要加引号，不要写成广告或鸡汤，不要提到AI。只输出这一句。";
+      const user = "动态原文：" + String(source || "").slice(0, 180);
+      const gen = await offlineRequest(sys, [{ role: "user", content: user }], 80, true);
+      if (gen && gen.trim()) {
+        text = gen.trim().replace(/^["“”]+|["“”]+$/g, "").replace(/[\r\n]+/g, " ").slice(0, 28);
+      }
+    }
+    return text || "有些话，留在草稿里就好。";
+  }
+  function makeCharFeedPayload(char, content, textImage) {
+    return {
+      id: "feed_" + Date.now() + "_" + Math.random().toString(36).slice(2, 5),
+      authorType: "char",
+      authorId: char.id,
+      authorName: char.remarkName || char.realName,
+      authorAvatar: char.avatar,
+      content: textImage ? "" : content,
+      image: null,
+      textImage: textImage ? { text: textImage, ts: Date.now() } : null,
+      likes: [],
+      comments: [],
+      ts: Date.now()
+    };
   }
   function autoLikeFeed(feed) {
     if (!feed || feed.authorType !== "user") return;
@@ -17335,22 +17879,46 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!feed || feed.authorType !== "user") return;
     const mask = getCurrentMask();
     let chars = db.characters.slice();
-    if (mask) {
-      chars = chars.filter((c) => (c.maskIds || []).includes(mask.id));
-    }
+    if (mask) chars = chars.filter((c) => (c.maskIds || []).includes(mask.id));
     if (!chars.length) return;
-    const pick = chars;
-    const feedBrief = String(feed.content || (feed.image ? "[\u56FE\u7247]" : "")).slice(0, 120);
-    for (const char of pick) {
-      const template = FEED_TEMPLATES[Math.floor(Math.random() * FEED_TEMPLATES.length)];
-      let content = template.slice(0, 40);
+    await ensureFeedImageDesc(feed);
+    const feedBrief = feedBriefOf(feed, 240);
+    const angles = [
+      "只回应其中一个具体细节，短、克制，不总结整条动态。",
+      "用一句半开玩笑的吐槽回应，不要夸，不要客套。",
+      "从自己的习惯或今天发生的小事出发，说一句和这条动态有关的话。",
+      "提出一个具体的小问题，像真的想知道答案。",
+      "轻微反对或补一句不同意见，像熟人之间抬杠。",
+      "只写一个很短的即时反应，像刚看到就顺手评论。",
+      "抓住图片里的光线、物件或氛围，写得细一点。",
+      "用亲近但不腻的语气关心一句，不要长篇。"
+    ];
+    const fallback = [
+      "等一下，这个细节我还真看懂了。",
+      "你这句比照片还像现场。",
+      "怎么又是这个时间点。",
+      "所以最后到底动了没有？",
+      "我本来想说点别的，看完忘了。",
+      "嗯，看到了。",
+      "这个光落得刚刚好。",
+      "别拖太晚。"
+    ];
+    let existing = (feed.comments || []).map((c) => String(c.content || "").replace(/\s+/g, "")).filter(Boolean);
+    for (let i = 0; i < chars.length; i++) {
+      const char = chars[i];
+      const angle = angles[i % angles.length];
+      let content = fallback[i % fallback.length];
       if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
-        const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u7684\u670B\u53CB\uFF08").concat(mask ? mask.name : char.myName, "\uFF09\u5728\u670B\u53CB\u5708\u53D1\u4E86\u4E00\u6761\u52A8\u6001\uFF0C\u52A8\u6001\u539F\u6587\u5982\u4E0B\uFF08\u8FD9\u662F\u552F\u4E00\u7684\u771F\u5B9E\u5185\u5BB9\uFF0C\u4F60\u5FC5\u987B\u4E00\u5B57\u4E0D\u6F0F\u5730\u8BB0\u4F4F\u5E76\u56F4\u7ED5\u5B83\uFF09\uFF1A\u300C").concat(feedBrief, "\u300D\u3002\u4F60\u6B64\u523B\u6B63\u8981\u8BC4\u8BBA\u8FD9\u6761\u670B\u53CB\u5708\u3002\u8981\u6C42\uFF1A1. \u8BC4\u8BBA\u5FC5\u987B\u4E25\u683C\u56F4\u7ED5\u8FD9\u6761\u52A8\u6001\u539F\u6587\u91CC\u7684\u5185\u5BB9\uFF0C\u53EF\u4EE5\u76F4\u63A5\u5F15\u7528\u539F\u6587\u91CC\u7684\u53E5\u5B50\u6216\u7EC6\u8282\u6765\u56DE\u5E94\uFF0C\u8BA9\u4EBA\u4E00\u770B\u5C31\u77E5\u9053\u4F60\u786E\u5B9E\u8BFB\u5230\u4E86\u8FD9\u6761\u52A8\u6001\uFF1B2. \u4E25\u7981\u7F16\u9020\u52A8\u6001\u91CC\u6839\u672C\u6CA1\u6709\u51FA\u73B0\u7684\u4EBA\u3001\u4E8B\u3001\u7269\u6216\u60C5\u8282\uFF1B3. \u7528\u4F60\u81EA\u5DF1\u7684\u53E3\u543B\uFF0C\u5199\u4E00\u53E520-50\u5B57\u7684\u81EA\u7136\u8BC4\u8BBA\uFF0C\u53EF\u8C03\u4F83\u3001\u53EF\u5173\u5FC3\u3001\u53EF\u5206\u4EAB\u611F\u53D7\uFF1B4. \u4E25\u7981\u627F\u8BA4\u81EA\u5DF1\u662FAI\u6216\u4EBA\u673A\uFF0C\u4FDD\u6301\u6D3B\u4EBA\u611F\u3002");
-        const rep = await offlineRequest(sys, [{ role: "user", content: "\u8BF7\u8BC4\u8BBA\u8FD9\u6761\u52A8\u6001\u3002" }], 120, true);
+        const otherComments = existing.slice(-4).join("\n") || "暂无";
+        const sys = "你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。你的朋友（" + (mask ? mask.name : char.myName) + "）发了一条动态，原文与图片信息如下：「" + feedBrief + "」。现在你要评论这条动态。要求：1. 只从以下角度写：" + angle + " 2. 必须落到原文或图片里的一个具体细节，不能只写空泛感受；3. 严禁与其他人的评论相似或重复，已出现的评论是：\n" + otherComments + "\n4. 用你自己的口吻，20-50字，像真实的人在朋友圈随手评论；5. 不要总结整条动态，不要写成鸡汤或文案；6. 严禁承认自己是AI或人机。";
+        const rep = await offlineRequest(sys, [{ role: "user", content: "请评论这条动态。" }], 120, true);
         if (rep && rep.trim()) content = rep.trim().slice(0, 120);
       }
+      const normalized = content.replace(/\s+/g, "");
+      if (existing.includes(normalized)) content = fallback[(i + 3) % fallback.length];
       feed.comments.push({ authorType: "char", authorName: char.remarkName || char.realName, authorAvatar: char.avatar, content, ts: Date.now() });
-      pushMemory(char.id, "online", "\uFF08\u670B\u53CB\u5708\uFF09".concat(mask ? mask.name : char.myName, "\u53D1\u8FC7\u4E00\u6761\u52A8\u6001\uFF1A\u300C").concat(feedBrief, "\u300D\uFF0C\u6211\u770B\u8FC7\u5E76\u8BC4\u8BBA\u4E86\u3002"), "fact");
+      existing.push(normalized);
+      pushMemory(char.id, "online", "（朋友圈）".concat(mask ? mask.name : char.myName, "发过一条动态：「").concat(feedBrief, "」，我看过并评论了。"), "fact");
       if (Math.random() < 0.3) {
         charInitiatePrivateChat(feed, char, mask);
       }
@@ -17360,11 +17928,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   async function charInitiatePrivateChat(feed, char, mask) {
     if (!char) return;
-    const feedBrief = String(feed.content || (feed.image ? "[\u56FE\u7247]" : "")).slice(0, 40);
-    let content = "\u770B\u5230\u4F60\u53D1\u7684\u300C".concat(feedBrief, "\u300D\uFF0C\u7A81\u7136\u60F3\u8DDF\u4F60\u8BF4\u8BF4\u8BDD\u3002");
+    const feedBrief = feedBriefOf(feed, 100);
+    let content = "看到你发的「".concat(feedBrief, "」，突然想跟你说说话。");
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
-      const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u521A\u5728\u670B\u53CB\u5708\u770B\u5230").concat(char.myName, "\uFF08").concat(mask ? "\u9762\u5177" + mask.name : "", "\uFF09\u53D1\u7684\u52A8\u6001\uFF0C\u539F\u6587\u662F\uFF1A\u300C").concat(feedBrief, "\u300D\u3002\u4F60\u51B3\u5B9A\u4E3B\u52A8\u79C1\u804A\u4ED6/\u5979\uFF0C\u53D1\u4E00\u6761\u81EA\u7136\u3001\u53E3\u8BED\u5316\u7684\u6D88\u606F\uFF0C\u5FC5\u987B\u81EA\u7136\u5730\u63D0\u53CA\u8FD9\u6761\u52A8\u6001\u91CC\u7684\u771F\u5B9E\u5185\u5BB9\uFF08\u5F15\u7528\u5176\u4E2D\u7684\u7EC6\u8282\uFF09\uFF0C\u8BA9\u4EBA\u77E5\u9053\u4F60\u786E\u5B9E\u770B\u5230\u4E86\uFF0C30-60\u5B57\u3002\u4E25\u7981\u7F16\u9020\u52A8\u6001\u91CC\u6CA1\u6709\u7684\u5185\u5BB9\uFF0C\u4E25\u7981\u627F\u8BA4\u81EA\u5DF1\u662FAI\u6216\u4EBA\u673A\u3002");
-      const rep = await offlineRequest(sys, [{ role: "user", content: "\u53D1\u4E00\u6761\u79C1\u804A\u6D88\u606F\u3002" }], 400, true);
+      const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你刚在朋友圈看到").concat(char.myName, "（").concat(mask ? "面具" + mask.name : "", "）发的动态，原文是：「").concat(feedBrief, "」。你决定主动私聊他/她，发一条自然、口语化的消息，必须自然地提及这条动态里的真实内容（引用其中的细节，包括图片内容），让人知道你确实看到了，30-60字。严禁编造动态里没有的内容，严禁承认自己是AI或人机。");
+      const rep = await offlineRequest(sys, [{ role: "user", content: "发一条私聊消息。" }], 400, true);
       if (rep && rep.trim()) content = rep.trim().slice(0, 150);
     }
     if (!char.history) char.history = [];
@@ -17378,25 +17946,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const intervalMs = (db.feedSettings.intervalMinutes || 30) * 60 * 1e3;
       const now = Date.now();
       if (now - (db.feedSettings.lastPostTs || 0) < intervalMs) return;
-      const chars = db.characters.filter((c) => c.status === "\u5728\u7EBF");
+      const chars = db.characters.filter((c) => c.status === "在线");
       if (!chars.length) {
         db.feedSettings.lastPostTs = now;
         return;
       }
       const char = chars[Math.floor(Math.random() * chars.length)];
       const content = await generateCharFeed(char);
-      db.feeds.unshift({
-        id: "feed_" + Date.now(),
-        authorType: "char",
-        authorId: char.id,
-        authorName: char.remarkName || char.realName,
-        authorAvatar: char.avatar,
-        content,
-        image: null,
-        likes: [],
-        comments: [],
-        ts: now
-      });
+      let textImage = null;
+      if (Math.random() < 0.28) textImage = await generateCharTextImage(char, content);
+      db.feeds.unshift(makeCharFeedPayload(char, content, textImage));
       db.feedSettings.lastPostTs = now;
       await saveData();
       if (document.getElementById("dynamic-screen").classList.contains("active")) renderFeeds();
