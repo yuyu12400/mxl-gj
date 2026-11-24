@@ -20965,7 +20965,7 @@ function setupPhoneSystem() {
       customStyle: g.customStyle || "",
       minChars: g.minChars || 400,
       maxChars: g.maxChars || 1200,
-      realTimeSensing: db.realTimeSensing !== false,
+      realTimeSensing: db.realTimeSensing !== false && g.realTimeSensing !== false,
       summaryRounds: g.summaryRounds || 6,
       summaryCount: g.summaryCount || 4,
       summaryPrompt: g.summaryPrompt || "",
@@ -21205,7 +21205,7 @@ function setupPhoneSystem() {
     if (chT) chT.value = g.chainTemplate || "";
     document.getElementById("offline-persona2").value = g.persona || "first";
     const rt = document.getElementById("offline-real-time");
-    if (rt) rt.checked = db.realTimeSensing !== false;
+    if (rt) rt.checked = db.realTimeSensing !== false && (db.offlineGlobal || {}).realTimeSensing !== false;
     document.getElementById("offline-summary-rounds2").value = g.summaryRounds || 6;
     document.getElementById("offline-summary-prompt2").value = g.summaryPrompt || "";
     const ocNow = getOfflineChat(currentOfflineSessionId);
