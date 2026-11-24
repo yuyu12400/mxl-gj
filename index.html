@@ -6548,7 +6548,7 @@
 
 <body>
     <!-- 加载遮罩：JS执行前就显示，init完成后移除；白屏时用户能看到是加载中还是崩溃 -->
-        <div id="ce-splash" style="position:fixed;inset:0;z-index:9999999;background:linear-gradient(165deg,#fffaf5 0%,#fdeef1 52%,#fdf7f3 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;overflow:hidden;">
+        <div id="ce-splash" style="display:flex;position:fixed;inset:0;z-index:9999999;background:linear-gradient(165deg,#fffaf5 0%,#fdeef1 52%,#fdf7f3 100%);flex-direction:column;align-items:center;justify-content:center;gap:16px;overflow:hidden;">
       <div style="position:absolute;width:360px;height:360px;border-radius:50%;background:radial-gradient(circle,rgba(231,154,163,.18),rgba(231,154,163,0) 70%);top:6%;left:50%;transform:translateX(-50%);"></div>
       <div class="cps-wrap">
         <div class="cps-steam"><i></i><i></i><i></i></div>
@@ -6581,6 +6581,7 @@
     @keyframes cps-steam{0%{opacity:0;transform:translateY(0) scaleY(.6)}30%{opacity:.9}100%{opacity:0;transform:translateY(-24px) scaleY(1.2)}}
     @keyframes cps-dot{0%,100%{opacity:.35;transform:scale(.85)}50%{opacity:1;transform:scale(1.15)}}
     @keyframes cps-up{from{opacity:0;transform:translateX(-50%) translateY(30px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+    #ce-splash{transition:opacity .28s ease;}
     </style>
     <script>
     (function(){
@@ -7223,6 +7224,597 @@
         stroke-width:1.5 !important; stroke-linecap:round; stroke-linejoin:round;
       }
       .screen-with-nav .content { padding-bottom:calc(120px + env(safe-area-inset-bottom, 0px)); }
+
+      /* ============================================================
+         404 / DIRECT — 单人聊天页 v3
+         黑 / 白，编辑式排版；角色头像保留真实颜色
+         ============================================================ */
+      #chat-room-screen .app-header {
+        position: relative;
+        display: block;
+        height: auto;
+        min-height: 146px;
+        padding: 14px 20px 0;
+        background: #fff;
+        border-bottom: 1px solid #0a0a0a;
+      }
+      #chat-room-screen .app-header .back-btn {
+        position: absolute;
+        left: 14px; top: 8px;
+        width: 30px; height: 34px;
+        padding: 0;
+        display: flex; align-items: center; justify-content: center;
+        color: #0a0a0a;
+        background: transparent;
+        border: 0;
+        font-size: 26px; font-weight: 300; line-height: 1;
+      }
+      #chat-room-screen .title-container {
+        padding: 24px 84px 0 0;
+        min-width: 0;
+      }
+      .chat-edit-kicker {
+        margin: 0 0 9px;
+        font-size: calc(var(--app-fs, 1) * 6.5px);
+        font-weight: 600;
+        letter-spacing: .26em;
+        line-height: 1;
+        color: #0a0a0a;
+        text-transform: uppercase;
+      }
+      #chat-room-screen .title-container .title,
+      #chat-room-screen #chat-room-title {
+        margin: 0;
+        max-width: 100%;
+        font-size: calc(var(--app-fs, 1) * 26px);
+        font-weight: 900;
+        line-height: .96;
+        letter-spacing: -.075em;
+        color: #0a0a0a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #chat-room-screen .subtitle {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        margin-top: 10px;
+        font-size: calc(var(--app-fs, 1) * 7px);
+        font-weight: 600;
+        letter-spacing: .15em;
+        line-height: 1.35;
+        color: #0a0a0a;
+        text-transform: uppercase;
+      }
+      #chat-room-screen .online-indicator {
+        width: 5px; height: 5px;
+        border-radius: 0;
+        background: #0a0a0a;
+        box-shadow: none;
+      }
+      #chat-room-screen .chat-call-actions {
+        position: absolute;
+        top: 8px; right: 18px;
+        display: flex;
+        align-items: center;
+        gap: 2px;
+      }
+      #chat-room-screen .chat-call-actions .action-btn {
+        width: 27px; height: 30px;
+        padding: 0;
+        color: #0a0a0a;
+        background: transparent;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        opacity: .62;
+      }
+      #chat-room-screen .chat-call-actions .action-btn svg { width: 17px; height: 17px; }
+      #chat-room-screen .chat-call-actions .action-btn:active { opacity: 1; }
+
+      #chat-room-header-select {
+        min-height: 0 !important;
+        padding: 12px 18px !important;
+        border-bottom: 1px solid #0a0a0a !important;
+      }
+      #chat-room-header-select .title-container { padding: 0 !important; }
+      #chat-room-header-select .title { font-size: 19px !important; letter-spacing: -.03em !important; }
+
+      .chat-hero-avatar {
+        position: absolute;
+        right: 20px; top: 46px;
+        width: 70px;
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .chat-hero-avatar img {
+        display: block;
+        width: 70px; height: 56px;
+        object-fit: cover;
+        object-position: center 24%;
+        border: 1px solid #0a0a0a;
+        background: linear-gradient(135deg, #f0d1bd 0%, #dbe7f2 100%);
+        filter: none !important;
+        pointer-events: none;
+      }
+      .chat-hero-cap {
+        margin-top: 5px;
+        font-size: calc(var(--app-fs, 1) * 6px);
+        font-weight: 600;
+        letter-spacing: .18em;
+        line-height: 1;
+        color: #0a0a0a;
+        text-align: right;
+        white-space: nowrap;
+      }
+      .chat-hero-avatar:active img { opacity: .82; }
+
+      #chat-room-screen #message-area {
+        padding: 16px 18px 8px;
+        background: #fff;
+      }
+      #chat-room-screen #message-area::before {
+        content: "CONVERSATION / " attr(data-conversation);
+        display: block;
+        padding: 2px 0 13px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid #0a0a0a;
+        font-size: 7.5px;
+        font-weight: 600;
+        letter-spacing: .18em;
+        line-height: 1.4;
+        color: #0a0a0a;
+        text-transform: uppercase;
+      }
+      #chat-room-screen .message-wrapper { margin-bottom: 2px; animation: none; }
+      #chat-room-screen .message-bubble-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        width: 100%;
+      }
+      #chat-room-screen .message-wrapper.sent .message-bubble-row {
+        flex-direction: column;
+        align-items: flex-end;
+      }
+      #chat-room-screen .message-info {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 7px;
+        margin: 0 2px 2px;
+      }
+      #chat-room-screen .message-wrapper.sent .message-info {
+        justify-content: flex-end;
+      }
+      #chat-room-screen .message-avatar { display: none !important; }
+      #chat-room-screen .message-speaker {
+        max-width: 128px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: calc(var(--app-fs, 1) * 6.5px);
+        font-weight: 600;
+        letter-spacing: .14em;
+        line-height: 1;
+        color: #0a0a0a;
+        text-transform: uppercase;
+      }
+      #chat-room-screen .message-time {
+        margin: 0;
+        font-size: calc(var(--app-fs, 1) * 6.4px);
+        font-weight: 500;
+        letter-spacing: .08em;
+        line-height: 1;
+        color: #0a0a0a;
+        opacity: .58;
+      }
+      #chat-room-screen .message-bubble {
+        max-width: min(74vw, 286px);
+        margin: 0;
+        padding: calc(var(--app-fs, 1) * 5px) calc(var(--app-fs, 1) * 9px) calc(var(--app-fs, 1) * 6px);
+        border: 1px solid transparent;
+        border-radius: 0 !important;
+        font-size: calc(var(--app-fs, 1) * 12.4px);
+        line-height: 1.5;
+        letter-spacing: .005em;
+        box-shadow: none;
+      }
+      #chat-room-screen .message-bubble.sent {
+        background: #0a0a0a;
+        color: #fff;
+        border-color: #0a0a0a;
+      }
+      #chat-room-screen .message-bubble.received {
+        background: #fff;
+        color: #0a0a0a;
+        border-color: transparent;
+        box-shadow: 0 6px 12px -6px rgba(0,0,0,.24);
+      }
+      #chat-room-screen .message-wrapper.received .message-bubble:active { box-shadow: 0 3px 8px -5px rgba(0,0,0,.18); }
+      #chat-room-screen .message-wrapper { margin-bottom: 8px; }
+      #chat-room-screen .message-wrapper.group-message { margin-bottom: 11px; }
+
+      #chat-room-screen .pv-card {
+        width: 230px;
+        margin: 0;
+        background: #fff;
+        border: 1px solid #0a0a0a;
+        border-radius: 0 !important;
+        box-shadow: none;
+      }
+      #chat-room-screen .pv-card-content {
+        background: #fff;
+        color: #0a0a0a;
+        font-size: calc(var(--app-fs, 1) * 18px);
+        font-weight: 800;
+        line-height: 1.55;
+        letter-spacing: -.035em;
+      }
+      #chat-room-screen .pv-card-image-overlay { background-color: #fff; }
+      #chat-room-screen .pv-card-footer {
+        background: #0a0a0a;
+        color: #fff;
+        padding: 18px 10px 8px;
+        font-size: 9px;
+        letter-spacing: .06em;
+      }
+      #chat-room-screen .pv-card-footer svg { fill: #fff; }
+      #chat-room-screen .pv-card.pv-gen::after { border-radius: 0; }
+      #chat-room-screen .chat-date-separator,
+      #chat-room-screen .system-notification-bubble {
+        margin: 8px auto 16px;
+        font-size: calc(var(--app-fs, 1) * 6.5px) !important;
+        font-weight: 600;
+        letter-spacing: .22em;
+        color: #0a0a0a;
+        background: transparent;
+        border: 0;
+        text-transform: uppercase;
+      }
+      #chat-room-screen .message-input-area {
+        margin: 0;
+        padding: 11px 18px calc(11px + env(safe-area-inset-bottom));
+        gap: 10px;
+        background: #fff;
+        border: 0;
+        border-top: 1px solid #0a0a0a;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      #chat-room-screen .message-input-area input {
+        padding: 8px 0;
+        background: transparent;
+        border: 0;
+        border-bottom: 1px solid #0a0a0a;
+        border-radius: 0;
+        font-size: calc(var(--app-fs, 1) * 11.8px);
+        color: #0a0a0a;
+        letter-spacing: .02em;
+        box-shadow: none;
+      }
+      #chat-room-screen .message-input-area input::placeholder {
+        color: #0a0a0a;
+        opacity: .42;
+        letter-spacing: .1em;
+        text-transform: lowercase;
+      }
+      #chat-room-screen .message-input-area .icon-btn {
+        width: 34px; height: 34px;
+        border-radius: 0;
+        background: #0a0a0a;
+        color: #fff;
+        box-shadow: none;
+      }
+      #chat-room-screen .message-input-area .icon-btn:disabled {
+        background: #0a0a0a;
+        color: #fff;
+        opacity: .25;
+      }
+      #chat-room-screen .message-input-area #sticker-expand-btn {
+        background: transparent !important;
+        color: #0a0a0a !important;
+      }
+      #chat-room-screen .message-input-area #sticker-expand-btn svg {
+        width: 22px !important; height: 22px !important;
+        color: #0a0a0a !important;
+        fill: #0a0a0a !important;
+      }
+      #chat-room-screen .message-input-area #get-reply-btn {
+        width: 34px !important; height: 34px !important;
+        background: transparent !important;
+        color: #0a0a0a !important;
+        border: 1px solid #0a0a0a !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+      }
+      #chat-room-screen .message-input-area #get-reply-btn svg {
+        width: 15px !important; height: 15px !important;
+        fill: #0a0a0a !important;
+      }
+      #chat-room-screen .typing-indicator {
+        padding-left: 20px;
+        color: #0a0a0a;
+        font-size: calc(var(--app-fs, 1) * 7.5px);
+        letter-spacing: .16em;
+        text-transform: uppercase;
+      }
+
+      /* ---------- 聊天气泡头像：不显示 / 每条显示 / 仅首条 ---------- */
+      #chat-room-screen.bubble-avatar-all .message-bubble-row,
+      #chat-room-screen.bubble-avatar-first .message-wrapper.first-avatar .message-bubble-row {
+        position: relative;
+      }
+      #chat-room-screen.bubble-avatar-all .message-info,
+      #chat-room-screen.bubble-avatar-first .message-wrapper.first-avatar .message-info {
+        position: static;
+      }
+      #chat-room-screen.bubble-avatar-all .message-avatar,
+      #chat-room-screen.bubble-avatar-first .message-wrapper.first-avatar .message-avatar {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 28px;
+        height: 28px;
+        object-fit: cover;
+        border-radius: 0;
+        border: 1px solid #0a0a0a;
+        background: linear-gradient(135deg, #f0d1bd 0%, #dbe7f2 100%);
+        filter: none !important;
+      }
+      #chat-room-screen.bubble-avatar-all .message-wrapper.sent .message-avatar,
+      #chat-room-screen.bubble-avatar-first .message-wrapper.first-avatar.sent .message-avatar {
+        left: auto;
+        right: 0;
+      }
+      #chat-room-screen.bubble-avatar-all .message-wrapper.received .message-bubble-row > :not(.message-info),
+      #chat-room-screen.bubble-avatar-first .message-wrapper.first-avatar.received .message-bubble-row > :not(.message-info) {
+        margin-left: 38px;
+      }
+      #chat-room-screen.bubble-avatar-all .message-wrapper.sent .message-bubble-row > :not(.message-info),
+      #chat-room-screen.bubble-avatar-first .message-wrapper.first-avatar.sent .message-bubble-row > :not(.message-info) {
+        margin-right: 38px;
+      }
+
+      /* ---------- 心声：弹窗，不再全屏 ---------- */
+      #side-note-modal.sn-overlay {
+        background: rgba(255,255,255,.78);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        z-index: 10000;
+      }
+      #side-note-modal .side-note-card,
+      #side-note-history .side-note-card {
+        position: relative;
+        width: min(86vw, 372px);
+        max-width: 372px;
+        max-height: 78vh;
+        padding: 17px 17px 15px;
+        overflow: auto;
+        background: #fff;
+        color: #0a0a0a;
+        border: 1px solid #0a0a0a;
+        border-radius: 0;
+        box-shadow: 10px 10px 0 #0a0a0a;
+        animation: snIn .22s ease-out;
+      }
+      @keyframes snIn {
+        from { opacity: 0; transform: translateY(12px) scale(.985); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      #side-note-modal .sn-head,
+      #side-note-history .sn-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 0 0 12px;
+      }
+      #side-note-modal #sn-avatar,
+      #side-note-history #sn-history-avatar {
+        width: 42px; height: 34px;
+        flex: none;
+        object-fit: cover;
+        object-position: center 22%;
+        border: 1px solid #0a0a0a;
+        border-radius: 0;
+        filter: none !important;
+        background: linear-gradient(135deg, #f0d1bd 0%, #dbe7f2 100%);
+      }
+      .sn-head-info { min-width: 0; flex: 1; }
+      #side-note-modal .sn-name,
+      #side-note-history .sn-name {
+        font-size: calc(var(--app-fs, 1) * 12.5px);
+        font-weight: 700;
+        letter-spacing: -.02em;
+        line-height: 1.2;
+        color: #0a0a0a;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      #side-note-modal .sn-sub,
+      #side-note-history .sn-sub {
+        margin-top: 5px;
+        font-size: calc(var(--app-fs, 1) * 6px);
+        font-weight: 500;
+        letter-spacing: .16em;
+        line-height: 1.2;
+        color: #0a0a0a;
+        opacity: .6;
+        text-transform: uppercase;
+      }
+      #side-note-modal .sn-close,
+      #side-note-history .sn-close {
+        width: 25px; height: 25px;
+        flex: none;
+        padding: 0;
+        background: transparent;
+        border: 0;
+        color: #0a0a0a;
+        font-size: 19px;
+        font-weight: 300;
+        line-height: 22px;
+        text-align: center;
+        cursor: pointer;
+      }
+      .sn-rule {
+        height: 1px;
+        background: #0a0a0a;
+      }
+      .sn-topline {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 11px 0 3px;
+        font-size: calc(var(--app-fs, 1) * 6.8px);
+        font-weight: 600;
+        letter-spacing: .18em;
+        line-height: 1.4;
+        color: #0a0a0a;
+        text-transform: uppercase;
+      }
+      #side-note-modal .sn-view {
+        position: relative;
+        min-height: 92px;
+        padding: 10px 0 4px;
+      }
+      #side-note-modal .sn-page { display: none; }
+      #side-note-modal .sn-page.active { display: block; animation: snFade .18s ease-out; }
+      @keyframes snFade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+      #side-note-modal .sn-page .sn-label { display: none; }
+      #side-note-modal .sn-text {
+        max-height: 214px;
+        overflow: auto;
+        font-size: calc(var(--app-fs, 1) * 19px);
+        font-weight: 800;
+        letter-spacing: -.035em;
+        line-height: 1.65;
+        color: #0a0a0a;
+        white-space: pre-wrap;
+        word-break: break-word;
+        -webkit-overflow-scrolling: touch;
+      }
+      #side-note-modal .sn-deep .sn-text { font-weight: 700; }
+      .sn-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 12px 0 13px;
+        border-top: 1px solid #0a0a0a;
+      }
+      .sn-pager {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: calc(var(--app-fs, 1) * 7px);
+        font-weight: 600;
+        letter-spacing: .12em;
+        color: #0a0a0a;
+        text-transform: uppercase;
+      }
+      .sn-arrow {
+        width: 27px; height: 24px;
+        padding: 0;
+        display: flex; align-items: center; justify-content: center;
+        background: #fff;
+        border: 1px solid #0a0a0a;
+        border-radius: 0;
+        color: #0a0a0a;
+        font-size: 14px; line-height: 1;
+        cursor: pointer;
+      }
+      .sn-arrow:active { background: #0a0a0a; color: #fff; }
+      .sn-dots { display: flex; align-items: center; gap: 4px; }
+      .sn-dot { width: 5px; height: 5px; background: #0a0a0a; opacity: .25; }
+      .sn-dot.on { opacity: 1; }
+      .sn-history-btn {
+        width: 100%;
+        height: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 11px;
+        background: #0a0a0a;
+        border: 1px solid #0a0a0a;
+        border-radius: 0;
+        color: #fff;
+        font-size: calc(var(--app-fs, 1) * 7.5px);
+        font-weight: 600;
+        letter-spacing: .17em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+      .sn-history-btn span { font-size: 13px; letter-spacing: 0; }
+      .sn-history-btn:active { background: #fff; color: #0a0a0a; }
+      .sn-swipe-hint {
+        padding: 7px 0 0;
+        font-size: 6.5px;
+        font-weight: 500;
+        letter-spacing: .12em;
+        color: #0a0a0a;
+        opacity: .48;
+        text-align: right;
+        text-transform: uppercase;
+      }
+      #side-note-history {
+        background: rgba(255,255,255,.86);
+        backdrop-filter: blur(2px);
+        -webkit-backdrop-filter: blur(2px);
+        z-index: 10001;
+      }
+      #side-note-history .sn-history-list {
+        padding-top: 4px;
+        max-height: 54vh;
+        overflow: auto;
+      }
+      .sn-h-row {
+        display: block;
+        width: 100%;
+        padding: 12px 0 11px;
+        border: 0;
+        border-bottom: 1px solid #0a0a0a;
+        background: #fff;
+        color: #0a0a0a;
+        text-align: left;
+        cursor: pointer;
+      }
+      .sn-h-row:last-child { border-bottom: 0; }
+      .sn-h-row:active { background: #0a0a0a; color: #fff; }
+      .sn-h-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 7px;
+        font-weight: 600;
+        letter-spacing: .16em;
+        text-transform: uppercase;
+      }
+      .sn-h-text {
+        margin-top: 7px;
+        font-size: calc(var(--app-fs, 1) * 11.5px);
+        font-weight: 650;
+        line-height: 1.5;
+        letter-spacing: -.01em;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .sn-h-empty {
+        padding: 30px 4px;
+        font-size: 11px;
+        line-height: 1.8;
+        letter-spacing: .06em;
+        text-align: center;
+        color: #0a0a0a;
+        opacity: .55;
+      }
     </style>
     <div id="chat-list-screen" class="screen">
         <div class="cl-hero" id="cl-hero">
@@ -7324,11 +7916,16 @@
         <header class="app-header" id="chat-room-header-default">
             <button class="back-btn" data-target="chat-list-screen">‹</button>
             <div class="title-container">
+                <div class="chat-edit-kicker">404 / DIRECT</div>
                 <h1 class="title" id="chat-room-title">...</h1>
                 <div class="subtitle" id="chat-room-subtitle">
                     <div class="online-indicator"></div>
                     <span id="chat-room-status-text">在线</span>
                 </div>
+            </div>
+            <div class="chat-hero-avatar" id="chat-hero-avatar">
+                <img id="chat-hero-avatar-img" src="" alt="">
+                <div class="chat-hero-cap" id="chat-hero-cap">01</div>
             </div>
             <div class="chat-call-actions">
                 <button class="action-btn" id="call-voice-btn" title="语音通话"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3 19.5 19.5 0 0 1-6.3-6.3 19.8 19.8 0 0 1-3-8.6A2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.13.96.36 1.9.7 2.8a2 2 0 0 1-.45 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.45c.9.34 1.84.57 2.8.7A2 2 0 0 1 22 16.9z"/></svg></button>
@@ -7347,7 +7944,7 @@
         </header>
         <main class="content">
             <div class="couple-banner" id="couple-invite-banner" style="display:none;"></div>
-            <div class="message-area" id="message-area"></div>
+            <div class="message-area" id="message-area" data-conversation="01—08"></div>
             <div class="typing-indicator" id="typing-indicator"></div>
         </main>
         <div class="chat-input-wrapper">
@@ -7502,24 +8099,59 @@
             <div id="app-modal-btns" style="display:flex; justify-content:flex-end; gap:10px;"></div>
         </div>
     </div>
-    <div id="side-note-modal" class="modal-overlay">
-        <div class="side-note-card">
+    <div id="side-note-modal" class="modal-overlay sn-overlay">
+        <div class="side-note-card" id="sn-card">
             <div class="sn-head">
                 <img id="sn-avatar" src="" alt="">
                 <div class="sn-head-info">
                     <div class="sn-name" id="sn-name"></div>
-                    <div class="sn-sub">本轮心声 · 点击空白处关闭</div>
+                    <div class="sn-sub">本轮心声 / <span id="sn-time">NOW</span> · 左右滑动</div>
                 </div>
                 <button type="button" class="sn-close">×</button>
             </div>
-            <div class="sn-section">
-                <div class="sn-label">表层心声</div>
-                <div class="sn-text" id="sn-surface"></div>
+            <div class="sn-rule"></div>
+            <div class="sn-topline">
+                <span id="sn-type">表层心声 / SURFACE 01</span>
+                <span id="sn-count">01 / 02</span>
             </div>
-            <div class="sn-section sn-deep">
-                <div class="sn-label">深层心声</div>
-                <div class="sn-text" id="sn-deep"></div>
+            <div class="sn-view" id="sn-view">
+                <div class="sn-page active" data-page="0">
+                    <div class="sn-label">表层心声 / SURFACE</div>
+                    <div class="sn-text" id="sn-surface"></div>
+                </div>
+                <div class="sn-page sn-deep" data-page="1">
+                    <div class="sn-label">深层心声 / DEEP</div>
+                    <div class="sn-text" id="sn-deep"></div>
+                </div>
             </div>
+            <div class="sn-foot">
+                <div class="sn-pager">
+                    <button class="sn-arrow" id="sn-prev" type="button" aria-label="上一层">‹</button>
+                    <span id="sn-page-label">01 / 02</span>
+                    <button class="sn-arrow" id="sn-next" type="button" aria-label="下一层">›</button>
+                </div>
+                <div class="sn-dots" id="sn-dots">
+                    <i class="sn-dot on"></i><i class="sn-dot"></i>
+                </div>
+            </div>
+            <button class="sn-history-btn" id="sn-history-btn" type="button">
+                <span>点击查看历史</span><span>↗</span>
+            </button>
+            <div class="sn-swipe-hint">SWIPE / 左右滑动</div>
+        </div>
+    </div>
+    <div id="side-note-history" class="modal-overlay">
+        <div class="side-note-card" id="sn-history-card">
+            <div class="sn-head">
+                <img id="sn-history-avatar" src="" alt="">
+                <div class="sn-head-info">
+                    <div class="sn-name">心声历史</div>
+                    <div class="sn-sub" id="sn-history-sub">ARCHIVE</div>
+                </div>
+                <button type="button" class="sn-close" id="sn-history-close">×</button>
+            </div>
+            <div class="sn-rule"></div>
+            <div class="sn-history-list" id="sn-history-list"></div>
         </div>
     </div>
     <input type="file" id="image-upload-input" accept="image/*" style="display:none;">
@@ -7725,6 +8357,11 @@
                 <div class="form-group">
                     <button type="button" class="btn btn-secondary" id="phone-btn" style="background:var(--secondary-color);">查看Ta的手机</button>
                 </div>
+                <div class="form-group"><label for="setting-bubble-avatar-mode">聊天气泡头像</label><select id="setting-bubble-avatar-mode">
+                    <option value="none">不显示头像</option>
+                    <option value="all">每条消息都显示</option>
+                    <option value="first">仅首条消息显示</option>
+                </select></div>
                 <div class="form-group"><label for="setting-theme-color">主题颜色 (对方/我方)</label><select id="setting-theme-color"></select></div>
                 <hr style="border:none; border-top:1px solid #eee; margin: 20px 0;">
                 <div class="form-group">
@@ -7865,6 +8502,11 @@
                     <textarea id="setting-group-summary-prompt" rows="3" placeholder="例如：请只总结群聊中重要的事件、承诺与关系变化"></textarea>
                     <button type="button" class="btn btn-secondary" id="setting-group-summary-now-btn" style="margin-top:8px; width:100%;">立即总结并存入记忆库</button>
                 </div>
+                <div class="form-group"><label for="setting-group-bubble-avatar-mode">聊天气泡头像</label><select id="setting-group-bubble-avatar-mode">
+                    <option value="none">不显示头像</option>
+                    <option value="all">每条消息都显示</option>
+                    <option value="first">仅首条消息显示</option>
+                </select></div>
                 <div class="form-group"><label for="setting-group-theme-color">主题颜色 (对方/我方)</label><select id="setting-group-theme-color"></select></div>
                 <hr style="border:none; border-top:1px solid #eee; margin: 20px 0;">
                 <div class="form-group">
@@ -9366,6 +10008,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (styleElement) styleElement.remove();
     }
   }
+  function applyBubbleAvatarMode(chat) {
+    const mode = chat && chat.bubbleAvatarMode && ["none", "all", "first"].includes(chat.bubbleAvatarMode) ? chat.bubbleAvatarMode : "none";
+    chatRoomScreen.classList.remove("bubble-avatar-none", "bubble-avatar-all", "bubble-avatar-first");
+    chatRoomScreen.classList.add("bubble-avatar-" + mode);
+  }
   function updateBubbleCssPreview(previewContainer, css, useDefault, theme) {
     previewContainer.innerHTML = "";
     const sentBubble = document.createElement("div");
@@ -9402,7 +10049,50 @@ document.addEventListener("DOMContentLoaded", () => {
     previewContainer.appendChild(receivedBubble);
     previewContainer.appendChild(sentBubble);
   }
+  let __splashDismissed = false;
+  function dismissSplash() {
+    if (__splashDismissed) return;
+    __splashDismissed = true;
+    const splash = document.getElementById("ce-splash");
+    if (!splash) return;
+    splash.style.pointerEvents = "none";
+    splash.style.opacity = "0";
+    setTimeout(() => { try { splash.remove(); } catch (e) {} }, 320);
+  }
   const init = async () => {
+    // 先同步读缓存并渲染桌面，数据在后台继续加载；不再让开屏页等待整个数据库
+    try {
+      if (!window.__quickShellDone) {
+        window.__quickShellDone = 1;
+        try {
+          const cached = localStorage.getItem("gemini-chat-app-db");
+          if (cached) {
+            const parsed = JSON.parse(cached);
+            if (parsed && parsed.characters) db = parsed;
+          }
+        } catch (e0) {}
+        db.customIcons = db.customIcons || {};
+        db.characters = db.characters || [];
+        db.widgetTexts = db.widgetTexts || {};
+        db.wallpaper = db.wallpaper || "https://aka.doubaocdn.com/s/EbgeuXeUxy";
+        db.homeScreenMode = db.homeScreenMode || "night";
+        if (!homeScreen.innerHTML.trim()) setupHomeScreen();
+      }
+    } catch (e1) {
+      console.error("快速桌面渲染失败:", e1);
+    }
+    // 先把桌面交给用户，再开始加载数据；开屏页不承担数据库加载
+    if (!window.__earlyNavBound) {
+      window.__earlyNavBound = 1;
+      document.addEventListener("click", (e) => {
+        const nav = e.target.closest(".app-icon[data-target], .back-btn[data-target]");
+        if (!nav) return;
+        e.preventDefault();
+        switchScreen(nav.getAttribute("data-target"));
+      });
+    }
+    dismissSplash();
+    await new Promise((resolve) => setTimeout(resolve, 340));
     await loadData();
     document.body.addEventListener("click", (e) => {
       if (e.target.closest(".context-menu")) {
@@ -9460,25 +10150,162 @@ document.addEventListener("DOMContentLoaded", () => {
           showToast("\u672C\u8F6E\u6CA1\u6709\u751F\u6210\u5FC3\u58F0");
           return;
         }
-        openSideNoteModal(msg.sideNote, snName || chat.remarkName || chat.realName, snAvatar || chat.avatar);
+        openSideNoteModal(msg.sideNote, snName || chat.remarkName || chat.realName, snAvatar || chat.avatar, getSideNoteHistory(chat), msg.timestamp || msg.ts);
+      }
+    });
+    let snCurrentHistory = [];
+    let snCurrentPage = 0;
+    let snCurrentName = "";
+    let snCurrentAvatar = "";
+    function getSideNoteHistory(chat) {
+      if (!chat || !Array.isArray(chat.history)) return [];
+      return chat.history
+        .filter((m) => m && m.role !== "user" && m.sideNote && m.status !== "revoked" && !m.withdrawn)
+        .map((m) => ({
+          sideNote: typeof m.sideNote === "string" ? { surface: m.sideNote, deep: "" } : m.sideNote,
+          ts: m.timestamp || m.ts || 0,
+          id: m.id || ""
+        }))
+        .sort((a, b) => (a.ts || 0) - (b.ts || 0));
+    }
+    function snTimeLabel(ts) {
+      if (!ts) return "NOW";
+      const d = new Date(ts);
+      if (isNaN(d.getTime())) return "NOW";
+      const now = new Date();
+      const sameDay = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
+      const hm = pad(d.getHours()) + ":" + pad(d.getMinutes());
+      return sameDay ? hm : pad(d.getMonth() + 1) + "." + pad(d.getDate()) + " / " + hm;
+    }
+    function setSnPage(page) {
+      snCurrentPage = Math.max(0, Math.min(1, Number(page) || 0));
+      const card = document.getElementById("sn-card");
+      if (!card) return;
+      card.querySelectorAll(".sn-page").forEach((el, i) => el.classList.toggle("active", i === snCurrentPage));
+      const type = document.getElementById("sn-type");
+      const count = document.getElementById("sn-count");
+      const pageLabel = document.getElementById("sn-page-label");
+      const dots = card.querySelectorAll(".sn-dot");
+      if (type) type.textContent = snCurrentPage === 0 ? "表层心声 / SURFACE 01" : "深层心声 / DEEP 02";
+      if (count) count.textContent = snCurrentPage === 0 ? "01 / 02" : "02 / 02";
+      if (pageLabel) pageLabel.textContent = snCurrentPage === 0 ? "01 / 02" : "02 / 02";
+      dots.forEach((el, i) => el.classList.toggle("on", i === snCurrentPage));
+    }
+    function openSideNoteModal(sideNote, name, avatar, history, ts) {
+      const modal = document.getElementById("side-note-modal");
+      if (!modal) return;
+      if (typeof sideNote === "string") sideNote = { surface: sideNote, deep: "" };
+      sideNote = sideNote || {};
+      snCurrentName = name || "TA";
+      snCurrentAvatar = avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
+      snCurrentHistory = Array.isArray(history) && history.length
+        ? history.slice()
+        : [{ sideNote, ts: ts || Date.now(), id: "" }];
+      document.getElementById("sn-avatar").src = snCurrentAvatar;
+      document.getElementById("sn-name").textContent = snCurrentName;
+      document.getElementById("sn-time").textContent = snTimeLabel(ts || (snCurrentHistory[snCurrentHistory.length - 1] || {}).ts);
+      document.getElementById("sn-surface").textContent = sideNote.surface || "（没有显露什么想法）";
+      document.getElementById("sn-deep").textContent = sideNote.deep || "（没有表露出内心）";
+      setSnPage(0);
+      modal.classList.add("visible");
+      snBindSwipe();
+    }
+    let snSwipeBound = false;
+    function snBindSwipe() {
+      if (snSwipeBound) return;
+      const card = document.getElementById("sn-card");
+      if (!card) return;
+      snSwipeBound = true;
+      let startX = 0, startY = 0;
+      card.addEventListener("touchstart", (e) => {
+        if (!e.touches || !e.touches[0]) return;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+      }, { passive: true });
+      card.addEventListener("touchend", (e) => {
+        if (!e.changedTouches || !e.changedTouches[0]) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        const dy = e.changedTouches[0].clientY - startY;
+        if (Math.abs(dx) > 42 && Math.abs(dx) > Math.abs(dy)) {
+          setSnPage(dx < 0 ? snCurrentPage + 1 : snCurrentPage - 1);
+        }
+      }, { passive: true });
+    }
+    function openCurrentSideNote() {
+      const chat = currentChatType === "private"
+        ? db.characters.find((c) => c.id === currentChatId)
+        : db.groups.find((g) => g.id === currentChatId);
+      if (!chat) return;
+      const history = getSideNoteHistory(chat);
+      const lastAssistant = (chat.history || []).filter((m) => m && m.role !== "user" && m.status !== "revoked" && !m.withdrawn).pop();
+      if (!lastAssistant || !lastAssistant.sideNote) {
+        showToast("这一轮还没有心声");
+        return;
+      }
+      const latest = history.find((item) => item.id === lastAssistant.id) || {
+        sideNote: typeof lastAssistant.sideNote === "string" ? { surface: lastAssistant.sideNote, deep: "" } : lastAssistant.sideNote,
+        ts: lastAssistant.timestamp || lastAssistant.ts || 0,
+        id: lastAssistant.id || ""
+      };
+      const name = currentChatType === "private" ? (chat.remarkName || chat.realName || "TA") : (chat.name || "TA");
+      openSideNoteModal(latest.sideNote, name, chat.avatar, history, latest.ts);
+    }
+    function openSideNoteHistory() {
+      const modal = document.getElementById("side-note-history");
+      const noteModal = document.getElementById("side-note-modal");
+      if (!modal) return;
+      if (noteModal) noteModal.classList.remove("visible");
+      const list = document.getElementById("sn-history-list");
+      const items = snCurrentHistory.slice().sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      const sub = document.getElementById("sn-history-sub");
+      const av = document.getElementById("sn-history-avatar");
+      if (av) av.src = snCurrentAvatar;
+      if (sub) sub.textContent = items.length + " ROUNDS / ARCHIVE";
+      if (list) {
+        list.innerHTML = "";
+        if (!items.length) {
+          list.innerHTML = '<div class="sn-h-empty">还没有历史心声<br>再聊几轮，这里会慢慢长出来。</div>';
+        } else {
+          items.forEach((item, index) => {
+            const row = document.createElement("button");
+            row.type = "button";
+            row.className = "sn-h-row";
+            const surface = item.sideNote && (item.sideNote.surface || item.sideNote.deep) || "（这一轮没有说话）";
+            row.innerHTML = '<div class="sn-h-meta"><span>ROUND ' + pad(items.length - index) + '</span><span>' + escapeHtml(snTimeLabel(item.ts)) + '</span></div><div class="sn-h-text">' + escapeHtml(String(surface)) + "</div>";
+            row.addEventListener("click", () => {
+              modal.classList.remove("visible");
+              openSideNoteModal(item.sideNote, snCurrentName, snCurrentAvatar, snCurrentHistory, item.ts);
+            });
+            list.appendChild(row);
+          });
+        }
+      }
+      modal.classList.add("visible");
+    }
+    document.addEventListener("click", (e) => {
+      const hero = e.target.closest("#chat-hero-avatar");
+      if (hero) {
+        e.preventDefault();
+        e.stopPropagation();
+        openCurrentSideNote();
       }
     });
     document.addEventListener("click", (e) => {
       const modal = document.getElementById("side-note-modal");
-      if (!modal) return;
-      if (e.target === modal || e.target.closest(".sn-close")) {
+      const historyModal = document.getElementById("side-note-history");
+      if (modal && (e.target === modal || e.target.closest("#side-note-modal .sn-close"))) {
         modal.classList.remove("visible");
       }
+      if (historyModal && (e.target === historyModal || e.target.closest("#side-note-history .sn-close"))) {
+        historyModal.classList.remove("visible");
+      }
     });
-    function openSideNoteModal(sideNote, name, avatar) {
-      const modal = document.getElementById("side-note-modal");
-      if (!modal) return;
-      document.getElementById("sn-avatar").src = avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
-      document.getElementById("sn-name").textContent = name || "";
-      document.getElementById("sn-surface").textContent = sideNote.surface || "\uFF08\u6CA1\u6709\u663E\u9732\u51FA\u4EC0\u4E48\u60F3\u6CD5\uFF09";
-      document.getElementById("sn-deep").textContent = sideNote.deep || "\uFF08\u6CA1\u6709\u8868\u9732\u51FA\u5185\u5FC3\uFF09";
-      modal.classList.add("visible");
-    }
+    const snPrev = document.getElementById("sn-prev");
+    const snNext = document.getElementById("sn-next");
+    const snHistoryBtn = document.getElementById("sn-history-btn");
+    if (snPrev) snPrev.addEventListener("click", () => setSnPage(snCurrentPage - 1));
+    if (snNext) snNext.addEventListener("click", () => setSnPage(snCurrentPage + 1));
+    if (snHistoryBtn) snHistoryBtn.addEventListener("click", openSideNoteHistory);
     document.addEventListener("click", (e) => {
       const a = e.target.closest('a[href="#"]');
       if (a) e.preventDefault();
@@ -10811,6 +11638,15 @@ document.addEventListener("DOMContentLoaded", () => {
     exitMultiSelectMode();
     cancelMessageEdit();
     chatRoomTitle.textContent = type === "private" ? chat.remarkName : chat.name;
+    const heroAvatar = document.getElementById("chat-hero-avatar");
+    const heroAvatarImg = document.getElementById("chat-hero-avatar-img");
+    const heroCap = document.getElementById("chat-hero-cap");
+    if (heroAvatar && heroAvatarImg) {
+      heroAvatar.style.display = "block";
+      heroAvatarImg.src = chat.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
+      if (heroCap) heroCap.textContent = "01";
+      heroAvatar.setAttribute("data-chat-id", chatId);
+    }
     const subtitle = document.getElementById("chat-room-subtitle");
     if (type === "private") {
       subtitle.style.display = "flex";
@@ -10827,6 +11663,7 @@ document.addEventListener("DOMContentLoaded", () => {
     chatRoomScreen.className = chatRoomScreen.className.replace(/\bchat-active-[^ ]+\b/g, "");
     chatRoomScreen.classList.add("chat-active-".concat(chatId));
     updateCustomBubbleStyle(chatId, chat.customBubbleCss, chat.useCustomBubbleCss);
+    applyBubbleAvatarMode(chat);
     renderMessages(false, true);
     switchScreen("chat-room-screen");
   }
@@ -10835,6 +11672,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!chat || !chat.history) return;
     const oldScrollHeight = messageArea.scrollHeight;
     const totalMessages = chat.history.length;
+    try { messageArea.setAttribute("data-conversation", "01—" + pad(totalMessages)); } catch (e) {}
     const end = totalMessages - (currentPage - 1) * MESSAGES_PER_PAGE;
     const start = Math.max(0, end - MESSAGES_PER_PAGE);
     const messagesToRender = chat.history.slice(start, end);
@@ -10865,6 +11703,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const existingLoadBtn = document.getElementById("load-more-btn");
     if (existingLoadBtn) existingLoadBtn.remove();
     messageArea.prepend(fragment);
+    const firstConversationId = (chat.history || []).find((m) => m && m.role && !["action", "call_end", "system", "system_note"].includes(m.type) && !m.withdrawn && m.status !== "revoked");
+    messageArea.querySelectorAll(".message-wrapper[data-id]").forEach((w) => {
+      w.classList.toggle("first-avatar", !!firstConversationId && w.dataset.id === firstConversationId.id);
+    });
     if (totalMessages > currentPage * MESSAGES_PER_PAGE) {
       const loadMoreButton = document.createElement("button");
       loadMoreButton.id = "load-more-btn";
@@ -11012,6 +11854,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       bubbleTheme = theme.received;
     }
+    if (!chat.useCustomBubbleCss) {
+      bubbleTheme = isSent ? { bg: "#0a0a0a", text: "#ffffff" } : { bg: "#ffffff", text: "#0a0a0a" };
+    }
     const timeString = "".concat(pad(new Date(timestamp).getHours()), ":").concat(pad(new Date(timestamp).getMinutes()));
     wrapper.className = "message-wrapper ".concat(isSent ? "sent" : "received");
     if (currentChatType === "group" && !isSent) {
@@ -11019,6 +11864,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const bubbleRow = document.createElement("div");
     bubbleRow.className = "message-bubble-row";
+    const speakerLabel = isSent
+      ? "ME"
+      : (currentChatType === "private"
+        ? (chat.remarkName || chat.realName || "TA")
+        : (senderNickname || "TA"));
     let bubbleElement;
     const urlRegex = /^(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg)|data:image\/[a-z]+;base64,)/i;
     const sentStickerRegex = /\[(?:.+?)的表情包：.+?\]/i;
@@ -11332,7 +12182,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const nicknameHTML = currentChatType === "group" && !isSent && senderNickname ? '<div class="group-nickname">'.concat(senderNickname, "</div>") : "";
     const sideAttr = message.sideNote && !isSent ? ' data-side-note="'.concat(message.id, '" style="cursor:pointer;"') : "";
-    bubbleRow.innerHTML = '<div class="message-info"'.concat(sideAttr, ">").concat(nicknameHTML, '<img src="').concat(avatarUrl, '" class="message-avatar"><span class="message-time">').concat(timeString, "</span></div>");
+    bubbleRow.innerHTML = '<div class="message-info"'.concat(sideAttr, '><span class="message-speaker">').concat(escapeHtml(speakerLabel), '</span>').concat(nicknameHTML, '<img src="').concat(avatarUrl, '" class="message-avatar"><span class="message-time">').concat(timeString, "</span></div>");
     if (bubbleElement) {
       bubbleRow.appendChild(bubbleElement);
     }
@@ -13791,6 +14641,8 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("setting-my-name").value = e.myName;
       document.getElementById("setting-my-persona").value = e.myPersona;
       document.getElementById("setting-theme-color").value = e.theme || "white_pink";
+      const bam = document.getElementById("setting-bubble-avatar-mode");
+      if (bam) bam.value = e.bubbleAvatarMode || "none";
       document.getElementById("setting-max-memory").value = e.maxMemory;
       const wbDisp = document.getElementById("setting-wb-display");
       if (wbDisp) {
@@ -13876,6 +14728,9 @@ document.addEventListener("DOMContentLoaded", () => {
       e.myName = document.getElementById("setting-my-name").value;
       e.myPersona = document.getElementById("setting-my-persona").value;
       e.theme = document.getElementById("setting-theme-color").value;
+      const bam2 = document.getElementById("setting-bubble-avatar-mode");
+      if (bam2) e.bubbleAvatarMode = bam2.value;
+      applyBubbleAvatarMode(e);
       e.maxMemory = document.getElementById("setting-max-memory").value;
       const oc2 = getOfflineChat(e.id);
       oc2.summaryEnabled = document.getElementById("setting-summary-enabled").checked;
@@ -14681,6 +15536,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("setting-group-my-nickname").value = group.me.nickname;
     document.getElementById("setting-group-my-persona").value = group.me.persona;
     themeSelect.value = group.theme || "white_pink";
+    const gBam = document.getElementById("setting-group-bubble-avatar-mode");
+    if (gBam) gBam.value = group.bubbleAvatarMode || "none";
     document.getElementById("setting-group-max-memory").value = group.maxMemory;
     const wbDispG = document.getElementById("setting-group-wb-display");
     if (wbDispG) {
@@ -14786,6 +15643,9 @@ document.addEventListener("DOMContentLoaded", () => {
     group.me.nickname = document.getElementById("setting-group-my-nickname").value;
     group.me.persona = document.getElementById("setting-group-my-persona").value;
     group.theme = document.getElementById("setting-group-theme-color").value;
+    const gBam2 = document.getElementById("setting-group-bubble-avatar-mode");
+    if (gBam2) group.bubbleAvatarMode = gBam2.value;
+    applyBubbleAvatarMode(group);
     group.maxMemory = document.getElementById("setting-group-max-memory").value;
     group.useCustomBubbleCss = document.getElementById("setting-group-use-custom-css").checked;
     group.customBubbleCss = document.getElementById("setting-group-custom-bubble-css").value;
