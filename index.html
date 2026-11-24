@@ -6889,6 +6889,190 @@
         font-size: 10px;
         letter-spacing: 0.12em;
       }
+
+      /* ---------- 404 其余页面：同一套黑白制式 ---------- */
+      #chat-settings-screen, #group-settings-screen, #profile-screen,
+      #dynamic-screen, #mask-screen, #wallet-screen, #call-screen,
+      #relationship-screen {
+        background: #ffffff;
+        color: #0b0b0c;
+        font-family: "Helvetica Neue", "Apple SD Gothic Neo", "Pretendard", -apple-system, "PingFang SC", sans-serif;
+      }
+      #chat-settings-screen .app-header, #group-settings-screen .app-header,
+      #profile-screen .app-header, #dynamic-screen .app-header,
+      #mask-screen .app-header, #wallet-screen .app-header,
+      #call-screen .app-header, #relationship-screen .app-header {
+        display: flex;
+        align-items: center;
+        background: #ffffff !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        border-bottom: 1px solid #ededed !important;
+        padding: 16px 20px 14px;
+      }
+      #chat-settings-screen .title-container, #group-settings-screen .title-container,
+      #profile-screen .title-container, #dynamic-screen .title-container,
+      #mask-screen .title-container, #wallet-screen .title-container,
+      #call-screen .title-container, #relationship-screen .title-container {
+        position: static !important;
+        transform: none !important;
+        align-items: flex-start !important;
+        text-align: left !important;
+        max-width: none !important;
+        flex: 1;
+      }
+      #chat-settings-screen .title, #group-settings-screen .title,
+      #profile-screen .title, #dynamic-screen .title,
+      #mask-screen .title, #wallet-screen .title,
+      #call-screen .title, #relationship-screen .title {
+        font-size: 24px !important;
+        font-weight: 700 !important;
+        letter-spacing: -0.04em;
+        color: #0b0b0c !important;
+      }
+      #chat-settings-screen .back-btn, #group-settings-screen .back-btn,
+      #profile-screen .back-btn, #dynamic-screen .back-btn,
+      #mask-screen .back-btn, #wallet-screen .back-btn {
+        color: #0b0b0c !important;
+        font-weight: 300 !important;
+        background: transparent !important;
+      }
+      #chat-settings-screen .content, #group-settings-screen .content,
+      #profile-screen .content, #dynamic-screen .content,
+      #mask-screen .content, #wallet-screen .content {
+        padding-left: 20px; padding-right: 20px;
+        background: #ffffff;
+      }
+      #chat-settings-screen label, #group-settings-screen label {
+        font-size: 9px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.2em !important;
+        text-transform: uppercase;
+        color: #9b9b9e !important;
+        margin-bottom: 8px !important;
+      }
+      #chat-settings-screen input[type=text], #chat-settings-screen input[type=number],
+      #chat-settings-screen textarea, #chat-settings-screen select,
+      #group-settings-screen input[type=text], #group-settings-screen input[type=number],
+      #group-settings-screen textarea, #group-settings-screen select {
+        width: 100%;
+        background: #ffffff !important;
+        border: none !important;
+        border-bottom: 1px solid #dcdcdc !important;
+        border-radius: 0 !important;
+        padding: 9px 0 !important;
+        font-size: 14px;
+        color: #0b0b0c !important;
+        box-shadow: none !important;
+      }
+      #chat-settings-screen input[type=text]:focus, #chat-settings-screen textarea:focus,
+      #group-settings-screen input[type=text]:focus, #group-settings-screen textarea:focus {
+        border-bottom-color: #0b0b0c !important;
+        outline: none;
+      }
+      #chat-settings-screen .form-group, #group-settings-screen .form-group {
+        margin-bottom: 22px;
+      }
+      #chat-settings-screen hr, #group-settings-screen hr {
+        border-top: 1px solid #ededed !important;
+        margin: 22px 0 !important;
+      }
+      #chat-settings-screen .btn, #group-settings-screen .btn,
+      #profile-screen .btn, #wallet-screen .btn {
+        border-radius: 2px !important;
+        box-shadow: none !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.06em;
+      }
+      #profile-screen .btn-secondary, #wallet-screen .btn-secondary {
+        background: #ffffff !important;
+        color: #0b0b0c !important;
+        border: 1px solid #0b0b0c !important;
+      }
+      #chat-settings-screen .btn-secondary, #group-settings-screen .btn-secondary {
+        width: 100% !important;
+        background: transparent !important;
+        color: #0b0b0c !important;
+        border: none !important;
+        border-bottom: 1px solid #dcdcdc !important;
+        border-radius: 0 !important;
+        padding: 15px 0 !important;
+        text-align: left !important;
+        font-size: 13px !important;
+        letter-spacing: 0.04em;
+      }
+      #chat-settings-screen .btn-primary, #group-settings-screen .btn-primary,
+      #profile-screen .btn-primary, #wallet-screen .btn-primary {
+        background: #0b0b0c !important;
+        color: #ffffff !important;
+        border: 1px solid #0b0b0c !important;
+      }
+      #chat-settings-screen .avatar-preview, #group-settings-screen .avatar-preview,
+      #profile-screen .profile-avatar {
+        border-radius: 3px !important;
+        box-shadow: none !important;
+        filter: grayscale(1);
+      }
+      #chat-settings-screen .avatar-cap, #group-settings-screen .avatar-cap {
+        font-size: 9px !important;
+        letter-spacing: 0.2em;
+        color: #9b9b9e;
+      }
+      #chat-settings-screen #setting-wb-display, #group-settings-screen [style*="background:#f8f9fa"] {
+        background: #f7f7f7 !important;
+        border: 1px solid #ededed !important;
+        border-radius: 2px !important;
+        color: #4a4a4d !important;
+      }
+      #chat-settings-screen .bubble-css-preview, #group-settings-screen .bubble-css-preview {
+        border: 1px solid #ededed !important;
+        border-radius: 2px !important;
+        background: #ffffff !important;
+      }
+      #profile-screen .profile-header { padding: 30px 0 26px; }
+      #profile-screen .profile-name {
+        font-size: 22px; font-weight: 700; letter-spacing: -0.03em; color: #0b0b0c;
+      }
+      #profile-screen .profile-sub { font-size: 11px; letter-spacing: 0.08em; color: #9b9b9e; margin-top: 6px; }
+      #profile-screen .profile-avatar {
+        width: 84px !important; height: 84px !important;
+        border-radius: 4px !important;
+        border: 1px solid #ededed;
+      }
+      #profile-screen .profile-actions { gap: 10px; margin-top: 16px; }
+      #profile-screen .profile-menu, #dynamic-screen .dynamic-list { margin-top: 0; }
+      #profile-screen .profile-menu-item {
+        background: #ffffff !important;
+        border-bottom: 1px solid #ededed !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 18px 2px !important;
+      }
+      #profile-screen .profile-menu-item .m-label { font-size: 13px; letter-spacing: 0.02em; }
+      #profile-screen .profile-menu-item .m-arrow { color: #9b9b9e; }
+      #profile-screen .profile-menu-item svg { color: #0b0b0c; }
+      #dynamic-screen .dynamic-card, #dynamic-screen .post-card {
+        background: #ffffff !important;
+        border: none !important;
+        border-bottom: 1px solid #ededed !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 18px 2px !important;
+      }
+      #chat-settings-screen .settings-page-content .form-group > div[style*="font-size:14px"] {
+        font-size: 10px !important;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: #9b9b9e !important;
+      }
+      #bottom-nav {
+        background: #ffffff !important;
+        border-top: 1px solid #ededed !important;
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+      }
+      #bottom-nav .nav-item { color: #a5a5a8 !important; font-size: 10px; letter-spacing: 0.08em; }
+      #bottom-nav .nav-item.active { color: #0b0b0c !important; }
     </style>
     <div id="chat-list-screen" class="screen">
         <header class="app-header">
