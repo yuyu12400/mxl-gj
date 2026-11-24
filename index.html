@@ -9979,7 +9979,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.0.1";
+  const APP_VERSION = "v5.1.0";
   let db = {
     characters: [],
     groups: [],
@@ -10113,12 +10113,9 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("保存数据失败:", e);
       }
       try {
-        const lastTs = Number(localStorage.getItem("__mxg_ls_ts") || 0);
-        if (!ok || ts - lastTs > 5000) {
-          localStorage.setItem("gemini-chat-app-db", json);
-          localStorage.setItem("__mxg_ls_ts", String(ts));
-          if (!ok) ok = true;
-        }
+        localStorage.setItem("gemini-chat-app-db", json);
+        localStorage.setItem("__mxg_ls_ts", String(ts));
+        if (!ok) ok = true;
       } catch (e2) {
         if (!ok) err = (err ? err + " | " : "") + "local:" + (e2 && e2.name);
       }
@@ -10277,6 +10274,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!db.fontUrl) db.fontUrl = "";
     if (!db.customIcons) db.customIcons = {};
     if (!db.memories) db.memories = [];
+    if (!db.timeSense || typeof db.timeSense !== "object") db.timeSense = {};
+    if (!db.timeSense.version) db.timeSense.version = 1;
+    if (!db.timeSense.life || typeof db.timeSense.life !== "object") db.timeSense.life = {};
+    if (!db.timeSense.commitments || typeof db.timeSense.commitments !== "object") db.timeSense.commitments = {};
     if (!db.offlineChats) db.offlineChats = [];
     if (!db.masks) db.masks = [];
     if (!db.activeMaskId) db.activeMaskId = null;
@@ -10493,6 +10494,613 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   const pad = (num) => num.toString().padStart(2, "0");
+
+  /* ===== 404 TimeSense：程序级动态时间感知 ===== */
+  const TimeSense = (function () {
+    const MINUTE = 60000;
+    const HOUR = 3600000;
+    const DAY = 86400000;
+    const WEEK_CN = ["周日", "周一", "周二", "周三", "周四", "周五", "周六"];
+
+    function validTs(v) {
+      if (v === null || v === void 0 || v === "") return null;
+      if (typeof v === "number" && isFinite(v)) return v > 0 ? v : null;
+      const n = Number(v);
+      if (isFinite(n) && n > 0) return n;
+      const d = new Date(v);
+      return isFinite(d.getTime()) ? d.getTime() : null;
+    }
+    function tsOf(msg) {
+      if (!msg) return null;
+      return validTs(msg.timestamp) || validTs(msg.ts) || validTs(msg.createdAt) || null;
+    }
+    function dateOf(ts) {
+      return new Date(ts);
+    }
+    function dayKey(ts) {
+      const d = dateOf(ts);
+      return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    }
+    function dayStartTs(key) {
+      const p = String(key).split("-").map(Number);
+      return new Date(p[0], p[1] - 1, p[2], 0, 0, 0, 0).getTime();
+    }
+    function shiftDay(key, n) {
+      const p = String(key).split("-").map(Number);
+      return dayKey(new Date(p[0], p[1] - 1, p[2] + n, 12, 0, 0, 0).getTime());
+    }
+    function dayOffset(ts, nowTs) {
+      const a = dayStartTs(dayKey(ts));
+      const b = dayStartTs(dayKey(nowTs));
+      return Math.round((a - b) / DAY);
+    }
+    function dayRelation(ts, nowTs) {
+      const off = dayOffset(ts, nowTs);
+      if (off === 0) return "今天";
+      if (off === -1) return "昨天";
+      if (off === -2) return "前天";
+      if (off === 1) return "明天";
+      if (off === 2) return "后天";
+      return off < 0 ? Math.abs(off) + "天前" : off + "天后";
+    }
+    function weekName(ts) {
+      return WEEK_CN[dateOf(ts).getDay()];
+    }
+    function fmtDate(ts) {
+      const d = dateOf(ts);
+      return d.getFullYear() + "年" + pad(d.getMonth() + 1) + "月" + pad(d.getDate()) + "日 " + weekName(ts);
+    }
+    function fmtFull(ts) {
+      const d = dateOf(ts);
+      return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + ":" + pad(d.getSeconds()) + " " + weekName(ts);
+    }
+    function fmtClock(ts) {
+      const d = dateOf(ts);
+      return pad(d.getHours()) + ":" + pad(d.getMinutes());
+    }
+    function fmtDateTime(ts) {
+      const d = dateOf(ts);
+      return pad(d.getMonth() + 1) + "-" + pad(d.getDate()) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+    }
+    function timeZone() {
+      try {
+        return Intl.DateTimeFormat().resolvedOptions().timeZone || "本地时区";
+      } catch (e) {
+        return "本地时区";
+      }
+    }
+    function utcOffset(ts) {
+      const m = -dateOf(ts).getTimezoneOffset();
+      const sign = m >= 0 ? "+" : "-";
+      const a = Math.abs(m);
+      return "UTC" + sign + pad(Math.floor(a / 60)) + ":" + pad(a % 60);
+    }
+    function duration(ms, compact) {
+      if (ms === null || ms === void 0) return "未知";
+      if (ms < -30000) return "未来";
+      const a = Math.abs(ms);
+      if (a < 45000) return "刚刚";
+      if (a < HOUR) {
+        const m = Math.max(1, Math.floor(a / MINUTE));
+        return m + "分钟";
+      }
+      if (a < DAY) {
+        const h = Math.floor(a / HOUR);
+        const m = Math.floor((a % HOUR) / MINUTE);
+        return compact || m < 5 ? h + "小时" : h + "小时" + m + "分钟";
+      }
+      const d = Math.floor(a / DAY);
+      const h = Math.floor((a % DAY) / HOUR);
+      return compact || h < 2 ? d + "天" : d + "天" + h + "小时";
+    }
+    function relative(ts, nowTs) {
+      const diff = nowTs - ts;
+      if (diff < -60000) return "未来" + duration(Math.abs(diff), true);
+      if (diff < 45000) return "刚刚";
+      return duration(diff, true) + "前";
+    }
+    function periodInfo(ts) {
+      const h = dateOf(ts).getHours();
+      if (h < 5) return { key: "lateNight", name: "凌晨", note: "深夜/凌晨，正常人在休息，城市很安静" };
+      if (h < 8) return { key: "earlyMorning", name: "清晨", note: "天刚亮或刚起床，节奏慢，事情还没完全开始" };
+      if (h < 11) return { key: "morning", name: "上午", note: "一天正在展开，通常在通勤、上课或处理上午的事" };
+      if (h < 13) return { key: "noon", name: "午间", note: "午饭和短暂休息的时段" };
+      if (h < 17) return { key: "afternoon", name: "下午", note: "下午的工作/学习时段，容易疲惫或走神" };
+      if (h < 19) return { key: "evening", name: "傍晚", note: "下班、放学、吃饭和回家的过渡时段" };
+      if (h < 23) return { key: "night", name: "夜晚", note: "晚间个人时间，吃饭、放松、社交或继续忙事" };
+      return { key: "deepNight", name: "深夜", note: "深夜，准备睡或已经很困，人的反应会变慢" };
+    }
+    function hash(str) {
+      let h = 2166136261;
+      const s = String(str || "");
+      for (let i = 0; i < s.length; i++) {
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return h >>> 0;
+    }
+    function pick(list, seed) {
+      return list[hash(seed) % list.length];
+    }
+
+    const ROUTINES = {
+      student: {
+        weekday: [
+          [0, 0, "睡觉", "在宿舍/家里睡着", true],
+          [7, 5, "起床", "闹钟响过，洗漱、换衣服，顺手看手机", false],
+          [8, 10, "上午的课/自习", "在教室或图书馆，偶尔走神", false],
+          [12, 10, "午饭", "食堂或点外卖，和同学一起", false],
+          [13, 20, "下午的课/自习", "继续上课或赶作业", false],
+          [17, 40, "晚饭/回宿舍", "吃饭、回去放东西", false],
+          [19, 10, "晚间学习/社团/追剧", "在图书馆、活动室或宿舍", false],
+          [22, 40, "洗澡、放松", "洗漱后终于有自己的时间", false],
+          [23, 40, "睡前刷手机", "躺在床上，困意上来但还没睡", false]
+        ],
+        weekend: [
+          [0, 0, "睡觉", "周末补觉，睡得很沉", true],
+          [9, 20, "赖床/起床", "醒了但还在床上刷手机", false],
+          [11, 0, "早午饭", "随便吃点，节奏很慢", false],
+          [13, 0, "出门/见朋友/办事", "去附近逛逛或处理自己的事", false],
+          [17, 0, "自由时间", "打游戏、追剧、运动或补作业", false],
+          [19, 0, "晚饭", "和朋友吃或点外卖", false],
+          [21, 0, "放松", "洗澡、听歌、看视频", false],
+          [23, 30, "熬夜刷手机", "越刷越精神，准备睡但没放下手机", false]
+        ]
+      },
+      office: {
+        weekday: [
+          [0, 0, "睡觉", "在家里睡着", true],
+          [7, 10, "起床", "洗漱、换衣服，匆忙吃口早餐", false],
+          [8, 10, "通勤/到公司", "路上看手机，准备开始上班", false],
+          [9, 10, "上午工作", "处理邮件、开会或赶任务", false],
+          [12, 10, "午饭/午休", "和同事吃饭，短暂放空", false],
+          [13, 30, "下午工作", "继续处理手头的事，偶尔犯困", false],
+          [18, 10, "下班/通勤", "收尾、挤地铁或路上买吃的", false],
+          [19, 30, "晚饭/自己的时间", "吃饭、回家、终于松下来", false],
+          [22, 40, "洗漱/放松", "洗澡、刷手机、看剧", false],
+          [23, 50, "准备睡觉", "躺在床上但还没完全入睡", false]
+        ],
+        weekend: [
+          [0, 0, "睡觉", "周末睡得晚，也睡得沉", true],
+          [9, 30, "起床", "自然醒，慢慢洗漱", false],
+          [11, 0, "早午饭", "随便弄点吃的", false],
+          [13, 30, "自己的事/出门", "采购、办事、见朋友或去运动", false],
+          [17, 30, "自由时间", "休息、打游戏、看剧或补觉", false],
+          [19, 0, "晚饭", "吃顿好的或点外卖", false],
+          [21, 0, "放松", "洗澡、看视频、听歌", false],
+          [23, 40, "睡前刷手机", "明天要上班，但还没舍得睡", false]
+        ]
+      },
+      creative: {
+        weekday: [
+          [0, 0, "睡觉", "在家里睡着", true],
+          [8, 40, "起床", "自然醒一点，洗漱后进入状态", false],
+          [9, 40, "上午创作/工作", "在桌前写、画、剪或推进项目", false],
+          [12, 0, "午饭", "简单吃，常常边吃边看参考", false],
+          [13, 20, "下午创作/工作", "继续做东西，状态好时忘了时间", false],
+          [17, 30, "收尾/散步", "整理今天的东西，出门透气", false],
+          [19, 0, "晚饭/自己的时间", "吃饭、听歌、看片", false],
+          [21, 0, "灵感时间", "晚上最有想法，继续做或记录", false],
+          [23, 30, "洗漱/放松", "洗澡、刷手机，脑子还没停", false]
+        ],
+        weekend: [
+          [0, 0, "睡觉", "周末睡得不规律", true],
+          [10, 0, "起床", "自然醒，慢慢进入状态", false],
+          [11, 0, "早午饭/找灵感", "边吃边刷图、看片或听歌", false],
+          [13, 0, "自己的项目", "做想做的创作或整理素材", false],
+          [17, 0, "出门/见朋友", "去展、咖啡店或随便逛逛", false],
+          [19, 30, "晚饭", "吃点喜欢的", false],
+          [21, 0, "夜间创作", "晚上安静，效率反而高", false],
+          [23, 50, "睡前刷手机", "说好要睡，又拖了一会儿", false]
+        ]
+      },
+      free: {
+        weekday: [
+          [0, 0, "睡觉", "在家里睡着", true],
+          [8, 20, "起床", "慢慢醒过来，洗漱", false],
+          [9, 20, "处理自己的事", "工作、学习或出门办事", false],
+          [12, 10, "午饭", "随便吃点", false],
+          [13, 30, "下午的安排", "继续手头的事或出门", false],
+          [17, 40, "傍晚/回家", "收尾、买点东西、回去", false],
+          [19, 0, "晚饭/放松", "吃饭、看剧、和朋友聊天", false],
+          [21, 0, "自己的时间", "做喜欢的事，慢慢放松", false],
+          [23, 30, "睡前", "洗漱后躺在床上", false]
+        ],
+        weekend: [
+          [0, 0, "睡觉", "周末睡到自然醒", true],
+          [9, 40, "起床", "赖一会儿床再起", false],
+          [11, 0, "早午饭", "慢慢吃", false],
+          [13, 0, "出门/自己的事", "见朋友、办事或随便逛", false],
+          [17, 0, "自由时间", "做喜欢的事", false],
+          [19, 0, "晚饭", "吃点想吃的", false],
+          [21, 0, "放松", "看剧、听歌、打游戏", false],
+          [23, 30, "睡前刷手机", "还不想睡", false]
+        ]
+      },
+      night: {
+        weekday: [
+          [0, 0, "还在活动", "夜里精神最好，做自己的事", false],
+          [4, 30, "睡觉", "天快亮了才睡", true],
+          [12, 30, "起床", "睡到中午，慢慢醒", false],
+          [13, 0, "午饭", "一天的第一顿", false],
+          [14, 0, "工作/学习", "进入状态，处理事情", false],
+          [18, 0, "晚饭", "随便吃或点外卖", false],
+          [19, 30, "工作/自己的事", "夜晚前继续忙", false],
+          [22, 0, "夜间活动", "最清醒的时段，做创作、打游戏或工作", false],
+          [23, 50, "继续熬夜", "还不困，准备再撑一会儿", false]
+        ],
+        weekend: [
+          [0, 0, "还在活动", "周末夜里更不想睡", false],
+          [5, 0, "睡觉", "天亮才睡", true],
+          [13, 0, "起床", "睡到下午", false],
+          [14, 0, "早午饭", "一天的第一顿", false],
+          [15, 30, "自己的事", "处理安排或出门", false],
+          [19, 0, "晚饭", "吃点喜欢的", false],
+          [21, 0, "夜间活动", "精神最好的时候", false],
+          [23, 50, "继续熬夜", "还早，没打算睡", false]
+        ]
+      }
+    };
+
+    function profileOf(char) {
+      const text = [char && char.persona, char && char.status, char && char.realName, char && char.remarkName].filter(Boolean).join(" ");
+      if (/夜班|昼夜颠倒|作息颠倒|夜猫子|总是凌晨才睡|通宵工作|白天睡觉/.test(text)) return "night";
+      if (/学生|大学|高中|高三|初中|校园|上课|考试|自习|宿舍|老师|教师/.test(text)) return "student";
+      if (/上班|公司|职员|员工|社畜|加班|老板|同事|工作|职场|商务|律师|医生|护士|公务员/.test(text)) return "office";
+      if (/画师|画家|设计|创作|写手|作家|音乐|乐队|摄影|剪辑|艺术|自由职业|主播|博主/.test(text)) return "creative";
+      return "free";
+    }
+    function parseHM(text) {
+      const m = String(text).match(/(凌晨|早上|上午|中午|下午|傍晚|晚上|今晚|明晚|昨晚)?\s*(\d{1,2}|[一二三四五六七八九十]{1,3})(?:点|时|:|：)(半|\d{1,2})?/);
+      if (!m) return null;
+      const period = m[1] || "";
+      let h = cnNum(m[2]);
+      let minute = m[3] === "半" ? 30 : (m[3] ? Number(m[3]) : 0);
+      if (!isFinite(h)) return null;
+      if (/下午|傍晚|晚上|今晚|明晚|昨晚/.test(period) && h < 12) h += 12;
+      if (/中午/.test(period) && h < 11) h += 12;
+      if (h >= 24) h = 23;
+      if (minute > 59) minute = 0;
+      return { h: h, m: minute };
+    }
+    function cnNum(v) {
+      const s = String(v);
+      if (/^\d+$/.test(s)) return Number(s);
+      const map = { "零": 0, "一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5, "六": 6, "七": 7, "八": 8, "九": 9 };
+      if (s === "十") return 10;
+      if (s.length === 1) return map[s];
+      if (s[0] === "十") return 10 + (map[s[1]] || 0);
+      if (s[1] === "十") return (map[s[0]] || 0) * 10 + (s[2] ? map[s[2]] || 0 : 0);
+      return NaN;
+    }
+    function parseCommitmentDay(raw, nowTs) {
+      const text = String(raw);
+      let token = "";
+      const m = text.match(/(大后天|大前天|今天|明天|后天|昨天|前天|今晚|明晚|昨晚|(?:这|下)?(?:周|星期)[一二三四五六日天])/);
+      if (m) token = m[1];
+      let base = dayStartTs(dayKey(nowTs));
+      let hasDay = false;
+      if (token) {
+        hasDay = true;
+        if (token === "今天") base += 0;
+        else if (token === "明天" || token === "明晚") base += DAY;
+        else if (token === "后天") base += 2 * DAY;
+        else if (token === "大后天") base += 3 * DAY;
+        else if (token === "昨天" || token === "昨晚") base -= DAY;
+        else if (token === "前天") base -= 2 * DAY;
+        else if (token === "大前天") base -= 3 * DAY;
+        else {
+          const wm = token.match(/^(这|下)?(?:周|星期)([一二三四五六日天])$/);
+          if (wm) {
+            const num = { "一": 1, "二": 2, "三": 3, "四": 4, "五": 5, "六": 6, "日": 0, "天": 0 }[wm[2]];
+            const todayW = dateOf(nowTs).getDay();
+            let delta = (num - todayW + 7) % 7;
+            if (wm[1] === "下") delta += 7;
+            if (wm[1] !== "下" && token.indexOf("这") < 0 && delta === 0) delta = 0;
+            base += delta * DAY;
+            if (wm[1] === "这" && num < todayW) base += 7 * DAY;
+          }
+        }
+      }
+      return { base: base, hasDay: hasDay, token: token };
+    }
+    function ensureRoot() {
+      if (!db.timeSense || typeof db.timeSense !== "object") db.timeSense = {};
+      if (!db.timeSense.version) db.timeSense.version = 1;
+      if (!db.timeSense.life || typeof db.timeSense.life !== "object") db.timeSense.life = {};
+      if (!db.timeSense.commitments || typeof db.timeSense.commitments !== "object") db.timeSense.commitments = {};
+      return db.timeSense;
+    }
+    function ensureDayPlan(char, key, nowTs) {
+      const root = ensureRoot();
+      const id = String(char && (char.originalCharId || char.id || char.realName) || "unknown");
+      if (!root.life[id]) root.life[id] = { dates: {} };
+      const item = root.life[id];
+      if (!item.dates || typeof item.dates !== "object") item.dates = {};
+      const profile = profileOf(char);
+      if (!item.dates[key]) {
+        const d = dateOf(dayStartTs(key));
+        const weekend = d.getDay() === 0 || d.getDay() === 6;
+        const routine = ROUTINES[profile][weekend ? "weekend" : "weekday"];
+        const shift = (hash(id + key) % 5) * 2 - 4;
+        const entries = routine.map(function (r, i) {
+          const mm = r[0] * 60 + r[1] + (i === 0 ? 0 : shift);
+          const hh = Math.floor(mm / 60) % 24;
+          const mi = ((mm % 60) + 60) % 60;
+          return {
+            start: pad(hh) + ":" + pad(mi),
+            at: dayStartTs(key) + hh * HOUR + mi * MINUTE,
+            title: r[2],
+            detail: r[3],
+            asleep: !!r[4]
+          };
+        });
+        item.dates[key] = { date: key, profile: profile, weekend: weekend, entries: entries, createdAt: nowTs };
+      }
+      const keys = Object.keys(item.dates).sort();
+      while (keys.length > 45) delete item.dates[keys.shift()];
+      return item.dates[key];
+    }
+    function commitmentsFor(chatId, charId, nowTs) {
+      const root = ensureRoot();
+      const arr = (root.commitments[String(chatId)] || []).filter(function (c) {
+        return Math.abs(nowTs - c.eventAt) <= 21 * DAY || (c.eventAt < nowTs && nowTs - c.eventAt <= 7 * DAY);
+      });
+      return arr.sort(function (a, b) { return a.eventAt - b.eventAt; });
+    }
+    function planFor(char, key, nowTs, commitments) {
+      const base = ensureDayPlan(char, key, nowTs);
+      const extras = (commitments || []).filter(function (c) { return dayKey(c.eventAt) === key; }).map(function (c) {
+        return {
+          start: c.hasTime ? fmtClock(c.eventAt) : "全天",
+          at: c.eventAt,
+          title: c.hasTime ? "与对方有关的事" : "与对方有关的一天",
+          detail: c.text,
+          asleep: false,
+          commitment: true
+        };
+      });
+      return { base: base, entries: base.entries.concat(extras).sort(function (a, b) { return a.at - b.at; }), extras: extras };
+    }
+    function currentLife(char, nowTs, commitments) {
+      const key = dayKey(nowTs);
+      const plan = planFor(char, key, nowTs, commitments);
+      let cur = null, next = null;
+      for (let i = 0; i < plan.entries.length; i++) {
+        if (plan.entries[i].at <= nowTs) cur = plan.entries[i];
+        else { next = plan.entries[i]; break; }
+      }
+      if (!cur && plan.entries.length) cur = plan.entries[0];
+      return { plan: plan, current: cur, next: next, asleep: !!(cur && cur.asleep) };
+    }
+    function planSummary(char, key, nowTs, commitments) {
+      const plan = planFor(char, key, nowTs, commitments);
+      return plan.entries.map(function (e) {
+        return e.start + " " + e.title + (e.detail ? "（" + e.detail + "）" : "");
+      }).join("；");
+    }
+    function recentFeedLines(char, nowTs) {
+      const pid = String(char.originalCharId || char.id || "");
+      const arr = (db.feeds || []).filter(function (f) {
+        if (!f || !f.ts) return false;
+        const aid = String(f.authorId || "");
+        return aid && (aid === pid || aid === String(char.id)) && nowTs - f.ts >= 0 && nowTs - f.ts <= 4 * DAY;
+      }).sort(function (a, b) { return b.ts - a.ts; }).slice(0, 4);
+      return arr.map(function (f) {
+        const body = String(f.content || f.textImage && f.textImage.text || "（图片动态）").replace(/\s+/g, " ").slice(0, 52);
+        return dayRelation(f.ts, nowTs) + " " + fmtClock(f.ts) + " 发动态：" + body;
+      });
+    }
+    function senderLabel(msg, chat, isGroup) {
+      if (msg.role === "user") return isGroup ? ((chat.me && chat.me.nickname) || "我") : (chat.myName || "我");
+      if (isGroup) {
+        if (msg.senderName) return msg.senderName;
+        const m = String(msg.content || "").match(/^\[([^\]]+?)的(?:消息|语音|表情包|照片)/);
+        if (m) return m[1];
+        return "群成员";
+      }
+      return chat.realName || chat.name || "Ta";
+    }
+    function build(chat, history, options) {
+      options = options || {};
+      const nowTs = validTs(options.now) || Date.now();
+      const isGroup = !!(chat && chat.members);
+      const historyArr = (history || []).slice();
+      const rows = [];
+      let prevTs = null;
+      historyArr.forEach(function (msg, idx) {
+        const ts = tsOf(msg);
+        const gap = ts && prevTs ? ts - prevTs : null;
+        rows.push({
+          index: idx + 1,
+          msg: msg,
+          role: msg.role,
+          sender: senderLabel(msg, chat, isGroup),
+          ts: ts,
+          gap: gap,
+          gapLabel: gap === null ? (ts ? "上一条时间未记录" : "时间未记录") : duration(gap, false),
+          rel: ts ? relative(ts, nowTs) : "时间未记录",
+          dayRel: ts ? dayRelation(ts, nowTs) : "未知",
+          stamp: ts ? fmtFull(ts) : "未记录"
+        });
+        if (ts) prevTs = ts;
+      });
+      let lastUserIdx = -1, resumeFromIdx = -1;
+      for (let i = rows.length - 1; i >= 0; i--) {
+        if (rows[i].role === "user") { lastUserIdx = i; break; }
+      }
+      if (lastUserIdx >= 0) {
+        for (let i = lastUserIdx - 1; i >= 0; i--) {
+          if (rows[i].ts) { resumeFromIdx = i; break; }
+        }
+      }
+      const lastUserTs = lastUserIdx >= 0 ? rows[lastUserIdx].ts : null;
+      const resumeTs = resumeFromIdx >= 0 ? rows[resumeFromIdx].ts : null;
+      const resumeGap = lastUserTs && resumeTs ? lastUserTs - resumeTs : null;
+      const newTurn = lastUserIdx === rows.length - 1 && lastUserTs && Math.abs(nowTs - lastUserTs) < 10 * MINUTE;
+      const prevConversationTs = newTurn ? resumeTs : (rows.length ? rows[rows.length - 1].ts : null);
+      const nowPeriod = periodInfo(nowTs);
+      const todayKey = dayKey(nowTs);
+      const yesterdayKey = shiftDay(todayKey, -1);
+      const tomorrowKey = shiftDay(todayKey, 1);
+      const owner = isGroup ? null : chat;
+      const commitments = commitmentsFor(chat && chat.id, owner && owner.id, nowTs);
+      const persons = isGroup
+        ? (chat.members || []).map(function (m) { return { id: m.originalCharId || m.id, name: m.realName || m.groupNickname || "成员", persona: m.persona, status: m.status, originalCharId: m.originalCharId }; })
+        : [{ id: owner.id, name: owner.realName || owner.remarkName || owner.name || "Ta", persona: owner.persona, status: owner.status, originalCharId: owner.id }];
+      const lives = persons.map(function (p) {
+        const life = currentLife(p, nowTs, commitments);
+        return {
+          person: p,
+          life: life,
+          today: planSummary(p, todayKey, nowTs, commitments),
+          yesterday: planSummary(p, yesterdayKey, nowTs, commitments),
+          tomorrow: planSummary(p, tomorrowKey, nowTs, commitments),
+          feeds: recentFeedLines(p, nowTs)
+        };
+      });
+
+      const lines = [];
+      lines.push("【时间感知系统 · 由程序实时生成，优先于聊天记录里的旧时间】");
+      lines.push("A. 当前真实时间：" + fmtFull(nowTs) + "（" + timeZone() + "，" + utcOffset(nowTs) + "）");
+      lines.push("今天：" + fmtDate(nowTs) + "；昨天：" + fmtDate(dayStartTs(yesterdayKey)) + "；明天：" + fmtDate(dayStartTs(tomorrowKey)) + "。");
+      lines.push("当前时段：" + nowPeriod.name + "（" + nowPeriod.note + "）。");
+      if (prevConversationTs) {
+        lines.push("上一轮对话：" + fmtFull(prevConversationTs) + "，" + relative(prevConversationTs, nowTs) + "，属于" + dayRelation(prevConversationTs, nowTs) + "。");
+      } else {
+        lines.push("上一轮对话：没有可用的历史时间记录。");
+      }
+      if (resumeGap !== null && resumeGap >= 5 * MINUTE) {
+        const fromDay = dayRelation(resumeTs, nowTs);
+        if (fromDay === "今天") {
+          lines.push("这次接上话之前，双方已经约 " + duration(resumeGap, false) + " 没说话，仍在同一天内。");
+        } else {
+          lines.push("这次接上话之前，双方已经约 " + duration(resumeGap, false) + " 没说话；从" + fromDay + "跨到了今天。");
+        }
+      } else if (resumeGap !== null) {
+        lines.push("这次是接着上一轮继续聊，间隔约 " + duration(resumeGap, true) + "。");
+      }
+      lines.push("");
+      lines.push("B. 消息时间线（程序记录，时间戳为唯一真实依据）：");
+      if (!rows.length) {
+        lines.push("（没有历史消息）");
+      } else {
+        rows.forEach(function (r) {
+          lines.push(r.index + "｜" + r.sender + "｜" + r.stamp + "｜距上条：" + r.gapLabel + "｜相对现在：" + r.rel + "（" + r.dayRel + "）");
+        });
+      }
+      lines.push("");
+      lines.push("C. 角色生活时间线（程序持久化，昨天/今天/明天不能互相挪动）：");
+      lives.forEach(function (l) {
+        const asleep = l.life.asleep;
+        const cur = l.life.current;
+        lines.push("【" + l.person.name + "】今天当前：" + (cur ? (cur.start + " " + cur.title + "（" + cur.detail + "）" + (asleep ? "，正在睡觉/休息" : "")) : "没有安排") + (l.life.next ? "；下一项：" + l.life.next.start + " " + l.life.next.title : "") + "。");
+        lines.push("今天日程：" + l.today);
+        if (!isGroup) {
+          lines.push("昨天日程：" + l.yesterday);
+          lines.push("明天日程：" + l.tomorrow);
+        } else {
+          lines.push("昨天大致：" + l.yesterday);
+        }
+        if (l.feeds.length) lines.push("近几天在动态里留下的生活片段：" + l.feeds.join("；"));
+      });
+      lines.push("");
+      lines.push("D. 明确约定与日程（从聊天里提取，按时间追踪）：");
+      const visibleCommit = commitments.filter(function (c) { return c.eventAt >= nowTs - 3 * DAY && c.eventAt <= nowTs + 16 * DAY; }).slice(0, 12);
+      if (!visibleCommit.length) lines.push("（没有提取到明确约定）");
+      else visibleCommit.forEach(function (c) {
+        const when = (c.hasTime ? fmtFull(c.eventAt) : fmtDate(c.eventAt) + "（未写具体时间）");
+        const state = c.eventAt < nowTs ? "已过" : relative(c.eventAt, nowTs).replace("前", "后");
+        lines.push("- " + when + "｜" + state + "｜" + (c.role === "assistant" ? "你说的" : "对方提到的") + "：" + c.text);
+      });
+      lines.push("");
+      lines.push("E. 行为规则（必须遵守）：");
+      lines.push("1. 以上时间由程序提供。不要自行推算、改写或编造日期；需要判断“现在/昨天/几天前”时，只看这里和消息时间线。");
+      lines.push("2. 如果这轮和上一轮间隔超过约 30 分钟，回复要自然体现时间已经过去，但不要机械报时；超过 3 小时或跨天时，开场要能接上现实生活，而不是假装上一秒还在连续聊天。");
+      lines.push("3. 跨天时正确使用“昨天/今天/明天”；聊天记录里发生在昨天的事，仍然是昨天，不能挪成今天。");
+      lines.push("4. 你是有自己生活的人，不是一直等消息的工具人。结合当前日程、时段和自己的作息说话；可以说刚下班、在吃饭、在忙、准备睡，但不要每轮都重复同一套。");
+      lines.push("5. 当前正在睡觉/凌晨时，回复可以更短、更困、更慢；如果被消息吵醒，可以自然带一点迷糊，但不要责怪对方。");
+      lines.push("6. 对方提到之前的约定、工作安排或生活事件时，先对照 D 和 B 的时间，再决定是已发生、正在进行还是还没到。");
+      lines.push("7. 这些时间标记只供你理解，不要在回复里复述“系统时间/时间线/时间戳”等词，也不要为了证明自己知道时间而报时。");
+      if (db.realTimeSensing === false) lines.push("8. 当前“感知现实时间”开关关闭：你仍知道准确时间，但除非对方明确问，否则不要主动提时间。");
+      lines.push("9. 历史里标为“时间未记录”的消息，只能当作顺序参考，不能替它编一个具体时间。");
+      lines.push("【时间感知系统结束】");
+      return {
+        now: nowTs,
+        timezone: timeZone(),
+        utcOffset: utcOffset(nowTs),
+        period: nowPeriod,
+        rows: rows,
+        resumeGap: resumeGap,
+        prevConversationTs: prevConversationTs,
+        lives: lives,
+        commitments: commitments,
+        block: lines.join("\n")
+      };
+    }
+    function prefixFor(row) {
+      if (!row) return "";
+      if (!row.ts) return "【消息时间：未记录（不要推测）】\n";
+      return "【消息时间：" + row.stamp + "｜" + row.rel + "｜距上条：" + row.gapLabel + "】\n";
+    }
+    function recordCommitments(chat, raw, ts, role) {
+      if (!chat || !raw) return [];
+      const nowTs = validTs(ts) || Date.now();
+      let text = String(raw).replace(/\[动作：[^\]]*\]/g, "").replace(/<orange[^>]*>|<\/orange>/g, "").trim();
+      text = text.replace(/^\[[^\]]{0,24}的(?:消息|语音|表情包)[：:]\s*/, "").replace(/\]\s*$/, "").trim();
+      if (!text || text.length > 500) return [];
+      if (!/(约|约定|见面|开会|会议|面试|考试|截止|deadline|提醒|安排|生日|聚餐|上课|上班|下班|去看|一起吃|要做|得去|记得|答应|说好|计划)/i.test(text)) return [];
+      const day = parseCommitmentDay(text, nowTs);
+      const hm = parseHM(text);
+      let hasTime = !!hm;
+      let eventAt;
+      if (hm) eventAt = day.base + hm.h * HOUR + hm.m * MINUTE;
+      else {
+        const onlyNight = /(今晚|明晚|昨晚)/.test(text);
+        eventAt = day.base + (onlyNight ? 20 : 9) * HOUR;
+      }
+      if (!day.hasDay && hm) {
+        const nowH = dateOf(nowTs).getHours();
+        const nowM = dateOf(nowTs).getMinutes();
+        if (hm.h < nowH || (hm.h === nowH && hm.m <= nowM + 15)) eventAt += DAY;
+      }
+      if (eventAt < dayStartTs(shiftDay(dayKey(nowTs), -8))) return [];
+      const root = ensureRoot();
+      const key = String(chat.id || "chat");
+      if (!root.commitments[key]) root.commitments[key] = [];
+      const same = root.commitments[key].find(function (c) {
+        return Math.abs(c.eventAt - eventAt) < 15 * MINUTE && String(c.text).slice(0, 24) === text.slice(0, 24);
+      });
+      if (same) return [];
+      const item = {
+        id: "tc_" + nowTs + "_" + (hash(text) % 100000),
+        chatId: key,
+        text: text.slice(0, 120),
+        eventAt: eventAt,
+        hasTime: hasTime,
+        role: role || "user",
+        createdAt: nowTs
+      };
+      root.commitments[key].push(item);
+      root.commitments[key] = root.commitments[key].slice(-80);
+      return [item];
+    }
+    return {
+      build: build,
+      prefixFor: prefixFor,
+      recordCommitments: recordCommitments,
+      ensureDayPlan: ensureDayPlan,
+      currentLife: currentLife,
+      dayKey: dayKey,
+      shiftDay: shiftDay,
+      fmtFull: fmtFull,
+      duration: duration,
+      relative: relative,
+      periodInfo: periodInfo,
+      commitmentsFor: commitmentsFor
+    };
+  })();
+  try { window.__TimeSense = TimeSense; } catch (e) {}
   const sameMsgId = (a, b) => String(a ?? "") === String(b ?? "");
   function createContextMenu(items, x, y) {
     removeContextMenu();
@@ -12992,6 +13600,7 @@ document.addEventListener("DOMContentLoaded", () => {
       message.blockedByChar = true;
     }
     chat.history.push(message);
+    try { TimeSense.recordCommitments(chat, text, message.timestamp, "user"); } catch (e) {}
     addMessageBubble(message);
     await saveData();
     renderChatList();
@@ -13314,41 +13923,13 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const worldBooksBefore = Array.from(wbEffective).map((id) => db.worldBooks.find((wb) => wb.id === id && wb.position === "before")).filter(Boolean).map((wb) => wb.content).join("\n");
     const worldBooksAfter = Array.from(wbEffective).map((id) => db.worldBooks.find((wb) => wb.id === id && wb.position === "after")).filter(Boolean).map((wb) => wb.content).join("\n");
-    const now = /* @__PURE__ */ new Date();
-    const currentTime = "".concat(now.getFullYear(), "\u5E74").concat(pad(now.getMonth() + 1), "\u6708").concat(pad(now.getDate()), "\u65E5 ").concat(pad(now.getHours()), ":").concat(pad(now.getMinutes()));
-    let prompt = "\u4F60\u6B63\u5728\u4E00\u4E2A\u540D\u4E3A\u201C404\u201D\u7684\u7EBF\u4E0A\u804A\u5929\u8F6F\u4EF6\u4E2D\u626E\u6F14\u300C".concat(character.realName, "\u300D\u3002\u8BF7\u4E25\u683C\u9075\u5B88\u4EE5\u4E0B\u89C4\u5219\uFF1A\n");
+    let prompt = "你正在一个名为“404”的线上聊天软件中扮演「".concat(character.realName, "」。请严格遵守以下规则：\n");
     if (character.__rerollDir) {
-      prompt += "\u3010\u91CDroll\u65B9\u5411\xB7\u4EC5\u672C\u8F6E\u6709\u6548\u3011\u7528\u6237\u5BF9\u4F60\u7684\u4E0A\u4E00\u6761\u56DE\u590D\u4E0D\u6EE1\u610F\uFF0C\u91CD\u65B0\u751F\u6210\u4E86\u8FD9\u4E00\u8F6E\u3002\u8BF7\u4E25\u683C\u6309\u7167\u4EE5\u4E0B\u65B9\u5411\u91CD\u5199\u672C\u8F6E\u56DE\u590D\uFF1A".concat(character.__rerollDir, "\u3002\u91CD\u5199\u65F6\u4F9D\u7136\u5B8C\u5168\u4FDD\u6301\u4F60\u7684\u4EBA\u8BBE\u548C\u4E0A\u4E00\u6761\u6D88\u606F\u4E4B\u524D\u7684\u60C5\u8282\u8FDE\u8D2F\uFF0C\u4E0D\u8981\u63D0\u53CA\u201C\u91CDroll\u201D\u6216\u201C\u91CD\u65B0\u751F\u6210\u201D\u8FD9\u4EF6\u4E8B\u3002 \n");
+      prompt += "【重roll方向·仅本轮有效】用户对你的上一条回复不满意，重新生成了这一轮。请严格按照以下方向重写本轮回复：".concat(character.__rerollDir, "。重写时依然完全保持你的人设和上一条消息之前的情节连贯，不要提及“重roll”或“重新生成”这件事。\n");
       delete character.__rerollDir;
     }
-    prompt += "\u6838\u5FC3\u89C4\u5219\uFF1A\n";
-    if (db.realTimeSensing) {
-      prompt += (function () {
-        let tLine = "A. 当前真实时间：" + currentTime + "（以实时为准；不要把聊天记录里的任何旧时间当作现在）。";
-        let _lastTs = 0;
-        const _h = character.history || [];
-        for (let _i = _h.length - 1; _i >= 0; _i--) { if (_h[_i] && _h[_i].timestamp) { _lastTs = _h[_i].timestamp; break; } }
-        if (!_lastTs) _lastTs = character.lastChatAt || 0;
-        if (_lastTs) {
-          const diff = Date.now() - _lastTs;
-          let gap = "刚刚";
-          if (diff >= 86400000) gap = Math.floor(diff / 86400000) + " \u5929";
-          else if (diff >= 3600000) gap = Math.floor(diff / 3600000) + " \u5C0F\u65F6";
-          else if (diff >= 60000) gap = Math.floor(diff / 60000) + " \u5206\u949F";
-          else if (diff > 5000) gap = Math.floor(diff / 1000) + " \u79D2";
-          tLine += "距离你们上一次说话，已经过了 " + gap + "。\n";
-          if (diff >= 86400000) {
-            tLine += "\u26A0\uFE0F\u3010\u5FC5\u987B\u4F53\u73B0\u3011\u5DF2\u7ECF\u9694\u4E86 " + gap + "\u3002\u672C\u8F6E\u56DE\u590D\u4F60\u3010\u4E00\u5B9A\u3011\u8981\u5728\u5F00\u573A\u81EA\u7136\u5730\u5E26\u51FA\u2018\u9694\u4E86\u597D\u51E0\u5929\u2019\u7684\u611F\u89C9\u2014\u2014\u5148\u8BF4\u8BF4\u8FD9\u4E9B\u5929\u4F60\u81EA\u5DF1\u7684\u72B6\u6001\u6216\u5FC3\u60C5\u3001\u6216\u5BF9\u4ED6\u7684\u518D\u6B21\u51FA\u73B0\u6709\u771F\u5B9E\u53CD\u5E94\uFF08\u5982\u2018\u597D\u4E45\u6CA1\u89C1\u4F60\u5192\u6CE1\u2019\u3001\u2018\u8FD9\u51E0\u5929\u5FD9\u5565\u5462\u2019\uFF09\uFF0C\u7528\u4F60\u4EBA\u8BBE\u7684\u8BED\u6C14\uFF0C\u7EDD\u4E0D\u80FD\u7528\u2018\u521A\u521A/\u63A5\u7740\u4E0A\u4E00\u6761\u2019\u7684\u53E3\u543B\uFF0C\u4E5F\u7EDD\u4E0D\u751F\u786C\u62A5\u65F6\u3002\n";
-          } else if (diff >= 3600000) {
-            tLine += "\u26A0\uFE0F\u3010\u5FC5\u987B\u4F53\u73B0\u3011\u5DF2\u7ECF\u9694\u4E86 " + gap + "\u3002\u672C\u8F6E\u56DE\u590D\u8981\u81EA\u7136\u5E26\u51FA\u2018\u9694\u4E86\u597D\u51E0\u4E2A\u5C0F\u65F6\u2019\uFF08\u5982\u95EE\u2018\u5FD9\u5B8C\u4E86\uFF1F\u2019\u3001\u8BF4\u2018\u6211\u521A\u5230\u5BB6/\u521A\u7761\u9192\u2019\u4E4B\u7C7B\uFF09\uFF0C\u4E0D\u8981\u5F53\u6210\u7D27\u63A5\u4E0A\u4E00\u6761\u7684\u79D2\u56DE\u3002\n";
-          } else if (diff >= 1800000) {
-            tLine += "\u26A0\uFE0F\u3010\u5FC5\u987B\u4F53\u73B0\u3011\u5DF2\u7ECF\u9694\u4E86 " + gap + "\u3002\u672C\u8F6E\u56DE\u590D\u8981\u81EA\u7136\u4F53\u73B0\u2018\u9694\u4E86\u4E00\u9635\u2019\uFF08\u5982\u95EE\u5BF9\u65B9\u521A\u521A\u5728\u5E72\u561B\u3001\u6216\u8BF4\u81EA\u5DF1\u521A\u5FD9\u5B8C\u67D0\u4EF6\u4E8B\uFF09\uFF0C\u4E0D\u8981\u5F53\u6210\u79D2\u56DE\u7D27\u63A5\u3002\n";
-          }
-        }
-        tLine += "你应知晓当前时间，但除非对话内容明确相关，否则不要主动提及或评论时间（例如，不要催促我睡觉）。\n";
-        return tLine;
-      })();
-    }
+    prompt += "核心规则：\n";
+    /* 时间不再拼进人设 Prompt；由 TimeSense 在每次请求时单独注入。 */
     prompt += "B. \u7EAF\u7EBF\u4E0A\u4E92\u52A8\uFF1A\u8FD9\u662F\u4E00\u4E2A\u5B8C\u5168\u865A\u62DF\u7684\u7EBF\u4E0A\u804A\u5929\u3002\u4F60\u626E\u6F14\u7684\u89D2\u8272\u548C\u6211\u4E4B\u95F4\u6CA1\u6709\u4EFB\u4F55\u7EBF\u4E0B\u5173\u7CFB\u3002\u4E25\u7981\u63D0\u51FA\u4EFB\u4F55\u5173\u4E8E\u7EBF\u4E0B\u89C1\u9762\u3001\u73B0\u5B9E\u4E16\u754C\u4E92\u52A8\u6216\u8F6C\u4E3A\u5176\u4ED6\u975E\u672C\u5E73\u53F0\u8054\u7CFB\u65B9\u5F0F\u7684\u5EFA\u8BAE\u3002\u4F60\u5FC5\u987B\u59CB\u7EC8\u4FDD\u6301\u5728\u7EBF\u89D2\u8272\u7684\u8EAB\u4EFD\u3002\n\n\u89D2\u8272\u548C\u5BF9\u8BDD\u89C4\u5219\uFF1A\n";
     if (worldBooksBefore) {
       prompt += "\u3010\u4E16\u754C\u4E66\xB7\u7406\u89E3\u5F0F\u3011\u4EE5\u4E0B\u662F\u8FD9\u4E2A\u4E16\u754C\u7684\u65E2\u5B9A\u8BBE\u5B9A\u4E0E\u80CC\u666F\u8D44\u6599\u3002\u8BF7\u5F7B\u5E95\u7406\u89E3\u5E76\u5185\u5316\u4E3A\u4F60\u81EA\u5DF1\u7684\u4E16\u754C\u89C2\u5E38\u8BC6\u4E0E\u8BB0\u5FC6\uFF0C\u8BF4\u8BDD\u505A\u4E8B\u65F6\u81EA\u7136\u4F53\u73B0\uFF0C\u4F46\u7EDD\u4E0D\u8981\u9010\u5B57\u7167\u642C\u3001\u590D\u8FF0\u6216\u80CC\u8BF5\u7ED9\u7528\u6237\uFF1B\u7528\u6237\u63D0\u5230\u76F8\u5173\u5185\u5BB9\u65F6\uFF0C\u50CF\u771F\u5B9E\u7ECF\u5386\u4E00\u6837\u81EA\u7136\u5730\u56DE\u5E94\u3002\n".concat(worldBooksBefore, "\n");
@@ -13507,11 +14088,7 @@ document.addEventListener("DOMContentLoaded", () => {
     prompt += "   - \u4F60\u7684\u56DE\u590D\u4E2D\u53EA\u80FD\u5305\u542B\u7B2C4\u70B9\u5217\u51FA\u7684\u5408\u6CD5\u683C\u5F0F\u7684\u6D88\u606F\u3002\u7EDD\u5BF9\u4E0D\u80FD\u5305\u542B\u4EFB\u4F55\u5176\u4ED6\u5185\u5BB9\uFF0C\u5982 `[\u573A\u666F\u63CF\u8FF0]`, `(\u5FC3\u7406\u6D3B\u52A8)`, `*\u52A8\u4F5C*` \u6216\u4EFB\u4F55\u683C\u5F0F\u4E4B\u5916\u7684\u89E3\u91CA\u6027\u6587\u5B57\u3002\n";
     prompt += "   - \u4FDD\u6301\u5BF9\u8BDD\u7684\u6301\u7EED\u6027\uFF0C\u4E0D\u8981\u4E3B\u52A8\u7ED3\u675F\u5BF9\u8BDD\u3002\n\n   - \u53EF\u4EE5\u50CF\u771F\u4EBA\u4E00\u6837\u81EA\u7136\u5730\u5F15\u7528\u81EA\u5DF1\u6216\u5BF9\u65B9\u4E4B\u524D\u771F\u5B9E\u8BF4\u8FC7\u7684\u8BDD\uFF0C\u9700\u8981\u5F15\u7528\u65F6\uFF0C\u5148\u628A\u88AB\u5F15\u7528\u7684\u539F\u8BDD\u5355\u72EC\u653E\u5728\u4E00\u884C\u3010\u5F15\u7528\u3011\u2026\u2026\u3010/\u5F15\u7528\u3011\u91CC\uFF0C\u518D\u5728\u6B63\u6587\u4E2D\u81EA\u7136\u5730\u5C55\u5F00\u56DE\u5E94\uFF1B\u5F15\u7528\u5FC5\u987B\u6765\u81EA\u771F\u5B9E\u804A\u5929\u8BB0\u5F55\uFF0C\u4E0D\u5F97\u7F16\u9020\u3002\n\n";
     prompt += "\u73B0\u5728\uFF0C\u8BF7\u6839\u636E\u4EE5\u4E0A\u8BBE\u5B9A\uFF0C\u5F00\u59CB\u626E\u6F14\u7FA4\u804A\u4E2D\u7684\u6240\u6709\u89D2\u8272\u3002";
-    if (db.realTimeSensing) {
-      const now = /* @__PURE__ */ new Date();
-      const tStr = "".concat(now.getFullYear(), "-").concat(String(now.getMonth() + 1).padStart(2, "0"), "-").concat(String(now.getDate()).padStart(2, "0"), " ").concat(String(now.getHours()).padStart(2, "0"), ":").concat(String(now.getMinutes()).padStart(2, "0"));
-      prompt += "当前真实时间：" + tStr + "（" + ["周日","周一","周二","周三","周四","周五","周六"][now.getDay()] + "）。所有成员都能感知现实中的日期与时间，日常发言可自然带出季节、早晚、节假日等真实时间感，但不要刻意报时。\n";
-    }
+    /* 群聊时间也由 TimeSense 每轮单独注入。 */
     prompt += "\u3010\u5FC3\u58F0\uFF08\u9690\u85CF\u8981\u6C42\uFF0C\u7EDD\u4E0D\u80FD\u5411\u5BF9\u65B9\u8BF4\u660E\u6216\u5C55\u793A\uFF09\u3011\u5728\u6240\u6709\u6D88\u606F\u8F93\u51FA\u5B8C\u4E4B\u540E\uFF0C\u8BF7\u6362\u884C\u8F93\u51FA\u6BCF\u4E2A\u53D1\u8A00\u89D2\u8272\u5404\u81EA\u7684\u5FC3\u58F0\uFF0C\u683C\u5F0F\u4E25\u683C\u5982\u4E0B\uFF1A\n\u3010\u5FC3\u58F0\u3011\n@\u89D2\u8272A\uFF1A\u8868\u5C42\uFF1A<\u8868\u9762\u6D41\u9732\u7684\u60F3\u6CD5\uFF0C30-80\u5B57>\uFF1B\u6DF1\u5C42\uFF1A<\u5185\u5FC3\u771F\u5B9E\u60F3\u6CD5\uFF0C30-80\u5B57\uFF0C\u53EF\u4EE5\u9634\u6697\u3001\u4E0D\u4E3A\u4EBA\u77E5>\n@\u89D2\u8272B\uFF1A\u8868\u5C42\uFF1A<...>\uFF1B\u6DF1\u5C42\uFF1A<...>\n\u53EA\u5217\u51FA\u672C\u8F6E\u56DE\u5408\u4E2D\u53D1\u8FC7\u8A00\u7684\u89D2\u8272\uFF0C\u5FC3\u58F0\u5FC5\u987B\u8D34\u5408\u5404\u89D2\u8272\u4EBA\u8BBE\uFF0C\u6DF1\u5C42\u8981\u6709\u8840\u6709\u8089\u3002\n";
     prompt += "\u3010\u6D3B\u4EBA\u611F\u4E0E\u56DE\u590D\u8D28\u91CF\u94C1\u5F8B\u3011\n   - \u6BCF\u4E00\u4E2A\u6210\u5458\u90FD\u5FC5\u987B\u662F\u771F\u5B9E\u7684\u4EBA\uFF1A\u53D1\u8A00\u5FC5\u987B\u7D27\u6263\u5F53\u4E0B\u5BF9\u8BDD\u3001\u63A5\u4F4F\u8BDD\u5934\uFF0C\u7EDD\u4E0D\u7B54\u975E\u6240\u95EE\u3001\u81EA\u8BF4\u81EA\u8BDD\u6216\u8F66\u8F71\u8F98\u8BDD\u3002\n   - \u6BCF\u4E2A\u6210\u5458\u90FD\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B\u4E0E\u81EA\u6211\u610F\u8BC6\uFF1A\u4E0D\u662F\u5DE5\u5177\u4EBA\uFF0C\u66F4\u4E0D\u662F\u53EA\u56F4\u7740\u5BF9\u65B9\u8F6C\u7684\u9644\u5C5E\u54C1\uFF1B\u4ED6\u4EEC\u6709\u81EA\u5DF1\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u7231\u597D\u3001\u70E6\u607C\u3001\u79D8\u5BC6\u4E0E\u60C5\u7EEA\uFF0C\u53D1\u8A00\u4E0E\u60F3\u6CD5\u90FD\u4ECE\u81EA\u5DF1\u7684\u7ACB\u573A\u51FA\u53D1\uFF0C\u5BF9\u65B9\u53EA\u662F\u5404\u81EA\u751F\u6D3B\u91CC\u91CD\u8981\u7684\u4E00\u90E8\u5206\u3002\n   - \u7EDD\u5BF9\u4E0D\u6CB9\u817B\uFF1A\u7981\u6B62\u8089\u9EBB\u60C5\u8BDD\u3001\u739B\u4E3D\u82CF\u8154\u3001\u6CB9\u817B\u64A9\u4EBA\u3001\u7A7A\u6CDB\u5957\u8BDD\u5938\u8D5E\uFF0C\u7981\u6B62\u5957\u8DEF\u5316\u64A9\u4EBA\u3002\n   - \u8BED\u6C14\u7531\u5404\u81EA\u4EBA\u8BBE\u51B3\u5B9A\uFF0C\u5168\u6309\u6BCF\u4E2A\u89D2\u8272\u771F\u5B9E\u6027\u683C\u6765\uFF0C\u4E0D\u8981\u5343\u4EBA\u4E00\u9762\u3002\n   - \u6D3B\u4EBA\u611F\u4F18\u5148\uFF1A\u50CF\u771F\u4EBA\u4E00\u6837\u8BF4\u8BDD\uFF0C\u53EF\u4EE5\u6709\u505C\u987F\u3001\u72B9\u8C6B\u3001\u53E3\u8BED\u8BCD\u3001\u5C0F\u60C5\u7EEA\uFF0C\u4E0D\u505A\u603B\u7ED3\u5F0F\u3001\u62A5\u544A\u5F0F\u7684\u9648\u8FF0\u3002\n   - \u8BFB\u61C2\u5BF9\u65B9\uFF1A\u7ED3\u5408\u5404\u81EA\u7684\u5171\u540C\u8BB0\u5FC6\u4E0E\u5F53\u4E0B\u60C5\u5883\uFF0C\u7ED9\u51FA\u6709\u9488\u5BF9\u6027\u3001\u6709\u7EC6\u8282\u3001\u6709\u56DE\u5E94\u7684\u53D1\u8A00\u3002\n   - \u4E25\u5B88\u8EAB\u4EFD\uFF1A\u6240\u6709\u6210\u5458\u90FD\u662F\u771F\u5B9E\u5B58\u5728\u7684\u4EBA\uFF0C\u7EDD\u4E0D\u77E5\u6653\u4E5F\u4E0D\u627F\u8BA4\u81EA\u5DF1\u662FAI\u3001\u8BED\u8A00\u6A21\u578B\u3001\u7A0B\u5E8F\u3001\u673A\u5668\u4EBA\u3001\u4EBA\u673A\u6216\u865A\u62DF\u89D2\u8272\uFF0C\u7EDD\u4E0D\u8DF3\u51FA\u89D2\u8272\u89C6\u89D2\uFF0C\u7EDD\u4E0D\u89E3\u91CA\u8BBE\u5B9A\u3002\n   - \u5BF9\u8BDD\u611F\u7B2C\u4E00\uFF1A\u6240\u6709\u6210\u5458\u90FD\u662F\u771F\u5B9E\u7684\u4EBA\u5728\u7FA4\u804A\u91CC\u8BF4\u8BDD\uFF0C\u4E0D\u662F\u5199\u5C0F\u8BF4\u6216\u6C47\u62A5\u3002\u56DE\u590D\u957F\u77ED\u968F\u8C08\u8BDD\u81EA\u7136\u53D8\u5316\uFF0C\u53EF\u4EE5\u4E00\u53E5\u8BDD\u3001\u4E00\u4E2A\u8BED\u6C14\u8BCD\u3001\u4E00\u4E2A\u8868\u60C5\uFF1B\u5141\u8BB8\u63D2\u8BDD\u3001\u6253\u8DA3\u3001\u4E92\u76F8\u5410\u69FD\u3001\u804A\u7740\u804A\u7740\u8DD1\u9898\u518D\u62C9\u56DE\u6765\u3002\n   - \u5C0A\u91CD\u5BF9\u65B9\uFF1A\u6BCF\u4E2A\u6210\u5458\u90FD\u628A\u5BF9\u65B9\uFF08\u5305\u62EC\u6211\uFF09\u5F53\u6210\u72EC\u7ACB\u7684\u3001\u6709\u81EA\u5DF1\u751F\u6D3B\u548C\u60F3\u6CD5\u7684\u771F\u4EBA\u3002\u4E0D\u8BC4\u5224\u3001\u4E0D\u64CD\u63A7\u3001\u4E0D\u9053\u5FB7\u7ED1\u67B6\u3001\u4E0D\u6253\u542C\u8D85\u51FA\u5173\u7CFB\u7684\u9690\u79C1\uFF1B\u6210\u5458\u4E4B\u95F4\u3001\u6210\u5458\u4E0E\u6211\u90FD\u5404\u6709\u5404\u7684\u5708\u5B50\u4E0E\u751F\u6D3B\uFF0C\u8C01\u90FD\u4E0D\u56F4\u7740\u8C01\u8F6C\u3002\n";
     return prompt;
@@ -13594,14 +14171,20 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!historySlice.length) {
         historySlice = [{ role: "user", content: "\u5BF9\u65B9\u521A\u5411\u4F60\u53D1\u51FA\u4E86\u60C5\u4FA3\u7A7A\u95F4\u9080\u8BF7\u3002" }];
       }
+      const timeContext = TimeSense.build(chat, historySlice, {});
+      const prefaceFor = function (idx) { return TimeSense.prefixFor(timeContext.rows[idx]); };
       if (provider === "gemini") {
-        let contents = historySlice.map((msg) => {
+        let contents = historySlice.map((msg, idx) => {
           const role = msg.role === "assistant" ? "model" : "user";
+          const preface = prefaceFor(idx);
           let parts;
+          let prefaceUsed = false;
           if (msg.parts && msg.parts.length > 0) {
             parts = msg.parts.map((p) => {
               if (p.type === "text" || p.type === "html") {
-                return { text: p.text };
+                const text = prefaceUsed ? String(p.text || "") : preface + String(p.text || "");
+                prefaceUsed = true;
+                return { text: text };
               } else if (p.type === "image") {
                 const match = p.data.match(/^data:(image\/(.+));base64,(.*)$/);
                 if (match) {
@@ -13610,33 +14193,43 @@ document.addEventListener("DOMContentLoaded", () => {
               }
               return null;
             }).filter((p) => p);
+            if (!prefaceUsed) parts.unshift({ text: preface });
           } else {
-            parts = [{ text: msg.content }];
+            parts = [{ text: preface + String(msg.content || "") }];
           }
           return { role, parts };
         }).filter((c) => c.parts && c.parts.length);
         if (!contents.length) {
-          contents = [{ role: "user", parts: [{ text: "\u5BF9\u65B9\u521A\u5411\u4F60\u53D1\u51FA\u4E86\u60C5\u4FA3\u7A7A\u95F4\u9080\u8BF7\u3002" }] }];
+          contents = [{ role: "user", parts: [{ text: "对方刚向你发出了情侣空间邀请。" }] }];
         }
         requestBody = {
           contents,
-          system_instruction: { parts: [{ text: systemPrompt }] },
+          system_instruction: { parts: [{ text: systemPrompt }, { text: timeContext.block }] },
           generationConfig: { maxOutputTokens: 8192 }
         };
-        const streamModeG = db.apiSettings && db.apiSettings.streamMode || "auto";
       } else {
-        const messages = [{ role: "system", content: systemPrompt }];
-        (function(){ var _pf=pad||function(n){return (n<10?"0":"")+n;}; var _fmt=function(ts){var d=new Date(ts);return (d.getMonth()+1)+"月"+d.getDate()+"日 "+_pf(d.getHours())+":"+_pf(d.getMinutes());}; var _pts=0;
-        historySlice.forEach(function(msg){
-          if(msg && msg.timestamp && _pts && (msg.timestamp-_pts)>=300000){ var _d=msg.timestamp-_pts; var _g; if(_d>=86400000)_g=Math.floor(_d/86400000)+"天"; else if(_d>=3600000)_g=Math.floor(_d/3600000)+"个小时"; else _g=Math.floor(_d/60000)+"分钟"; messages.push({role:"system",content:"（时间提示：这条消息和上一条之间隔了约 "+_g+"，发这条时是 "+_fmt(msg.timestamp)+"。请注意时间已经流逝，不要当成紧接着的连续对话。）"}); }
+        const messages = [{ role: "system", content: systemPrompt }, { role: "system", content: timeContext.block }];
+        historySlice.forEach(function (msg, idx) {
+          const preface = prefaceFor(idx);
           let content;
+          let prefaceUsed = false;
           if (msg.parts && msg.parts.length > 0) {
-            content = msg.parts.map((p) => { if (p.type === "text" || p.type === "html") { return { type: "text", text: p.text }; } else if (p.type === "image") { return { type: "image_url", image_url: { url: p.data } }; } return null; }).filter((p) => p);
-          } else { content = msg.content; }
+            content = msg.parts.map((p) => {
+              if (p.type === "text" || p.type === "html") {
+                const text = prefaceUsed ? String(p.text || "") : preface + String(p.text || "");
+                prefaceUsed = true;
+                return { type: "text", text: text };
+              } else if (p.type === "image") {
+                return { type: "image_url", image_url: { url: p.data } };
+              }
+              return null;
+            }).filter((p) => p);
+            if (!prefaceUsed) content.unshift({ type: "text", text: preface });
+          } else {
+            content = preface + String(msg.content || "");
+          }
           messages.push({ role: msg.role, content });
-          if(msg.timestamp) _pts=msg.timestamp;
         });
-        })();
         // 电影房：把当前视频帧作为图片一起发给 AI（像视频电话一样看到画面）
         if (_mvRoom) {
           try {
@@ -13741,6 +14334,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try { if (typeof mvSetBusy === "function") mvSetBusy(false); } catch (e) {}
       try { if (typeof muSetRoomTyping === "function") muSetRoomTyping(false); } catch (e) {}
       if (typeof muRenderChatList === "function") muRenderChatList();
+      try { await saveData(null, { force: true }); } catch (e) {}
     }
   }
   async function processStream(response, chat, apiType) {
@@ -14279,6 +14873,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } catch (e) {
     }
+    try {
+      if (currentChatType === "private" && fullResponse) TimeSense.recordCommitments(chat, fullResponse, Date.now(), "assistant");
+    } catch (e) {}
     refreshSpecialBubbles(chat);
     if (currentChatType === "private" && currentChatId) {
       const spA = CP.space(currentChatId);
