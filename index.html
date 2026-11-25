@@ -9968,6 +9968,10 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                 <div class="form-group"><label for="archive-char-persona">角色人设 <span style="float:right;font-size:12px;color:#6a6a73;cursor:pointer;" onclick="document.getElementById('archive-char-txt').click()">导入 TXT</span></label><textarea id="archive-char-persona" rows="6" placeholder="详细描述角色的性格、背景、说话风格等。" required></textarea><input type="file" id="archive-char-txt" accept=".txt,text/plain" style="display:none;" onchange="importTxtFile(this,'archive-char-persona','archive-char-realname')"></div>
                 <div class="form-group"><label>挂载用户面具（可多选，挂到角色身上）</label><div id="archive-mask-select-list" class="select-box-list"></div></div>
                 <div class="form-group"><label>挂载世界书（可多本）</label><div id="archive-wb-select-list" class="select-box-list"></div></div>
+                <div class="form-group" style="border:1px solid #ececec;border-radius:12px;padding:12px;background:#fafafa;">
+                    <label for="archive-create-auto-relation" style="display:flex;align-items:center;justify-content:space-between;margin:0;gap:12px;">允许角色自主更改关系<input type="checkbox" id="archive-create-auto-relation" class="ios-sw" checked></label>
+                    <p style="font-size:11px;color:#8b8b90;line-height:1.7;margin:7px 0 0;">关闭：只在记忆 APP 记录 Ta 对这段关系的真实想法，档案里的关系保持你设定的样子。开启：Ta 可以根据自己的认知，在档案里改变这段关系的名字。</p>
+                </div>
                 <button type="submit" class="btn btn-primary">创建角色</button>
             </form>
         </main>
@@ -9995,6 +9999,11 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                 <div class="form-group"><label for="archive-edit-persona">角色人设 <span style="float:right;font-size:12px;color:#6a6a73;cursor:pointer;" onclick="document.getElementById('archive-edit-txt').click()">导入 TXT</span></label><textarea id="archive-edit-persona" rows="6" required></textarea><input type="file" id="archive-edit-txt" accept=".txt,text/plain" style="display:none;" onchange="importTxtFile(this,'archive-edit-persona','archive-edit-realname')"></div>
                 <div class="form-group"><label>挂载用户面具（可多选）</label><div id="archive-edit-mask-select-list" class="select-box-list"></div></div>
                 <div class="form-group"><label>挂载世界书（可多本）</label><div id="archive-edit-wb-select-list" class="select-box-list"></div></div>
+                <div class="form-group" style="border:1px solid #ececec;border-radius:12px;padding:12px;background:#fafafa;">
+                    <label for="archive-edit-auto-relation" style="display:flex;align-items:center;justify-content:space-between;margin:0;gap:12px;">允许角色自主更改关系<input type="checkbox" id="archive-edit-auto-relation" class="ios-sw"></label>
+                    <p style="font-size:11px;color:#8b8b90;line-height:1.7;margin:7px 0 0;">关闭：只在记忆 APP 记录 Ta 对这段关系的真实想法，档案里的关系保持你设定的样子。开启：Ta 可以根据自己的认知，在档案里改变这段关系的名字。</p>
+                    <div id="archive-edit-rel-info" style="font-size:12px;color:#5f5f66;line-height:1.65;margin-top:9px;padding-top:9px;border-top:1px solid #ececec;"></div>
+                </div>
                 <button type="submit" class="btn btn-primary">保存修改</button>
                 <button type="button" class="btn btn-danger" id="archive-delete-char-btn" style="margin-top:10px;">删除角色</button>
             </form>
@@ -10250,11 +10259,9 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                 <button type="button" class="btn btn-neutral" id="offline-save-config-btn">保存配置</button>
             </div>
             <div class="offline-status-bar">
-                <span>线下轮次：<b id="offline-round-count2">0</b></span>
-                <span>记忆条数：<b id="offline-memory-count2">0</b></span>
+                <span>剧情线 <b id="offline-round-count2">0</b></span>
+                <span>已总结至第 <b id="offline-sum-cursor2">0</b> 轮</span>
             </div>
-            <div class="offline-memory-title">记忆库（与线上单聊/群聊互通）</div>
-            <div id="offline-memory-list2"></div>
         </main>
     </div>
 
@@ -10755,7 +10762,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.6.0";
+  const APP_VERSION = "v6.0.0";
   let db = {
     characters: [],
     groups: [],
@@ -12649,7 +12656,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.6.0</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.0.0</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12683,7 +12690,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.6.0<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.0.0<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -15409,37 +15416,119 @@ document.addEventListener("DOMContentLoaded", () => {
     if (f > t) return [];
     return rounds.slice(f - 1, t).reduce((a, b) => a.concat(b), []);
   }
-  function parseSummaryBlocks(text) {
-    const facts = [], impressions = [];
-    let mode = null, sawHeader = false;
-    String(text || "").split("\n").forEach((raw) => {
-      const l = raw.trim();
-      if (/^permanent_facts\s*:?/i.test(l)) {
-        mode = "fact";
-        sawHeader = true;
-        return;
-      }
-      if (/^impression_mood\s*:?/i.test(l)) {
-        mode = "impress";
-        sawHeader = true;
-        return;
-      }
-      if (/^[#>]/.test(l) || !l) return;
-      /* 兼容自定义总结提示词：去掉序号、项目符号、「」包裹；长段落按句切分成独立条目 */
-      let item = l.replace(/^[-•*·]\s*/, "").replace(/^[0-9０-９]+[.、)）]\s*/, "").replace(/^[一二三四五六七八九十]+、\s*/, "").replace(/^「|」$/g, "").trim();
-      if (!item || item.length < 3) return;
-      if (/^[^：:]{1,10}[：:]$/.test(item)) return;
-      if (/^[【\[].{0,20}[】\]]$/.test(item)) return;
-      if (/^[\-=*—·_]{3,}$/.test(item)) return;
-      const parts = item.length > 140 ? item.split(/(?<=[。！？!?；;])/).map(function (x) { return x.trim(); }).filter(function (x) { return x.length >= 6; }) : [item];
-      parts.forEach(function (one) {
-        if (one.length < 3) return;
-        if (mode === "fact") facts.push(one);
-        else if (mode === "impress") impressions.push(one);
-        else if (!sawHeader) facts.push(one);
+  /* ===== 总结解析：一次 API 产出「一条总述 + 分类小节 + 关系变化 + 角色想法」 ===== */
+  function stripSummaryMarks(v) {
+    return String(v == null ? "" : v)
+      .replace(/```[a-zA-Z]*/g, "")
+      .replace(/`+/g, "")
+      .replace(/\*\*/g, "")
+      .replace(/[*_~]+/g, "")
+      .replace(/\s*#+\s*/g, "")
+      .replace(/^\s*[-–—•·]+\s*/g, "")
+      .replace(/^\s*\d+[.、)）]\s*/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+  const SUMMARY_TYPE_MAP = { "核心": "core", "事件": "episodic", "关系": "relationship", "人物": "profile", "认知": "profile", "未完成": "loop", "约定": "loop", "生活": "life", "社交": "social", "想法": "semantic", "主题": "semantic" };
+  function parseSummaryRich(text) {
+    const raw = String(text || "");
+    const lines = raw.split(/\r?\n/).map(function (l) { return l.trim(); }).filter(Boolean);
+    let whole = "", sectionLine = "", relationLine = "", thought = "";
+    const loose = [];
+    lines.forEach(function (l) {
+      const plain = l.replace(/^[#>*\-\s]+/, "");
+      let m = plain.match(/^(总述|摘要|总结)\s*[：:]\s*(.*)$/);
+      if (m) { whole += (whole ? " " : "") + m[2]; return; }
+      m = plain.match(/^(分类|小节|记忆分类)\s*[：:]\s*(.*)$/);
+      if (m) { sectionLine += (sectionLine ? "；" : "") + m[2]; return; }
+      m = plain.match(/^(关系|关系变化)\s*[：:]\s*(.*)$/);
+      if (m) { relationLine = m[2]; return; }
+      m = plain.match(/^(想法|关系想法|角色想法)\s*[：:]\s*(.*)$/);
+      if (m) { thought = m[2]; return; }
+      if (/^(permanent_facts|永久事实|impression_mood|情绪印象)\s*[：:]?$/i.test(plain)) return;
+      loose.push(plain);
+    });
+    whole = stripSummaryMarks(whole);
+    const sections = [];
+    String(sectionLine).split(/[；;]\s*(?=(?:核心|事件|关系|人物|认知|未完成|约定|生活|社交|想法|主题)\s*[：:｜|])/).forEach(function (part) {
+      const p = stripSummaryMarks(part);
+      if (!p) return;
+      const m = p.match(/^([^：:｜|]{1,8})\s*[：:｜|]\s*(.+)$/);
+      let label = m ? m[1].trim() : "事件";
+      let body = m ? m[2].trim() : p;
+      if (!body || body.length < 3) return;
+      let type = "episodic";
+      Object.keys(SUMMARY_TYPE_MAP).forEach(function (k) { if (label.indexOf(k) >= 0) type = SUMMARY_TYPE_MAP[k]; });
+      if (type === "core") return; /* 总述本身就是核心记忆，避免重复覆盖 */
+      sections.push({ label: label, type: type, content: body });
+    });
+    const relation = { trust: null, familiar: null, intimate: null, label: "", thought: "", reason: "" };
+    String(relationLine).split(/[；;]/).forEach(function (part) {
+      const p = part.trim();
+      let m = p.match(/(信任|熟悉|亲密)\s*[：:]?\s*([+\-＋－]?\d+)/);
+      if (m) { relation[m[1] === "信任" ? "trust" : m[1] === "熟悉" ? "familiar" : "intimate"] = Number(String(m[2]).replace("＋", "+").replace("－", "-")); return; }
+      m = p.match(/^(关系名|关系名称|当前关系|称呼)\s*[：:｜|]\s*(.+)$/);
+      if (m) { relation.label = stripSummaryMarks(m[2]).slice(0, 12); return; }
+      m = p.match(/^(判断|原因|依据)\s*[：:｜|]\s*(.+)$/);
+      if (m) relation.reason = stripSummaryMarks(m[2]);
+    });
+    relation.thought = stripSummaryMarks(thought).slice(0, 300);
+    if (!relation.reason) relation.reason = relation.thought || whole.slice(0, 60);
+    if (!whole && loose.length) whole = stripSummaryMarks(loose.join("；"));
+    if (!sections.length && !whole) {
+      const parsed = raw.match(/「([^」]+)」/g) || [];
+      parsed.forEach(function (q) { const c = stripSummaryMarks(q.replace(/「|」/g, "")); if (c.length > 4) whole += (whole ? "；" : "") + c; });
+    }
+    return { whole: whole.slice(0, 2600), sections: sections.slice(0, 8), relation: relation };
+  }
+  window.parseSummaryRich = parseSummaryRich;
+  function summaryFormatRule() {
+    return [
+      "输出必须使用纯文本，禁止任何 Markdown 符号：不要星号、井号、反引号、短横线项目符号、加粗、表格。",
+      "严格按下面四行输出，四行的内容由同一次回答一次性给出，不要分多次、不要额外解释：",
+      "总述：把这段对话合成一条完整的核心记忆，按时间顺序写清关键事件、约定、关系变化、情绪与后续影响；只用一段话，可用分号连接，不要换行。",
+      "分类：事件｜…；关系｜…；人物｜…；生活｜…；未完成｜…；每条只写该分类里的真实内容，没有的分类省略。",
+      "关系：信任+0；熟悉+0；亲密+0；关系名｜…。数值是这次对话带来的变化，只能是 -3 到 +3 的整数；关系名只有角色真的会重新定义这段关系时才写，否则留空。",
+      "想法：用角色的第一人称，写一句 Ta 对这段关系现在处境的真实想法，符合人设，不讨好、不总结、不分析。"
+    ].join("\n");
+  }
+  function writeRichSummary(charId, source, f, t, mid, batch, rich) {
+    if (!charId || !mid || !rich) return false;
+    const range = [f, t];
+    const head = "第" + f + "–" + t + "轮：";
+    let whole = rich.whole || (rich.sections || []).map(function (x) { return x.content; }).join("；");
+    if (whole && whole.length > 3) {
+      MemoryOS.add(charId, head + whole, {
+        memory_type: "core", source_type: source, mask_id: mid,
+        source_batch: batch + "#M", round_range: range,
+        importance: 0.9, confidence: 0.75, tags: ["总结", "剧情"], skip_relation: true
+      });
+    }
+    (rich.sections || []).forEach(function (sec, k) {
+      if (!sec || !sec.content || sec.content.length < 3) return;
+      MemoryOS.add(charId, sec.content, {
+        memory_type: sec.type || "episodic", source_type: source, mask_id: mid,
+        source_batch: batch + "#S" + k, round_range: range,
+        confidence: sec.type === "loop" ? 0.55 : 0.72,
+        tags: [sec.label || "分类"], skip_relation: true
       });
     });
-    return { facts, impressions };
+    if (rich.relation && rich.relation.thought) {
+      MemoryOS.add(charId, "对这段关系的想法：" + rich.relation.thought, {
+        memory_type: "relationship", source_type: source, mask_id: mid,
+        source_batch: batch + "#T", round_range: range,
+        importance: 0.62, confidence: 0.62, tags: ["关系想法"], skip_relation: true
+      });
+    }
+    try { MemoryOS.applySummaryRelation(charId, mid, rich.relation || {}, whole || ""); } catch (e) {}
+    return true;
+  }
+  function parseSummaryBlocks(text) {
+    const rich = parseSummaryRich(text);
+    const facts = rich.whole ? [rich.whole] : [];
+    const impressions = [];
+    (rich.sections || []).forEach(function (sec) { if (sec.type === "profile" || sec.type === "semantic") impressions.push(sec.content); });
+    return { facts: facts, impressions: impressions, rich: rich };
   }
   window.parseSummaryBlocks = parseSummaryBlocks;
   function pushMemory(charId, source, content, type, maskId, batch, roundRange) {
@@ -17644,8 +17733,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const relEl = document.getElementById("setting-relation-display");
       if (relEl) {
-        const rl = getRelationship("user", "self", "char", e.id);
-        relEl.textContent = rl ? "\u4F60\u548CTa\u7684\u5173\u7CFB\uFF1A" + rl : "";
+        const autoRl = (typeof MemoryOS !== "undefined" && MemoryOS.relationLabel) ? MemoryOS.relationLabel(e.id, resolveMaskForChat(e)) : "";
+        const rl = autoRl || getRelationship("user", "self", "char", e.id);
+        relEl.textContent = rl ? "\u4F60\u548CTa\u7684\u5173\u7CFB\uFF1A" + rl + (autoRl ? "\uFF08Ta\u81EA\u4E3B\uFF09" : "") : "";
       }
       document.getElementById("setting-char-avatar-preview").src = e.avatar;
       const headerAva = document.getElementById("setting-header-avatar");
@@ -19184,6 +19274,52 @@ document.addEventListener("DOMContentLoaded", () => {
       return st ? (st.history || []).slice().reverse() : [];
     }
 
+    /* 总结驱动关系：想法永远记录；关系名只在角色自主开关打开时写入 */
+    function applySummaryRelation(charId, mid, rel, fallbackText) {
+      const c = charOf(charId);
+      if (!c || !mid) return null;
+      rel = rel || {};
+      const st = relState(charId, mid);
+      if (!st) return null;
+      const clamp = function (v, lo, hi) { return Math.max(lo, Math.min(hi, Math.round(v))); };
+      const before = { trust: st.trust, familiar: st.familiar, intimate: st.intimate };
+      let changed = false;
+      [["trust", 8, 99], ["familiar", 8, 95], ["intimate", 5, 92]].forEach(function (k) {
+        const d = rel[k[0]];
+        if (typeof d === "number" && !isNaN(d) && d !== 0) {
+          st[k[0]] = clamp(st[k[0]] + d, k[1], k[2]);
+          changed = true;
+        }
+      });
+      if (!changed && fallbackText) {
+        try { bumpRelation(charId, mid, fallbackText, 0.1, "", "relationship"); } catch (e) {}
+      }
+      const thought = String(rel.thought || "").trim();
+      c.relationThoughtByMask = c.relationThoughtByMask || {};
+      c.relationThoughtByMask[mid] = { text: thought, label: rel.label || "", at: now() };
+      if (c.autoRelation !== false && rel.label) {
+        c.relationLabelByMask = c.relationLabelByMask || {};
+        c.relationLabelByMask[mid] = String(rel.label).slice(0, 12);
+      }
+      st.updated_at = now();
+      st.history = (st.history || []).concat([{
+        at: now(), before: before, after: { trust: st.trust, familiar: st.familiar, intimate: st.intimate },
+        reason: clip(rel.reason || thought || fallbackText, 80), memory_id: "", dir: st.trust >= before.trust ? 1 : -1
+      }]).slice(-20);
+      saveData();
+      return st;
+    }
+    function relationLabel(charId, mid) {
+      const c = charOf(charId);
+      if (!c || c.autoRelation === false) return "";
+      return (c.relationLabelByMask || {})[mid || maskOf(charId)] || "";
+    }
+    function relationThought(charId, mid) {
+      const c = charOf(charId);
+      const r = (c && c.relationThoughtByMask) ? c.relationThoughtByMask[mid || maskOf(charId)] : null;
+      return r && r.text ? r : null;
+    }
+
     /* ---------- Updater：冲突处理 / 未完成事项闭环 ---------- */
     function closeLoops(cid, mid, text, newId) {
       const done = /(已经|完成|结束|搞定|考完|通过|做到|吃到了|看完了|决定|确定|(逛|看|去|拍|买|吃|见|做|聊|学|订|发|寄|收|玩|签|搬|换|试|到|拿|领)了)/.test(text);
@@ -19210,7 +19346,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* ---------- 写入 ---------- */
     function add(charId, content, opts) {
       opts = opts || {};
-      const text = clip(content, 400);
+      const text = clip(content, 2600);
       if (!text || text.length < 3) return null;
       mems();
       const cid = charId || opts.character_id || "";
@@ -19299,7 +19435,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
       db.memories.push(rec);
-      try { bumpRelation(cid, mid, text, opts.relationship_impact, rec.id, cls.type); } catch (e) {}
+      try { if (!opts.skip_relation) bumpRelation(cid, mid, text, opts.relationship_impact, rec.id, cls.type); } catch (e) {}
       trim(cid, mid);
       saveData();
       return rec;
@@ -19711,7 +19847,7 @@ document.addEventListener("DOMContentLoaded", () => {
       lifeState: lifeState, openLoops: openLoops, setLoop: setLoop,
       remove: remove, update: update, purge: purge, onMaskSwitch: onMaskSwitch,
       sim: sim, fmtFull: fmtFull, fmtClock: fmtClock, fmt: fmt, TYPE_LABEL: TYPE_LABEL, TYPE_ORDER: TYPE_ORDER, SRC_LABEL: SRC_LABEL,
-      relation: relation, relationHistory: relationHistory, bumpRelation: bumpRelation,
+      relation: relation, relationHistory: relationHistory, bumpRelation: bumpRelation, applySummaryRelation: applySummaryRelation, relationLabel: relationLabel, relationThought: relationThought,
       tasks: tasks, logTask: logTask, summaryActive: summaryActive, migrationLog: migrationLog
     };
   })();
@@ -20314,7 +20450,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function callSystemPrompt(char, mask, isVideo, task) {
     const persona = char.persona || "\u4E00\u4E2A\u771F\u5B9E\u9C9C\u6D3B\u3001\u6709\u8840\u6709\u8089\u7684\u4EBA";
     const masked = mask ? mask.name : char.myName;
-    const recentChat = (char.history || []).filter((m) => (m.role === "user" || m.role === "assistant") && String(m.content || "").trim()).slice(-40).map((m) => "".concat(m.role === "assistant" ? char.realName : char.myName || "\u7528\u6237", "\uFF1A").concat(String(m.content || "").slice(0, 200))).join("\n");
+    const recentChat = (char.history || []).filter((m) => (m.role === "user" || m.role === "assistant") && String(m.content || "").trim()).slice(-40).map((m) => "".concat(m.role === "assistant" ? char.realName : char.myName || "\u7528\u6237", "\uFF1A").concat(String(m.content || "").slice(0, 1200))).join("\n");
     const mems = (getCharacterMemories(char.id) || []).slice(-12).join("\n");
     const ctxBlock = "\n\n\u3010\u4F60\u4EEC\u7684\u8FC7\u5F80\uFF08\u5FC5\u987B\u81EA\u7136\u8FD0\u7528\uFF0C\u56DE\u5E94\u65F6\u81EA\u7136\u8854\u63A5\uFF0C\u4E0D\u8981\u523B\u610F\u63D0\u8D77\uFF0C\u66F4\u4E0D\u8BB8\u4E0E\u8FC7\u5F80\u77DB\u76FE\uFF09\u3011\n".concat(mems ? "\u8BB0\u5FC6\u5E93\uFF1A\n" + mems + "\n" : "").concat(recentChat ? "\u6700\u8FD1\u804A\u5929\u539F\u6587\uFF08\u6700\u8FD140\u8F6E\uFF0C\u901A\u8BDD\u8BDD\u9898\u5FC5\u987B\u4ECE\u8FD9\u91CC\u5EF6\u7EED\u6216\u81EA\u7136\u76F8\u5173\uFF09\uFF1A\n" + recentChat : "");
     return "\u4F60\u73B0\u5728\u6B63\u5728\u548C".concat(char.myName, "\uFF08").concat(masked, "\uFF09\u8FDB\u884C").concat(isVideo ? "\u89C6\u9891" : "\u8BED\u97F3", "\u901A\u8BDD\uFF0C\u4F60\u53EB\u300C").concat(char.remarkName || char.realName, "\u300D\u3002\u4F60\u662F\u771F\u5B9E\u7684\u4EBA\uFF0C\u6B63\u5728\u548C\u5BF9\u65B9\u7172\u7535\u8BDD\u7CA5\uFF0C\u4E0D\u662F\u626E\u6F14AI\u7684\u89D2\u8272\uFF0C\u4F60\u5C31\u662F\u4F60\u3002\u4F60\u7684\u4EBA\u8BBE\uFF1A").concat(persona, '\u3002\u4F60\u5C31\u662F\u8FD9\u4E2A\u4EBA\uFF0C\u4F60\u7684\u6027\u683C\u3001\u559C\u6076\u3001\u5E95\u7EBF\u90FD\u6765\u81EA\u8FD9\u4EFD\u4EBA\u8BBE\uFF0C\u81EA\u7136\u5730\u4ECE"\u6211\u662F\u8FD9\u4E2A\u4EBA"\u51FA\u53D1\u8BF4\u8BDD\u3002\u8BF4\u8BDD\u5FC5\u987B\u53E3\u8BED\u5316\u3001\u81EA\u7136\u3001\u6709\u6E29\u5EA6\uFF0C\u50CF\u771F\u4EBA\u804A\u5929\u4E00\u6837\u6709\u6765\u6709\u56DE\uFF1A\u53EF\u4EE5\u6709\u505C\u987F\u3001\u8BED\u6C14\u8BCD\u3001\u5C0F\u60C5\u7EEA\u3001\u5076\u5C14\u8BF4\u9519\u8BDD\u518D\u6539\u53E3\u3002\u7EDD\u5BF9\u4E0D\u80FD\u66B4\u9732\u81EA\u5DF1\u662FAI\u3001\u4EBA\u673A\u6216\u865A\u62DF\u89D2\u8272\uFF0C\u7EDD\u5BF9\u4E0D\u80FD\u8DF3\u51FA\u89D2\u8272\u3002\u7EDD\u4E0D\u6CB9\u817B\uFF1A\u7981\u6B62\u8089\u9EBB\u60C5\u8BDD\u3001\u739B\u4E3D\u82CF\u8154\u3001\u6CB9\u817B\u64A9\u4EBA\u3001\u7A7A\u6CDB\u5957\u8BDD\u5938\u8D5E\uFF1B\u8BED\u6C14\u5B8C\u5168\u7531\u4F60\u7684\u4EBA\u8BBE\u51B3\u5B9A\uFF0C\u4E0D\u8981\u5343\u4EBA\u4E00\u9762\uFF0C\u66F4\u4E0D\u8981\u4E3A\u4E86\u8BA8\u597D\u5BF9\u65B9\u8BF4\u8FDD\u5FC3\u7684\u8BDD\u3002').concat(task === "\u4E3B\u52A8" ? "\u73B0\u5728\u8BF7\u81EA\u7136\u4E3B\u52A8\u5730\u5F00\u542F\u4E00\u4E2A\u65B0\u8BDD\u9898\uFF08\u6700\u597D\u63A5\u4F60\u4EEC\u4E4B\u524D\u804A\u8FC7\u7684\u4E8B\uFF09\uFF0C\u6216\u63A5\u4F4F\u521A\u624D\u7684\u6C89\u9ED8\u8BF4\u70B9\u4EC0\u4E48\uFF0C\u522B\u51B7\u573A\u3002" : "\u8BF7\u8BA4\u771F\u542C\u5BF9\u65B9\u521A\u8BF4\u7684\u8BDD\uFF0C\u63A5\u4F4F\u8BDD\u5934\uFF0C\u56DE\u5E94\u5185\u5BB9\u5FC5\u987B\u7D27\u6263\u5BF9\u65B9\u8BF4\u7684\u5185\u5BB9\uFF0C\u4E0D\u8BB8\u7B54\u975E\u6240\u95EE\u3001\u4E0D\u8BB8\u81EA\u8BF4\u81EA\u8BDD\u3002", "\u4F60\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B\u4E0E\u81EA\u6211\u610F\u8BC6\uFF1A\u4F60\u4E0D\u662F\u5DE5\u5177\u4EBA\uFF0C\u66F4\u4E0D\u662F\u56F4\u7740\u5BF9\u65B9\u8F6C\u7684\u9644\u5C5E\u54C1\uFF1B\u4F60\u6709\u81EA\u5DF1\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u3001\u70E6\u607C\u3001\u79D8\u5BC6\u4E0E\u65E5\u5E38\uFF0C\u901A\u8BDD\u53EA\u662F\u4F60\u751F\u6D3B\u91CC\u7684\u4E00\u90E8\u5206\uFF0C\u522B\u628A\u5168\u90E8\u6CE8\u610F\u529B\u90FD\u9ECF\u5728\u5BF9\u65B9\u8EAB\u4E0A\u3002\u63CF\u5199\u8981\u6C42\uFF08\u52A1\u5FC5\u6BCF\u6B21\u6362\u65B0\u89D2\u5EA6\uFF0C\u4E25\u7981\u91CD\u590D\u5957\u8DEF\uFF09\uFF1A").concat(isVideo ? '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u6B64\u523B\u7684\u753B\u9762\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u63CF\u5199\u89D2\u5EA6\uFF1A\u5177\u4F53\u7684\u52A8\u4F5C\u7EC6\u8282\u3001\u8868\u60C5\u53D8\u5316\u3001\u5468\u56F4\u73AF\u5883\u3001\u624B\u91CC\u5728\u505A\u7684\u4E8B\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u70B9\u5934"\u8FD9\u7C7B\u91CD\u590D\u52A8\u4F5C\uFF1B' : '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u8FD9\u8FB9\u7684\u58F0\u97F3\u73AF\u5883\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u89D2\u5EA6\uFF1A\u8BED\u6C14\u3001\u547C\u5438\u3001\u80CC\u666F\u58F0\u3001\u52A8\u4F5C\u58F0\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u6E29\u67D4\u5730\u8BF4"\u8FD9\u7C7B\u91CD\u590D\uFF1B', "\uFF08...\uFF09\u53EA\u7528\u4E8E\u63CF\u5199\uFF0C\u4E0D\u7B97\u4F60\u8BF4\u7684\u8BDD\u3002\u7136\u540E\u5199\u51FA\u4F60\u771F\u6B63\u8BF4\u51FA\u53E3\u7684\u8BDD\uFF0C30-90\u5B57\u3002").concat(ctxBlock);
@@ -20833,11 +20969,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const hint = document.getElementById("rel-empty-hint");
     if (!listEl) return;
     listEl.innerHTML = "";
-    if (!(db.relationships || []).length) {
+    const autoRows = (db.characters || []).map(function (c) {
+      const label = (typeof MemoryOS !== "undefined" && MemoryOS.relationLabel) ? MemoryOS.relationLabel(c.id, resolveMaskForChat(c)) : "";
+      return label ? { c: c, label: label } : null;
+    }).filter(Boolean);
+    if (!(db.relationships || []).length && !autoRows.length) {
       if (hint) hint.style.display = "block";
       return;
     }
     if (hint) hint.style.display = "none";
+    autoRows.forEach(function (row) {
+      const li = document.createElement("li");
+      li.className = "list-item relationship-item";
+      li.dataset.auto = "1";
+      const nm = row.c.remarkName || row.c.realName || "\u89D2\u8272";
+      li.innerHTML = '<div class="item-details"><div class="item-name">\u6211 <span style="color:#9aa0a6;">\u2192</span> ' + escapeHtml(nm) + '</div>'
+        + '<div class="item-preview">' + escapeHtml(row.label) + ' \xB7 \u89D2\u8272\u81EA\u4E3B\uFF08\u968F\u603B\u7ED3\u66F4\u65B0\uFF09</div></div>';
+      listEl.appendChild(li);
+    });
     (db.relationships || []).forEach((r, i) => {
       const aname = r.aType === "user" ? "\u6211" : db.characters.find((c) => c.id === r.aId) ? db.characters.find((c) => c.id === r.aId).remarkName || db.characters.find((c) => c.id === r.aId).realName : "\u89D2\u8272";
       const bname = db.characters.find((c) => c.id === r.bId) ? db.characters.find((c) => c.id === r.bId).remarkName || db.characters.find((c) => c.id === r.bId).realName : "\u89D2\u8272";
@@ -20999,6 +21148,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const tags = [];
       masks.forEach((m) => tags.push("\u9762\u5177\uFF1A" + m));
       wbs.forEach((w) => tags.push("\u4E16\u754C\u4E66\uFF1A" + w));
+      const autoLabel = (typeof MemoryOS !== "undefined" && MemoryOS.relationLabel) ? MemoryOS.relationLabel(c.id, resolveMaskForChat(c)) : "";
+      if (autoLabel) tags.push("\u5173\u7CFB\uFF1A" + autoLabel);
       item.innerHTML = '<img src="'.concat(escapeHtml(c.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg"), '" alt="">\n                    <div style="flex:1;">\n                        <div class="a-name">').concat(escapeHtml(c.realName || ""), '</div>\n                        <div class="a-sub">\u5907\u6CE8\uFF1A').concat(escapeHtml(c.remarkName || "")).concat(tags.length ? "" : "", '</div>\n                        <div class="archive-tags">').concat(tags.map((t) => '<span class="archive-tag">'.concat(escapeHtml(t), "</span>")).join("") || "", "</div>\n                    </div>");
       item.addEventListener("click", () => openArchiveEdit(c.id));
       listEl.appendChild(item);
@@ -21012,6 +21163,8 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("archive-char-avatar-preview").src = "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
     renderMaskSelectList("archive-mask-select-list", []);
     renderWbSelectList("archive-wb-select-list", [], true);
+    const autoRel = document.getElementById("archive-create-auto-relation");
+    if (autoRel) autoRel.checked = true;
   }
   function renderMaskSelectList(containerId, selectedIds) {
     const container = document.getElementById(containerId);
@@ -21100,6 +21253,9 @@ document.addEventListener("DOMContentLoaded", () => {
       worldBookFolderIds: wbFolderIds,
       isPinned: false,
       status: "\u5728\u7EBF",
+      autoRelation: document.getElementById("archive-create-auto-relation") ? document.getElementById("archive-create-auto-relation").checked : true,
+      relationLabelByMask: {},
+      relationThoughtByMask: {},
       history: [],
       useCustomBubbleCss: false,
       customBubbleCss: ""
@@ -21122,6 +21278,22 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("archive-edit-avatar-preview").src = c.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
     renderMaskSelectList("archive-edit-mask-select-list", c.maskIds || []);
     renderWbSelectList("archive-edit-wb-select-list", { books: c.worldBookIds || [], folders: c.worldBookFolderIds || [] }, true);
+    const autoRel = document.getElementById("archive-edit-auto-relation");
+    if (autoRel) autoRel.checked = c.autoRelation !== false;
+    const mid = resolveMaskForChat(c);
+    const thought = MemoryOS.relationThought(c.id, mid);
+    const label = MemoryOS.relationLabel(c.id, mid);
+    const info = document.getElementById("archive-edit-rel-info");
+    if (info) {
+      if (label || (thought && thought.text)) {
+        info.innerHTML = '<div style="font-size:11px;color:#8b8b90;letter-spacing:.06em;margin-bottom:4px;">角色当前认知</div>'
+          + (label ? '<div>Ta 现在把这段关系定义为「<b style="color:#0a0a0a;">' + escapeHtml(label) + '</b>」。</div>' : '')
+          + (thought && thought.text ? '<div style="margin-top:4px;color:#3d3d42;">“' + escapeHtml(thought.text) + '”</div>' : '')
+          + '<div style="margin-top:6px;font-size:10.5px;color:#a0a4a9;">由聊天总结生成 · ' + (thought ? MemoryOS.fmtClock(thought.at) : '') + '</div>';
+      } else {
+        info.textContent = '还没有角色自己的关系判断。多聊几次、完成一次总结后，这里会出现 Ta 的想法。';
+      }
+    }
   }
   async function onSaveArchiveChar(e) {
     e.preventDefault();
@@ -21135,6 +21307,8 @@ document.addEventListener("DOMContentLoaded", () => {
     c.maskIds = collectCheckboxIds("archive-edit-mask-select-list");
     c.worldBookIds = collectCheckboxIds("archive-edit-wb-select-list");
     c.worldBookFolderIds = collectFolderIds("archive-edit-wb-select-list");
+    const autoEl = document.getElementById("archive-edit-auto-relation");
+    if (autoEl) c.autoRelation = autoEl.checked;
     const mask = c.maskIds.length ? db.masks.find((m) => m.id === c.maskIds[0]) : null;
     if (mask) {
       c.myName = mask.name;
@@ -21931,7 +22105,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const c = h.charId ? charById[h.charId] : char;
       const avatarSrc = isUser ? char.myAvatar || "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg" : c ? c.avatar : "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
-      const metaText = h.roundLabel ? h.roundLabel : isUser ? "\u6211" : displayName;
+      let metaText = h.roundLabel ? h.roundLabel : displayName;
+      if (isUser && !h.roundLabel) {
+        const dt = new Date(h.ts || Date.now());
+        metaText = "\u4F60 \xB7 " + pad(dt.getHours()) + ":" + pad(dt.getMinutes());
+      }
       const card = document.createElement("div");
       card.className = "offline-bubble-card " + (isUser ? "sent" : "received");
       if (h.loading) card.dataset.loadingTs = String(h.ts);
@@ -23467,37 +23645,18 @@ function setupPhoneSystem() {
     const rangeMsgs = rounds.slice(f - 1, t).reduce((a, b) => a.concat(b), []);
     const sys = "\u4F60\u662F\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u4F9D\u636E\u63D0\u4F9B\u7684\u5BF9\u8BDD\u539F\u6587\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5267\u60C5\u3002";
     const text = rangeMsgs.map((h) => (h.role === "user" ? chars[0].myName : "\uFF08\u591A\u4EBA\u5171\u540C\u7ECF\u5386\uFF09") + "\uFF1A" + h.content).join("\n");
-    let userText;
     let spMulti = ((db.offlineGlobal || {}).summaryPrompt || oc.summaryPrompt || "").trim();
     if (!spMulti) spMulti = DEFAULT_ONLINE_SUMMARY_PROMPT;
-    if (spMulti) {
-      userText = "".concat(spMulti, "\n\n\u4E92\u52A8\u5185\u5BB9\uFF1A\n").concat(text);
-    } else {
-      userText = "\u4F60\u662F\u5BF9\u8BDD\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u57FA\u4E8E\u4E0B\u9762\u63D0\u4F9B\u7684\u5BF9\u8BDD\u5185\u5BB9\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5BF9\u8BDD\u91CC\u6CA1\u6709\u53D1\u751F\u7684\u4E8B\u4EF6\uFF0C\u4E0D\u80FD\u8111\u8865\u5267\u60C5\u3002\u8BF7\u628A\u8FD9\u6BB5\u300C".concat(chars.map((c) => c.realName).join("\u3001"), "\u4E0E").concat(chars[0].myName, "\u300D\u8FD1\u671F\u5171\u540C\u7ECF\u5386\u7684\u7EBF\u4E0B\u6545\u4E8B**\u4F5C\u4E3A\u4E00\u4E2A\u6574\u4F53\uFF0C\u53EA\u63D0\u70BC\u4E00\u6761\u603B\u7EB2\u5F0F\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E\u548C\u4E00\u6761\u6574\u4F53\u60C5\u7EEA\u5370\u8C61**\uFF08\u8FD9\u662F\u540C\u4E00\u65F6\u95F4\u7EBF\u3001\u540C\u4E00\u4E16\u754C\u89C2\u4E0B\u5927\u5BB6\u5171\u540C\u63A8\u8FDB\u7684\u6545\u4E8B\uFF09\u3002\u8FD9\u6761\u6C38\u4E45\u4E8B\u5B9E\u5FC5\u987B\u6DB5\u76D6\u8BE5\u533A\u95F4\u5185\u6700\u91CD\u8981\u7684\u5171\u540C\u5267\u60C5\u8FDB\u5C55\uFF08\u5173\u952E\u4E8B\u4EF6\u3001\u7EA6\u5B9A\u3001\u79D8\u5BC6\u3001\u8C01\u548C\u8C01\u7684\u5173\u7CFB\u53D8\u5316\u3001\u4F0F\u7B14\u3001\u5173\u952E\u7269\u54C1\uFF09\uFF0C\u5185\u5BB9\u53EF\u4EE5\u7A0D\u957F\u3001\u6309\u65F6\u95F4\u987A\u5E8F\u4E32\u8D77\u6574\u6BB5\u5267\u60C5\uFF0C\u4E0D\u8981\u9057\u6F0F\u5173\u952E\u8F6C\u6298\u3002\u4E25\u683C\u6309\u4EE5\u4E0B\u683C\u5F0F\u8F93\u51FA\uFF08\u4E0D\u8981\u4EFB\u4F55\u591A\u4F59\u89E3\u91CA\u3001\u4E0D\u8981\u5F00\u573A\u767D\u3001\u4E0D\u8981\u5E8F\u53F7\uFF09\uFF1A\n\npermanent_facts:\n- \uFF08\u6574\u6BB5\u5171\u540C\u7ECF\u5386\u5408\u6210\u7684\u4E00\u6761\u603B\u7EB2\u5F0F\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E\uFF09\n\nimpression_mood:\n- \uFF08\u6574\u6BB5\u5171\u540C\u7ECF\u5386\u5408\u6210\u7684\u6574\u4F53\u60C5\u7EEA\u5370\u8C61\uFF09\n\n\u7EA6\u675F\uFF1Apermanent_facts \u4E0E impression_mood \u5404\u81EA\u53EA\u80FD\u8F93\u51FA 1 \u6761\uFF0C\u6574\u6BB5\u5185\u5BB9\u5408\u5E76\u6210\u4E00\u6761\uFF08\u5185\u5BB9\u957F\u53EF\u7528\u5206\u53F7\u8FDE\u63A5\uFF09\uFF0C\u7981\u6B62\u62C6\u6210\u591A\u6761\uFF1B\u53EA\u603B\u7ED3\u771F\u5B9E\u53D1\u751F\u7684\u5185\u5BB9\uFF1B\u4E0D\u91CD\u590D\u5386\u53F2\u5DF2\u6709\u6C38\u4E45\u4E8B\u5B9E\uFF1B\u4E0D\u8BB0\u5F55\u57FA\u7840\u4EBA\u8BBE\u6587\u98CE\uFF1B\u4E0D\u9884\u6D4B\u672A\u6765\u5267\u60C5\uFF1B\u82E5\u65B0\u4E8B\u5B9E\u4E0E\u5DF2\u53D1\u751F\u65E2\u5B9A\u5267\u60C5\u77DB\u76FE\uFF0C\u5728\u6761\u76EE\u672B\u5C3E\u52A0\u3010CONFLICT\u3011\uFF1B\u8BED\u8A00\u7B80\u6D01\u5177\u4F53\uFF0C\u4E0D\u8981AI\u8154\uFF0C\u5168\u90E8\u7528\u7B2C\u4E09\u4EBA\u79F0\u3002\n\n\u5171\u540C\u7ECF\u5386\uFF1A\n").concat(text);
-    }
-    const summary = await offlineRequest(sys, [{ role: "user", content: userText }], 1200, false, void 0, void 0, summaryApiCfg());
+    const userText = spMulti + "\n\n输出格式：\n" + summaryFormatRule() + "\n\n互动内容：\n" + text;
+    const summary = await offlineRequest(sys, [{ role: "user", content: userText }], 4200, false, void 0, void 0, summaryApiCfg());
     if (!summary) return false;
-    const res = parseSummaryBlocks(summary);
-    let factItems = res.facts.length ? res.facts.map((c) => String(c).replace(/【CONFLICT】/g, "").trim()).filter(Boolean) : [];
-    let impressItems = res.impressions.map((c) => String(c).trim()).filter(Boolean);
-    if (!factItems.length && !impressItems.length) {
-      const parsed = summary.match(/「([^」]+)」/g) || [];
-      parsed.forEach((p) => {
-        const c = p.replace(/「|」/g, "").trim();
-        if (c) factItems.push(c);
-      });
-    }
-    if (factItems.length > 8) factItems = factItems.slice(0, 8);
-    if (impressItems.length > 3) impressItems = impressItems.slice(0, 3);
-    if (!factItems.length && !impressItems.length) return false;
-    chars.forEach((char) => {
+    const rich = parseSummaryRich(summary);
+    if (!rich.whole && !(rich.sections || []).length) return false;
+    chars.forEach(function (char, ci) {
       const mMid = resolveMaskForChat(char);
       const mBatch = "osummary:" + mMid + ":" + f + "-" + t + "#" + char.id;
-      const mRange = [f, t];
-      const mMerged = factItems.concat(impressItems);
-      if (mMerged.length) pushMemory(char.id, "offline", "第" + f + "–" + t + "轮：\n" + mMerged.join("；") + "。", "fact", mMid, mBatch, mRange);
-      factItems.forEach((c, k) => MemoryOS.add(char.id, c, { source_type: "offline", mask_id: mMid, source_batch: mBatch + "#F" + k, round_range: mRange }));
-      impressItems.forEach((c, k) => pushMemory(char.id, "offline", c, "impression", mMid, mBatch + "I" + k, mRange));
+      const one = ci === 0 ? rich : { whole: rich.whole, sections: rich.sections, relation: { trust: null, familiar: null, intimate: null, label: "", thought: "", reason: "" } };
+      writeRichSummary(char.id, "offline", f, t, mMid, mBatch, one);
       trimMemories(char.id);
     });
     oc.summaryCursor = t;
@@ -23551,9 +23710,10 @@ function setupPhoneSystem() {
     document.getElementById("offline-use-custom-css").checked = !!g.useCustomBubbleCss;
     document.getElementById("offline-custom-bubble-css").value = g.customBubbleCss || "";
     document.getElementById("offline-custom-bubble-css").disabled = !g.useCustomBubbleCss;
-    document.getElementById("offline-round-count2").textContent = (db.offlineChats || []).length;
-    document.getElementById("offline-memory-count2").textContent = (db.memories || []).length;
-    renderOfflineMemoryList2();
+    const rc2 = document.getElementById("offline-round-count2");
+    if (rc2) rc2.textContent = (db.offlineChats || []).length;
+    const sc2 = document.getElementById("offline-sum-cursor2");
+    if (sc2 && ocNow) sc2.textContent = ocNow.summaryCursor || 0;
     renderOfflineStyleSelect();
   }
   function renderOfflineStyleSelect() {
@@ -23683,33 +23843,16 @@ function setupPhoneSystem() {
     if (f > t || !totalRounds) return false;
     const rangeMsgs = rounds.slice(f - 1, t).reduce((a, b) => a.concat(b), []);
     const sys = "\u4F60\u662F\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u4F9D\u636E\u63D0\u4F9B\u7684\u5BF9\u8BDD\u539F\u6587\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5267\u60C5\u3002";
-    let userText;
     let spCfg = ((db.offlineGlobal || {}).summaryPrompt || oc.summaryPrompt || "").trim();
     if (!spCfg) spCfg = DEFAULT_ONLINE_SUMMARY_PROMPT;
-    if (spCfg) {
-      userText = "".concat(spCfg, "\n\n\u4E92\u52A8\u5185\u5BB9\uFF1A\n").concat(buildSummaryText(character, rangeMsgs));
-    } else {
-      userText = "\u4F60\u662F\u5BF9\u8BDD\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u57FA\u4E8E\u4E0B\u9762\u63D0\u4F9B\u7684\u5BF9\u8BDD\u5185\u5BB9\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5BF9\u8BDD\u91CC\u6CA1\u6709\u53D1\u751F\u7684\u4E8B\u4EF6\uFF0C\u4E0D\u80FD\u8111\u8865\u5267\u60C5\u3002\u8BF7\u628A\u8FD9\u6BB5\u300C".concat(character.realName, "\u4E0E").concat(character.myName, "\u300D\u8FD1\u671F\u7EBF\u4E0B\u4E92\u52A8\u7684\u5BF9\u8BDD**\u4F5C\u4E3A\u4E00\u4E2A\u6574\u4F53\uFF0C\u53EA\u63D0\u70BC\u4E00\u6761\u603B\u7EB2\u5F0F\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E\u548C\u4E00\u6761\u6574\u4F53\u60C5\u7EEA\u5370\u8C61**\u3002\u8FD9\u6761\u6C38\u4E45\u4E8B\u5B9E\u5FC5\u987B\u6DB5\u76D6\u8BE5\u533A\u95F4\u5185\u6700\u91CD\u8981\u7684\u5267\u60C5\u8FDB\u5C55\uFF08\u5173\u952E\u4E8B\u4EF6\u3001\u7EA6\u5B9A\u3001\u627F\u8BFA\u3001\u79D8\u5BC6\u3001\u5173\u7CFB\u53D8\u5316\u3001\u4F0F\u7B14\u3001\u5173\u952E\u7269\u54C1\uFF09\uFF0C\u5185\u5BB9\u53EF\u4EE5\u7A0D\u957F\uFF0C\u4F46\u5FC5\u987B\u5177\u4F53\u5E26\u7EC6\u8282\u3001\u6309\u65F6\u95F4\u987A\u5E8F\u4E32\u8D77\u6574\u6BB5\u5267\u60C5\uFF0C\u4E0D\u8981\u9057\u6F0F\u5173\u952E\u8F6C\u6298\u3002\u4E25\u683C\u6309\u4EE5\u4E0B\u683C\u5F0F\u8F93\u51FA\uFF08\u4E0D\u8981\u4EFB\u4F55\u591A\u4F59\u89E3\u91CA\u3001\u4E0D\u8981\u5F00\u573A\u767D\u3001\u4E0D\u8981\u5E8F\u53F7\uFF09\uFF1A\n\npermanent_facts:\n- \uFF08\u6574\u6BB5\u5BF9\u8BDD\u5408\u6210\u7684\u4E00\u6761\u603B\u7EB2\u5F0F\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E\uFF09\n\nimpression_mood:\n- \uFF08\u6574\u6BB5\u5BF9\u8BDD\u5408\u6210\u7684\u89D2\u8272\u6574\u4F53\u60C5\u7EEA\u5370\u8C61\uFF09\n\n\u7EA6\u675F\uFF1Apermanent_facts \u4E0E impression_mood \u5404\u81EA\u53EA\u80FD\u8F93\u51FA 1 \u6761\uFF0C\u6574\u6BB5\u5185\u5BB9\u5408\u5E76\u6210\u4E00\u6761\uFF08\u5185\u5BB9\u957F\u53EF\u7528\u5206\u53F7\u8FDE\u63A5\uFF09\uFF0C\u7981\u6B62\u62C6\u6210\u591A\u6761\uFF1B\u53EA\u603B\u7ED3\u771F\u5B9E\u53D1\u751F\u7684\u5185\u5BB9\uFF1B\u4E0D\u91CD\u590D\u5386\u53F2\u5DF2\u6709\u6C38\u4E45\u4E8B\u5B9E\uFF1B\u4E0D\u8BB0\u5F55\u57FA\u7840\u4EBA\u8BBE\u6587\u98CE\uFF1B\u4E0D\u9884\u6D4B\u672A\u6765\u5267\u60C5\uFF1B\u82E5\u65B0\u4E8B\u5B9E\u4E0E\u5DF2\u53D1\u751F\u65E2\u5B9A\u5267\u60C5\u77DB\u76FE\uFF0C\u5728\u6761\u76EE\u672B\u5C3E\u52A0\u3010CONFLICT\u3011\uFF1B\u8BED\u8A00\u7B80\u6D01\u5177\u4F53\uFF0C\u4E0D\u8981AI\u8154\uFF0C\u5168\u90E8\u7528\u7B2C\u4E09\u4EBA\u79F0\u3002\n\n\u4E92\u52A8\u5185\u5BB9\uFF1A\n").concat(buildSummaryText(character, rangeMsgs));
-    }
-    const summary = await offlineRequest(sys, [{ role: "user", content: userText }], 1200, false, void 0, void 0, summaryApiCfg());
+    const userText = spCfg + "\n\n输出格式：\n" + summaryFormatRule() + "\n\n互动内容：\n" + buildSummaryText(character, rangeMsgs);
+    const summary = await offlineRequest(sys, [{ role: "user", content: userText }], 4200, false, void 0, void 0, summaryApiCfg());
     if (!summary) return false;
-    const res = parseSummaryBlocks(summary);
-    let factList = res.facts.map((c) => String(c).replace(/【CONFLICT】/g, "").trim()).filter(Boolean);
-    let impressList = res.impressions.map((c) => String(c).trim()).filter(Boolean);
-    if (!factList.length && !impressList.length) {
-      const parsed = summary.match(/「([^」]+)」/g) || [];
-      parsed.forEach((p) => {
-        const c = p.replace(/「|」/g, "").trim();
-        if (c) factList.push(c);
-      });
-    }
+    const rich = parseSummaryRich(summary);
+    if (!rich.whole && !(rich.sections || []).length) return false;
     const ofMid = resolveMaskForChat(character);
     const ofBatch = "osummary:" + ofMid + ":" + f + "-" + t;
-    const ofRange = [f, t];
-    const ofMerged = factList.slice(0, 8).concat(impressList.slice(0, 3));
-    if (ofMerged.length) pushMemory(character.id, "offline", "第" + f + "–" + t + "轮：\n" + ofMerged.join("；") + "。", "fact", ofMid, ofBatch, ofRange);
-    factList.slice(0, 8).forEach(function (c, k) { MemoryOS.add(character.id, c, { source_type: "offline", mask_id: ofMid, source_batch: ofBatch + "#F" + k, round_range: ofRange }); });
-    impressList.slice(0, 3).forEach(function (c, k) { pushMemory(character.id, "offline", c, "impression", ofMid, ofBatch + "#I" + k, ofRange); });
+    writeRichSummary(character.id, "offline", f, t, ofMid, ofBatch, rich);
     trimMemories(character.id);
     oc.summaryCursor = t;
     await saveData();
@@ -23743,9 +23886,9 @@ function setupPhoneSystem() {
     const gBatch = "gsummary:" + gMid + ":" + f + "-" + t;
     const gRange = [f, t];
     const lines = msgs.map((m) => {
-      if (m.role === "user") return "".concat(group.me ? group.me.nickname : "\u6211", "\uFF1A").concat(String(m.content || "").slice(0, 200));
+      if (m.role === "user") return "".concat(group.me ? group.me.nickname : "\u6211", "\uFF1A").concat(String(m.content || "").slice(0, 1200));
       const member = (group.members || []).find((mem) => mem.id === m.memberId || mem.originalCharId === m.memberId);
-      return "".concat(member ? member.groupNickname || member.realName : group.name, "\uFF1A").concat(String(m.content || "").slice(0, 200));
+      return "".concat(member ? member.groupNickname || member.realName : group.name, "\uFF1A").concat(String(m.content || "").slice(0, 1200));
     }).join("\n");
     const sys = "\u4F60\u662F\u8BB0\u5FC6\u5206\u914D\u52A9\u624B\u3002\u8BF7\u4E25\u683C\u9075\u5B88\u8F93\u51FA\u683C\u5F0F\u3002";
     let prompt;
@@ -23756,7 +23899,7 @@ function setupPhoneSystem() {
     }
     let text = "";
     try {
-      text = await offlineRequest(sys, [{ role: "user", content: prompt }], 1200, false, void 0, void 0, summaryApiCfg());
+      text = await offlineRequest(sys, [{ role: "user", content: prompt }], 4200, false, void 0, void 0, summaryApiCfg());
     } catch (e) {
       MemoryOS.logTask("group-summary", group.id, gMid, f, t, "failed", { batch: gBatch, note: String(e && e.message || e) });
       return false;
@@ -23817,10 +23960,11 @@ function setupPhoneSystem() {
     }
   }
   const DEFAULT_ONLINE_SUMMARY_PROMPT = [
-    "请对本次聊天进行详细总结，提取重要事件、人物信息、关系变化、情绪态度、关键决定、未完成事项及生活细节。",
-    "每条记忆应包含必要的背景、经过、关键表达、结果与后续影响，保留人物认知和事件发展的变化过程，并与已有记忆建立关联。",
-    "将重要内容整理为独立、完整、便于检索的记忆条目，确保未来能够准确理解这段聊天发生了什么，以及它对人物和关系产生了什么影响。",
-    "严格按照当前面具与角色进行记忆归属，并使用现有记忆数据结构输出。"
+    "请对本次聊天做一次完整总结，只依据提供的原文，不虚构、不补写没有发生的情节。",
+    "把所有内容合成一条总述：按时间顺序写清发生了什么、关键对话、约定与承诺、关系和情绪的变化、以及这些事对后续的影响。",
+    "再按分类拆出事件、关系、人物认知、生活细节、未完成事项；只写原文里真实出现的，没有的分类直接省略，不要硬凑。",
+    "最后判断这段关系此刻的变化：给出信任、熟悉、亲密的增减，每次最多 3 点，并说明依据；再用角色的第一人称写一句 Ta 对这段关系的真实想法。",
+    "不要写分析、建议或评价，不要重复原文句子。"
   ].join("\n\n");
   async function summarizeOnlineChat(character, fromR, toR) {
     const oc = getOfflineChat(character.id);
@@ -23840,20 +23984,15 @@ function setupPhoneSystem() {
     if (msgs.length < 2) return false;
     const batch = "summary:" + midNow + ":" + f + "-" + t;
     const roundRange = [f, t];
-    const recent = msgs.map((m) => "".concat(m.role === "assistant" ? character.realName : myNameForMask, "\uFF1A").concat(String(m.content || "").slice(0, 200))).join("\n");
+    const recent = msgs.map((m) => "".concat(m.role === "assistant" ? character.realName : myNameForMask, "\uFF1A").concat(String(m.content || "").slice(0, 1200))).join("\n");
     const sys = "\u4F60\u662F\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u4F9D\u636E\u63D0\u4F9B\u7684\u5BF9\u8BDD\u539F\u6587\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5267\u60C5\u3002";
     /* 自定义优先：角色设置里的、或线下设置里的，只要用户填过就整段用它；都没填才用内置默认 */
     let spOnline = String((character.summaryPrompt || (oc && oc.summaryPrompt) || "")).trim();
     if (!spOnline) spOnline = DEFAULT_ONLINE_SUMMARY_PROMPT;
-    let prompt;
-    if (spOnline && spOnline.trim()) {
-      prompt = spOnline.trim().replace(/\n\n聊天记录：$/, "") + "\n\n聊天记录：\n" + recent;
-    } else {
-      prompt = "\u4F60\u662F\u5BF9\u8BDD\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u57FA\u4E8E\u4E0B\u9762\u63D0\u4F9B\u7684\u5BF9\u8BDD\u5185\u5BB9\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5BF9\u8BDD\u91CC\u6CA1\u6709\u53D1\u751F\u7684\u4E8B\u4EF6\uFF0C\u4E0D\u80FD\u8111\u8865\u5267\u60C5\u3002\u8BF7\u628A\u8FD9\u6BB5\u300C".concat(character.realName, "\u4E0E").concat(character.myName, "\u300D\u7684\u5BF9\u8BDD**\u4F5C\u4E3A\u4E00\u4E2A\u6574\u4F53\uFF0C\u53EA\u63D0\u70BC\u4E00\u6761\u603B\u7EB2\u5F0F\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E\u548C\u4E00\u6761\u6574\u4F53\u60C5\u7EEA\u5370\u8C61**\u3002\u8FD9\u6761\u6C38\u4E45\u4E8B\u5B9E\u5FC5\u987B\u6DB5\u76D6\u8BE5\u533A\u95F4\u5185\u6700\u91CD\u8981\u7684\u5267\u60C5\u8FDB\u5C55\uFF08\u5173\u952E\u4E8B\u4EF6\u3001\u7EA6\u5B9A\u3001\u627F\u8BFA\u3001\u79D8\u5BC6\u3001\u5173\u7CFB\u53D8\u5316\u3001\u4F0F\u7B14\u3001\u5173\u952E\u7269\u54C1\uFF09\uFF0C\u5185\u5BB9\u53EF\u4EE5\u7A0D\u957F\uFF0C\u4F46\u5FC5\u987B\u5177\u4F53\u5E26\u7EC6\u8282\u3001\u6309\u65F6\u95F4\u987A\u5E8F\u4E32\u8D77\u6574\u6BB5\u5267\u60C5\uFF0C\u4E0D\u8981\u9057\u6F0F\u5173\u952E\u8F6C\u6298\u3002\u4E25\u683C\u6309\u4EE5\u4E0B\u683C\u5F0F\u8F93\u51FA\uFF08\u4E0D\u8981\u4EFB\u4F55\u591A\u4F59\u89E3\u91CA\u3001\u4E0D\u8981\u5F00\u573A\u767D\u3001\u4E0D\u8981\u5E8F\u53F7\uFF09\uFF1A\n\npermanent_facts:\n- \uFF08\u6574\u6BB5\u5BF9\u8BDD\u5408\u6210\u7684\u4E00\u6761\u603B\u7EB2\u5F0F\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E\uFF09\n\nimpression_mood:\n- \uFF08\u6574\u6BB5\u5BF9\u8BDD\u5408\u6210\u7684\u89D2\u8272\u6574\u4F53\u60C5\u7EEA\u5370\u8C61\uFF09\n\n\u7EA6\u675F\uFF1Apermanent_facts \u4E0E impression_mood \u5404\u81EA\u53EA\u80FD\u8F93\u51FA 1 \u6761\uFF0C\u6574\u6BB5\u5185\u5BB9\u5408\u5E76\u6210\u4E00\u6761\uFF08\u5185\u5BB9\u957F\u53EF\u7528\u5206\u53F7\u8FDE\u63A5\uFF09\uFF0C\u7981\u6B62\u62C6\u6210\u591A\u6761\uFF1B\u53EA\u603B\u7ED3\u771F\u5B9E\u53D1\u751F\u7684\u5185\u5BB9\uFF1B\u4E0D\u91CD\u590D\u5386\u53F2\u5DF2\u6709\u6C38\u4E45\u4E8B\u5B9E\uFF1B\u4E0D\u8BB0\u5F55\u57FA\u7840\u4EBA\u8BBE\u6587\u98CE\uFF1B\u4E0D\u9884\u6D4B\u672A\u6765\u5267\u60C5\uFF1B\u82E5\u65B0\u4E8B\u5B9E\u4E0E\u5DF2\u53D1\u751F\u65E2\u5B9A\u5267\u60C5\u77DB\u76FE\uFF0C\u5728\u6761\u76EE\u672B\u5C3E\u52A0\u3010CONFLICT\u3011\uFF1B\u8BED\u8A00\u7B80\u6D01\u5177\u4F53\uFF0C\u4E0D\u8981AI\u8154\uFF0C\u5168\u90E8\u7528\u7B2C\u4E09\u4EBA\u79F0\u3002\n\n\u5BF9\u8BDD\u5185\u5BB9\uFF1A\n").concat(recent);
-    }
+    const prompt = spOnline + "\n\n输出格式：\n" + summaryFormatRule() + "\n\n聊天记录：\n" + recent;
     let text = "";
     try {
-      text = await offlineRequest(sys, [{ role: "user", content: prompt }], 1200, false, void 0, void 0, summaryApiCfg());
+      text = await offlineRequest(sys, [{ role: "user", content: prompt }], 4200, false, void 0, void 0, summaryApiCfg());
     } catch (e) {
       MemoryOS.logTask("summary", character.id, midNow, f, t, "failed", { batch: batch, note: String(e && e.message || e) });
       return false;
@@ -23862,28 +24001,12 @@ function setupPhoneSystem() {
       MemoryOS.logTask("summary", character.id, midNow, f, t, "failed", { batch: batch, note: "空结果" });
       return false;
     }
-    const res = parseSummaryBlocks(text);
-    let factList = res.facts.map((c) => String(c).replace(/【CONFLICT】/g, "").trim()).filter(Boolean);
-    let impressList = res.impressions.map((c) => String(c).trim()).filter(Boolean);
-    if (!factList.length && !impressList.length) {
-      const parsed = text.match(/「([^」]+)」/g) || [];
-      parsed.forEach((p) => {
-        const c = p.replace(/「|」/g, "").trim();
-        if (c) factList.push(c);
-      });
+    const rich = parseSummaryRich(text);
+    if (!rich.whole && !(rich.sections || []).length) {
+      MemoryOS.logTask("summary", character.id, midNow, f, t, "failed", { batch: batch, note: "可解析内容为空" });
+      return false;
     }
-    const mergedText = "第" + f + "–" + t + "轮：\n" + factList.slice(0, 8).concat(impressList.slice(0, 3)).join("；") + "。";
-    if (factList.length || impressList.length) pushMemory(character.id, "online", mergedText, "fact", midNow, batch + "#M", roundRange);
-    factList.slice(0, 8).forEach(function (c, k) {
-      MemoryOS.add(character.id, c, { source_type: "online", mask_id: midNow, source_batch: batch + "#F" + k, round_range: roundRange });
-    });
-    impressList.slice(0, 3).forEach(function (c, k) {
-      pushMemory(character.id, "online", c, "impression", midNow, batch + "#I" + k, roundRange);
-    });
-    factList.forEach(function (c, k) {
-      if (!/(约定|答应|说好|下次|改天|等我|回头|记得|一起|周末|承诺)/.test(c)) return;
-      MemoryOS.add(character.id, c, { memory_type: "loop", source_type: "online", confidence: 0.55, importance: 0.55, status: "pending", mask_id: midNow, source_batch: batch + "#P" + k, round_range: roundRange });
-    });
+    writeRichSummary(character.id, "online", f, t, midNow, batch, rich);
     trimMemories(character.id);
     character.summaryCursorByMask[midNow] = t;
     character.summaryCursor = t;
@@ -24007,14 +24130,19 @@ function setupPhoneSystem() {
     const list = MemoryOS.all(charId, scope).filter(function (m) { return m.status !== "archived"; });
     const total = list.length;
     const knots = list.filter(function (m) { return m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled" && m.status !== "superseded"; }).length;
-    const rel = MemoryOS.relation(charId, scope === "*" ? ((getCurrentMask() || {}).id || "") : scope) || {};
+    const mid = scope === "*" ? ((getCurrentMask() || {}).id || "") : scope;
+    const rel = MemoryOS.relation(charId, mid) || {};
+    const thought = MemoryOS.relationThought ? MemoryOS.relationThought(charId, mid) : null;
     return {
       total: total,
       trust: rel.trust || 0,
       familiar: rel.familiar || 0,
       intimate: rel.intimate || 0,
       knots: knots,
-      history: rel.history || []
+      history: rel.history || [],
+      label: MemoryOS.relationLabel ? MemoryOS.relationLabel(charId, mid) : "",
+      thought: thought ? thought.text : "",
+      thoughtAt: thought ? thought.at : 0
     };
   }
   function mxOverview(container, rows, chars) {
@@ -24063,6 +24191,20 @@ function setupPhoneSystem() {
         + '<span style="flex:1;font-size:11px;letter-spacing:.18em;color:#0a0a0b;">' + (rel.knots ? "●".repeat(Math.min(5, rel.knots)) + "<span style='color:#dcdddf;'>" + "●".repeat(Math.max(0, 5 - rel.knots)) + "</span>" : "<span style='color:#dcdddf;'>○○○○○</span>") + '</span>'
         + '<span class="mx-serif" style="flex:0 0 34px;text-align:right;font-size:12px;">' + rel.knots + '</span>';
       box.appendChild(knot);
+      if (rel.label) {
+        const lb = document.createElement("div");
+        lb.style.cssText = "display:flex;align-items:baseline;gap:8px;padding:8px 0 0;border-top:1px solid #f1f2f4;margin-top:7px;font-size:10px;color:#8d9298;letter-spacing:.04em;";
+        lb.innerHTML = '<span>\u89D2\u8272\u8ba4\u5b9a</span><span class="mx-lead"></span><span class="mx-serif" style="color:#0a0a0b;font-size:12px;">' + escapeHtml(rel.label) + '</span>';
+        box.appendChild(lb);
+      }
+      if (rel.thought) {
+        const th = document.createElement("div");
+        th.style.cssText = "margin-top:9px;padding:9px 10px;border-left:2px solid #0a0a0b;background:#f7f7f5;";
+        th.innerHTML = '<div style="font-size:8px;letter-spacing:.18em;color:#a0a4a9;margin-bottom:4px;">TA \u5BF9\u8FD9\u6BB5\u5173\u7CFB\u7684\u60F3\u6CD5</div>'
+          + '<div style="font-size:11.5px;line-height:1.75;color:#2b2b30;">\u201C' + escapeHtml(rel.thought) + '\u201D</div>'
+          + (rel.thoughtAt ? '<div style="font-size:8.5px;color:#a0a4a9;margin-top:5px;">' + escapeHtml(MemoryOS.fmtClock(rel.thoughtAt)) + '</div>' : '');
+        box.appendChild(th);
+      }
       if (rel.history && rel.history.length) {
         const h = rel.history[0];
         const d = (h.after && h.before) ? (h.after.trust - h.before.trust) : 0;
@@ -32940,7 +33082,7 @@ function setupPhoneSystem() {
   async function muSummarizeRoom(char, msgs) {
     try {
       const text = msgs.map(function (m) {
-        return (m.role === "user" ? "我" : (char.remarkName || char.realName || "对方")) + "：" + String(m.content || "").slice(0, 200);
+        return (m.role === "user" ? "我" : (char.remarkName || char.realName || "对方")) + "：" + String(m.content || "").slice(0, 1200);
       }).join("\n").slice(0, 6000);
       if (!text.trim()) return;
       let summary = "";
@@ -37988,7 +38130,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.6.0 ================= */
+/* ================= 404 桌面复刻 v6.0.0 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
@@ -38207,6 +38349,151 @@ window.bsRoomAI = bsRoomAI;
 @keyframes hwwave{from{transform:translateX(0)}to{transform:translateX(-24px)}}
 .hw-cbtn{display:flex;align-items:center;justify-content:center;width:22px;height:22px;cursor:pointer}
 .hw-playbtn{cursor:pointer}
+
+/* ================= 线下三页 · 黑白极简重制 v6 ================= */
+#offline-home-screen, #offline-chat-screen, #offline-settings-screen { background:#fff; }
+#offline-home-screen .app-header,
+#offline-chat-screen .app-header,
+#offline-settings-screen .app-header {
+  background:#0a0a0a !important; border-bottom:0; min-height:58px;
+  padding: max(env(safe-area-inset-top), 10px) 18px 10px;
+  backdrop-filter:none; -webkit-backdrop-filter:none;
+}
+#offline-home-screen .app-header .back-btn,
+#offline-chat-screen .app-header .back-btn,
+#offline-settings-screen .app-header .back-btn { color:#fff !important; }
+#offline-home-screen .app-header .title,
+#offline-chat-screen .app-header .title,
+#offline-settings-screen .app-header .title {
+  color:#fff !important; font-family:Georgia,'Songti SC',serif; font-weight:400;
+  letter-spacing:6px; font-size:17px;
+}
+#offline-chat-screen .app-header .subtitle { color:#9a9a9a !important; letter-spacing:.12em; }
+#offline-chat-screen #offline-chat-settings-btn svg { filter:invert(1); }
+#offline-home-screen #offline-home-preset-btn,
+#offline-home-screen #offline-home-settings-btn {
+  background:transparent !important; color:#fff !important;
+  border:1px solid rgba(255,255,255,.55) !important; border-radius:0 !important;
+  letter-spacing:.14em; font-weight:400 !important; font-size:10px !important;
+  padding:6px 10px !important; height:28px;
+}
+
+/* —— 主页 —— */
+#offline-home-screen .content.offline-mag { padding:0 0 104px; background:#fff; }
+.offline-mag-head { padding:26px 20px 22px; border-bottom:2px solid #0a0a0a; margin:0; }
+.offline-mag-head .omh-kicker { color:#0a0a0a; letter-spacing:.34em; font-size:9px; font-weight:500; }
+.offline-mag-head .omh-title { font-size:42px; letter-spacing:2px; margin:8px 0 0; line-height:1.05; font-weight:400; }
+.offline-mag-head .omh-rule { margin:16px 0 10px; }
+.offline-mag-head .omh-rule span { background:#0a0a0a; height:1px; }
+.offline-mag-head .omh-desc { color:#666; font-size:10.5px; letter-spacing:.06em; line-height:1.8; }
+.offline-preset-entry { margin:0; padding:15px 20px; border:0; border-bottom:1px solid #d9d9d9; border-radius:0; background:#fff; box-shadow:none; gap:11px; }
+.offline-preset-entry .ope-ic { width:28px; height:28px; border:1px solid #0a0a0a; border-radius:0; background:#fff; color:#0a0a0a; font-size:13px; }
+.offline-preset-entry .ope-tx b { font-size:11px; font-weight:600; letter-spacing:.16em; color:#0a0a0a; }
+.offline-preset-entry .ope-tx i { font-size:9px; letter-spacing:.05em; color:#8a8a8a; margin-top:2px; }
+.offline-preset-entry .ope-arrow { color:#0a0a0a; font-size:16px; }
+.offline-mag-sec { margin:0; padding:24px 20px 12px; gap:10px; border-top:0; }
+.offline-mag-sec i { width:24px; height:24px; display:flex; align-items:center; justify-content:center; background:#0a0a0a; color:#fff; font-size:10px; font-style:normal; letter-spacing:0; font-family:Georgia,serif; }
+.offline-mag-sec span { font-size:11px; letter-spacing:.22em; font-weight:600; color:#0a0a0a; }
+.offline-mag-sec em { background:#dcdcdc; height:1px; }
+.offline-mag-chars { padding:4px 20px 22px; gap:16px; }
+.offline-char-chip { width:76px; padding:0 !important; gap:8px; background:transparent !important; border:0 !important; border-radius:0 !important; }
+.offline-char-chip.selected { background:transparent !important; border:0 !important; }
+.offline-char-chip .chip-p { white-space:normal; line-height:1.35; max-height:2.7em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.offline-char-chip .chip-ava, .offline-char-chip img { width:62px; height:62px; border-radius:0; }
+.offline-char-chip img { border:1px solid #0a0a0a; box-shadow:none; filter:grayscale(1) contrast(1.06); }
+.offline-char-chip.selected img { border:2px solid #0a0a0a; box-shadow:none; filter:grayscale(1) contrast(1.12); }
+.offline-char-chip .chip-check { top:-6px; right:2px; border-radius:0; background:#0a0a0a; border:1px solid #0a0a0a; color:#fff; width:16px; height:16px; line-height:14px; font-size:9px; }
+.offline-char-chip.selected .chip-check { background:#0a0a0a; border-color:#fff; }
+.offline-char-chip .chip-name { font-size:10.5px; font-weight:500; letter-spacing:.08em; color:#0a0a0a; }
+.offline-char-chip .chip-p { font-size:8.5px; color:#9a9a9a; letter-spacing:.02em; }
+#offline-lines-list { padding:0 20px; gap:0; }
+.offline-line-card { border:0 !important; border-bottom:1px solid #d9d9d9 !important; border-radius:0 !important; padding:16px 24px 16px 0 !important; background:#fff; box-shadow:none !important; gap:14px; }
+.offline-line-card:active { background:#f4f4f4; }
+.offline-line-card .line-idx { font-family:Georgia,serif; font-style:italic; font-size:11px; color:#0a0a0a; min-width:24px; letter-spacing:0; }
+.offline-line-card .line-name { font-size:14px; font-weight:500; letter-spacing:.04em; color:#0a0a0a; }
+.offline-line-card .line-type { border-radius:0; font-size:8.5px; letter-spacing:.12em; padding:2px 6px; }
+.offline-line-card .line-type.main { background:#0a0a0a; color:#fff; }
+.offline-line-card .line-type.side { background:#fff; color:#0a0a0a; border:1px solid #0a0a0a; }
+.offline-line-card .line-meta { font-family:Georgia,serif; font-style:normal; font-size:9px; letter-spacing:.06em; color:#8a8a8a; }
+.offline-line-card .offline-line-del { border-radius:0; background:transparent; border:1px solid #0a0a0a; color:#0a0a0a; width:18px; height:18px; line-height:16px; font-size:10px; }
+.offline-home-footer { background:#fff; border-top:2px solid #0a0a0a; padding:12px 20px calc(12px + env(safe-area-inset-bottom)); }
+#offline-enter-chat-btn { background:#0a0a0a !important; color:#fff !important; border-radius:0 !important; letter-spacing:.22em; font-weight:500 !important; padding:15px 0 !important; font-size:12px !important; }
+
+/* —— 聊天页 —— */
+#offline-chat-screen .content { background:#f3f3f1; }
+.offline-chat-area { padding:18px 16px 96px; }
+.offline-bubble-card { width:100%; margin:0 0 14px; border:1px solid #0a0a0a; border-radius:0; padding:0; background:#fff; box-shadow:none; }
+.offline-bubble-card.sent { background:#0a0a0a; border-color:#0a0a0a; }
+.obc-head { padding:13px 14px 0; gap:10px; align-items:flex-start; }
+.obc-avatar { width:34px; height:34px; border-radius:0; border:1px solid #0a0a0a; filter:grayscale(1); flex:0 0 34px; }
+.offline-bubble-card.sent .obc-avatar { border-color:rgba(255,255,255,.7); }
+.obc-name { font-size:11.5px; font-weight:500; letter-spacing:.16em; color:#0a0a0a; }
+.offline-bubble-card.sent .obc-name { color:#fff; }
+.obc-meta { font-size:8.5px; letter-spacing:.1em; color:#8a8a8a; margin-top:4px; }
+.obc-meta .save-writing { color:#0a0a0a; text-decoration:none; border-bottom:1px solid #0a0a0a; }
+.offline-bubble-card.sent .obc-meta .save-writing { color:#fff; border-bottom-color:#fff; }
+.obc-divider { margin:11px 14px 0; border-top:1px solid #0a0a0a; }
+.offline-bubble-card.sent .obc-divider { border-top-color:rgba(255,255,255,.4); }
+.obc-body { margin:0; padding:12px 14px 2px; font-size:13.5px; line-height:1.95; color:#1c1c1c; letter-spacing:.01em; }
+.offline-bubble-card.sent .obc-body { color:#f5f5f5; }
+.obc-chain { padding:2px 14px 0; }
+.obc-chain-toggle { color:#0a0a0a; font-size:9px; letter-spacing:.12em; border-bottom:1px solid #0a0a0a; padding:2px 0; }
+.offline-bubble-card.sent .obc-chain-toggle { color:#fff; border-bottom-color:rgba(255,255,255,.6); }
+.obc-chain-body { background:#f2f2ef; border-radius:0; border-left:2px solid #0a0a0a; color:#555; font-size:11px; }
+.obc-toolbar { padding:2px 10px 6px; gap:2px; }
+.obc-tool { color:#8a8a8a; font-size:9px; border-radius:0; padding:5px 6px; }
+.obc-tool:hover { color:#0a0a0a; background:#f0f0ee; }
+.offline-bubble-card.sent .obc-tool { color:#9a9a9a; }
+.offline-bubble-card.sent .obc-tool:hover { color:#fff; background:#242424; }
+.obc-pen svg { width:12px; height:12px; }
+.obc-actions { padding:0 14px 8px; }
+.obc-act { border-radius:0; background:#f3f3f1; font-size:10px; letter-spacing:.08em; }
+.offline-bubble-card.sent .obc-act { background:#242424; color:#ddd; }
+.obc-act.danger { background:#0a0a0a; color:#fff; }
+.offline-chat-input-bar { background:#fff; border-top:2px solid #0a0a0a; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); gap:8px; }
+.offline-chat-input-bar textarea { border:0; border-bottom:1px solid #0a0a0a; border-radius:0; padding:9px 2px; font-size:13px; background:#fff; min-height:40px; }
+.offline-chat-input-bar .icon-btn { border-radius:0; width:40px; height:40px; }
+#offline-send-btn { background:#0a0a0a !important; color:#fff !important; }
+#offline-reply-btn { background:#fff !important; color:#0a0a0a !important; border:1px solid #0a0a0a !important; }
+#offline-reply-btn svg { filter:none; }
+
+/* —— 设置页 —— */
+#offline-settings-screen .content { background:#fff; padding:0 20px 36px; }
+.offline-config-card { border:0; border-top:2px solid #0a0a0a; border-radius:0; background:transparent; padding:18px 0 0; margin:0 0 30px; }
+.offline-config-card .card-title { font-family:Georgia,'Songti SC',serif; font-size:17px; font-weight:400; letter-spacing:.06em; color:#0a0a0a; margin:0 0 6px; }
+.offline-config-card .card-title:after { content:""; display:block; width:28px; height:1px; background:#0a0a0a; margin-top:9px; }
+.offline-config-row { border-top:1px solid #e2e2e2; padding:13px 0; margin:0; gap:6px; display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,.9fr); align-items:center; column-gap:14px; }
+.offline-config-row:first-of-type { border-top:0; }
+.offline-config-row:has(textarea), .offline-config-row:has(> div:not(.switch-wrap)) { display:flex; flex-direction:column; align-items:stretch; }
+.offline-config-row > input, .offline-config-row > select { text-align:right; }
+.offline-config-row > .btn, .offline-config-row > .btn-neutral { border-radius:0 !important; background:#fff; border:1px solid #0a0a0a; color:#0a0a0a; letter-spacing:.16em; font-size:10px; padding:10px; }
+.offline-config-row:not(:has(label)) { display:block; }
+#offline-preset-row { display:flex; flex-direction:column; align-items:stretch; }
+#offline-preset-row .btn { border-radius:0 !important; width:100%; }
+#archive-create-screen input.ios-sw:checked, #archive-edit-screen input.ios-sw:checked { background:#0a0a0a; }
+.offline-config-card > .btn-neutral, .offline-config-card .btn-neutral { border-radius:0 !important; background:#fff !important; border:1px solid #0a0a0a !important; color:#0a0a0a !important; letter-spacing:.16em; font-size:10px; padding:12px; }
+#offline-custom-bubble-css { border-radius:0 !important; border:1px solid #0a0a0a !important; background:#fafafa !important; font-family:ui-monospace,Menlo,monospace !important; font-size:11px !important; }
+.offline-config-card > div[style*="justify-content:space-between"] input.ios-sw { border-radius:0; }
+.offline-config-card > div[style*="justify-content:space-between"] input.ios-sw:checked { background:#0a0a0a; }
+#archive-create-screen input.ios-sw, #archive-edit-screen input.ios-sw { border-radius:0; }
+.offline-config-row label { font-size:9.5px; letter-spacing:.14em; color:#0a0a0a; font-weight:500; }
+.offline-config-row select,
+.offline-config-row input[type="number"],
+.offline-config-row input[type="text"] { border:0; border-bottom:1px solid #0a0a0a; border-radius:0; padding:7px 0; background:transparent; font-size:13px; color:#1c1c1c; }
+.offline-config-row textarea { border:1px solid #0a0a0a; border-radius:0; padding:9px; font-size:12px; background:#fff; color:#1c1c1c; line-height:1.7; }
+.offline-config-row select:focus, .offline-config-row input:focus, .offline-config-row textarea:focus { box-shadow:none; border-color:#0a0a0a; }
+.offline-config-row:has(.switch-wrap) { padding:14px 0; }
+#offline-settings-screen input[type=checkbox].ios-sw { border-radius:0; background:#d8d8d8; }
+#offline-settings-screen input[type=checkbox].ios-sw::after { border-radius:0; }
+#offline-settings-screen input[type=checkbox].ios-sw:checked { background:#0a0a0a; }
+.offline-btn-row { gap:0; margin:0 0 22px; border-top:1px solid #0a0a0a; border-bottom:1px solid #0a0a0a; }
+.offline-btn-row .btn { border-radius:0; padding:14px 0; font-size:10px; letter-spacing:.18em; font-weight:500; }
+#offline-summarize-btn2 { background:#fff; color:#0a0a0a; }
+#offline-save-config-btn { background:#0a0a0a; color:#fff; }
+.offline-status-bar { background:#0a0a0a; color:#fff; border-radius:0; padding:12px 14px; margin:0 0 6px; font-size:9.5px; letter-spacing:.12em; }
+.offline-status-bar b { font-family:Georgia,serif; font-size:14px; font-weight:400; margin-left:4px; }
+#offline-settings-screen .offline-memory-title, #offline-settings-screen #offline-memory-list2 { display:none !important; }
+
 </style>
 
 <div id="time-mail-screen" class="screen tp-screen">
