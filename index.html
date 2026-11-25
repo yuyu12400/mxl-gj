@@ -7276,8 +7276,8 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
 .wb2-empty .big{font:italic 22px/1 "Noto Serif",serif;color:#111;margin-bottom:8px}
 .wb2-fab{height:42px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;gap:9px;font-size:11px;font-weight:700;letter-spacing:.05em;margin-top:12px;border:1px solid #111;cursor:pointer}
 .wb2-fab .plus{font:19px/1 "Noto Serif",serif;font-weight:400}
-.wb2-nav{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;width:calc(100% - 32px);max-width:520px;height:50px;background:#111;border:1px solid #111;border-radius:999px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;color:#fff;z-index:8;box-shadow:0 8px 24px rgba(0,0,0,.14)}
-.wb2-nav button{background:transparent;border:0;display:flex;align-items:center;gap:4px;font:8px/1 "DejaVu Sans Mono",monospace;letter-spacing:.08em;color:#cfcfc7;padding:8px 5px;cursor:pointer}
+.wb2-nav{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(18px + env(safe-area-inset-bottom, 0px));width:calc(100% - 32px);max-width:520px;height:50px;background:#111;border:1px solid #111;border-radius:999px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;color:#fff;z-index:8;box-shadow:0 8px 24px rgba(0,0,0,.14)}
+.wb2-nav button{background:transparent;border:0;display:flex;align-items:center;gap:4px;font:8px/1 "DejaVu Sans Mono",monospace;letter-spacing:.08em;color:#cfcfc7;padding:10px 8px;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 .wb2-nav button.on{color:#fff;font-weight:700}
 .wb2-nav button .dot{width:4px;height:4px;border-radius:50%;background:#fff;opacity:0}
 .wb2-nav button.on .dot{opacity:1}
@@ -9479,7 +9479,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <div class="wb2-fab" onclick="wb2NewBook()"><span class="plus">＋</span> 新建世界书</div>
         </div></div>
         <div class="wb2-nav">
-            <button data-target="home-screen"><span class="dot"></span>HOME</button>
+            <button type="button" onclick="wb2GoHome()"><span class="dot"></span>HOME</button>
             <button class="on" onclick="wb2GoLibrary()"><span class="dot"></span>BOOK</button>
             <button onclick="wb2NewBook()">＋ NEW</button>
         </div>
@@ -9844,6 +9844,8 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                 <div class="form-group" style="font-size:12px;color:#9aa0a6;background:#f8f9fa;border-radius:8px;padding:8px 10px;">当前已聊 <b id="setting-sum-total" style="color:#333;">0</b> 轮 · <b id="setting-sum-msgs" style="color:#333;">0</b> 条 · 已总结到第 <b id="setting-sum-cursor" style="color:#333;">0</b> 轮</div>
                 <div class="form-group"><label>总结轮数区间（下次自动从断点继续）</label><div style="display:flex;align-items:center;gap:8px;"><input type="number" id="setting-summary-from" min="1" value="1" style="flex:1;min-width:0;"><span style="color:#9aa0a6;font-size:12px;">到</span><input type="number" id="setting-summary-to" min="1" style="flex:1;min-width:0;"></div></div>
                 <button type="button" class="btn btn-secondary" id="setting-summary-now-btn">立即总结并存入记忆库</button>
+                <button type="button" class="btn btn-secondary" id="setting-summary-reset-btn" style="margin-top:8px;width:100%;">重置自动总结断点</button>
+                <div id="setting-summary-status" style="font-size:12px;line-height:1.6;color:#8a8a8a;margin-top:8px;">尚未总结 · 下次从第 1 轮开始</div>
                 <div class="settings-section-head"><span class="no">04</span><span class="ttl">运行 / BEHAVIOR</span><span class="note">5 项</span></div>
                 <div class="form-group">
                     <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -9979,6 +9981,8 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                     <label for="setting-group-summary-prompt">自定义总结提示词（留空用默认）</label>
                     <textarea id="setting-group-summary-prompt" rows="3" placeholder="例如：请只总结群聊中重要的事件、承诺与关系变化"></textarea>
                     <button type="button" class="btn btn-secondary" id="setting-group-summary-now-btn" style="margin-top:8px; width:100%;">立即总结并存入记忆库</button>
+                    <button type="button" class="btn btn-secondary" id="setting-group-summary-reset-btn" style="margin-top:8px;width:100%;">重置自动总结断点</button>
+                    <div id="setting-group-summary-status" style="font-size:12px;line-height:1.6;color:#8a8a8a;margin-top:8px;">尚未总结 · 下次从第 1 轮开始</div>
                 </div>
                 <div class="form-group"><label for="setting-group-bubble-avatar-mode">聊天气泡头像</label><select id="setting-group-bubble-avatar-mode">
                     <option value="none">不显示头像</option>
@@ -10365,7 +10369,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane is-on" data-offline-pane="meet">
                 <div class="o404-clock-row">
                     <div class="o404-clock" id="o404-time">20:14</div>
-                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.0</span></div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.1</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR MOMENT</span>
@@ -10398,7 +10402,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:16</div>
-                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.0</span></div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.1</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR CAST</span>
@@ -10410,7 +10414,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="story">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:18</div>
-                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.0</span></div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.1</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR STORY</span>
@@ -11200,7 +11204,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.0";
+  const APP_VERSION = "v6.3.1";
   let db = {
     characters: [],
     groups: [],
@@ -13137,7 +13141,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.0</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.1</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -13171,7 +13175,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.0<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.1<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -18411,6 +18415,9 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
         const _clrMid = (getCurrentMask() || {}).id || resolveMaskForChat(character);
         character.history = (character.history || []).filter(function (m) { return msgMaskKey(character, m) !== _clrMid; });
         if (character.summaryCursorByMask) delete character.summaryCursorByMask[_clrMid];
+        character.summaryCursor = 0;
+        character.onlineRounds = 0;
+        character.lastSummaryError = "";
         if (character.mosExtractCursorByMask) delete character.mosExtractCursorByMask[_clrMid];
         await saveData();
         renderMessages(false, true);
@@ -18516,11 +18523,12 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       document.getElementById("setting-summary-prompt").value = e.summaryPrompt !== void 0 ? e.summaryPrompt : oc.summaryPrompt || "";
       const sRoundsArr = splitHistoryRounds(e.history, (m) => m.role === "user");
       const sTotal = sRoundsArr.length;
+      const sCursor = summaryCursorOf(e);
       const sFromEl = document.getElementById("setting-summary-from");
       const sToEl = document.getElementById("setting-summary-to");
       if (sFromEl) {
         sFromEl.min = 1;
-        sFromEl.value = Math.max(1, (e.summaryCursor || 0) + 1);
+        sFromEl.value = Math.max(1, sCursor + 1);
       }
       if (sToEl) {
         sToEl.min = 1;
@@ -18531,7 +18539,20 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       const sMsgEl = document.getElementById("setting-sum-msgs");
       if (sMsgEl) sMsgEl.textContent = (e.history || []).length;
       const sCurEl = document.getElementById("setting-sum-cursor");
-      if (sCurEl) sCurEl.textContent = e.summaryCursor || 0;
+      if (sCurEl) sCurEl.textContent = sCursor;
+      if (e.lastSummaryError) setSummaryStatus("setting-summary-status", "上次总结失败：" + e.lastSummaryError, true);
+      else setSummaryStatus("setting-summary-status", sCursor ? "自动总结断点：第 " + sCursor + " 轮 · 下次从第 " + (sCursor + 1) + " 轮开始" : "尚未总结 · 下次从第 1 轮开始", false);
+      const sResetBtn = document.getElementById("setting-summary-reset-btn");
+      if (sResetBtn) sResetBtn.onclick = async () => {
+        const cReset = db.characters.find((x) => x.id === currentChatId);
+        if (!cReset) return;
+        applySummaryCursor(cReset, 0, resolveMaskForChat(cReset));
+        cReset.onlineRounds = 0;
+        cReset.lastSummaryError = "";
+        await saveData();
+        loadSettingsToSidebar();
+        showToast("自动总结断点已重置，下次从第 1 轮开始");
+      };
       document.getElementById("setting-remember-online").checked = !!oc.rememberOnline;
       const rts = document.getElementById("setting-real-time");
       if (rts) rts.checked = !!db.realTimeSensing;
@@ -18546,26 +18567,43 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       const cb = document.getElementById("setting-char-block");
       if (cb) cb.checked = !!e.allowCharBlock;
       const sn = document.getElementById("setting-summary-now-btn");
-      if (sn) sn.addEventListener("click", async () => {
-        var _a, _b;
+      if (sn) sn.onclick = async () => {
         const c = db.characters.find((c2) => c2.id === currentChatId);
         if (!c) return;
+        const rr0 = splitHistoryRounds(c.history, (m) => m.role === "user");
+        if (!rr0.length) {
+          c.lastSummaryError = "没有可总结的聊天记录（当前面具下 0 轮）";
+          setSummaryStatus("setting-summary-status", "本次总结未执行：" + c.lastSummaryError, true);
+          showToast("总结未执行：" + c.lastSummaryError);
+          return;
+        }
         sn.disabled = true;
-        sn.textContent = "\u603B\u7ED3\u4E2D\u2026";
+        sn.textContent = "总结中…";
         try {
           const ocB = getOfflineChat(c.id);
           const rr = splitHistoryRounds(c.history, (m) => m.role === "user");
-          const fV = parseInt((_a = document.getElementById("setting-summary-from")) == null ? void 0 : _a.value) || (c.summaryCursor || 0) + 1;
-          const tV = parseInt((_b = document.getElementById("setting-summary-to")) == null ? void 0 : _b.value) || rr.length;
+          const fEl = document.getElementById("setting-summary-from");
+          const tEl = document.getElementById("setting-summary-to");
+          const fV = parseInt(fEl ? fEl.value : "", 10) || (summaryCursorOf(c) + 1);
+          const tV = parseInt(tEl ? tEl.value : "", 10) || rr.length;
           const okS = await summarizeOnlineChat(c, fV, tV);
-          if (okS) showToast("\u5DF2\u603B\u7ED3\u5165\u8BB0\u5FC6\u5E93");
-          loadSettingsToSidebar();
+          if (okS) {
+            showToast("已总结入记忆库");
+            loadSettingsToSidebar();
+          } else {
+            const reason = c.lastSummaryError || "总结接口没有返回有效结果";
+            setSummaryStatus("setting-summary-status", "本次总结未执行：" + reason, true);
+            showToast("总结未执行：" + reason);
+          }
         } catch (err) {
-          showToast("\u603B\u7ED3\u5931\u8D25\uFF1A" + (err && err.message ? err.message : "\u672A\u77E5\u9519\u8BEF"));
+          c.lastSummaryError = "总结异常：" + (err && err.message ? err.message : "未知错误");
+          setSummaryStatus("setting-summary-status", "本次总结未执行：" + c.lastSummaryError, true);
+          showToast("总结失败：" + c.lastSummaryError);
+        } finally {
+          sn.disabled = false;
+          sn.textContent = "立即总结并存入记忆库";
         }
-        sn.disabled = false;
-        sn.textContent = "\u7ACB\u5373\u603B\u7ED3\u5E76\u5B58\u5165\u8BB0\u5FC6\u5E93";
-      });
+      };
       const useCustomCssCheckbox = document.getElementById("setting-use-custom-css"), customCssTextarea = document.getElementById("setting-custom-bubble-css"), privatePreviewBox = document.getElementById("private-bubble-css-preview");
       useCustomCssCheckbox.checked = e.useCustomBubbleCss || false;
       customCssTextarea.value = e.customBubbleCss || "";
@@ -18607,6 +18645,11 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       e.summaryEnabled = oc2.summaryEnabled;
       e.summaryRounds = oc2.summaryRounds;
       e.summaryPrompt = oc2.summaryPrompt;
+      const sFromSaveEl = document.getElementById("setting-summary-from");
+      if (sFromSaveEl) {
+        const sv = parseInt(sFromSaveEl.value, 10);
+        if (Number.isFinite(sv) && sv >= 1) applySummaryCursor(e, sv - 1, resolveMaskForChat(e));
+      }
       oc2.rememberOnline = document.getElementById("setting-remember-online").checked;
       const rts2 = document.getElementById("setting-real-time");
       if (rts2) db.realTimeSensing = rts2.checked;
@@ -18628,7 +18671,11 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       e.useCustomBubbleCss = document.getElementById("setting-use-custom-css").checked;
       e.customBubbleCss = document.getElementById("setting-custom-bubble-css").value;
       await saveData();
-      showToast("\u8BBE\u7F6E\u5DF2\u4FDD\u5B58\uFF01");
+      const sCursorSaved = summaryCursorOf(e);
+      const sCurElSave = document.getElementById("setting-sum-cursor");
+      if (sCurElSave) sCurElSave.textContent = sCursorSaved;
+      if (!e.lastSummaryError) setSummaryStatus("setting-summary-status", sCursorSaved ? "自动总结断点：第 " + sCursorSaved + " 轮 · 下次从第 " + (sCursorSaved + 1) + " 轮开始" : "尚未总结 · 下次从第 1 轮开始", false);
+      showToast("设置已保存！自动总结断点：第 " + sCursorSaved + " 轮");
       chatRoomTitle.textContent = e.remarkName;
       renderChatList();
       updateCustomBubbleStyle(currentChatId, e.customBubbleCss, e.useCustomBubbleCss);
@@ -19219,6 +19266,9 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
         const _gclrMid = resolveMaskForChat(group);
         group.history = (group.history || []).filter(function (m) { return msgMaskKey(group, m) !== _gclrMid; });
         if (group.summaryCursorByMask) delete group.summaryCursorByMask[_gclrMid];
+        group.summaryCursor = 0;
+        group.onlineRounds = 0;
+        group.lastSummaryError = "";
         await saveData();
         renderMessages(false, true);
         renderChatList();
@@ -19447,11 +19497,12 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     document.getElementById("setting-group-summary-prompt").value = group.offlineCfg.summaryPrompt || "";
     const gRounds = splitHistoryRounds(group.history, (m) => m.role === "user");
     const gTotal = gRounds.length;
+    const gCursor = summaryCursorOf(group);
     const gFromEl = document.getElementById("setting-group-summary-from");
     const gToEl = document.getElementById("setting-group-summary-to");
     if (gFromEl) {
       gFromEl.min = 1;
-      gFromEl.value = Math.max(1, (group.summaryCursor || 0) + 1);
+      gFromEl.value = Math.max(1, gCursor + 1);
     }
     if (gToEl) {
       gToEl.min = 1;
@@ -19462,27 +19513,57 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     const gMsgEl = document.getElementById("setting-group-sum-msgs");
     if (gMsgEl) gMsgEl.textContent = (group.history || []).length;
     const gCurEl = document.getElementById("setting-group-sum-cursor");
-    if (gCurEl) gCurEl.textContent = group.summaryCursor || 0;
+    if (gCurEl) gCurEl.textContent = gCursor;
+    if (group.lastSummaryError) setSummaryStatus("setting-group-summary-status", "上次总结失败：" + group.lastSummaryError, true);
+    else setSummaryStatus("setting-group-summary-status", gCursor ? "自动总结断点：第 " + gCursor + " 轮 · 下次从第 " + (gCursor + 1) + " 轮开始" : "尚未总结 · 下次从第 1 轮开始", false);
+    const gResetBtn = document.getElementById("setting-group-summary-reset-btn");
+    if (gResetBtn) gResetBtn.onclick = async () => {
+      const gReset = db.groups.find((x) => x.id === currentChatId);
+      if (!gReset) return;
+      applySummaryCursor(gReset, 0, resolveMaskForChat(gReset));
+      gReset.onlineRounds = 0;
+      gReset.lastSummaryError = "";
+      await saveData();
+      loadGroupSettingsToSidebar();
+      showToast("自动总结断点已重置，下次从第 1 轮开始");
+    };
     const gn = document.getElementById("setting-group-summary-now-btn");
-    if (gn) gn.addEventListener("click", async () => {
-      var _a, _b;
+    if (gn) gn.onclick = async () => {
       const g = db.groups.find((g2) => g2.id === currentChatId);
       if (!g) return;
+      const gR0 = splitHistoryRounds(g.history, (m) => m.role === "user");
+      if (!gR0.length) {
+        g.lastSummaryError = "没有可总结的群聊记录（当前面具下 0 轮）";
+        setSummaryStatus("setting-group-summary-status", "本次总结未执行：" + g.lastSummaryError, true);
+        showToast("总结未执行：" + g.lastSummaryError);
+        return;
+      }
       gn.disabled = true;
-      gn.textContent = "\u603B\u7ED3\u4E2D\u2026";
+      gn.textContent = "总结中…";
       try {
         const gR2 = splitHistoryRounds(g.history, (m) => m.role === "user");
-        const gfV = parseInt((_a = document.getElementById("setting-group-summary-from")) == null ? void 0 : _a.value) || (g.summaryCursor || 0) + 1;
-        const gtV = parseInt((_b = document.getElementById("setting-group-summary-to")) == null ? void 0 : _b.value) || gR2.length;
+        const gfEl = document.getElementById("setting-group-summary-from");
+        const gtEl = document.getElementById("setting-group-summary-to");
+        const gfV = parseInt(gfEl ? gfEl.value : "", 10) || (summaryCursorOf(g) + 1);
+        const gtV = parseInt(gtEl ? gtEl.value : "", 10) || gR2.length;
         const okG = await summarizeGroupChat(g, gfV, gtV);
-        if (okG) showToast("\u5DF2\u603B\u7ED3\u5E76\u5165\u5404\u6210\u5458\u8BB0\u5FC6\u5E93");
-        loadGroupSettingsToSidebar();
+        if (okG) {
+          showToast("已总结并入各成员记忆库");
+          loadGroupSettingsToSidebar();
+        } else {
+          const reason = g.lastSummaryError || "总结接口没有返回有效结果";
+          setSummaryStatus("setting-group-summary-status", "本次总结未执行：" + reason, true);
+          showToast("总结未执行：" + reason);
+        }
       } catch (err) {
-        showToast("\u603B\u7ED3\u5931\u8D25\uFF1A" + (err && err.message ? err.message : "\u672A\u77E5\u9519\u8BEF"));
+        g.lastSummaryError = "总结异常：" + (err && err.message ? err.message : "未知错误");
+        setSummaryStatus("setting-group-summary-status", "本次总结未执行：" + g.lastSummaryError, true);
+        showToast("总结失败：" + g.lastSummaryError);
+      } finally {
+        gn.disabled = false;
+        gn.textContent = "立即总结并存入记忆库";
       }
-      gn.disabled = false;
-      gn.textContent = "\u7ACB\u5373\u603B\u7ED3\u5E76\u5B58\u5165\u8BB0\u5FC6\u5E93";
-    });
+    };
     renderGroupMembersInSettings(group);
     const useGroupCustomCssCheckbox = document.getElementById("setting-group-use-custom-css"), groupCustomCssTextarea = document.getElementById("setting-group-custom-bubble-css"), groupPreviewBox = document.getElementById("group-bubble-css-preview");
     useGroupCustomCssCheckbox.checked = group.useCustomBubbleCss || false;
@@ -19543,9 +19624,18 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     group.offlineCfg.summaryEnabled = document.getElementById("setting-group-summary-enabled").checked;
     group.offlineCfg.summaryRounds = parseInt(document.getElementById("setting-group-summary-rounds").value) || 6;
     group.offlineCfg.summaryPrompt = document.getElementById("setting-group-summary-prompt").value;
+    const gFromSaveEl = document.getElementById("setting-group-summary-from");
+    if (gFromSaveEl) {
+      const gsv = parseInt(gFromSaveEl.value, 10);
+      if (Number.isFinite(gsv) && gsv >= 1) applySummaryCursor(group, gsv - 1, resolveMaskForChat(group));
+    }
     updateCustomBubbleStyle(currentChatId, group.customBubbleCss, group.useCustomBubbleCss);
     await saveData();
-    showToast("\u7FA4\u804A\u8BBE\u7F6E\u5DF2\u4FDD\u5B58\uFF01");
+    const gCursorSaved = summaryCursorOf(group);
+    const gCurElSave = document.getElementById("setting-group-sum-cursor");
+    if (gCurElSave) gCurElSave.textContent = gCursorSaved;
+    if (!group.lastSummaryError) setSummaryStatus("setting-group-summary-status", gCursorSaved ? "自动总结断点：第 " + gCursorSaved + " 轮 · 下次从第 " + (gCursorSaved + 1) + " 轮开始" : "尚未总结 · 下次从第 1 轮开始", false);
+    showToast("群聊设置已保存！自动总结断点：第 " + gCursorSaved + " 轮");
     chatRoomTitle.textContent = group.name;
     renderChatList();
     renderMessages(false, true);
@@ -25064,6 +25154,15 @@ function setupPhoneSystem() {
     }
     return null;
   }
+  function summaryApiProblem() {
+    const a = db.apiSettings || {};
+    if (a.summaryUrl && String(a.summaryUrl).trim()) {
+      if (!(a.summaryKey || a.key) || !(a.summaryModel || a.model)) return "总结 API 配置不完整：缺少 Key 或模型";
+      return "";
+    }
+    if (!a.url || !a.key || !a.model) return "未配置 API：请先在 API 设置里填写地址、Key 和模型";
+    return "";
+  }
   function buildSummaryText(character, history) {
     return (history || []).map((h) => (h.role === "user" ? character.myName : character.realName) + "\uFF1A" + h.content).join("\n");
   }
@@ -25073,15 +25172,18 @@ function setupPhoneSystem() {
     const gHist = (group.history || []).filter(function (m) { return msgMaskKey(group, m) === gMid; });
     const rounds = splitHistoryRounds(gHist, (m) => m.role === "user");
     const totalRounds = rounds.length;
-    if (!group.summaryCursorByMask || typeof group.summaryCursorByMask !== "object") group.summaryCursorByMask = {};
-    let f = fromR || ((group.summaryCursorByMask[gMid] || 0) + 1);
+    const gCursorNow = summaryCursorOf(group);
+    let f = fromR || (gCursorNow + 1);
     let t = toR || totalRounds;
     if (f < 1) f = 1;
     if (t > totalRounds) t = totalRounds;
-    if (f > t || !totalRounds) return false;
+    if (!totalRounds) return summaryFail(group, "没有可总结的群聊记录（当前面具下 0 轮）", gMid, 0, 0, "", "group-summary");
+    if (f > t) return summaryFail(group, "总结区间无效：从第 " + f + " 轮到第 " + t + " 轮", gMid, f, t, "", "group-summary");
     const msgs = rounds.slice(f - 1, t).reduce((a, b) => a.concat(b), []);
-    if (msgs.length < 2) return false;
+    if (msgs.length < 2) return summaryFail(group, "所选区间消息不足 2 条", gMid, f, t, "", "group-summary");
     const gBatch = "gsummary:" + gMid + ":" + f + "-" + t;
+    const gApiIssue = summaryApiProblem();
+    if (gApiIssue) return summaryFail(group, gApiIssue, gMid, f, t, gBatch, "group-summary");
     const gRange = [f, t];
     const lines = msgs.map((m) => {
       if (m.role === "user") return "".concat(group.me ? group.me.nickname : "\u6211", "\uFF1A").concat(String(m.content || "").slice(0, 1200));
@@ -25099,14 +25201,11 @@ function setupPhoneSystem() {
     try {
       text = await offlineRequest(sys, [{ role: "user", content: prompt }], 4200, false, void 0, void 0, summaryApiCfg());
     } catch (e) {
-      MemoryOS.logTask("group-summary", group.id, gMid, f, t, "failed", { batch: gBatch, note: String(e && e.message || e) });
-      return false;
+      return summaryFail(group, "总结接口请求失败：" + String(e && e.message || e), gMid, f, t, gBatch, "group-summary");
     }
-    if (!text) {
-      MemoryOS.logTask("group-summary", group.id, gMid, f, t, "failed", { batch: gBatch, note: "空结果" });
-      return false;
-    }
+    if (!text) return summaryFail(group, "总结接口返回空内容", gMid, f, t, gBatch, "group-summary");
     const memberBlocks = text.split(/\n+/).map((l) => l.trim()).filter((l) => l && l.indexOf("@") === 0);
+    let wroteG = 0;
     memberBlocks.forEach((block) => {
       const idx = block.indexOf("\uFF1A");
       const colon = idx > -1 ? idx : block.indexOf(":");
@@ -25117,12 +25216,14 @@ function setupPhoneSystem() {
       if (!member || !member.originalCharId) return;
       const parsed = body.match(/「([^」]+)」/g) || [];
       const merged = parsed.map((p) => p.replace(/「|」/g, "").trim()).filter((c) => c && c.length > 4);
-      if (merged.length) pushMemory(member.originalCharId, "online", "".concat(group.name, "\u7FA4\u804A\uFF1A").concat(merged.join("\uFF1B")), "fact", gMid, gBatch + "#" + member.originalCharId, gRange);
+      if (merged.length) { pushMemory(member.originalCharId, "online", "".concat(group.name, "\u7FA4\u804A\uFF1A").concat(merged.join("\uFF1B")), "fact", gMid, gBatch + "#" + member.originalCharId, gRange); wroteG += 1; }
     });
     (group.members || []).forEach((m) => {
       if (m.originalCharId) trimMemories(m.originalCharId);
     });
-    group.summaryCursor = t;
+    if (!wroteG) return summaryFail(group, "总结结果里没有可识别的成员记忆（模型可能没按「@成员：」格式输出）", gMid, f, t, gBatch, "group-summary");
+    applySummaryCursor(group, t, gMid);
+    group.lastSummaryError = "";
     MemoryOS.logTask("group-summary", group.id, gMid, f, t, "done", { batch: gBatch });
     await saveData();
     return true;
@@ -25164,7 +25265,35 @@ function setupPhoneSystem() {
     "最后判断这段关系此刻的变化：给出信任、熟悉、亲密的增减，每次最多 3 点，并说明依据；再用角色的第一人称写一句 Ta 对这段关系的真实想法。",
     "不要写分析、建议或评价，不要重复原文句子。"
   ].join("\n\n");
-  async function summarizeOnlineChat(character, fromR, toR) {
+  function summaryCursorOf(chat) {
+    if (!chat) return 0;
+    const mid = resolveMaskForChat(chat);
+    if (chat.summaryCursorByMask && typeof chat.summaryCursorByMask === "object") {
+      const n = parseInt(chat.summaryCursorByMask[mid], 10);
+      return Number.isFinite(n) && n > 0 ? n : 0;
+    }
+    const p = parseInt(chat.summaryCursor, 10);
+    return Number.isFinite(p) && p > 0 ? p : 0;
+  }
+  function applySummaryCursor(chat, value, mid) {
+    const v = Math.max(0, parseInt(value, 10) || 0);
+    if (!chat.summaryCursorByMask || typeof chat.summaryCursorByMask !== "object") chat.summaryCursorByMask = {};
+    chat.summaryCursorByMask[mid || resolveMaskForChat(chat)] = v;
+    chat.summaryCursor = v;
+    return v;
+  }
+  function summaryFail(chat, msg, mid, f, t, batch, kind) {
+    chat.lastSummaryError = String(msg || "未知错误");
+    try { MemoryOS.logTask(kind || "summary", chat.id, mid, f, t, "failed", { batch: batch, note: chat.lastSummaryError }); } catch (e) {}
+    return false;
+  }
+  function setSummaryStatus(elId, msg, isError) {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.textContent = msg || "";
+    el.style.color = isError ? "#b42318" : "#8a8a8a";
+  }
+    async function summarizeOnlineChat(character, fromR, toR) {
     const oc = getOfflineChat(character.id);
     const midNow = resolveMaskForChat(character);
     const maskNow = (db.masks || []).find(function (m) { return m.id === midNow; });
@@ -25172,15 +25301,18 @@ function setupPhoneSystem() {
     const maskHist = (character.history || []).filter(function (m) { return msgMaskKey(character, m) === midNow; });
     const rounds = splitHistoryRounds(maskHist, (m) => m.role === "user");
     const totalRounds = rounds.length;
-    if (!character.summaryCursorByMask || typeof character.summaryCursorByMask !== "object") character.summaryCursorByMask = {};
-    let f = fromR || ((character.summaryCursorByMask[midNow] || 0) + 1);
+    const cursorNow = summaryCursorOf(character);
+    let f = fromR || (cursorNow + 1);
     let t = toR || totalRounds;
     if (f < 1) f = 1;
     if (t > totalRounds) t = totalRounds;
-    if (f > t || !totalRounds) return false;
+    if (!totalRounds) return summaryFail(character, "没有可总结的聊天记录（当前面具下 0 轮）", midNow, 0, 0, "", "summary");
+    if (f > t) return summaryFail(character, "总结区间无效：从第 " + f + " 轮到第 " + t + " 轮", midNow, f, t, "", "summary");
     const msgs = rounds.slice(f - 1, t).reduce((a, b) => a.concat(b), []);
-    if (msgs.length < 2) return false;
+    if (msgs.length < 2) return summaryFail(character, "所选区间消息不足 2 条", midNow, f, t, "", "summary");
     const batch = "summary:" + midNow + ":" + f + "-" + t;
+    const apiIssue = summaryApiProblem();
+    if (apiIssue) return summaryFail(character, apiIssue, midNow, f, t, batch, "summary");
     const roundRange = [f, t];
     const recent = msgs.map((m) => "".concat(m.role === "assistant" ? character.realName : myNameForMask, "\uFF1A").concat(String(m.content || "").slice(0, 1200))).join("\n");
     const sys = "\u4F60\u662F\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u4F9D\u636E\u63D0\u4F9B\u7684\u5BF9\u8BDD\u539F\u6587\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5267\u60C5\u3002";
@@ -25192,22 +25324,15 @@ function setupPhoneSystem() {
     try {
       text = await offlineRequest(sys, [{ role: "user", content: prompt }], 4200, false, void 0, void 0, summaryApiCfg());
     } catch (e) {
-      MemoryOS.logTask("summary", character.id, midNow, f, t, "failed", { batch: batch, note: String(e && e.message || e) });
-      return false;
+      return summaryFail(character, "总结接口请求失败：" + String(e && e.message || e), midNow, f, t, batch, "summary");
     }
-    if (!text) {
-      MemoryOS.logTask("summary", character.id, midNow, f, t, "failed", { batch: batch, note: "空结果" });
-      return false;
-    }
+    if (!text) return summaryFail(character, "总结接口返回空内容", midNow, f, t, batch, "summary");
     const rich = parseSummaryRich(text);
-    if (!rich.whole && !(rich.sections || []).length) {
-      MemoryOS.logTask("summary", character.id, midNow, f, t, "failed", { batch: batch, note: "可解析内容为空" });
-      return false;
-    }
+    if (!rich.whole && !(rich.sections || []).length) return summaryFail(character, "总结结果无法解析出有效记忆", midNow, f, t, batch, "summary");
     writeRichSummary(character.id, "online", f, t, midNow, batch, rich);
     trimMemories(character.id);
-    character.summaryCursorByMask[midNow] = t;
-    character.summaryCursor = t;
+    applySummaryCursor(character, t, midNow);
+    character.lastSummaryError = "";
     MemoryOS.logTask("summary", character.id, midNow, f, t, "done", { batch: batch });
     await saveData();
     return true;
@@ -31170,6 +31295,7 @@ function setupPhoneSystem() {
     try { _wb2api.generateOfflineSystemPrompt = generateOfflineSystemPrompt; } catch (e7) {}
     try { _wb2api.generateOfflineMultiSystemPrompt = generateOfflineMultiSystemPrompt; } catch (e8) {}
     window.__wb2Api = _wb2api;
+    window.__mxlSaveData = saveData;
   } catch (e) {}
   window.editWorldBookFolder = editWorldBookFolder;
   window.deleteWorldBookItem = deleteWorldBookItem;
@@ -42440,7 +42566,13 @@ document.addEventListener("DOMContentLoaded", function () {
   if (!(WB2API && WB2API.uiPrompt) && window.__wb2Api) WB2API = window.__wb2Api;
 });
 function wb2Esc(v) { if (WB2API.escapeHtml) return WB2API.escapeHtml(v); return String(v == null ? "" : v).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c]; }); }
-function wb2Save() { if (WB2API.saveData) WB2API.saveData(); }
+function wb2Save() {
+  try {
+    if (WB2API.saveData) return WB2API.saveData(null, { force: true });
+    if (window.__mxlSaveData) return window.__mxlSaveData(null, { force: true });
+  } catch (e) { console.error("世界书保存失败", e); }
+  return null;
+}
 function wb2Prompt(msg, def) { return WB2API.uiPrompt ? WB2API.uiPrompt(msg, def) : Promise.resolve(prompt(msg, def)); }
 function wb2Confirm(msg, okText, danger) { return WB2API.uiConfirm ? WB2API.uiConfirm(msg, okText, danger) : Promise.resolve(confirm(msg)); }
 function wb2Toast(msg) { if (WB2API.showToast) WB2API.showToast(msg); }
@@ -42564,12 +42696,16 @@ function wb2OpenBook(id) {
   switchScreen("wb2-book-screen");
 }
 function wb2GoLibrary() {
+  if (!wb2LeaveEditorGuard()) return;
+  wb2State.edit = null;
   wb2State.bookId = null;
   wb2RenderLibrary();
   switchScreen("wb2-library-screen");
 }
 function wb2GoBook() {
   if (!wb2State.bookId) return wb2GoLibrary();
+  if (!wb2LeaveEditorGuard()) return;
+  wb2State.edit = null;
   wb2RenderBook();
   switchScreen("wb2-book-screen");
 }
@@ -42674,6 +42810,8 @@ function wb2DeleteBook() {
   });
 }
 function wb2NewEntry() {
+  if (!wb2LeaveEditorGuard()) return;
+  wb2State.edit = null;
   wb2State.entryId = null;
   var d = wb2Defaults();
   d.folderId = wb2State.bookId === WB2_UNFILED ? "" : (wb2State.bookId || "");
@@ -42683,6 +42821,7 @@ function wb2NewEntry() {
   switchScreen("wb2-editor-screen");
 }
 function wb2OpenEntry(id) {
+  if (!wb2LeaveEditorGuard()) return;
   var e = (db.worldBooks || []).find(function(x){ return x.id === id; });
   if (!e) return;
   wb2EnsureEntry(e);
@@ -42842,12 +42981,16 @@ function wb2Step(field, delta) {
   wb2State.edit[field] = Math.max(0, (parseInt(wb2State.edit[field],10) || 0) + delta);
   wb2RenderEditor();
 }
-function wb2SaveEntry() {
-  if (!wb2State.edit) return;
+function wb2CommitEntry(silent) {
+  if (!wb2State.edit) return false;
   wb2CaptureEditor();
   var e = wb2State.edit;
-  if (!String(e.name || "").trim()) { wb2Toast("先给条目起个名字"); return; }
-  if (!String(e.content || "").trim()) { wb2Toast("条目内容不能为空"); return; }
+  var nameOk = !!String(e.name || "").trim();
+  var contentOk = !!String(e.content || "").trim();
+  if (!nameOk || !contentOk) {
+    if (!silent) wb2Toast(!nameOk ? "先给条目起个名字" : "条目内容不能为空");
+    return false;
+  }
   wb2EnsureEntry(e);
   if (wb2State.entryId) {
     var old = (db.worldBooks || []).find(function(x){ return x.id === wb2State.entryId; });
@@ -42858,10 +43001,50 @@ function wb2SaveEntry() {
     db.worldBooks.push(e);
     wb2State.entryId = e.id;
   }
-  wb2Save();
+  wb2State.edit = e;
   wb2State.bookId = e.folderId || WB2_UNFILED;
+  wb2Save();
+  return true;
+}
+function wb2LeaveEditorGuard() {
+  if (!wb2State.edit) return true;
+  wb2CaptureEditor();
+  var e = wb2State.edit;
+  var hasAny = !!String(e.name || "").trim() || !!String(e.content || "").trim();
+  if (!hasAny) { wb2State.edit = null; return true; }
+  var ok = wb2CommitEntry(true);
+  if (!ok) {
+    wb2Toast("当前条目还没填完整，已停留在编辑页；填完名称和内容后会自动保存");
+    return false;
+  }
+  return true;
+}
+function wb2FlushDraft() {
+  try {
+    if (!wb2State.edit) return;
+    var e = wb2State.edit;
+    if (String(e.name || "").trim() && String(e.content || "").trim()) wb2CommitEntry(true);
+  } catch (err) {}
+}
+function wb2SaveEntry() {
+  if (!wb2CommitEntry(false)) return;
+  wb2State.edit = null;
   wb2GoBook();
   wb2Toast("条目已保存");
+}
+function wb2GoHome() {
+  try {
+    var ok = wb2LeaveEditorGuard();
+    if (!ok) return;
+    wb2State.edit = null;
+    if (typeof switchScreen === "function") { switchScreen("home-screen"); return; }
+    if (typeof window.switchScreen === "function") { window.switchScreen("home-screen"); return; }
+  } catch (err) {}
+  try {
+    document.querySelectorAll(".screen").forEach(function(s){ s.classList.remove("active"); });
+    var home = document.getElementById("home-screen");
+    if (home) home.classList.add("active");
+  } catch (err2) {}
 }
 function wb2DeleteEntry() {
   if (!wb2State.entryId) { wb2GoBook(); return; }
@@ -42903,6 +43086,8 @@ function wb2DeleteEntry() {
     });
     wb2TickClocks();
     setInterval(wb2TickClocks, 30000);
+    window.addEventListener("pagehide", wb2FlushDraft);
+    document.addEventListener("visibilitychange", function(){ if (document.visibilityState === "hidden") wb2FlushDraft(); });
   });
 })();
 </script>
