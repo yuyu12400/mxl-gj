@@ -8807,6 +8807,29 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
       }
       /* ===== 角色主页 ===== */
       #char-profile-screen.profile-threads-screen { background:#ffffff; }
+      .cf-cover-edit { left:16px; right:auto; bottom:20px; }
+      .cf-bio-clamped {
+        display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:4; overflow:hidden;
+      }
+      .cf-bio-open { display:block; -webkit-line-clamp:unset; overflow:visible; }
+      .cf-bio-toggle {
+        display:block; width:max-content; margin:8px auto 0; padding:2px 0;
+        border:0; background:transparent; color:#7b7f85;
+        font-size:calc(var(--app-fs,1) * 11.5px); letter-spacing:.04em;
+        cursor:pointer; align-self:center;
+      }
+      .cf-bio-toggle:active { opacity:.6; }
+      /* ===== Memory OS 记忆库 ===== */
+      .mos-chip{height:28px;padding:0 12px;border-radius:999px;border:1px solid #e4e5e7;background:#fff;color:#5f6368;font-size:12px;white-space:nowrap;cursor:pointer;flex:0 0 auto;}
+      .mos-chip.on{background:#0a0a0a;border-color:#0a0a0a;color:#fff;font-weight:600;}
+      .mos-card{margin-bottom:12px;padding:14px 16px;border-radius:16px;background:#fff;border:1px solid #ededef;display:flex;gap:12px;align-items:center;cursor:pointer;}
+      .mos-card:active{opacity:.72;}
+      .mos-item{margin-bottom:10px;padding:12px 14px;border-radius:14px;background:#fff;border:1px solid #ededef;}
+      .mos-item:active{opacity:.8;}
+      .mos-tag{display:inline-flex;align-items:center;height:19px;padding:0 7px;border-radius:6px;font-size:10px;letter-spacing:.04em;border:1px solid rgba(0,0,0,.08);background:#f6f7f9;color:#6b7076;}
+      .mos-tag.hot{background:#fff4e8;border-color:#f6dcc2;color:#c07b34;}
+      .mos-op{width:28px;height:28px;border-radius:9px;border:1px solid #ececee;background:#fff;color:#8f949a;display:inline-flex;align-items:center;justify-content:center;font-size:11px;cursor:pointer;}
+      .mos-op:active{background:#f4f5f7;}
       #char-profile-screen .content.profile-threads-content {
         padding: 0 0 calc(112px + env(safe-area-inset-bottom, 0px)) !important;
         background:#ffffff;
@@ -9707,6 +9730,11 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                 <div class="profile-cover-change cf-cover-cap">
                     <span id="cf-cover-tag">CHARACTER / 404</span>
                 </div>
+                <button type="button" class="profile-cover-change cf-cover-edit" id="cf-cover-change" aria-label="更换背景">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M4 17l4.5-4.5 3 3 3.5-3.5L20 17"/></svg>
+                    <span>更换背景</span>
+                </button>
+                <input type="file" id="cf-cover-upload" accept="image/*" style="display:none;">
             </section>
             <div class="profile-main">
                 <div class="profile-avatar-wrap">
@@ -9714,7 +9742,8 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                 </div>
                 <h1 class="profile-name" id="cf-name">角色</h1>
                 <div class="profile-handle" id="cf-handle">@404 / TA</div>
-                <div class="profile-bio" id="cf-bio"></div>
+                <div class="profile-bio cf-bio-clamped" id="cf-bio"></div>
+                <button type="button" class="cf-bio-toggle" id="cf-bio-toggle" style="display:none;">展开全文</button>
                 <div class="profile-stats">
                     <span><b id="cf-stat-posts">0</b><em>动态</em></span>
                     <span><b id="cf-stat-chat">0</b><em>对话</em></span>
@@ -10199,7 +10228,8 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <div class="placeholder"></div>
         </header>
         <div style="padding:8px 14px 4px; background:var(--bg-color,#f5f6f8);">
-            <input type="text" id="memory-search-input" placeholder="搜索记忆内容…" style="width:100%; box-sizing:border-box; border-radius:12px; border:1px solid var(--border-color,#e4e6e9); padding:9px 14px; font-size:14px; background:var(--card-bg,#fff); color:var(--text-color,#2b2b2b); outline:none;">
+            <input type="text" id="memory-search-input" placeholder="搜索记忆内容、人物、标签…" style="width:100%; box-sizing:border-box; border-radius:12px; border:1px solid var(--border-color,#e4e6e9); padding:9px 14px; font-size:14px; background:var(--card-bg,#fff); color:var(--text-color,#2b2b2b); outline:none;">
+            <div id="memory-filter-bar" style="display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;-webkit-overflow-scrolling:touch;"></div>
         </div>
         <main class="content" id="memory-detail-container"></main>
     </div>
@@ -10673,7 +10703,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.4.0";
+  const APP_VERSION = "v5.5.0";
   let db = {
     characters: [],
     groups: [],
@@ -11135,7 +11165,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (targetId === "mask-screen") renderMaskGrid();
     if (targetId === "dynamic-screen") renderFeeds();
     if (targetId === "contacts-screen") renderContactList();
-    if (targetId === "chat-list-screen" && typeof window.clApplyCovers === "function") window.clApplyCovers();
+    if (targetId === "chat-list-screen") { try { renderChatList(); } catch (e) {} if (typeof window.clApplyCovers === "function") window.clApplyCovers(); }
     if (targetId === "wallet-screen") renderWallet();
     if (targetId === "writings-screen") renderWritings();
     if (targetId === "food-app-screen") {
@@ -12567,7 +12597,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.4.0</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.0</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12601,7 +12631,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.4.0<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.0<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -13596,7 +13626,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (countEl) countEl.textContent = String(chars.length).padStart(2, "0") + " / PEOPLE";
     chars.forEach((c, i) => {
       const name = c.remarkName || c.realName || "未命名";
-      const n = (c.history || []).length;
+      const n = chatHistoryView(c).length;
       const _maskNames = (db.masks || []).filter((m) => (c.maskIds || []).includes(m.id)).map((m) => m.name);
       const meta = (c.status || "角色") + " · " + (n ? n + " 条记录" : "还没有对话") + " · " + (_maskNames.length ? "面具 " + _maskNames.join(" / ") : "未绑定面具");
       const li = document.createElement("li");
@@ -13635,6 +13665,36 @@ document.addEventListener("DOMContentLoaded", () => {
     if (cfUIReady) return;
     const back = document.getElementById("cf-back");
     if (back) back.addEventListener("click", () => switchScreen("contacts-screen"));
+    const bioToggleBtn = document.getElementById("cf-bio-toggle");
+    if (bioToggleBtn) bioToggleBtn.addEventListener("click", () => {
+      const bioEl = document.getElementById("cf-bio");
+      if (!bioEl) return;
+      window.__cfBioOpen = !window.__cfBioOpen;
+      bioEl.classList.toggle("cf-bio-open", window.__cfBioOpen);
+      bioEl.classList.toggle("cf-bio-clamped", !window.__cfBioOpen);
+      bioToggleBtn.textContent = window.__cfBioOpen ? "收起" : "展开全文";
+    });
+    const coverBtn = document.getElementById("cf-cover-change");
+    if (coverBtn) coverBtn.addEventListener("click", () => {
+      const inp = document.getElementById("cf-cover-upload");
+      if (inp) inp.click();
+    });
+    const coverInput = document.getElementById("cf-cover-upload");
+    if (coverInput) coverInput.addEventListener("change", async (e) => {
+      const f = e.target.files && e.target.files[0];
+      const char = cfCharNow();
+      if (!f || !char) return;
+      try {
+        const url = await compressImage(f, { quality: 0.82, maxWidth: 1200, maxHeight: 1200 });
+        char.cover = url;
+        await saveData();
+        renderCharProfile();
+        showToast("背景已更换");
+      } catch (err) {
+        showToast("图片读取失败");
+      }
+      e.target.value = "";
+    });
     const msgBtn = document.getElementById("cf-msg-btn");
     if (msgBtn) msgBtn.addEventListener("click", () => {
       const char = cfCharNow();
@@ -13720,7 +13780,19 @@ document.addEventListener("DOMContentLoaded", () => {
     const handleEl = document.getElementById("cf-handle");
     if (handleEl) handleEl.textContent = "@404 / " + (char.realName || name) + (char.status ? " · " + char.status : "");
     const bioEl = document.getElementById("cf-bio");
-    if (bioEl) bioEl.textContent = (char.persona || "").trim() || "还没有写下这个人的样子。";
+    if (bioEl) {
+      const bioText = (char.persona || "").trim() || "还没有写下这个人的样子。";
+      const bioToggle = document.getElementById("cf-bio-toggle");
+      const long = bioText.length > 80 || bioText.split("\n").length > 4;
+      bioEl.textContent = bioText;
+      bioEl.classList.toggle("cf-bio-clamped", long);
+      bioEl.classList.toggle("cf-bio-open", !long);
+      window.__cfBioOpen = !long;
+      if (bioToggle) {
+        bioToggle.style.display = long ? "inline-flex" : "none";
+        bioToggle.textContent = "展开全文";
+      }
+    }
     const postList = (db.feeds || []).filter((f) => f && f.authorType === "char" && f.authorId === char.id);
     const chatCount = chatHistoryView(char).filter((m) => m && m.role !== "system" && m.type !== "system_note").length;
     const masks = cfMaskList(char);
@@ -14230,6 +14302,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function openChatRoom(chatId, type) {
     const chat = type === "private" ? db.characters.find((c) => c.id === chatId) : db.groups.find((g) => g.id === chatId);
     if (!chat) return;
+    if (type === "private") { try { ensureMaskBinding(chat); } catch (e) {} }
     exitMultiSelectMode();
     cancelMessageEdit();
     chatRoomTitle.textContent = type === "private" ? chat.remarkName : chat.name;
@@ -15286,6 +15359,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function pushMemory(charId, source, content, type) {
     if (!content) return;
+    try {
+      const isImpress = type === "impression";
+      MemoryOS.add(charId, String(content).trim(), {
+        memory_type: isImpress ? "profile" : "core",
+        source_type: source || "summary",
+        importance: isImpress ? 0.7 : 0.9,
+        confidence: isImpress ? 0.45 : 0.75,
+        tags: isImpress ? ["印象"] : ["剧情"]
+      });
+      return;
+    } catch (e) {}
     const fact = type !== "impression";
     db.memories.push({
       maskId: (getCurrentMask() ? getCurrentMask().id : "") || (function () { const c = (db.characters || []).find((x) => x.id === charId); return c && c.maskIds && c.maskIds[0] ? c.maskIds[0] : ""; })(),
@@ -15414,25 +15498,38 @@ document.addEventListener("DOMContentLoaded", () => {
     if (_maskNow && (_maskNow.persona || _maskNow.name)) {
       prompt += "我现在是「".concat(_maskNow.name || "我", "」——这就是我此刻的形象与人设，请真正与这个我相处：").concat(_maskNow.persona || "（按我们之间真实的相处来）", "\n");
     }
-    const memories = getCharacterMemories(character.id);
-    if (memories.length > 0) {
-      const facts = memories.filter((m) => m.type !== "impression");
-      const impressions = memories.filter((m) => m.type === "impression");
-      if (facts.length) {
-        prompt += "【你的真实记录·共同经历】以下是你与他之间已经真实发生的既定剧情（来自线上/线下，不可更改）。自然地当作自己的过往记忆与回应，不要生硬复述、不要向对方确认；新剧情推进也绝不遗忘或改写：\n";
-        facts.forEach((m) => {
-          prompt += "- ".concat(m.content, "\n");
-        });
+    const _mosQuery = (function () {
+      const hist = (character.history || []);
+      for (let i = hist.length - 1; i >= 0; i--) {
+        if (hist[i] && hist[i].role === "user") return String(hist[i].content || "").slice(0, 140);
       }
-      if (impressions.length) {
-        prompt += "【你对他的动态印象】以下是你对他的主观感受，可随剧情自然变化，但不要突然遗忘过去的态度转折：\n";
-        impressions.forEach((m) => {
-          prompt += "- ".concat(m.content, "\n");
-        });
+      return "";
+    })();
+    const _mosCtx = (function () {
+      try { return MemoryOS.context(character.id, _mosQuery, "online", 1200); } catch (e) { return ""; }
+    })();
+    if (_mosCtx) {
+      prompt += _mosCtx + "\n";
+    } else {
+      const memories = getCharacterMemories(character.id);
+      if (memories.length > 0) {
+        const facts = memories.filter((m) => m.type !== "impression");
+        const impressions = memories.filter((m) => m.type === "impression");
+        if (facts.length) {
+          prompt += "【你的真实记录·共同经历】以下是你与 TA 之间已经真实发生的既定剧情，自然地当作过往记忆，不要生硬复述、不要向对方确认：\n";
+          facts.forEach((m) => { prompt += "- " + m.content + "\n"; });
+        }
+        if (impressions.length) {
+          prompt += "【你对 TA 的动态印象】以下是你对 TA 的主观感受，可随剧情自然变化，但不要突然遗忘过去的态度转折：\n";
+          impressions.forEach((m) => { prompt += "- " + m.content + "\n"; });
+        }
       }
+    }
+    const _plotFacts = getCharacterFacts(character.id);
+    if (_plotFacts.length) {
       prompt += "【剧情脉络】整体故事线的大致脉络（较早→较近），帮助你始终记得整体走向：\n";
-      getCharacterFacts(character.id).slice(0, 10).forEach((m, i) => {
-        prompt += "- 剧情".concat(i + 1, "：").concat(m.content, "\n");
+      _plotFacts.slice(0, 10).forEach(function (m, i) {
+        prompt += "- 剧情" + (i + 1) + "：" + m.content + "\n";
       });
     }
     const cpCtx = buildCoupleContext(character.id);
@@ -15870,6 +15967,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         await maybeGroupMemorySummary(chat);
       }
+      try { MemoryOS.ingestTurn(chat, currentChatType); } catch (e) {}
     } catch (error) {
       console.error("AI\u56DE\u590D\u5931\u8D25:", error);
       const rawMsg = String((error && error.message) || error || "");
@@ -17425,6 +17523,15 @@ document.addEventListener("DOMContentLoaded", () => {
   function loadSettingsToSidebar() {
     const e = db.characters.find((e2) => e2.id === currentChatId);
     if (e) {
+      const __setMask = getCurrentMask();
+      if (__setMask) {
+        if (!e.maskIds) e.maskIds = [];
+        if (e.maskIds.indexOf(__setMask.id) < 0) e.maskIds.push(__setMask.id);
+        e.myName = __setMask.name || e.myName;
+        e.myAvatar = __setMask.avatar || e.myAvatar;
+        e.myPersona = __setMask.persona || e.myPersona;
+        saveData();
+      }
       const relEl = document.getElementById("setting-relation-display");
       if (relEl) {
         const rl = getRelationship("user", "self", "char", e.id);
@@ -17535,6 +17642,12 @@ document.addEventListener("DOMContentLoaded", () => {
       e.myAvatar = document.getElementById("setting-my-avatar-preview").src;
       e.myName = document.getElementById("setting-my-name").value;
       e.myPersona = document.getElementById("setting-my-persona").value;
+      const __saveMask = getCurrentMask();
+      if (__saveMask) {
+        if (e.myName) __saveMask.name = e.myName;
+        if (e.myAvatar) __saveMask.avatar = e.myAvatar;
+        __saveMask.persona = e.myPersona || "";
+      }
       e.theme = document.getElementById("setting-theme-color").value;
       const bam2 = document.getElementById("setting-bubble-avatar-mode");
       if (bam2) e.bubbleAvatarMode = bam2.value;
@@ -18624,6 +18737,495 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!_m) return list || [];
     return (list || []).filter((f) => !f || f.authorType !== "user" || feedMaskKey(f) === _m.id);
   }
+
+  /* ===== 面具切换：所有面具相关视图一次性重算 ===== */
+  function refreshMaskScopedUI() {
+    try { renderMaskGrid(); } catch (e) {}
+    try { renderProfile(); } catch (e) {}
+    try { renderChatList(); } catch (e) {}
+    try { renderFeeds(); } catch (e) {}
+    try { renderContactList(); } catch (e) {}
+    try { if (window.__curScreen === "char-profile-screen" && typeof renderCharProfile === "function") renderCharProfile(); } catch (e) {}
+    try { if (window.__curScreen === "memory-screen" && typeof renderMemoryScreen === "function") renderMemoryScreen(); } catch (e) {}
+    try { if (window.__curScreen === "memory-detail-screen" && window.__currentMemoryCharId && typeof renderMemoryDetail === "function") renderMemoryDetail(window.__currentMemoryCharId, ""); } catch (e) {}
+    try {
+      if (window.__curScreen === "chat-room-screen" && typeof renderMessages === "function") {
+        const _c = currentChatType === "private"
+          ? (db.characters || []).find(function (c) { return c.id === currentChatId; })
+          : (db.groups || []).find(function (g) { return g.id === currentChatId; });
+        const _m = getCurrentMask();
+        if (_c && _m && (_c.maskIds || []).indexOf(_m.id) >= 0) { currentPage = 1; renderMessages(false, true); }
+      }
+    } catch (e) {}
+    try { if (typeof MemoryOS !== "undefined") MemoryOS.onMaskSwitch(); } catch (e) {}
+  }
+  window.refreshMaskScopedUI = refreshMaskScopedUI;
+  /* ===== 以当前面具进入角色：未绑定也自动挂上当前面具，身份即当前面具 ===== */
+  async function ensureMaskBinding(char) {
+    if (!char) return false;
+    const m = getCurrentMask();
+    if (!m) return false;
+    if (!char.maskIds) char.maskIds = [];
+    let changed = false;
+    if (char.maskIds.indexOf(m.id) < 0) { char.maskIds.push(m.id); changed = true; }
+    if (m.name && char.myName !== m.name) { char.myName = m.name; changed = true; }
+    if (m.avatar && char.myAvatar !== m.avatar) { char.myAvatar = m.avatar; changed = true; }
+    if (m.persona !== void 0 && char.myPersona !== m.persona) { char.myPersona = m.persona; changed = true; }
+    if (changed) { await saveData(); }
+    return changed;
+  }
+  window.ensureMaskBinding = ensureMaskBinding;
+
+  /* ================= Memory OS · 角色记忆系统 =================
+     核心：每条记忆必须携带 mask_id + character_id，检索/写入/删除都以此为边界。
+     模块：MemoryService(读写) / Extractor(提取) / Classifier(分类) / Deduplicator(去重)
+           Updater(冲突更新) / Retriever(检索) / ContextBuilder(注入) / LifeState(生活状态)
+           OpenLoop(未完成事项) / Graph(关联网络) / Permission(权限与删除) */
+  const MemoryOS = (function () {
+    const V = 1;
+    const DAY = 864e5;
+    const TYPE_LABEL = { core: "核心记忆", episodic: "事件记忆", relationship: "关系记忆", profile: "人物认知", loop: "未完成事项", life: "生活状态", social: "社交关系", semantic: "主题认知" };
+    const TYPE_ORDER = ["core", "episodic", "relationship", "profile", "loop", "life", "social", "semantic"];
+    const SRC_LABEL = { online: "私聊", offline: "线下", group: "群聊", dynamic: "动态", comment: "评论", phone: "角色手机", diary: "日记", manual: "手动", summary: "对话总结", call: "通话" };
+    const RULES = [
+      { re: /(分手|绝交|冷战|和好|吵架|表白|信任|生气|难过|对不起|原谅|关系|在乎|想你|喜欢你|不想理)/, type: "relationship", imp: 0.68, tag: "关系" },
+      { re: /(约定|说好|答应|下次|改天|回头|记得|别忘|要给我|会告诉我|等你|一起)/, type: "loop", imp: 0.62, tag: "约定" },
+      { re: /(喜欢|讨厌|最爱|害怕|不喜欢|习惯|爱吃|忌口|过敏|生日|我叫|我的名字)/, type: "core", imp: 0.72, tag: "偏好" },
+      { re: /(已经|买了|买好|去了|完成|结束|考完|通过|做到|搬了|换了|辞了|入职|搬家|分手了)/, type: "episodic", imp: 0.62, tag: "事件" },
+      { re: /(觉得|认为|相信|梦想|理想|想去|打算|计划|准备|希望|目标|以后)/, type: "semantic", imp: 0.55, tag: "想法" },
+      { re: /(朋友|同事|老板|妈妈|爸爸|同学|室友|家人|哥哥|姐姐|弟弟|妹妹)/, type: "social", imp: 0.5, tag: "人物" },
+      { re: /(今天|昨天|前天|最近|刚才|现在|明天|下周|周末|累|加班|考试|上班|下班|生病|发烧|睡|饿|困|忙|下雨|在医院)/, type: "life", imp: 0.45, tag: "近况" }
+    ];
+    const SKIP_SENT = /^(嗯+|哦+|好+|行|在吗|在么|在不在|哈+|呵+|嘿+|晚安|早安|早|好的|好吧|对|是的|ok|OK|谢谢|拜拜|再见|收到|没事|随便|不知道|怎么了|真的假的|厉害|可爱|笑死|6|666)[。！？…\.\!\?~]*$/;
+
+    function now() { return Date.now(); }
+    function rid(p) { return (p || "mem") + "_" + now().toString(36) + Math.random().toString(36).slice(2, 6); }
+    function curMask() { return getCurrentMask(); }
+    function charOf(id) { return (db.characters || []).find(function (c) { return c.id === id; }) || null; }
+    function maskOf(charId) {
+      const m = curMask();
+      if (m) return m.id;
+      const c = charOf(charId);
+      return (c && c.maskIds && c.maskIds[0]) || "";
+    }
+    function clip(s, n) {
+      const t = String(s || "").replace(/\s+/g, " ").trim();
+      return t.length > n ? t.slice(0, n) + "…" : t;
+    }
+    function round2(n) { return Math.round((+n || 0) * 100) / 100; }
+    function fmt(ts) {
+      if (!ts) return "";
+      const d = new Date(ts);
+      return String(d.getMonth() + 1) + "月" + d.getDate() + "日";
+    }
+    function fmtFull(ts) {
+      if (!ts) return "—";
+      const d = new Date(ts);
+      return d.getFullYear() + "/" + String(d.getMonth() + 1).padStart(2, "0") + "/" + String(d.getDate()).padStart(2, "0") + " " + String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+    }
+
+    /* ---------- 数据结构：把旧记忆（type/createdAt/charId）升级为 Memory OS 全字段 ---------- */
+    function normalize(m) {
+      if (!m || typeof m !== "object") return null;
+      const cid = m.character_id || m.charId || m.chatId || "";
+      m.character_id = cid;
+      if (!m.mask_id) m.mask_id = m.maskId || (function () { const c = charOf(cid); return (c && c.maskIds && c.maskIds[0]) || ""; })();
+      if (!m.id) m.id = rid("mem");
+      m.memory_id = m.id;
+      if (!m.user_id) m.user_id = "local_user";
+      if (!m.conversation_id) m.conversation_id = "c_" + cid;
+      if (m.group_id === undefined) m.group_id = null;
+      if (!m.memory_type) m.memory_type = m.type === "impression" ? "profile" : "core";
+      if (!m.type) m.type = m.memory_type === "profile" ? "impression" : "fact";
+      if (!m.title) m.title = clip(m.content, 20);
+      if (!m.summary) m.summary = clip(m.content, 60);
+      if (!m.source_type) m.source_type = m.source || "manual";
+      if (m.source_id === undefined) m.source_id = "";
+      if (!m.created_at) m.created_at = m.createdAt || now();
+      if (!m.event_time) m.event_time = m.created_at;
+      if (!m.updated_at) m.updated_at = m.created_at;
+      if (typeof m.last_accessed_at !== "number") m.last_accessed_at = 0;
+      if (typeof m.importance !== "number") m.importance = m.weight || (m.protected ? 0.85 : 0.55);
+      if (typeof m.confidence !== "number") m.confidence = m.source === "online" ? 0.5 : 0.7;
+      if (!m.memory_scope) m.memory_scope = "private";
+      if (!m.status) m.status = "active";
+      if (m.expiration_at === undefined) m.expiration_at = 0;
+      if (!Array.isArray(m.tags)) m.tags = [];
+      if (!Array.isArray(m.entities)) m.entities = [];
+      if (!Array.isArray(m.related_memory_ids)) m.related_memory_ids = [];
+      if (!m.emotional_context) m.emotional_context = "";
+      if (typeof m.relationship_impact !== "number") m.relationship_impact = 0;
+      if (!m.version) m.version = 1;
+      return m;
+    }
+    function mems() {
+      if (!Array.isArray(db.memories)) db.memories = [];
+      db.memories.forEach(normalize);
+      return db.memories;
+    }
+    function migrate() {
+      mems();
+      db.memoryOSVersion = V;
+    }
+
+    /* ---------- Classifier：分类 + 重要性 + 标签 + 实体 ---------- */
+    function classify(text) {
+      const t = String(text || "");
+      let type = "episodic", imp = 0.5, tag = "事件";
+      for (let i = 0; i < RULES.length; i++) {
+        if (RULES[i].re.test(t)) { type = RULES[i].type; imp = RULES[i].imp; tag = RULES[i].tag; break; }
+      }
+      if (/(第一次|永远|最重要|纪念|承诺|秘密|说定了|一定)/.test(t)) imp += 0.14;
+      if (/(记住|别忘|要记得)/.test(t)) { imp = Math.max(imp, 0.92); tag = "用户要求记住"; }
+      if (/(可能|好像|大概|也许|不确定|应该)/.test(t)) imp -= 0.12;
+      if (t.length > 60) imp += 0.04;
+      const tags = [tag];
+      const ents = [];
+      const quoted = t.match(/「([^」]{1,12})」/g) || [];
+      quoted.forEach(function (q) { ents.push(q.replace(/「|」/g, "")); });
+      (db.characters || []).forEach(function (c) {
+        const nm = c.remarkName || c.realName;
+        if (nm && nm.length >= 2 && t.indexOf(nm) >= 0 && ents.indexOf(nm) < 0) ents.push(nm);
+      });
+      return { type: type, importance: round2(Math.min(0.98, Math.max(0.2, imp))), tags: tags, entities: ents };
+    }
+
+    /* ---------- Deduplicator：中文二元组相似度 ---------- */
+    function grams(s) {
+      const t = String(s || "").replace(/[^\u4e00-\u9fa5A-Za-z0-9]/g, "");
+      const g = new Set();
+      for (let i = 0; i < t.length - 1; i++) g.add(t.slice(i, i + 2));
+      if (!g.size && t) g.add(t);
+      return g;
+    }
+    function sim(a, b) {
+      const A = grams(a), B = grams(b);
+      if (!A.size || !B.size) return 0;
+      let inter = 0;
+      A.forEach(function (x) { if (B.has(x)) inter++; });
+      return inter / Math.min(A.size, B.size);
+    }
+
+    /* ---------- Updater：冲突处理 / 未完成事项闭环 ---------- */
+    function closeLoops(cid, mid, text) {
+      const done = /(已经|完成|结束|搞定|考完|通过|做到|吃到了|看完了|决定|确定|(逛|看|去|拍|买|吃|见|做|聊|学|订|发|寄|收|玩|签|搬|换|试|到|拿|领)了)/.test(text);
+      if (!done) return [];
+      const loops = mems().filter(function (m) { return m.character_id === cid && m.mask_id === mid && m.memory_type === "loop" && m.status !== "completed" && m.status !== "archived"; });
+      const closed = [];
+      loops.forEach(function (l) {
+        const A = grams(l.content), B = grams(text);
+        let inter = 0;
+        A.forEach(function (x) { if (B.has(x)) inter++; });
+        if (sim(l.content, text) > 0.3 || inter >= 2) {
+          l.status = "completed";
+          l.updated_at = now();
+          l.versions = (l.versions || []).concat([{ content: l.content, at: l.updated_at, note: "已完成" }]).slice(-5);
+          closed.push(l.id);
+        }
+      });
+      return closed;
+    }
+
+    /* ---------- 写入 ---------- */
+    function add(charId, content, opts) {
+      opts = opts || {};
+      const text = clip(content, 400);
+      if (!text || text.length < 3) return null;
+      mems();
+      const cid = charId || opts.character_id || "";
+      const mid = opts.mask_id || maskOf(cid);
+      if (!cid || !mid) return null;
+      const cls = opts.memory_type ? { type: opts.memory_type, importance: opts.importance || 0.6, tags: opts.tags || [], entities: opts.entities || [] } : classify(text);
+      const pool = db.memories.filter(function (m) { return m.character_id === cid && m.mask_id === mid && m.status !== "archived" && m.memory_type === cls.type; });
+      let dup = null;
+      const _dupTh = cls.type === "loop" ? 0.45 : 0.62;
+      pool.forEach(function (m) { if (!dup && sim(m.content, text) > _dupTh) dup = m; });
+      if (dup) {
+        const at = opts.created_at || now();
+        if (at >= (dup.created_at || 0)) {
+          dup.versions = (dup.versions || []).concat([{ content: dup.content, at: dup.updated_at || dup.created_at }]).slice(-5);
+          dup.content = text;
+          dup.title = clip(opts.title || text, 20);
+          dup.summary = clip(text, 60);
+          dup.updated_at = now();
+          dup.version = (dup.version || 1) + 1;
+          dup.importance = Math.max(dup.importance || 0, cls.importance);
+          dup.confidence = Math.max(dup.confidence || 0, opts.confidence || 0.55);
+          if (opts.status) dup.status = opts.status;
+        }
+        closeLoops(cid, mid, text);
+        saveData();
+        return dup;
+      }
+      const closedIds = closeLoops(cid, mid, text);
+      const rec = normalize({
+        id: rid("mem"), mask_id: mid, character_id: cid,
+        conversation_id: opts.conversation_id || ("c_" + cid),
+        group_id: opts.group_id || null,
+        memory_type: cls.type, title: clip(opts.title || text, 20),
+        content: text, summary: clip(text, 60),
+        source_type: opts.source_type || "manual", source_id: opts.source_id || "",
+        created_at: opts.created_at || now(),
+        event_time: opts.event_time || opts.created_at || now(),
+        updated_at: now(),
+        importance: round2(cls.importance),
+        confidence: round2(opts.confidence || (opts.source_type === "online" ? 0.5 : 0.7)),
+        memory_scope: opts.memory_scope || "private",
+        status: opts.status || (cls.type === "loop" ? "pending" : "active"),
+        expiration_at: opts.expiration_at || (cls.type === "life" ? now() + 3 * DAY : 0),
+        tags: cls.tags, entities: cls.entities, related_memory_ids: closedIds.slice(),
+        emotional_context: opts.emotional_context || "",
+        relationship_impact: opts.relationship_impact || 0
+      });
+      const recent = db.memories.filter(function (m) { return m.character_id === cid && m.mask_id === mid && m.id !== rec.id; }).slice(-3);
+      recent.forEach(function (m) {
+        if (m && sim(m.content, text) > 0.15) {
+          rec.related_memory_ids.push(m.id);
+          m.related_memory_ids = (m.related_memory_ids || []).concat([rec.id]).slice(-8);
+        }
+      });
+      db.memories.push(rec);
+      trim(cid, mid);
+      saveData();
+      return rec;
+    }
+
+    function trim(cid, mid) {
+      const cap = 60;
+      const pool = db.memories.filter(function (m) { return m.character_id === cid && m.mask_id === mid && m.status !== "archived"; });
+      if (pool.length <= cap) return;
+      const surplus = pool.length - cap;
+      pool.filter(function (m) { return m.memory_type !== "core" && !(m.importance >= 0.8); })
+        .sort(function (a, b) { return (a.importance || 0) - (b.importance || 0) || a.created_at - b.created_at; })
+        .slice(0, surplus)
+        .forEach(function (m) { db.memories = db.memories.filter(function (x) { return x !== m; }); });
+    }
+
+    /* ---------- 自动提取：从一轮对话里挑出值得记的句子 ---------- */
+    function sentences(text) {
+      return String(text || "").replace(/\s+/g, " ")
+        .split(/[。！？!?；;\n]+/)
+        .map(function (s) { return s.trim().replace(/^[，,、\s]+/, ""); })
+        .filter(function (s) {
+          if (s.length < 6 || s.length > 90) return false;
+          if (SKIP_SENT.test(s)) return false;
+          if (/\[[^\]]*\]/.test(s)) return false;
+          if (/[吗呢]$/.test(s)) return false;
+          return true;
+        });
+    }
+    function ingestTurn(chat, chatType) {
+      if (!chat) return;
+      const mid = maskOf(chat.id);
+      if (!mid) return;
+      const hist = (typeof chatHistoryView === "function" ? chatHistoryView(chat) : (chat.history || []));
+      const tail = hist.slice(-8);
+      let lastUser = null, aiTexts = [];
+      tail.forEach(function (m) {
+        if (!m) return;
+        if (m.role === "user") { lastUser = m; aiTexts = []; }
+        else if (m.role === "assistant" && lastUser) aiTexts.push(String(m.content || ""));
+      });
+      if (!lastUser) return;
+      const cid = chat.id;
+      const at = lastUser.timestamp || lastUser.ts || now();
+      const userTxt = String(lastUser.content || "").replace(/\[[^\]]*\]/g, " ").trim();
+      if (userTxt.length >= 6) {
+        const picks = sentences(userTxt).slice(0, 2);
+        picks.forEach(function (s) {
+          const cls = classify(s);
+          const t = cls.type === "life" ? "profile" : cls.type;
+          add(cid, s, { memory_type: t, source_type: chatType === "group" ? "group" : "online", confidence: 0.5, created_at: at, importance: cls.importance });
+        });
+      }
+      /* 角色自己的生活连续性：只取自称且带时间/状态的短句，避免把每句台词都当记忆 */
+      const selfLife = [];
+      aiTexts.join("。").split(/[。！？!?\n]+/).forEach(function (s) {
+        const t = s.trim();
+        if (t.length < 8 || t.length > 60) return;
+        if (!/^我|我刚|我这|我正在|我最近|我今天|我明天/.test(t)) return;
+        if (!/(最近|今天|昨天|明天|刚|正在|要|准备|在忙|累|考试|上班|加班|睡|吃|回家|路上|医院|搬家)/.test(t)) return;
+        if (selfLife.length < 1) selfLife.push(t);
+      });
+      selfLife.forEach(function (s) {
+        add(cid, s, { memory_type: "life", source_type: "online", confidence: 0.45, created_at: at, importance: 0.42, expiration_at: now() + 3 * DAY });
+      });
+      /* TA 自己许下的约定/承诺 → 未完成事项（不会自动算完成） */
+      const prom = [];
+      aiTexts.join("。").split(/[。！？!?\n]+/).forEach(function (s) {
+        const t = s.trim();
+        if (t.length < 6 || t.length > 70) return;
+        if (!/(说好了|我答应|我下次|改天|等我|回头|周末|我陪你|我会给你|一起去|记得)/.test(t)) return;
+        if (/[吗呢]$/.test(t)) return;
+        if (prom.length < 1) prom.push(t);
+      });
+      prom.forEach(function (s) {
+        add(cid, s, { memory_type: "loop", source_type: "online", confidence: 0.5, created_at: at, importance: 0.55, status: "pending" });
+      });
+    }
+
+    /* ---------- Retriever：相关性排序 + 预算 ---------- */
+    function retrieve(charId, query, opts) {
+      opts = opts || {};
+      const mid = opts.mask_id || maskOf(charId);
+      if (!mid) return [];
+      const t = now();
+      const q = String(query || "");
+      const pool = mems().filter(function (m) {
+        if (m.character_id !== charId || m.mask_id !== mid) return false;
+        if (m.status === "archived" || m.status === "expired" || m.status === "cancelled") return false;
+        if (m.expiration_at && m.expiration_at < t) return false;
+        return true;
+      });
+      const scored = pool.map(function (m) {
+        const topic = q ? sim(m.content + " " + (m.tags || []).join(" ") + " " + (m.entities || []).join(" "), q) : 0;
+        const age = Math.max(0, (t - (m.event_time || m.created_at || t)) / DAY);
+        const recency = Math.exp(-age / 21);
+        const loop = (m.memory_type === "loop" && m.status !== "completed") ? 0.2 : 0;
+        const core = m.memory_type === "core" ? 0.12 : 0;
+        const rel = m.memory_type === "relationship" ? 0.1 : 0;
+        const scene = (opts.scene && (m.source_type === opts.scene || (m.tags || []).indexOf(opts.scene) >= 0)) ? 0.06 : 0;
+        return { m: m, score: topic * 1.05 + (m.importance || 0.5) * 0.3 + recency * 0.22 + loop + core + rel + scene };
+      });
+      scored.sort(function (a, b) { return b.score - a.score; });
+      const min = q ? 0.1 : 0.2;
+      return scored.filter(function (s) { return s.score >= min; }).slice(0, opts.limit || 10);
+    }
+
+    /* ---------- ContextBuilder：结构化注入（有预算，不全量灌） ---------- */
+    function context(charId, query, scene, budget) {
+      const mid = maskOf(charId);
+      if (!mid) return "";
+      const mask = (db.masks || []).find(function (m) { return m.id === mid; });
+      const c = charOf(charId);
+      const hits = retrieve(charId, query, { mask_id: mid, scene: scene, limit: 14 });
+      if (!hits.length && !(db.memories || []).some(function (m) { return m.character_id === charId && m.mask_id === mid; })) return "";
+      const by = {};
+      hits.forEach(function (h) { (by[h.m.memory_type] = by[h.m.memory_type] || []).push(h.m); });
+      const lines = [];
+      lines.push("【记忆·身份】你现在以「" + (mask && mask.name || "我") + "」这个身份在和" + (c ? "「" + (c.remarkName || c.realName) + "」" : "对方") + "相处；以下是你们在这个面具下真实积累的记忆，只属于这一段关系。");
+      function sec(title, arr, max, mapper) {
+        if (!arr || !arr.length) return;
+        lines.push(title);
+        arr.slice(0, max).forEach(function (m) {
+          lines.push("- " + (mapper ? mapper(m) : clip(m.content, 90)));
+        });
+        arr.slice(0, max).forEach(function (m) { m.last_accessed_at = now(); });
+      }
+      sec("【当前关系】", by.relationship, 2, function (m) { return clip(m.content, 80); });
+      sec("【你们共同经历过】", (by.episodic || []).concat(by.core || []).filter(function (m) { return m.memory_type !== "profile"; }), 4, function (m) { return fmt(m.event_time) + " · " + clip(m.content, 80); });
+      sec("【你对 TA 的了解】", by.profile, 3, function (m) { return clip(m.content, 80) + "（" + (m.confidence >= 0.75 ? "TA 明确说过" : "你的观察，未完全确认") + "）"; });
+      sec("【还没完成的事】", (by.loop || []).filter(function (m) { return m.status !== "completed"; }), 3, function (m) { return "(" + (m.status === "in_progress" ? "进行中" : "待办") + ") " + clip(m.content, 74); });
+      sec("【你自己的生活近况】", by.life, 2, function (m) { return fmt(m.event_time) + " · " + clip(m.content, 70); });
+      sec("【社交与主题】", (by.social || []).concat(by.semantic || []), 2, function (m) { return clip(m.content, 70); });
+      lines.push("【记忆使用规则】记忆只是你理解当下的背景，不是台词素材。不要复述、不要罗列、不要为了证明记得而主动提起无关旧事；只有当前话题自然相关时才带出来。没被提起不代表已经结束；你猜的、TA 没确认的，不要当作事实说。");
+      let out = lines.join("\n");
+      const cap = budget || 1200;
+      if (out.length > cap) out = out.slice(0, cap) + "…";
+      return out;
+    }
+
+    /* ---------- LifeState：过期即失效，不让旧状态永久影响角色 ---------- */
+    function lifeState(charId, limit) {
+      const mid = maskOf(charId);
+      return retrieve(charId, "", { mask_id: mid, limit: limit || 5 })
+        .map(function (h) { return h.m; })
+        .filter(function (m) { return m.memory_type === "life"; });
+    }
+
+    /* ---------- OpenLoop ---------- */
+    function openLoops(charId) {
+      const mid = maskOf(charId);
+      return mems().filter(function (m) {
+        return m.character_id === charId && m.mask_id === mid && m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled" && m.status !== "archived";
+      }).sort(function (a, b) { return b.created_at - a.created_at; });
+    }
+    function setLoop(id, status) {
+      const m = mems().find(function (x) { return x.id === id; });
+      if (!m) return;
+      m.status = status;
+      m.updated_at = now();
+      saveData();
+    }
+
+    /* ---------- 读取 / 搜索 ---------- */
+    function all(charId, mid) {
+      const m0 = mid || maskOf(charId);
+      return mems().filter(function (m) {
+        if (m.character_id !== charId) return false;
+        if (m0 && m.mask_id !== m0) return false;
+        return true;
+      }).sort(function (a, b) { return (b.event_time || b.created_at) - (a.event_time || a.created_at); });
+    }
+    function search(opts) {
+      opts = opts || {};
+      const mid = opts.mask_id || maskOf(opts.character_id || "");
+      let list = mems().filter(function (m) {
+        if (opts.character_id && m.character_id !== opts.character_id) return false;
+        if (mid && m.mask_id !== mid) return false;
+        return true;
+      });
+      if (opts.type && opts.type !== "all") list = list.filter(function (m) { return m.memory_type === opts.type; });
+      if (opts.q) {
+        const q = String(opts.q).toLowerCase();
+        list = list.filter(function (m) {
+          return (String(m.content) + " " + (m.title || "") + " " + (m.tags || []).join(" ") + " " + (m.entities || []).join(" ")).toLowerCase().indexOf(q) >= 0;
+        });
+      }
+      if (opts.from) list = list.filter(function (m) { return (m.event_time || m.created_at) >= opts.from; });
+      if (opts.to) list = list.filter(function (m) { return (m.event_time || m.created_at) <= opts.to; });
+      return list.sort(function (a, b) { return (b.event_time || b.created_at) - (a.event_time || a.created_at); });
+    }
+    function stats(charId) {
+      const list = all(charId);
+      const s = { total: list.length, core: 0, loops: 0, recent: 0, life: 0 };
+      const today = new Date().setHours(0, 0, 0, 0);
+      list.forEach(function (m) {
+        if (m.memory_type === "core") s.core++;
+        if (m.memory_type === "loop" && m.status !== "completed") s.loops++;
+        if (m.memory_type === "life") s.life++;
+        if ((m.updated_at || m.created_at) >= today - 6 * DAY) s.recent++;
+      });
+      return s;
+    }
+
+    /* ---------- 权限与用户控制 ---------- */
+    function own(m) { return m && m.mask_id === maskOf(m.character_id); }
+    function remove(id) {
+      const m = mems().find(function (x) { return x.id === id; });
+      if (!m || !own(m)) return false;
+      db.memories = db.memories.filter(function (x) { return x !== m; });
+      saveData();
+      return true;
+    }
+    function update(id, patch) {
+      const m = mems().find(function (x) { return x.id === id; });
+      if (!m || !own(m)) return false;
+      Object.keys(patch || {}).forEach(function (k) { m[k] = patch[k]; });
+      m.updated_at = now();
+      m.version = (m.version || 1) + 1;
+      saveData();
+      return true;
+    }
+    function purge(charId, mid) {
+      const key = mid || maskOf(charId);
+      db.memories = mems().filter(function (m) { return !(m.character_id === charId && m.mask_id === key); });
+      saveData();
+    }
+    function onMaskSwitch() {
+      migrate();
+    }
+
+    return {
+      migrate: migrate, normalize: normalize, classify: classify, add: add, ingestTurn: ingestTurn,
+      retrieve: retrieve, context: context, all: all, search: search, stats: stats,
+      lifeState: lifeState, openLoops: openLoops, setLoop: setLoop,
+      remove: remove, update: update, purge: purge, onMaskSwitch: onMaskSwitch,
+      sim: sim, fmtFull: fmtFull, fmt: fmt, TYPE_LABEL: TYPE_LABEL, TYPE_ORDER: TYPE_ORDER, SRC_LABEL: SRC_LABEL
+    };
+  })();
+  window.MemoryOS = MemoryOS;
+
   function setupMaskSystem() {
     var _a, _b, _c, _d;
     (_a = document.getElementById("add-mask-btn")) == null ? void 0 : _a.addEventListener("click", () => openMaskModal());
@@ -18651,8 +19253,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       await saveData();
       document.getElementById("mask-modal").classList.remove("visible");
-      renderMaskGrid();
-      renderProfile();
+      refreshMaskScopedUI();
       showToast("\u9762\u5177\u5DF2\u4FDD\u5B58");
     });
     (_c = document.getElementById("mask-avatar-preview")) == null ? void 0 : _c.addEventListener("click", () => document.getElementById("mask-avatar-upload").click());
@@ -18694,11 +19295,7 @@ document.addEventListener("DOMContentLoaded", () => {
       card.addEventListener("click", async () => {
         db.activeMaskId = m.id;
         await saveData();
-        renderMaskGrid();
-        renderProfile();
-        if (typeof renderChatList === "function") renderChatList();
-        if (typeof renderFeeds === "function") renderFeeds();
-        if (typeof renderContactList === "function") renderContactList();
+        refreshMaskScopedUI();
         showToast("\u5DF2\u5207\u6362\u5230\u9762\u5177\u300C" + m.name + "\u300D");
       });
       const edit = document.createElement("span");
@@ -18721,8 +19318,7 @@ document.addEventListener("DOMContentLoaded", () => {
           c.maskIds = (c.maskIds || []).filter((i) => i !== m.id);
         });
         await saveData();
-        renderMaskGrid();
-        renderProfile();
+        refreshMaskScopedUI();
       });
       card.appendChild(edit);
       card.appendChild(del);
@@ -19346,7 +19942,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     const isVideo = activeCall.type === "video";
-    const mask = (char.maskIds || []).length ? db.masks.find((x) => x.id === char.maskIds[0]) : null;
+    const mask = getCurrentMask() || ((char.maskIds || []).length ? db.masks.find((x) => x.id === char.maskIds[0]) : null);
     const sys = callSystemPrompt(char, mask, isVideo, "\u4E3B\u52A8");
     let rep;
     try {
@@ -19804,7 +20400,7 @@ document.addEventListener("DOMContentLoaded", () => {
           saveData();
           ov.remove();
           renderArchiveList();
-          renderProfile();
+          refreshMaskScopedUI();
           showToast("面具已删除");
         });
         return;
@@ -19815,7 +20411,7 @@ document.addEventListener("DOMContentLoaded", () => {
         saveData();
         ov.remove();
         renderArchiveList();
-        renderProfile();
+        refreshMaskScopedUI();
         showToast("已切换用户面具：" + ((db.masks.find(function (x) { return x.id === row.dataset.mid; }) || {}).name || ""));
       }
     });
@@ -19863,7 +20459,7 @@ document.addEventListener("DOMContentLoaded", () => {
       saveData();
       ov.remove();
       renderArchiveList();
-      renderProfile();
+      refreshMaskScopedUI();
       showToast(m ? "面具已更新" : "面具已创建");
     };
     ov.addEventListener("click", function (e) {
@@ -20520,8 +21116,14 @@ document.addEventListener("DOMContentLoaded", () => {
   async function generateCharFeed(char) {
     let content = FEED_TEMPLATES[Math.floor(Math.random() * FEED_TEMPLATES.length)];
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
-      const memories = getCharacterMemories(char.id);
-      const memText = memories.length ? "\n你最近的记忆（可以取材）：" + memories.slice(0, 5).map((m) => "-" + m.content).join("\n") : "";
+      const _mosHits = (function () {
+        try { return MemoryOS.retrieve(char.id, "今天 最近 生活 心情 工作 朋友", { limit: 6 }).map(function (h) { return h.m; }); } catch (e) { return []; }
+      })();
+      const _mosLife = (function () {
+        try { return MemoryOS.lifeState(char.id, 2); } catch (e) { return []; }
+      })();
+      const _feedPool = _mosHits.concat(_mosLife).filter(function (m, i, arr) { return arr.indexOf(m) === i; });
+      const memText = _feedPool.length ? "\n你最近的记忆与生活（可以取材，不必全用）：" + _feedPool.slice(0, 6).map(function (m) { return "-" + m.content; }).join("\n") : "";
       const recent = (char.history || []).slice(-6).map((h) => "".concat(h.role === "assistant" ? char.remarkName || char.realName : char.myName, "：").concat(String(h.content || "").slice(0, 80))).join("\n");
       const oldFeeds = (db.feeds || []).filter((f) => f.authorId === char.id).slice(0, 4).map((f) => "- " + String(f.content || (f.textImage && f.textImage.text) || "").slice(0, 60)).join("\n");
       const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你现在要发布一条朋友圈动态，内容关于你今天的真实生活、心情或见闻，30-70字，自然、有生活气息，不要像文案或鸡汤。可以结合你的记忆与最近的聊天内容，也可以自由发挥。不要重复你最近发过的动态，不要每条都用同一种句式和情绪。严禁提到自己是AI或人机。").concat("\n\n", TimeSense.feedBlock(char)).concat(memText).concat(recent ? "\n最近聊天（可选素材）：\n" + recent : "").concat(oldFeeds ? "\n最近已发过（不要重复）：\n" + oldFeeds : "");
@@ -20605,7 +21207,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
         const otherComments = existing.slice(-4).join("\n") || "暂无";
         const sys = "你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。你的朋友（" + (mask ? mask.name : char.myName) + "）发了一条动态，原文与图片信息如下：「" + feedBrief + "」。现在你要评论这条动态。要求：1. 只从以下角度写：" + angle + " 2. 必须落到原文或图片里的一个具体细节，不能只写空泛感受；3. 严禁与其他人的评论相似或重复，已出现的评论是：\n" + otherComments + "\n4. 用你自己的口吻，20-50字，像真实的人在朋友圈随手评论；5. 不要总结整条动态，不要写成鸡汤或文案；6. 严禁承认自己是AI或人机。";
-        const sysWithTime = sys + "\n\n" + TimeSense.feedBlock(char, feed.ts);
+        let _mosCm = "";
+        try { _mosCm = MemoryOS.context(char.id, feedBrief, "comment", 520); } catch (e) {}
+        const sysWithTime = sys + (_mosCm ? "\n\n" + _mosCm : "") + "\n\n" + TimeSense.feedBlock(char, feed.ts);
         const rep = await requestFeedVision(sysWithTime, feed, "请评论这条动态。", 120);
         if (rep && rep.trim()) content = rep.trim().slice(0, 120);
       }
@@ -20916,13 +21520,15 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   for (const k in phoneReq) phoneReq[k] = phoneReq[k].replace("{my}", "{my}");
   function buildPhoneContext(char) {
-    const mems = (getCharacterMemories(char.id) || []).slice(-10).join("\n");
+    let mems = "";
+    try {
+      const _ph = MemoryOS.retrieve(char.id, "最近 生活 工作 朋友 心情", { limit: 10 }).map(function (h) { return h.m; });
+      mems = _ph.map(function (m) { return "- " + m.content; }).join("\n");
+    } catch (e) { mems = (getCharacterMemories(char.id) || []).slice(-10).map(function (m) { return m.content; }).join("\n"); }
     const recent = (char.history || []).slice(-10).map((m) => "".concat(m.role === "assistant" ? char.realName : char.myName || "\u7528\u6237", "\uFF1A").concat(String(m.content || "").slice(0, 120))).join("\n");
     let maskText = "";
-    if (char.maskIds && char.maskIds.length) {
-      const m = (db.masks || []).find((x) => x.id === char.maskIds[0]);
-      if (m) maskText = "\u7528\u6237\u9762\u5177\u300C".concat(m.name, "\u300D\u7684\u4EBA\u8BBE\uFF1A").concat(m.persona || "");
-    }
+    const _curM = getCurrentMask() || (char.maskIds && char.maskIds.length ? (db.masks || []).find((x) => x.id === char.maskIds[0]) : null);
+    if (_curM) maskText = "\u7528\u6237\u9762\u5177\u300C".concat(_curM.name, "\u300D\u7684\u4EBA\u8BBE\uFF1A").concat(_curM.persona || "");
     return { mems, recent, maskText };
   }
   function phoneGenUser(char, appKey) {
@@ -22720,107 +23326,263 @@ function setupPhoneSystem() {
   }
   function setupMemoryApp() {
     var _a;
-    (_a = document.getElementById("memory-help-btn")) == null ? void 0 : _a.addEventListener("click", () => {
-      showToast("\u6BCF\u4E2A\u89D2\u8272\u6709\u72EC\u7ACB\u7684\u8BB0\u5FC6\u5E93\uFF1B\u7EBF\u4E0A\u603B\u7ED3\u4E0E\u7EBF\u4E0B\u603B\u7ED3\u90FD\u4F1A\u6309\u89D2\u8272\u5206\u522B\u5B58\u5165\uFF1B\u7FA4\u804A\u603B\u7ED3\u4F1A\u6309\u6210\u5458\u5206\u522B\u5F52\u5C5E\u5230\u5404\u81EA\u7684\u8BB0\u5FC6\u5E93\uFF0C\u4E0D\u4F1A\u6DF7\u5728\u4E00\u8D77\u3002");
+    (_a = document.getElementById("memory-help-btn")) == null ? void 0 : _a.addEventListener("click", () => {      showToast("记忆按「面具 + 角色」双重隔离：同一个角色在不同面具下是两段完全独立的记忆。私聊、群聊、动态、评论、角色手机会读写同一套记忆底层，但注入时只挑与当前话题相关的少量记忆，不会把全部记忆塞给模型，也不会让角色复述旧事。点进角色可以分类查看、搜索、纠正、标记重要、调整范围或只清空当前面具下的记忆。");
     });
+  }
+  function mosTypeTag(t, hot) {
+    const label = (MemoryOS.TYPE_LABEL[t] || t || "记忆");
+    return '<span class="mos-tag' + (hot ? " hot" : "") + '">' + escapeHtml(label) + '</span>';
+  }
+  function mosStatusText(m) {
+    if (m.memory_type === "loop") {
+      return m.status === "completed" ? "已完成" : (m.status === "in_progress" ? "进行中" : "待办");
+    }
+    if (m.status === "pending") return "待确认";
+    if (m.status === "archived") return "已归档";
+    return "";
   }
   function renderMemoryScreen() {
     const container = document.getElementById("memory-app-container");
     if (!container) return;
     container.innerHTML = "";
+    try { MemoryOS.migrate(); } catch (e) {}
+    const mask = getCurrentMask();
+    const head = document.createElement("div");
+    head.style.cssText = "margin:0 0 16px;padding:15px 17px;border-radius:16px;background:#fff;border:1px solid #ededef;";
+    head.innerHTML = '<div style="font-size:11px;letter-spacing:.14em;color:#9aa0a6;">MEMORY OS / ' + escapeHtml(mask ? (mask.name || "当前面具") : "未选择面具") + '</div>'
+      + '<div style="font-size:13px;line-height:1.72;color:#4a4d52;margin-top:7px;">这里只显示「' + escapeHtml(mask ? (mask.name || "当前面具") : "当前身份") + '」这个面具下的角色记忆。换面具后档案自动切到那个面具；同一个角色在不同面具下的记忆，互不相通。</div>';
+    container.appendChild(head);
     if (!db.characters.length) {
-      container.innerHTML = '<div class="offline-empty-hint" style="padding:60px 0;">\u8FD8\u6CA1\u6709\u89D2\u8272\u3002\u6BCF\u4E2A\u89D2\u8272\u90FD\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u8BB0\u5FC6\u5E93\uFF0C\u7EBF\u4E0A\u603B\u7ED3\u4E0E\u7EBF\u4E0B\u603B\u7ED3\u90FD\u4F1A\u6309\u89D2\u8272\u5206\u522B\u5B58\u5165</div>';
+      container.innerHTML += '<div class="offline-empty-hint" style="padding:50px 0;">还没有角色。每个角色都会在这里拥有独立的记忆档案。</div>';
       return;
     }
-    const tip = document.createElement("div");
-    tip.className = "offline-empty-hint";
-    tip.style.cssText = "text-align:center; color:#9aa0a6; font-size:12px; margin:0 0 12px; padding:6px 0;";
-    tip.textContent = "\u6BCF\u4E2A\u89D2\u8272\u62E5\u6709\u72EC\u7ACB\u8BB0\u5FC6\u5E93\uFF0C\u70B9\u51FB\u89D2\u8272\u67E5\u770B\u8BB0\u5FC6";
-    container.appendChild(tip);
-    db.characters.forEach((c) => {
-      const mems = memView(db.memories || []).filter((m) => (m.charId || m.chatId) === c.id);
+    const _renderMosCard = (c, isGroup) => {
+      const st = MemoryOS.stats(c.id);
       const item = document.createElement("div");
-      item.className = "memory-char-card";
+      item.className = "mos-card";
       item.dataset.id = c.id;
-      item.innerHTML = '\n                    <img src="'.concat(escapeHtml(c.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg"), '" alt="">\n                    <div class="mcc-info">\n                        <div class="mcc-name">').concat(escapeHtml(c.remarkName || c.realName), '</div>\n                        <div class="mcc-meta">\u8BB0\u5FC6 ').concat(mems.length, " \u6761").concat(c.maskIds && c.maskIds.length ? " \xB7 " + escapeHtml((c.maskIds || []).map((id) => {
-        const m = db.masks.find((x) => x.id === id);
-        return m ? m.name : "";
-      }).filter(Boolean).join("\u3001")) : "", '</div>\n                    </div>\n                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:#b0b4bb; margin-left:auto; flex-shrink:0;"><path d="M9 6l6 6-6 6"/></svg>');
+      const sub = st.total
+        ? "记忆 " + st.total + " · 重要 " + st.core + (st.loops ? " · 未完成 " + st.loops : "") + (st.life ? " · 近况 " + st.life : "")
+        : "此面具下还没有记忆";
+      item.innerHTML = '<img src="' + escapeHtml(c.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg") + '" style="width:46px;height:46px;border-radius:50%;object-fit:cover;background:#f2f2f2;flex:0 0 auto;" alt="">'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-size:14.5px;font-weight:650;color:#0a0a0a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(c.remarkName || c.realName || c.name || "未命名") + (isGroup ? ' <span style="font-size:10px;font-weight:400;color:#a4a8ad;">群聊</span>' : "") + '</div>'
+        + '<div style="font-size:11.5px;color:#8d9298;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(sub) + '</div>'
+        + '</div>'
+        + '<span style="color:#c0c4c9;font-size:16px;flex:0 0 auto;">›</span>';
       item.addEventListener("click", () => openMemoryDetail(c.id));
       container.appendChild(item);
+    };
+    db.characters.forEach(function (c) { _renderMosCard(c, false); });
+    const _maskNow = getCurrentMask();
+    (db.groups || []).forEach(function (g) {
+      if (_maskNow && (g.maskIds || []).indexOf(_maskNow.id) < 0) return;
+      _renderMosCard(g, true);
     });
   }
-  function openMemoryDetail(charId) {
-    const c = db.characters.find((x) => x.id === charId);
+    function openMemoryDetail(charId) {
+    const c = db.characters.find((x) => x.id === charId) || (db.groups || []).find((x) => x.id === charId);
     if (!c) return;
     window.__currentMemoryCharId = charId;
+    window.__memTypeFilter = "all";
+    try { MemoryOS.migrate(); } catch (e) {}
     const titleEl = document.getElementById("memory-detail-title");
-    if (titleEl) titleEl.textContent = (c.remarkName || c.realName) + " \u7684\u8BB0\u5FC6";
+    if (titleEl) titleEl.textContent = (c.remarkName || c.realName || c.name || "角色") + " 的记忆";
     const si = document.getElementById("memory-search-input");
     if (si) si.value = "";
     renderMemoryDetail(charId);
     switchScreen("memory-detail-screen");
   }
+  function renderMemFilters(charId) {
+    const bar = document.getElementById("memory-filter-bar");
+    if (!bar) return;
+    bar.innerHTML = "";
+    const cur = window.__memTypeFilter || "all";
+    const defs = [["all", "全部"], ["hot", "重要"], ["core", "核心"], ["episodic", "事件"], ["relationship", "关系"], ["profile", "认知"], ["loop", "未完成"], ["life", "生活"]];
+    defs.forEach(function (d) {
+      const b = document.createElement("button");
+      b.type = "button";
+      b.className = "mos-chip" + (cur === d[0] ? " on" : "");
+      b.textContent = d[1];
+      b.addEventListener("click", function () {
+        window.__memTypeFilter = d[0];
+        const kw = (document.getElementById("memory-search-input") || {}).value || "";
+        renderMemoryDetail(charId, kw);
+      });
+      bar.appendChild(b);
+    });
+    const clear = document.createElement("button");
+    clear.type = "button";
+    clear.className = "mos-chip";
+    clear.textContent = "清空此面具";
+    clear.style.color = "#b4544f";
+    clear.addEventListener("click", async function () {
+      const mask = getCurrentMask();
+      if (!await uiConfirm("删除「" + (mask ? mask.name : "当前面具") + "」下这个角色的全部记忆？其他面具的记忆不受影响。", "删除")) return;
+      MemoryOS.purge(charId);
+      renderMemoryDetail(charId, "");
+      renderMemoryScreen();
+      showToast("已清空该面具下的记忆");
+    });
+    bar.appendChild(clear);
+  }
+  function openMemSheet(m) {
+    if (!m) return;
+    const ov = document.createElement("div");
+    ov.className = "modal-overlay visible";
+    ov.style.cssText = "position:fixed;inset:0;z-index:10060;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.38);";
+    const mask = (db.masks || []).find(function (x) { return x.id === m.mask_id; });
+    const maskName = mask ? mask.name : "—";
+    const rows = [
+      ["类型", MemoryOS.TYPE_LABEL[m.memory_type] || m.memory_type],
+      ["状态", (function () {
+        const zh = { active: "生效中", pending: "待确认", completed: "已完成", archived: "已归档", expired: "已失效", cancelled: "已取消", in_progress: "进行中" };
+        if (m.memory_type === "loop") return zh[m.status] || m.status;
+        return (zh[m.status] || m.status) + (m.status === "pending" ? "（未完全确认）" : "");
+      })()],
+      ["重要性", (Math.round((m.importance || 0) * 100)) + "%"],
+      ["可信度", (Math.round((m.confidence || 0) * 100)) + "%" + (m.confidence < 0.6 ? "（未完全确认）" : "")],
+      ["来源", (MemoryOS.SRC_LABEL[m.source_type] || m.source_type) + (m.source_id ? " / " + m.source_id : "")],
+      ["所属面具", maskName],
+      ["记录时间", MemoryOS.fmtFull(m.created_at)],
+      ["事件时间", MemoryOS.fmtFull(m.event_time)],
+      ["最近更新", MemoryOS.fmtFull(m.updated_at)],
+      ["关联记忆", (m.related_memory_ids || []).length + " 条"]
+    ];
+    ov.innerHTML = '<div style="width:100%;max-width:420px;background:#fff;border-radius:22px 22px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom,0px));max-height:86vh;overflow:auto;">'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">' + mosTypeTag(m.memory_type, (m.importance || 0) >= 0.8)
+      + '<span style="font-size:11px;color:#9aa0a6;">' + escapeHtml(MemoryOS.fmtFull(m.event_time)) + '</span></div>'
+      + '<div style="font-size:15px;line-height:1.75;color:#15161a;white-space:pre-wrap;">' + escapeHtml(m.content) + '</div>'
+      + '<div style="margin:14px 0 4px;border-top:1px solid #f1f2f4;"></div>'
+      + rows.map(function (r) { return '<div style="display:flex;gap:10px;padding:7px 0;font-size:12px;"><span style="width:66px;color:#9aa0a6;flex:0 0 auto;">' + r[0] + '</span><span style="color:#3f4348;flex:1;word-break:break-all;">' + escapeHtml(String(r[1])) + '</span></div>'; }).join("")
+      + ((m.tags || []).length ? '<div style="margin-top:8px;font-size:11.5px;color:#8d9298;">标签：' + escapeHtml((m.tags || []).join(" · ")) + '</div>' : "")
+      + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;">'
+      + '<button type="button" data-mact="star" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">' + ((m.importance || 0) >= 0.8 ? "取消重要" : "标记重要") + '</button>'
+      + '<button type="button" data-mact="scope" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">' + (m.memory_scope === "shared" ? "改为私密" : "设为共享") + '</button>'
+      + (m.memory_type === "loop" ? '<button type="button" data-mact="done" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">标记完成</button>' : "")
+      + '<button type="button" data-mact="edit" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">纠正内容</button>'
+      + '<button type="button" data-mact="del" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #f0d6d4;background:#fff;font-size:12.5px;color:#b4544f;">删除</button>'
+      + '</div>'
+      + '<button type="button" data-mact="close" style="width:100%;margin-top:10px;height:40px;border-radius:12px;border:none;background:#f4f5f7;color:#6b7076;font-size:13px;">关闭</button>'
+      + '</div>';
+    document.body.appendChild(ov);
+    const close = function () { if (ov.parentNode) ov.parentNode.removeChild(ov); };
+    ov.addEventListener("click", function (e) { if (e.target === ov) close(); });
+    ov.addEventListener("click", async function (e) {
+      const b = e.target.closest("[data-mact]");
+      if (!b) return;
+      const act = b.dataset.mact;
+      const cid = window.__currentMemoryCharId;
+      if (act === "close") { close(); return; }
+      if (act === "star") {
+        MemoryOS.update(m.id, { importance: (m.importance || 0) >= 0.8 ? 0.5 : 0.95 });
+        close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); return;
+      }
+      if (act === "scope") {
+        MemoryOS.update(m.id, { memory_scope: m.memory_scope === "shared" ? "private" : "shared" });
+        close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); return;
+      }
+      if (act === "done") {
+        MemoryOS.setLoop(m.id, "completed");
+        close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); showToast("已标记完成"); return;
+      }
+      if (act === "edit") {
+        const t = await uiPrompt("纠正这条记忆：", m.content);
+        if (t === null) return;
+        const nt = t.trim();
+        if (!nt) return;
+        MemoryOS.update(m.id, { content: nt, summary: nt.slice(0, 60), title: nt.slice(0, 20), confidence: 0.9 });
+        close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); return;
+      }
+      if (act === "del") {
+        if (!await uiConfirm("删除这条记忆？只影响当前面具下的这个角色。", "删除")) return;
+        MemoryOS.remove(m.id);
+        close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); return;
+      }
+    });
+  }
   function renderMemoryDetail(charId, keyword) {
     const container = document.getElementById("memory-detail-container");
     if (!container) return;
     container.innerHTML = "";
-    let mems = memView(db.memories || []).filter((m) => (m.charId || m.chatId) === charId).sort((a, b) => b.createdAt - a.createdAt);
-    if (keyword && keyword.trim()) {
-      const kw = keyword.trim().toLowerCase();
-      mems = mems.filter((m) => String(m.content || "").toLowerCase().includes(kw));
+    renderMemFilters(charId);
+    const mask = getCurrentMask();
+    const f = window.__memTypeFilter || "all";
+    let list;
+    if (f === "hot") {
+      list = MemoryOS.search({ character_id: charId, q: keyword }).filter(function (m) { return (m.importance || 0) >= 0.8; });
+    } else {
+      list = MemoryOS.search({ character_id: charId, q: keyword, type: f });
     }
-    if (!mems.length) {
-      container.innerHTML = '<div class="offline-empty-hint" style="padding:60px 0;">'.concat(keyword ? "\u6CA1\u6709\u5339\u914D\u7684\u8BB0\u5FC6" : "\u6682\u65E0\u8BB0\u5FC6\u3002\u7EBF\u4E0A/\u7EBF\u4E0B\u5BF9\u8BDD\u603B\u7ED3\u540E\u4F1A\u5B58\u5165\u8FD9\u91CC\uFF0C\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E\u6C38\u4E0D\u4E22\u5931", "</div>");
+    const tip = document.createElement("div");
+    tip.style.cssText = "font-size:11.5px;color:#9aa0a6;padding:2px 2px 10px;line-height:1.6;";
+    tip.textContent = "当前面具：" + (mask ? mask.name : "—") + " · " + list.length + " 条记忆";
+    container.appendChild(tip);
+    if (!list.length) {
+      container.innerHTML += '<div class="offline-empty-hint" style="padding:48px 0;">' + (keyword ? "没有匹配的记忆" : "此面具下还没有记忆。聊天里出现约定、偏好、重要事件时，会自动记在这里。") + '</div>';
       return;
     }
-    const facts = mems.filter((m) => m.type !== "impression");
-    const impressions = mems.filter((m) => m.type === "impression");
-    const makeItem = (m, isFact) => {
+    let curDay = "";
+    list.forEach(function (m) {
+      const ts = m.event_time || m.created_at;
+      const d = new Date(ts);
+      const dayKey = d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日";
+      if (dayKey !== curDay) {
+        curDay = dayKey;
+        const h = document.createElement("div");
+        h.style.cssText = "font-size:11px;letter-spacing:.08em;color:#a4a8ad;margin:12px 0 8px;";
+        h.textContent = dayKey;
+        container.appendChild(h);
+      }
       const item = document.createElement("div");
-      item.className = "offline-memory-item";
-      const date = new Date(m.createdAt).toLocaleString("zh-CN", { year: "numeric", month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" });
-      const typeTag = isFact ? '<span class="memory-type-tag" style="color:#e58c4f;border:1px solid rgba(229,140,79,.5);">\u6C38\u4E45\u5267\u60C5</span>' : '<span class="memory-type-tag" style="color:#8a8f98;border:1px solid rgba(138,143,152,.4);">\u52A8\u6001\u5370\u8C61</span>';
-      const srcTxt = m.source === "online" ? "\u7EBF\u4E0A" : m.source === "call" ? "\u901A\u8BDD" : m.source === "dynamic" ? "\u52A8\u6001" : "\u7EBF\u4E0B";
-      item.innerHTML = '<div class="memory-meta"><span>'.concat(srcTxt, " \xB7 ").concat(escapeHtml(date), "</span>").concat(typeTag, '<span class="memory-ops" style="margin-left:auto;display:flex;gap:4px;">\n                    <button class="memory-op-btn" data-op="edit" title="\u4FEE\u6539\u8FD9\u6761\u8BB0\u5FC6" style="background:transparent;border:none;color:#b0b4bb;padding:2px;cursor:pointer;display:inline-flex;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg></button>\n                    <button class="memory-op-btn" data-op="del" title="\u5220\u9664\u8FD9\u6761\u8BB0\u5FC6" style="background:transparent;border:none;color:#b0b4bb;padding:2px;cursor:pointer;display:inline-flex;"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6h14z"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></button>\n                </span></div>\n                    <div class="memory-content">').concat(escapeHtml(m.content), "</div>");
-      const editBtn = item.querySelector('[data-op="edit"]');
-      if (editBtn) editBtn.addEventListener("click", async () => {
-        const t = await uiPrompt("\u4FEE\u6539\u8FD9\u6761\u8BB0\u5FC6\uFF1A", m.content);
-        if (t === null) return;
-        const nt = t.trim();
-        if (!nt) {
-          showToast("\u5185\u5BB9\u4E0D\u80FD\u4E3A\u7A7A");
-          return;
+      item.className = "mos-item";
+      const stat = mosStatusText(m);
+      item.innerHTML = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;">'
+        + mosTypeTag(m.memory_type, (m.importance || 0) >= 0.8)
+        + (stat ? '<span style="font-size:10px;color:' + (m.status === "completed" ? "#7c9c84" : "#c07b34") + ';">' + stat + '</span>' : "")
+        + '<span style="margin-left:auto;font-size:10px;color:#b6babe;">' + (MemoryOS.SRC_LABEL[m.source_type] || m.source_type) + '</span>'
+        + '</div>'
+        + '<div style="font-size:13.5px;line-height:1.7;color:#22252a;word-break:break-word;">' + escapeHtml(m.content) + '</div>'
+        + '<div style="display:flex;gap:6px;justify-content:flex-end;margin-top:8px;">'
+        + '<button type="button" class="mos-op" data-op="star">★</button>'
+        + '<button type="button" class="mos-op" data-op="edit">改</button>'
+        + '<button type="button" class="mos-op" data-op="del">删</button>'
+        + '</div>';
+      item.addEventListener("click", function (e) {
+        const b = e.target.closest("[data-op]");
+        if (b) {
+          e.stopPropagation();
+          const op = b.dataset.op;
+          if (op === "star") {
+            MemoryOS.update(m.id, { importance: (m.importance || 0) >= 0.8 ? 0.5 : 0.95 });
+            renderMemoryDetail(charId, keyword);
+            return;
+          }
+          if (op === "edit") {
+            uiPrompt("修改这条记忆：", m.content).then(function (t) {
+              if (t === null) return;
+              const nt = t.trim();
+              if (!nt) return;
+              MemoryOS.update(m.id, { content: nt });
+              renderMemoryDetail(charId, keyword);
+            });
+            return;
+          }
+          if (op === "del") {
+            uiConfirm("删除这条记忆？只影响当前面具下的这个角色。", "删除").then(function (ok) {
+              if (!ok) return;
+              MemoryOS.remove(m.id);
+              renderMemoryDetail(charId, keyword);
+            });
+            return;
+          }
         }
-        m.content = nt;
-        await saveData();
-        renderMemoryDetail(charId, keyword);
+        openMemSheet(m);
       });
-      const delBtn = item.querySelector('[data-op="del"]');
-      if (delBtn) delBtn.addEventListener("click", async () => {
-        if (!await uiConfirm("\u5220\u9664\u8FD9\u6761\u8BB0\u5FC6\uFF1F\u6B64\u64CD\u4F5C\u4E0D\u53EF\u6062\u590D", "\u5220\u9664")) return;
-        db.memories = (db.memories || []).filter((x) => x !== m);
-        await saveData();
-        renderMemoryDetail(charId, keyword);
-      });
-      return item;
-    };
-    const groupH = (title, n) => {
-      const h = document.createElement("div");
-      h.style.cssText = "font-size:12px;color:#8a8f98;margin:12px 0 6px;display:flex;align-items:center;gap:6px;";
-      h.innerHTML = '<span style="font-weight:600;">'.concat(title, '</span><span style="font-size:11px;opacity:.7;">').concat(n, "\u6761</span>");
-      return h;
-    };
-    if (facts.length) {
-      container.appendChild(groupH("\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E", facts.length));
-      facts.forEach((m) => container.appendChild(makeItem(m, true)));
-    }
-    if (impressions.length) {
-      container.appendChild(groupH("\u52A8\u6001\u5370\u8C61\uFF08\u53EF\u968F\u5267\u60C5\u53D8\u5316\uFF09", impressions.length));
-      impressions.forEach((m) => container.appendChild(makeItem(m, false)));
-    }
+      container.appendChild(item);
+    });
   }
-  let _memorySearchTimer = null;
+    let _memorySearchTimer = null;
   document.addEventListener("input", (e) => {
     if (e.target.id === "memory-search-input") {
       const charId = window.__currentMemoryCharId;
@@ -35972,7 +36734,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.4.0 ================= */
+/* ================= 404 桌面复刻 v5.5.0 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
