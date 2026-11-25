@@ -10227,9 +10227,9 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             </div>
             <div class="placeholder"></div>
         </header>
-        <div style="padding:8px 14px 4px; background:var(--bg-color,#f5f6f8);">
-            <input type="text" id="memory-search-input" placeholder="搜索记忆内容、人物、标签…" style="width:100%; box-sizing:border-box; border-radius:12px; border:1px solid var(--border-color,#e4e6e9); padding:9px 14px; font-size:14px; background:var(--card-bg,#fff); color:var(--text-color,#2b2b2b); outline:none;">
-            <div id="memory-filter-bar" style="display:flex;gap:6px;overflow-x:auto;padding:8px 0 2px;-webkit-overflow-scrolling:touch;"></div>
+        <div style="padding:10px 16px 0; background:#fff; border-bottom:1px solid #ececee;">
+            <input type="text" id="memory-search-input" placeholder="搜一句、一个人、一件事" style="width:100%; box-sizing:border-box; border:0; border-bottom:2px solid #0a0a0b; border-radius:0; padding:4px 0 7px; font-size:16px; font-family:'Songti SC','Noto Serif SC',serif; background:#fff; color:#0a0a0b; outline:none; letter-spacing:.02em;">
+            <div id="memory-filter-bar" style="display:flex;align-items:center;gap:0;overflow-x:auto;padding:10px 0 6px;-webkit-overflow-scrolling:touch;"></div>
         </div>
         <main class="content" id="memory-detail-container"></main>
     </div>
@@ -10703,7 +10703,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.5.1";
+  const APP_VERSION = "v5.5.2";
   let db = {
     characters: [],
     groups: [],
@@ -12597,7 +12597,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.1</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.2</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12631,7 +12631,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.1<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.2<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -14302,7 +14302,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function openChatRoom(chatId, type) {
     const chat = type === "private" ? db.characters.find((c) => c.id === chatId) : db.groups.find((g) => g.id === chatId);
     if (!chat) return;
-    if (type === "private") { try { ensureMaskBinding(chat); } catch (e) {} }
+    if (type === "private") { try { applyMaskPersona(chat); } catch (e) {} }
     exitMultiSelectMode();
     cancelMessageEdit();
     chatRoomTitle.textContent = type === "private" ? chat.remarkName : chat.name;
@@ -15035,6 +15035,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const text = messageInput.value.trim();
     if (!text || chatGen[curChatKey()]) return;
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
+    if (currentChatType === "private" && chat) { try { await bindMaskOnMessage(chat); } catch (e) {} }
     let messageContent;
     const systemRegex = /\[system:.*?\]|\[system-display:.*?\]/;
     const inviteRegex = /\[.*?邀请.*?加入了群聊\]/;
@@ -18761,19 +18762,43 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   window.refreshMaskScopedUI = refreshMaskScopedUI;
   /* ===== 以当前面具进入角色：未绑定也自动挂上当前面具，身份即当前面具 ===== */
-  async function ensureMaskBinding(char) {
+  /* 进入聊天不绑定，只把已绑面具的身份换上；首条消息才真正建立绑定 */
+  function applyMaskPersona(char) {
+    if (!char) return;
+    const m = getCurrentMask();
+    if (!m) return;
+    const p = (char.maskPersona && char.maskPersona[m.id]) || null;
+    if (p) {
+      if (p.name) char.myName = p.name;
+      if (p.avatar) char.myAvatar = p.avatar;
+      char.myPersona = p.persona || "";
+    }
+  }
+  async function bindMaskOnMessage(char) {
     if (!char) return false;
     const m = getCurrentMask();
     if (!m) return false;
     if (!char.maskIds) char.maskIds = [];
-    let changed = false;
-    if (char.maskIds.indexOf(m.id) < 0) { char.maskIds.push(m.id); changed = true; }
-    if (m.name && char.myName !== m.name) { char.myName = m.name; changed = true; }
-    if (m.avatar && char.myAvatar !== m.avatar) { char.myAvatar = m.avatar; changed = true; }
-    if (m.persona !== void 0 && char.myPersona !== m.persona) { char.myPersona = m.persona; changed = true; }
-    if (changed) { await saveData(); }
-    return changed;
+    if (!char.maskPersona || typeof char.maskPersona !== "object") char.maskPersona = {};
+    const already = char.maskIds.indexOf(m.id) >= 0;
+    char.maskPersona[m.id] = { name: m.name || char.myName || "我", avatar: m.avatar || char.myAvatar || "", persona: m.persona || "" };
+    if (m.name) char.myName = m.name;
+    if (m.avatar) char.myAvatar = m.avatar;
+    char.myPersona = m.persona || "";
+    if (!already) {
+      char.maskIds.push(m.id);
+      await saveData();
+      try { renderChatList(); } catch (e) {}
+      try { showToast("已绑定 · " + (m.name || "当前面具")); } catch (e) {}
+      try { MemoryOS.onMaskSwitch(); } catch (e) {}
+      return true;
+    }
+    await saveData();
+    return false;
   }
+  async function ensureMaskBinding(char) { return bindMaskOnMessage(char); }
+  window.applyMaskPersona = applyMaskPersona;
+  window.bindMaskOnMessage = bindMaskOnMessage;
   window.ensureMaskBinding = ensureMaskBinding;
 
   /* ================= Memory OS · 角色记忆系统 =================
@@ -19191,7 +19216,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 读取 / 搜索 ---------- */
     function all(charId, mid) {
-      const m0 = mid || maskOf(charId);
+      const m0 = (mid === "*") ? "" : (mid || maskOf(charId));
       return mems().filter(function (m) {
         if (m.character_id !== charId) return false;
         if (m0 && m.mask_id !== m0) return false;
@@ -19200,7 +19225,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     function search(opts) {
       opts = opts || {};
-      const mid = opts.mask_id || maskOf(opts.character_id || "");
+      const mid = opts.mask_all ? "" : (opts.mask_id || maskOf(opts.character_id || ""));
       let list = mems().filter(function (m) {
         if (opts.character_id && m.character_id !== opts.character_id) return false;
         if (mid && m.mask_id !== mid) return false;
@@ -19217,8 +19242,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (opts.to) list = list.filter(function (m) { return (m.event_time || m.created_at) <= opts.to; });
       return list.sort(function (a, b) { return (b.event_time || b.created_at) - (a.event_time || a.created_at); });
     }
-    function stats(charId) {
-      const list = all(charId);
+    function stats(charId, mid) {
+      const list = all(charId, mid);
       const s = { total: list.length, core: 0, loops: 0, recent: 0, life: 0 };
       const today = new Date().setHours(0, 0, 0, 0);
       list.forEach(function (m) {
@@ -23383,46 +23408,314 @@ function setupPhoneSystem() {
     if (m.status === "archived") return "已归档";
     return "";
   }
+  /* ===== 记忆 APP · 编辑排版版（总览 / 时间线 / 未完成 / 搜索） ===== */
+  window.__memScope = window.__memScope || "*";
+  window.__memTab = window.__memTab || "overview";
+  function memMaskName(mid) {
+    const m = (db.masks || []).find(function (x) { return x.id === mid; });
+    return m && m.name ? m.name : "未命名面具";
+  }
+  function memCharName(c) {
+    return c ? (c.remarkName || c.realName || c.name || "未命名") : "未知角色";
+  }
+  function memEntities() {
+    return (db.characters || []).concat(db.groups || []);
+  }
+  function memRows() {
+    const scope = window.__memScope || "*";
+    const rows = [];
+    memEntities().forEach(function (c) {
+      try {
+        MemoryOS.all(c.id, scope).forEach(function (m) { rows.push({ m: m, c: c }); });
+      } catch (e) {}
+    });
+    rows.sort(function (a, b) { return (b.m.event_time || b.m.created_at) - (a.m.event_time || a.m.created_at); });
+    return rows;
+  }
+  function memMaskChips() {
+    const row = document.createElement("div");
+    row.style.cssText = "display:flex;gap:7px;overflow-x:auto;padding:0 0 2px;";
+    const defs = [{ id: "*", label: "全部面具" }].concat((db.masks || []).map(function (m) { return { id: m.id, label: m.name || "未命名" }; }));
+    defs.forEach(function (d) {
+      const on = (window.__memScope || "*") === d.id;
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = d.label;
+      b.style.cssText = "flex:0 0 auto;cursor:pointer;font-size:11.5px;letter-spacing:.04em;padding:6px 11px;border-radius:2px;white-space:nowrap;"
+        + (on ? "background:#0a0a0b;color:#fff;border:1px solid #0a0a0b;" : "background:#fff;color:#1c1f24;border:1px solid #d4d6da;");
+      b.addEventListener("click", function () {
+        window.__memScope = d.id;
+        if (typeof window.__curScreen === "string" && window.__curScreen === "memory-detail-screen" && window.__currentMemoryCharId) {
+          const kw = (document.getElementById("memory-search-input") || {}).value || "";
+          renderMemoryDetail(window.__currentMemoryCharId, kw);
+        } else {
+          renderMemoryScreen();
+        }
+      });
+      row.appendChild(b);
+    });
+    return row;
+  }
+  function memSection(idx, label, extra) {
+    const h = document.createElement("div");
+    h.style.cssText = "display:flex;align-items:baseline;gap:9px;margin:22px 0 10px;";
+    const ex = extra ? '<span style="font-size:9.5px;color:#9aa0a6;letter-spacing:.04em;">' + escapeHtml(extra) + '</span>' : "";
+    h.innerHTML = '<span style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:16px;color:#0a0a0b;">' + idx + '</span>'
+      + '<span style="flex:1;height:1px;background:#0a0a0b;opacity:.2;"></span>'
+      + '<span style="font-size:10px;letter-spacing:.18em;color:#6c7076;">' + escapeHtml(label) + '</span>'
+      + ex;
+    return h;
+  }
+  function memEmpty(txt) {
+    const d = document.createElement("div");
+    d.style.cssText = "padding:44px 0;text-align:center;font-size:12px;color:#9aa0a6;letter-spacing:.02em;";
+    d.textContent = txt;
+    return d;
+  }
+  function memTypeChip(m) {
+    const hot = (m.importance || 0) >= 0.8;
+    const loopPending = m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled";
+    return '<span style="display:inline-block;font-size:9px;letter-spacing:.06em;padding:2px 5px;border:' + (loopPending ? "0" : "1px solid #d4d6da") + ';' + (loopPending ? "background:#0a0a0b;color:#fff;" : "color:#4a4d52;") + '">'
+      + escapeHtml(MemoryOS.TYPE_LABEL[m.memory_type] || m.memory_type) + (hot && !loopPending ? " ★" : "") + '</span>';
+  }
+  function memOpenRow(container, r) {
+    const m = r.m;
+    const row = document.createElement("div");
+    row.style.cssText = "padding:11px 0;border-bottom:1px solid #ececee;cursor:pointer;";
+    row.innerHTML = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">'
+      + memTypeChip(m)
+      + '<span style="margin-left:auto;font-size:9px;color:#b0b4b9;letter-spacing:.04em;">' + escapeHtml(memMaskName(m.mask_id)) + '</span>'
+      + '</div>'
+      + '<div style="font-size:13px;line-height:1.72;color:#1c1f24;word-break:break-word;">' + escapeHtml(m.content) + '</div>'
+      + '<div style="font-size:9.5px;color:#9aa0a6;margin-top:5px;letter-spacing:.03em;">' + escapeHtml(memCharName(r.c)) + ' · ' + escapeHtml(MemoryOS.fmt ? MemoryOS.fmt(m.event_time || m.created_at) : "") + '</div>';
+    row.addEventListener("click", function () { openMemSheet(m); });
+    container.appendChild(row);
+  }
+  function memOverview(container, rows, chars) {
+    let core = 0, loops = 0, week = 0, covered = 0;
+    const today = new Date().setHours(0, 0, 0, 0);
+    const perChar = {};
+    rows.forEach(function (r) {
+      if ((r.m.importance || 0) >= 0.8) core++;
+      if (r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled") loops++;
+      if ((r.m.created_at || 0) >= today - 6 * 864e5) week++;
+      perChar[r.c.id] = (perChar[r.c.id] || 0) + 1;
+    });
+    chars.forEach(function (c) { if (perChar[c.id]) covered++; });
+
+    container.appendChild(memSection("01", "总量", "TOTAL"));
+    const grid = document.createElement("div");
+    grid.style.cssText = "display:flex;gap:0;border-top:1px solid #0a0a0b;";
+    [["记忆", rows.length], ["重要", core], ["未完成", loops]].forEach(function (d, i) {
+      const cell = document.createElement("div");
+      cell.style.cssText = "flex:1;padding:12px 2px 10px;" + (i ? "border-left:1px solid #ececee;padding-left:12px;" : "");
+      cell.innerHTML = '<div style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:27px;line-height:1;color:#0a0a0b;letter-spacing:-.5px;">' + d[1] + '</div>'
+        + '<div style="font-size:9px;letter-spacing:.2em;color:#9aa0a6;margin-top:7px;">' + d[0] + '</div>';
+      grid.appendChild(cell);
+    });
+    container.appendChild(grid);
+
+    container.appendChild(memSection("02", "健康度", "STATUS"));
+    const cov = chars.length ? Math.round(covered / chars.length * 100) : 0;
+    const health = document.createElement("div");
+    health.style.cssText = "display:flex;align-items:flex-start;gap:16px;";
+    health.innerHTML = '<div style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:34px;line-height:1;color:#0a0a0b;letter-spacing:-1px;">' + cov + '<span style="font-size:13px;color:#6c7076;margin-left:2px;">%</span></div>'
+      + '<div style="flex:1;font-size:10px;line-height:2;color:#8d9298;">'
+      + '<div style="display:flex;justify-content:space-between;"><span>覆盖角色</span><span style="color:#1c1f24;">' + covered + ' / ' + chars.length + '</span></div>'
+      + '<div style="display:flex;justify-content:space-between;"><span>本周新增</span><span style="color:#1c1f24;">' + week + '</span></div>'
+      + '<div style="display:flex;justify-content:space-between;"><span>跨面具读取</span><span style="color:#1c1f24;">已开启</span></div>'
+      + '</div>';
+    container.appendChild(health);
+
+    container.appendChild(memSection("03", "角色", chars.length + " 位"));
+    const cols = document.createElement("div");
+    cols.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:9px;";
+    chars.forEach(function (c) {
+      const n = perChar[c.id] || 0;
+      const card = document.createElement("div");
+      card.style.cssText = "border:1px solid #0a0a0b;padding:11px;cursor:pointer;background:#fff;";
+      card.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">'
+        + '<img src="' + escapeHtml(c.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg") + '" style="width:30px;height:30px;border-radius:50%;object-fit:cover;background:#f2f2f2;flex:0 0 auto;filter:grayscale(1);" alt="">'
+        + '<div style="min-width:0;flex:1;">'
+        + '<div style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:13.5px;color:#0a0a0b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(memCharName(c)) + '</div>'
+        + '<div style="font-size:9px;color:#9aa0a6;margin-top:3px;letter-spacing:.02em;">' + (n ? n + ' 条记忆' : '还没有记忆') + '</div>'
+        + '</div></div>';
+      card.addEventListener("click", function () { openMemoryDetail(c.id); });
+      cols.appendChild(card);
+    });
+    container.appendChild(cols);
+  }
+  function memTimeline(container, rows) {
+    if (!rows.length) { container.appendChild(memEmpty("还没有记忆。聊过约定、偏好、重要事件后，会自动出现在这条时间线上。")); return; }
+    container.appendChild(memSection("01", "纪年", "CHRONICLE"));
+    let curDay = "", block = null;
+    rows.slice(0, 80).forEach(function (r) {
+      const ts = r.m.event_time || r.m.created_at;
+      const d = new Date(ts);
+      const key = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+      if (key !== curDay) {
+        curDay = key;
+        block = document.createElement("div");
+        block.style.cssText = "display:flex;gap:12px;padding:9px 0 4px;border-top:1px solid #e4e5e7;";
+        const left = document.createElement("div");
+        left.style.cssText = "width:44px;flex:0 0 auto;text-align:left;";
+        left.innerHTML = '<div style="font-size:8px;letter-spacing:.16em;color:#9aa0a6;">' + (d.getMonth() + 1) + '月</div>'
+          + '<div style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:19px;line-height:1.15;color:#0a0a0b;">' + d.getDate() + '</div>';
+        const right = document.createElement("div");
+        right.style.cssText = "flex:1;min-width:0;";
+        block.appendChild(left);
+        block.appendChild(right);
+        container.appendChild(block);
+      }
+      const right = block.lastChild;
+      const row = document.createElement("div");
+      row.style.cssText = "padding:2px 0 11px;cursor:pointer;";
+      const undone = r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled";
+      row.innerHTML = '<div style="font-size:12.5px;line-height:1.7;color:' + (undone ? "#8d9298" : "#1c1f24") + ';word-break:break-word;">' + escapeHtml(r.m.content) + '</div>'
+        + '<div style="display:flex;align-items:center;gap:7px;margin-top:4px;">'
+        + '<span style="font-size:9px;color:#9aa0a6;letter-spacing:.03em;">' + escapeHtml(memMaskName(r.m.mask_id)) + ' · ' + escapeHtml(memCharName(r.c)) + '</span>'
+        + memTypeChip(r.m)
+        + (undone ? '<span style="margin-left:auto;font-size:9px;color:#6c7076;">→</span>' : "")
+        + '</div>';
+      row.addEventListener("click", function () { openMemSheet(r.m); });
+      right.appendChild(row);
+    });
+    container.appendChild(memSection("02", "合计", rows.length + " 条"));
+  }
+  function memLoops(container, rows) {
+    const list = rows.filter(function (r) { return r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled" && r.m.status !== "archived"; });
+    if (!list.length) { container.appendChild(memEmpty("没有未完成的事。答应过的事、待回复的话题会自动记在这里。")); return; }
+    let overdue = 0;
+    const head = memSection("01", "待办", list.length + " 件");
+    container.appendChild(head);
+    const th = document.createElement("div");
+    th.style.cssText = "display:flex;gap:9px;font-size:8.5px;letter-spacing:.16em;color:#b0b4b9;padding:0 0 7px;border-bottom:1px solid #0a0a0b;";
+    th.innerHTML = '<span style="width:14px;">　</span><span style="width:20px;">序号</span><span style="flex:1;">事项</span><span>状态</span>';
+    container.appendChild(th);
+    list.forEach(function (r, i) {
+      const m = r.m;
+      const days = Math.max(0, Math.floor((Date.now() - (m.created_at || Date.now())) / 864e5));
+      const late = days >= 7;
+      if (late) overdue++;
+      const row = document.createElement("div");
+      row.style.cssText = "display:flex;align-items:flex-start;gap:9px;padding:13px 0;border-bottom:1px solid #ececee;";
+      row.innerHTML = '<button type="button" style="width:14px;height:14px;flex:0 0 auto;margin-top:2px;border:1px solid #0a0a0b;background:#fff;cursor:pointer;padding:0;"></button>'
+        + '<span style="width:20px;font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:12px;color:#9aa0a6;">' + (i + 1 < 10 ? "0" + (i + 1) : (i + 1)) + '</span>'
+        + '<div style="flex:1;min-width:0;">'
+        + '<div style="font-size:13px;line-height:1.65;color:#1c1f24;word-break:break-word;">' + escapeHtml(m.content) + '</div>'
+        + '<div style="font-size:9px;color:#9aa0a6;margin-top:4px;letter-spacing:.03em;">' + escapeHtml(memCharName(r.c)) + ' · ' + escapeHtml(memMaskName(m.mask_id)) + ' · ' + escapeHtml(MemoryOS.fmt ? MemoryOS.fmt(m.created_at) : "") + '</div>'
+        + '</div>'
+        + '<span style="flex:0 0 auto;font-size:9px;padding:3px 6px;' + (late ? "background:#0a0a0b;color:#fff;" : "border:1px solid #d4d6da;color:#6c7076;") + '">' + (late ? "逾期 " + days + " 天" : "按期") + '</span>';
+      row.querySelector("button").addEventListener("click", function (e) {
+        e.stopPropagation();
+        MemoryOS.setLoop(m.id, "completed");
+        renderMemoryScreen();
+        showToast("已标记完成");
+      });
+      row.addEventListener("click", function () { openMemSheet(m); });
+      container.appendChild(row);
+    });
+    const foot = document.createElement("div");
+    foot.style.cssText = "padding:12px 0;font-size:10px;color:#8d9298;letter-spacing:.04em;";
+    foot.textContent = "共 " + list.length + " 件 · 逾期 " + overdue + " 件 · 点方框即完成";
+    container.appendChild(foot);
+  }
+  function memSearchTab(container, rows) {
+    container.appendChild(memSection("01", "索引", "INDEX"));
+    const box = document.createElement("div");
+    box.style.cssText = "display:flex;align-items:center;gap:8px;border-bottom:2px solid #0a0a0b;padding:6px 0 8px;";
+    box.innerHTML = '<span style="font-size:13px;color:#0a0a0b;">⌕</span>'
+      + '<input type="text" style="flex:1;border:0;outline:none;background:transparent;font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:20px;color:#0a0a0b;letter-spacing:.02em;" placeholder="搜一句、一个人、一件事">';
+    container.appendChild(box);
+    const input = box.querySelector("input");
+    input.value = window.__memQuery || "";
+    const nav = document.createElement("div");
+    nav.style.cssText = "display:flex;gap:12px;font-size:10.5px;color:#8d9298;padding:10px 0 4px;letter-spacing:.06em;overflow-x:auto;";
+    const result = document.createElement("div");
+    const defs = [["all", "全部"], ["core", "核心"], ["episodic", "事件"], ["relationship", "关系"], ["profile", "认知"], ["loop", "未完成"], ["life", "生活"]];
+    if (!window.__memTypeFilter) window.__memTypeFilter = "all";
+    function draw() {
+      const q = (input.value || "").trim().toLowerCase();
+      const f = window.__memTypeFilter || "all";
+      nav.innerHTML = "";
+      defs.forEach(function (d) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.textContent = d[1];
+        const on = f === d[0];
+        b.style.cssText = "flex:0 0 auto;background:none;border:0;padding:0 0 2px;cursor:pointer;font-size:10.5px;color:" + (on ? "#0a0a0b" : "#9aa0a6") + ";border-bottom:" + (on ? "1px solid #0a0a0b" : "1px solid transparent") + ";font-weight:" + (on ? "600" : "400") + ";";
+        b.addEventListener("click", function () { window.__memTypeFilter = d[0]; draw(); });
+        nav.appendChild(b);
+      });
+      let list = rows;
+      if (f === "hot") list = list.filter(function (r) { return (r.m.importance || 0) >= 0.8; });
+      else if (f !== "all") list = list.filter(function (r) { return r.m.memory_type === f; });
+      if (q) list = list.filter(function (r) {
+        const s = (String(r.m.content || "") + " " + (r.m.title || "") + " " + (r.m.tags || []).join(" ") + " " + (r.m.entities || []).join(" ")).toLowerCase();
+        return s.indexOf(q) >= 0;
+      });
+      result.innerHTML = '<div style="font-size:9px;color:#9aa0a6;letter-spacing:.08em;padding:2px 0 6px;">找到 ' + list.length + ' 条 · ' + ((window.__memScope || "*") === "*" ? "跨全部面具" : "仅 " + memMaskName(window.__memScope)) + '</div>';
+      if (!list.length) { result.appendChild(memEmpty("没有匹配的记忆")); return; }
+      list.slice(0, 50).forEach(function (r) { memOpenRow(result, r); });
+    }
+    input.addEventListener("input", function () { window.__memQuery = input.value; draw(); });
+    container.appendChild(nav);
+    container.appendChild(result);
+    draw();
+  }
   function renderMemoryScreen() {
     const container = document.getElementById("memory-app-container");
     if (!container) return;
     container.innerHTML = "";
     try { MemoryOS.migrate(); } catch (e) {}
-    const mask = getCurrentMask();
+    const scope = window.__memScope || "*";
+    const tab = window.__memTab || "overview";
+    const rows = memRows();
+    const chars = memEntities();
+
     const head = document.createElement("div");
-    head.style.cssText = "margin:0 0 16px;padding:15px 17px;border-radius:16px;background:#fff;border:1px solid #ededef;";
-    head.innerHTML = '<div style="font-size:11px;letter-spacing:.14em;color:#9aa0a6;">MEMORY OS / ' + escapeHtml(mask ? (mask.name || "当前面具") : "未选择面具") + '</div>'
-      + '<div style="font-size:13px;line-height:1.72;color:#4a4d52;margin-top:7px;">这里只显示「' + escapeHtml(mask ? (mask.name || "当前面具") : "当前身份") + '」这个面具下的角色记忆。换面具后档案自动切到那个面具；同一个角色在不同面具下的记忆，互不相通。</div>';
+    head.style.cssText = "padding:2px 0 0;";
+    head.innerHTML = '<div style="display:flex;align-items:baseline;gap:10px;">'
+      + '<span style="font-size:8.5px;letter-spacing:.3em;color:#9aa0a6;">MEMORY</span>'
+      + '<span style="font-size:8.5px;letter-spacing:.3em;color:#9aa0a6;">ARCHIVE</span>'
+      + '<span style="margin-left:auto;font-size:8.5px;letter-spacing:.12em;color:#9aa0a6;">' + (scope === "*" ? "ALL MASKS" : "SINGLE MASK") + '</span>'
+      + '</div>'
+      + '<div style="display:flex;align-items:flex-end;gap:10px;margin-top:5px;">'
+      + '<h1 style="margin:0;font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:38px;line-height:.96;letter-spacing:-1.5px;color:#0a0a0b;font-weight:700;">记忆</h1>'
+      + '<span style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:34px;line-height:.9;color:#d2d3d6;letter-spacing:-1px;">' + rows.length + '</span>'
+      + '</div>'
+      + '<div style="height:2px;background:#0a0a0b;margin:7px 0 0;"></div>'
+      + '<div style="height:1px;background:#0a0a0b;opacity:.3;margin-top:2px;"></div>'
+      + '<div style="font-size:9.5px;color:#9aa0a6;margin-top:6px;letter-spacing:.02em;">' + escapeHtml(scope === "*" ? "所有面具的记忆都在这里，可往下收窄" : "只看「" + memMaskName(scope) + "」这一个面具") + '</div>';
     container.appendChild(head);
-    if (!db.characters.length) {
-      container.innerHTML += '<div class="offline-empty-hint" style="padding:50px 0;">还没有角色。每个角色都会在这里拥有独立的记忆档案。</div>';
-      return;
-    }
-    const _renderMosCard = (c, isGroup) => {
-      const st = MemoryOS.stats(c.id);
-      const item = document.createElement("div");
-      item.className = "mos-card";
-      item.dataset.id = c.id;
-      const sub = st.total
-        ? "记忆 " + st.total + " · 重要 " + st.core + (st.loops ? " · 未完成 " + st.loops : "") + (st.life ? " · 近况 " + st.life : "")
-        : "此面具下还没有记忆";
-      item.innerHTML = '<img src="' + escapeHtml(c.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg") + '" style="width:46px;height:46px;border-radius:50%;object-fit:cover;background:#f2f2f2;flex:0 0 auto;" alt="">'
-        + '<div style="flex:1;min-width:0;">'
-        + '<div style="font-size:14.5px;font-weight:650;color:#0a0a0a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(c.remarkName || c.realName || c.name || "未命名") + (isGroup ? ' <span style="font-size:10px;font-weight:400;color:#a4a8ad;">群聊</span>' : "") + '</div>'
-        + '<div style="font-size:11.5px;color:#8d9298;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(sub) + '</div>'
-        + '</div>'
-        + '<span style="color:#c0c4c9;font-size:16px;flex:0 0 auto;">›</span>';
-      item.addEventListener("click", () => openMemoryDetail(c.id));
-      container.appendChild(item);
-    };
-    db.characters.forEach(function (c) { _renderMosCard(c, false); });
-    const _maskNow = getCurrentMask();
-    (db.groups || []).forEach(function (g) {
-      if (_maskNow && (g.maskIds || []).indexOf(_maskNow.id) < 0) return;
-      _renderMosCard(g, true);
+
+    const chips = memMaskChips();
+    chips.style.marginTop = "12px";
+    container.appendChild(chips);
+
+    const tabs = document.createElement("div");
+    tabs.style.cssText = "display:flex;align-items:center;gap:16px;margin-top:15px;border-bottom:1px solid #d4d6da;padding-bottom:0;overflow-x:auto;";
+    [["overview", "总览"], ["timeline", "时间线"], ["loops", "未完成"], ["search", "搜索"]].forEach(function (d) {
+      const on = tab === d[0];
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = d[1];
+      b.style.cssText = "flex:0 0 auto;background:none;border:0;cursor:pointer;padding:2px 0 8px;font-size:12px;letter-spacing:.08em;color:" + (on ? "#0a0a0b" : "#9aa0a6") + ";font-weight:" + (on ? "650" : "400") + ";border-bottom:" + (on ? "2px solid #0a0a0b" : "2px solid transparent") + ";margin-bottom:-1px;";
+      b.addEventListener("click", function () { window.__memTab = d[0]; renderMemoryScreen(); });
+      tabs.appendChild(b);
     });
+    container.appendChild(tabs);
+
+    const body = document.createElement("div");
+    body.style.cssText = "padding-top:2px;";
+    container.appendChild(body);
+    if (!chars.length) { body.appendChild(memEmpty("还没有角色。每个角色都会在这里拥有独立的记忆档案。")); return; }
+    if (tab === "overview") memOverview(body, rows, chars);
+    else if (tab === "timeline") memTimeline(body, rows);
+    else if (tab === "loops") memLoops(body, rows);
+    else memSearchTab(body, rows);
   }
-    function openMemoryDetail(charId) {
+  function openMemoryDetail(charId) {
     const c = db.characters.find((x) => x.id === charId) || (db.groups || []).find((x) => x.id === charId);
     if (!c) return;
     window.__currentMemoryCharId = charId;
@@ -23435,17 +23728,28 @@ function setupPhoneSystem() {
     renderMemoryDetail(charId);
     switchScreen("memory-detail-screen");
   }
+
   function renderMemFilters(charId) {
     const bar = document.getElementById("memory-filter-bar");
     if (!bar) return;
     bar.innerHTML = "";
+    let scopeWrap = document.getElementById("memory-scope-bar");
+    if (!scopeWrap) {
+      scopeWrap = document.createElement("div");
+      scopeWrap.id = "memory-scope-bar";
+      scopeWrap.style.cssText = "padding:10px 14px 8px;background:#fff;border-bottom:1px solid #ececee;";
+      bar.parentNode.insertBefore(scopeWrap, bar);
+    }
+    scopeWrap.innerHTML = "";
+    const scopeRow = memMaskChips();
+    scopeWrap.appendChild(scopeRow);
     const cur = window.__memTypeFilter || "all";
     const defs = [["all", "全部"], ["hot", "重要"], ["core", "核心"], ["episodic", "事件"], ["relationship", "关系"], ["profile", "认知"], ["loop", "未完成"], ["life", "生活"]];
     defs.forEach(function (d) {
       const b = document.createElement("button");
       b.type = "button";
-      b.className = "mos-chip" + (cur === d[0] ? " on" : "");
       b.textContent = d[1];
+      b.style.cssText = "flex:0 0 auto;background:none;border:0;padding:0 0 4px;margin-right:11px;cursor:pointer;font-size:11px;letter-spacing:.06em;color:" + (cur === d[0] ? "#0a0a0b" : "#9aa0a6") + ";font-weight:" + (cur === d[0] ? "650" : "400") + ";border-bottom:" + (cur === d[0] ? "2px solid #0a0a0b" : "1px solid transparent") + ";";
       b.addEventListener("click", function () {
         window.__memTypeFilter = d[0];
         const kw = (document.getElementById("memory-search-input") || {}).value || "";
@@ -23455,9 +23759,8 @@ function setupPhoneSystem() {
     });
     const clear = document.createElement("button");
     clear.type = "button";
-    clear.className = "mos-chip";
     clear.textContent = "清空此面具";
-    clear.style.color = "#b4544f";
+    clear.style.cssText = "flex:0 0 auto;background:none;border:0;padding:0 0 4px;margin-left:auto;cursor:pointer;font-size:9.5px;letter-spacing:.03em;color:#b4544f;white-space:nowrap;";
     clear.addEventListener("click", async function () {
       const mask = getCurrentMask();
       if (!await uiConfirm("删除「" + (mask ? mask.name : "当前面具") + "」下这个角色的全部记忆？其他面具的记忆不受影响。", "删除")) return;
@@ -23551,14 +23854,15 @@ function setupPhoneSystem() {
     const mask = getCurrentMask();
     const f = window.__memTypeFilter || "all";
     let list;
+    const allMasks = (window.__memScope || "*") === "*";
     if (f === "hot") {
-      list = MemoryOS.search({ character_id: charId, q: keyword }).filter(function (m) { return (m.importance || 0) >= 0.8; });
+      list = MemoryOS.search({ character_id: charId, q: keyword, mask_all: allMasks }).filter(function (m) { return (m.importance || 0) >= 0.8; });
     } else {
-      list = MemoryOS.search({ character_id: charId, q: keyword, type: f });
+      list = MemoryOS.search({ character_id: charId, q: keyword, type: f, mask_all: allMasks });
     }
     const tip = document.createElement("div");
     tip.style.cssText = "font-size:11.5px;color:#9aa0a6;padding:2px 2px 10px;line-height:1.6;";
-    tip.textContent = "当前面具：" + (mask ? mask.name : "—") + " · " + list.length + " 条记忆";
+    tip.textContent = (allMasks ? "范围：全部面具" : "范围：" + (mask ? mask.name : "—")) + " · " + list.length + " 条记忆";
     container.appendChild(tip);
     if (!list.length) {
       container.innerHTML += '<div class="offline-empty-hint" style="padding:48px 0;">' + (keyword ? "没有匹配的记忆" : "此面具下还没有记忆。聊天里出现约定、偏好、重要事件时，会自动记在这里。") + '</div>';
@@ -23572,23 +23876,23 @@ function setupPhoneSystem() {
       if (dayKey !== curDay) {
         curDay = dayKey;
         const h = document.createElement("div");
-        h.style.cssText = "font-size:11px;letter-spacing:.08em;color:#a4a8ad;margin:12px 0 8px;";
+        h.style.cssText = "font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:13px;letter-spacing:.04em;color:#0a0a0b;margin:16px 0 2px;padding-bottom:5px;border-bottom:1px solid #0a0a0b;opacity:.85;";
         h.textContent = dayKey;
         container.appendChild(h);
       }
       const item = document.createElement("div");
-      item.className = "mos-item";
       const stat = mosStatusText(m);
-      item.innerHTML = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:7px;">'
-        + mosTypeTag(m.memory_type, (m.importance || 0) >= 0.8)
-        + (stat ? '<span style="font-size:10px;color:' + (m.status === "completed" ? "#7c9c84" : "#c07b34") + ';">' + stat + '</span>' : "")
-        + '<span style="margin-left:auto;font-size:10px;color:#b6babe;">' + (MemoryOS.SRC_LABEL[m.source_type] || m.source_type) + '</span>'
+      item.style.cssText = "padding:13px 2px 14px;border-bottom:1px solid #ececee;cursor:pointer;";
+      item.innerHTML = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">'
+        + memTypeChip(m)
+        + (stat ? '<span style="font-size:9px;color:' + (m.status === "completed" ? "#7c9c84" : "#c07b34") + ';letter-spacing:.04em;">' + stat + '</span>' : "")
+        + '<span style="margin-left:auto;font-size:9px;color:#b6babe;letter-spacing:.04em;">' + escapeHtml(memMaskName(m.mask_id)) + ' · ' + (MemoryOS.SRC_LABEL[m.source_type] || m.source_type) + '</span>'
         + '</div>'
-        + '<div style="font-size:13.5px;line-height:1.7;color:#22252a;word-break:break-word;">' + escapeHtml(m.content) + '</div>'
-        + '<div style="display:flex;gap:6px;justify-content:flex-end;margin-top:8px;">'
-        + '<button type="button" class="mos-op" data-op="star">★</button>'
-        + '<button type="button" class="mos-op" data-op="edit">改</button>'
-        + '<button type="button" class="mos-op" data-op="del">删</button>'
+        + '<div style="font-size:13px;line-height:1.74;color:#1c1f24;word-break:break-word;">' + escapeHtml(m.content) + '</div>'
+        + '<div style="display:flex;gap:14px;justify-content:flex-end;margin-top:7px;font-size:10px;letter-spacing:.06em;color:#8d9298;">'
+        + '<span data-op="star" style="cursor:pointer;">' + ((m.importance || 0) >= 0.8 ? "取消标星" : "标星") + '</span>'
+        + '<span data-op="edit" style="cursor:pointer;">修改</span>'
+        + '<span data-op="del" style="cursor:pointer;">删除</span>'
         + '</div>';
       item.addEventListener("click", function (e) {
         const b = e.target.closest("[data-op]");
@@ -36776,7 +37080,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.5.1 ================= */
+/* ================= 404 桌面复刻 v5.5.2 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
