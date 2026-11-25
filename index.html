@@ -764,7 +764,10 @@
             flex-grow: 1;
             overflow-y: auto;
             padding: 0 10px;
-            scroll-behavior: smooth;
+            scroll-behavior: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            touch-action: pan-y;
         }
 
         .msg-pop { animation: msgIn .3s ease; }
@@ -2798,58 +2801,171 @@
             font-size: calc(var(--app-fs, 1) * 30px);
         }
 
-        /* ===== 钱包 ===== */
+        /* ===== 钱包（视觉重做，功能不变） ===== */
+        #wallet-screen { background: #f7f7f8; }
+        .wallet-shell { padding: 8px 16px 28px; }
         .wallet-balance-card {
-            background: linear-gradient(135deg, #2b2b2b, #5a5a5e);
-            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 22px;
+            padding: 22px 22px 20px;
             color: #fff;
-            padding: 24px;
-            margin: 16px;
+            background: linear-gradient(150deg, #17171a 0%, #232327 52%, #3a3a40 100%);
+            box-shadow: 0 14px 34px rgba(16,16,18,.22);
         }
-
+        .wallet-balance-card::after {
+            content: "";
+            position: absolute;
+            right: -46px; top: -58px;
+            width: 168px; height: 168px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,255,255,.14), rgba(255,255,255,0) 68%);
+            pointer-events: none;
+        }
+        .w-top { display: flex; align-items: center; justify-content: space-between; }
         .wallet-balance-card .w-label {
-            font-size: calc(var(--app-fs, 1) * 12px);
-            opacity: 0.7;
+            font-size: calc(var(--app-fs, 1) * 11px);
+            letter-spacing: .16em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,.55);
         }
-
+        .w-badge {
+            font-size: calc(var(--app-fs, 1) * 9.5px);
+            letter-spacing: .12em;
+            color: rgba(255,255,255,.72);
+            border: 1px solid rgba(255,255,255,.24);
+            border-radius: 999px;
+            padding: 3px 9px;
+        }
         .wallet-balance-card .w-amount {
-            font-size: calc(var(--app-fs, 1) * 36px);
+            display: flex;
+            align-items: baseline;
+            gap: 6px;
+            margin-top: 12px;
+            font-size: calc(var(--app-fs, 1) * 38px);
             font-weight: 700;
-            margin-top: 6px;
+            letter-spacing: -.02em;
+            font-variant-numeric: tabular-nums;
         }
-
+        .w-amount .w-cur { font-size: calc(var(--app-fs, 1) * 18px); font-weight: 600; opacity: .78; }
+        .w-note {
+            margin-top: 12px;
+            font-size: calc(var(--app-fs, 1) * 10.5px);
+            line-height: 1.7;
+            color: rgba(255,255,255,.5);
+        }
+        .wallet-quick {
+            display: flex;
+            gap: 8px;
+            margin-top: 14px;
+            padding: 0 2px;
+        }
+        .wallet-quick .wq {
+            flex: 1;
+            height: 38px;
+            border-radius: 12px;
+            border: 1px solid #e6e6e9;
+            background: #fff;
+            color: #1c1c1e;
+            font-size: calc(var(--app-fs, 1) * 12.5px);
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .wallet-quick .wq:active { transform: scale(.97); }
+        .wallet-recharge-box {
+            margin-top: 14px;
+            background: #fff;
+            border: 1px solid #ececee;
+            border-radius: 16px;
+            padding: 14px;
+        }
+        .wallet-recharge-box .wr-label {
+            font-size: calc(var(--app-fs, 1) * 11px);
+            letter-spacing: .06em;
+            color: #8c8c92;
+            margin-bottom: 8px;
+        }
         .wallet-row {
             display: flex;
-            gap: 10px;
-            padding: 0 16px;
-            margin-top: 12px;
+            gap: 8px;
+            align-items: center;
         }
-
-        .wallet-row .btn {
-            flex: 1;
-            font-size: calc(var(--app-fs, 1) * 13px);
+        .wallet-row input {
+            flex: 1 1 auto;
+            min-width: 0;
+            height: 44px;
+            padding: 0 14px;
+            border: 1px solid #e8e8eb;
+            border-radius: 12px;
+            font-size: calc(var(--app-fs, 1) * 14px);
+            background: #fafafa;
+            color: #1c1c1e;
+            outline: none;
         }
-
-        .wallet-tx {
-            padding: 0 16px;
-            margin-top: 14px;
+        .wallet-row input:focus { border-color: #cfcfd4; background: #fff; }
+        #wallet-screen .wallet-row .btn {
+            width: auto !important;
+            flex: 0 0 auto !important;
+            height: 44px;
+            padding: 0 16px !important;
+            font-size: calc(var(--app-fs, 1) * 12.5px) !important;
+            border-radius: 12px !important;
+            letter-spacing: 0 !important;
+            white-space: nowrap;
         }
-
+        #wallet-screen .wallet-row .btn-primary { background: #0a0a0a !important; color: #fff !important; border: 1px solid #0a0a0a !important; font-weight: 600 !important; }
+        #wallet-screen .wallet-row .btn-secondary { background: #fff !important; color: #1c1c1e !important; border: 1px solid #e2e2e6 !important; }
+        .wallet-mini-row { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+        .wallet-reset-link {
+            border: none;
+            background: none;
+            color: #9a9a9f;
+            font-size: calc(var(--app-fs, 1) * 11.5px);
+            padding: 4px 2px;
+            cursor: pointer;
+        }
+        .wallet-tx { margin-top: 20px; }
+        .wallet-tx .offline-memory-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: calc(var(--app-fs, 1) * 11px);
+            letter-spacing: .14em;
+            color: #8e8e94;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
         .wallet-tx .tx-item {
             display: flex;
-            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
             background: #fff;
-            border: 1px solid #eee;
-            border-radius: 10px;
-            padding: 12px;
+            border: 1px solid #f0f0f2;
+            border-radius: 14px;
+            padding: 12px 14px;
             margin-bottom: 8px;
-            font-size: calc(var(--app-fs, 1) * 13px);
         }
-
+        .tx-ic {
+            width: 34px; height: 34px;
+            flex: 0 0 auto;
+            border-radius: 11px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: calc(var(--app-fs, 1) * 14px);
+            background: #f3f3f5;
+            color: #4a4a4d;
+        }
+        .tx-ic.in { background: #eef6ee; color: #2f8a4f; }
+        .tx-ic.out { background: #fdf0f0; color: #c5504c; }
+        .tx-body { flex: 1; min-width: 0; }
+        .tx-title { font-size: calc(var(--app-fs, 1) * 13px); color: #17171a; font-weight: 600; }
+        .tx-time { font-size: calc(var(--app-fs, 1) * 10.5px); color: #a0a0a5; margin-top: 3px; }
         .wallet-tx .tx-amt {
-            font-weight: 600;
-            color: var(--primary-color);
+            font-size: calc(var(--app-fs, 1) * 14px);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
         }
+        .tx-amt.in { color: #2f8a4f; }
+        .tx-amt.out { color: #c5504c; }
 
         /* ===== 档案APP ===== */
         .archive-list {
@@ -8689,6 +8805,51 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         font-size:calc(var(--app-fs,1) * 11px);
         cursor:pointer;
       }
+      /* ===== 角色主页 ===== */
+      #char-profile-screen.profile-threads-screen { background:#ffffff; }
+      #char-profile-screen .content.profile-threads-content {
+        padding: 0 0 calc(112px + env(safe-area-inset-bottom, 0px)) !important;
+        background:#ffffff;
+      }
+      .cf-cover-cap {
+        pointer-events:none;
+        left: auto !important;
+        right: 16px;
+        bottom: auto !important;
+        top: calc(env(safe-area-inset-top, 0px) + 58px);
+        padding: 5px 12px !important;
+        background: rgba(0,0,0,.34) !important;
+        border-radius: 999px;
+        backdrop-filter: blur(6px);
+      }
+      .cf-cover-cap span {
+        font-size: calc(var(--app-fs,1) * 10px);
+        letter-spacing:.18em;
+        color:#fff;
+        opacity:.86;
+      }
+      .cf-mask-block {
+        margin: 18px auto 6px;
+        padding: 14px 16px;
+        max-width: 560px;
+        border: 1px solid #ececec;
+        border-radius: 16px;
+        background: #fbfbfb;
+      }
+      .cf-mask-head { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:10px; }
+      .cf-mask-title { font-size: calc(var(--app-fs,1) * 12.5px); font-weight:700; color:#0a0a0a; letter-spacing:.02em; }
+      .cf-mask-sub { font-size: calc(var(--app-fs,1) * 9.5px); letter-spacing:.16em; color:#a8a8ac; }
+      .cf-mask-chips { display:flex; flex-wrap:wrap; gap:8px; }
+      .cf-mask-chip {
+        display:inline-flex; align-items:center; gap:7px;
+        padding: 5px 11px 5px 5px;
+        background:#fff; border:1px solid #e6e6e6; border-radius:999px;
+      }
+      .cf-mask-chip img { width:20px; height:20px; border-radius:50%; object-fit:cover; background:#eee; }
+      .cf-mask-chip span { font-size: calc(var(--app-fs,1) * 11.5px); color:#1a1a1c; font-weight:600; }
+      .cf-mask-chip.cur { border-color:#0a0a0a; }
+      .cf-mask-empty { font-size: calc(var(--app-fs,1) * 11.5px); color:#96969a; line-height:1.7; }
+
       .profile-sheet-overlay {
         position:fixed; inset:0; z-index:10020;
         background:rgba(0,0,0,.28);
@@ -9538,6 +9699,48 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         </main>
     </div>
 
+    <!-- ===== 角色主页（联系人点进来，UI 与我的一样，多一块绑定的面具） ===== -->
+    <div id="char-profile-screen" class="screen screen-with-nav profile-threads-screen">
+        <main class="content profile-threads-content">
+            <section class="profile-cover" id="cf-cover">
+                <button type="button" class="profile-cover-icon profile-cover-back" id="cf-back" aria-label="返回">‹</button>
+                <div class="profile-cover-change cf-cover-cap">
+                    <span id="cf-cover-tag">CHARACTER / 404</span>
+                </div>
+            </section>
+            <div class="profile-main">
+                <div class="profile-avatar-wrap">
+                    <img id="cf-avatar" class="profile-avatar" src="https://i.postimg.cc/Y96LPskq/o-o-2.jpg" alt="头像">
+                </div>
+                <h1 class="profile-name" id="cf-name">角色</h1>
+                <div class="profile-handle" id="cf-handle">@404 / TA</div>
+                <div class="profile-bio" id="cf-bio"></div>
+                <div class="profile-stats">
+                    <span><b id="cf-stat-posts">0</b><em>动态</em></span>
+                    <span><b id="cf-stat-chat">0</b><em>对话</em></span>
+                    <span><b id="cf-stat-masks">0</b><em>面具</em></span>
+                </div>
+                <div class="profile-actions">
+                    <button type="button" class="profile-btn profile-btn-primary" id="cf-msg-btn">发消息</button>
+                    <button type="button" class="profile-btn profile-btn-ghost" id="cf-bind-btn">绑定面具</button>
+                </div>
+                <div class="cf-mask-block">
+                    <div class="cf-mask-head">
+                        <span class="cf-mask-title">绑定了哪些面具</span>
+                        <span class="cf-mask-sub" id="cf-mask-sub">MASK BINDINGS</span>
+                    </div>
+                    <div class="cf-mask-chips" id="cf-mask-chips"></div>
+                </div>
+                <div class="profile-tabs" id="cf-tabs">
+                    <button type="button" class="profile-tab active" data-cftab="posts">动态</button>
+                    <button type="button" class="profile-tab" data-cftab="replies">回复</button>
+                    <button type="button" class="profile-tab" data-cftab="reposts">转发</button>
+                </div>
+                <div class="profile-feed-list" id="cf-feed-list"></div>
+            </div>
+        </main>
+    </div>
+
     <!-- ===== 用户面具 ===== -->
     <div id="mask-screen" class="screen">
         <header class="app-header">
@@ -9563,19 +9766,37 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <div class="placeholder"></div>
         </header>
         <main class="content">
-            <div class="wallet-balance-card">
-                <div class="w-label">我的余额（元）</div>
-                <div class="w-amount" id="wallet-balance">0.00</div>
-            </div>
-            <div class="wallet-row" style="gap:8px; flex-wrap:wrap;">
-                <input type="number" id="wallet-amount-input" min="1" max="99999" placeholder="金额" style="width:90px; padding:10px 12px; border:1px solid #e4e4e7; border-radius:12px; font-size:14px;">
-                <button type="button" class="btn btn-primary" id="wallet-recharge-btn" style="flex-grow:1;">充值</button>
-                <button type="button" class="btn btn-secondary" id="wallet-recharge100-btn">+100</button>
-                <button type="button" class="btn btn-secondary" id="wallet-reset-btn">重置余额</button>
-            </div>
-            <div class="wallet-tx">
-                <div class="offline-memory-title">转账记录</div>
-                <div id="wallet-tx-list"></div>
+            <div class="wallet-shell">
+                <div class="wallet-balance-card">
+                    <div class="w-top">
+                        <span class="w-label">我的余额</span>
+                        <span class="w-badge">404 WALLET</span>
+                    </div>
+                    <div class="w-amount"><span class="w-cur">¥</span><span id="wallet-balance">0.00</span></div>
+                    <div class="w-note">余额可用于角色转账、外卖代付与礼物</div>
+                </div>
+                <div class="wallet-quick">
+                    <button type="button" class="wq" data-wamt="10">¥10</button>
+                    <button type="button" class="wq" data-wamt="50">¥50</button>
+                    <button type="button" class="wq" data-wamt="100">¥100</button>
+                    <button type="button" class="wq" data-wamt="500">¥500</button>
+                </div>
+                <div class="wallet-recharge-box">
+                    <div class="wr-label">充值金额</div>
+                    <div class="wallet-row">
+                        <input type="number" id="wallet-amount-input" min="1" max="99999" placeholder="输入金额">
+                        <button type="button" class="btn btn-primary" id="wallet-recharge-btn">充值</button>
+                        <button type="button" class="btn btn-secondary" id="wallet-recharge100-btn">+100</button>
+                    </div>
+                    <div class="wallet-mini-row">
+                        <span style="font-size:calc(var(--app-fs,1) * 10.5px);color:#a6a6ab;">仅本地记账，不涉及真实支付</span>
+                        <button type="button" class="wallet-reset-link" id="wallet-reset-btn">重置余额</button>
+                    </div>
+                </div>
+                <div class="wallet-tx">
+                    <div class="offline-memory-title"><span>转账记录</span><span id="wallet-tx-count">0</span></div>
+                    <div id="wallet-tx-list"></div>
+                </div>
             </div>
         </main>
     </div>
@@ -10452,7 +10673,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.3.7";
+  const APP_VERSION = "v5.4.0";
   let db = {
     characters: [],
     groups: [],
@@ -10910,6 +11131,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (targetId === "chat-room-screen") updateCoupleInviteBanner();
     if (targetId === "offline-settings-screen") loadOfflineSettingsView();
     if (targetId === "profile-screen") renderProfile();
+    if (targetId === "char-profile-screen") renderCharProfile();
     if (targetId === "mask-screen") renderMaskGrid();
     if (targetId === "dynamic-screen") renderFeeds();
     if (targetId === "contacts-screen") renderContactList();
@@ -11633,7 +11855,11 @@ document.addEventListener("DOMContentLoaded", () => {
         try { item.action(); } finally { removeContextMenu(); }
       };
       menuItem.addEventListener("click", fire);
-      menuItem.addEventListener("pointerup", fire);
+      menuItem.addEventListener("pointerup", (ev) => {
+        /* 长按松手的手势会落在刚弹出的菜单上，忽略开头 380ms 内的 pointerup，避免秒关/误触 */
+        if (Date.now() - (window.__contextMenuOpenedAt || 0) < 380) return;
+        fire(ev);
+      });
       menu.appendChild(menuItem);
     });
     __ctxMenuEl = menu;
@@ -11843,6 +12069,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dismissSplash();
     await new Promise((resolve) => setTimeout(resolve, 340));
     await loadData();
+    try { migrateMaskScope(); } catch (err) { console.warn("面具迁移失败", err); }
     document.body.addEventListener("click", (e) => {
       if (e.target.closest(".context-menu")) {
         e.stopPropagation();
@@ -12340,7 +12567,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.3.7</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.4.0</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12374,7 +12601,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.3.7<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.4.0<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -13239,10 +13466,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!pinnedUl || !normalUl) return;
     pinnedUl.innerHTML = "";
     normalUl.innerHTML = "";
-    const allChats = [...db.characters.map((c) => ({ ...c, type: "private" })), ...db.groups.map((g) => ({
+    let allChats = [...db.characters.map((c) => ({ ...c, type: "private" })), ...db.groups.map((g) => ({
       ...g,
       type: "group"
     }))];
+    const __homeMask = getCurrentMask();
+    if (__homeMask) allChats = allChats.filter((chat) => (chat.maskIds || []).includes(__homeMask.id));
     noChatsPlaceholder.style.display = allChats.length === 0 ? "block" : "none";
     const sortedChats = allChats.sort((a, b) => {
       if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
@@ -13257,6 +13486,7 @@ document.addEventListener("DOMContentLoaded", () => {
       edLabel.textContent = "CONVERSATIONS / " + MON[now.getMonth()] + " " + String(now.getDate()).padStart(2, "0");
     }
     sortedChats.forEach((chat) => {
+      chat.history = chatHistoryView(chat);
       let lastMessageText = "\u5F00\u59CB\u804A\u5929\u5427...";
       if (chat.history && chat.history.length > 0) {
         const invisibleRegex = /\[.*?(?:接收|退回).*?的转账\]|\[.*?更新状态为：.*?\]|\[.*?已接收礼物\]|\[system:.*?\]|\[.*?邀请.*?加入了群聊\]|\[.*?修改群名为：.*?\]|\[system-display:.*?\]/;
@@ -13343,9 +13573,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ul.addEventListener("click", (e) => {
       const item = e.target.closest(".ct-item");
       if (!item) return;
-      currentChatId = item.dataset.id;
-      currentChatType = "private";
-      openChatRoom(currentChatId, currentChatType);
+      /* 先进角色主页，主页里点「发消息」才进聊天 */
+      openCharProfile(item.dataset.id);
     });
     const inp = document.getElementById("ct-search-input");
     if (inp) inp.addEventListener("input", ctApplySearch);
@@ -13368,7 +13597,8 @@ document.addEventListener("DOMContentLoaded", () => {
     chars.forEach((c, i) => {
       const name = c.remarkName || c.realName || "未命名";
       const n = (c.history || []).length;
-      const meta = (c.status || "角色") + " · " + (n ? n + " 条记录" : "还没有对话");
+      const _maskNames = (db.masks || []).filter((m) => (c.maskIds || []).includes(m.id)).map((m) => m.name);
+      const meta = (c.status || "角色") + " · " + (n ? n + " 条记录" : "还没有对话") + " · " + (_maskNames.length ? "面具 " + _maskNames.join(" / ") : "未绑定面具");
       const li = document.createElement("li");
       li.className = "ct-item";
       li.dataset.id = c.id;
@@ -13381,6 +13611,208 @@ document.addEventListener("DOMContentLoaded", () => {
     ctApplySearch();
   }
   window.renderContactList = renderContactList;
+
+  /* ===== 角色主页：联系人 → 角色主页 → 发消息 ===== */
+  let cfCharId = null;
+  let cfTab = "posts";
+  let cfUIReady = false;
+  function cfCharNow() {
+    return (db.characters || []).find((c) => c.id === cfCharId) || null;
+  }
+  function cfMaskList(char) {
+    const ids = (char && char.maskIds) || [];
+    return (db.masks || []).filter((m) => ids.indexOf(m.id) >= 0);
+  }
+  function openCharProfile(id) {
+    cfCharId = id;
+    cfTab = "posts";
+    cfSetupUI();
+    renderCharProfile();
+    switchScreen("char-profile-screen");
+  }
+  window.openCharProfile = openCharProfile;
+  function cfSetupUI() {
+    if (cfUIReady) return;
+    const back = document.getElementById("cf-back");
+    if (back) back.addEventListener("click", () => switchScreen("contacts-screen"));
+    const msgBtn = document.getElementById("cf-msg-btn");
+    if (msgBtn) msgBtn.addEventListener("click", () => {
+      const char = cfCharNow();
+      if (!char) return;
+      currentChatId = char.id;
+      currentChatType = "private";
+      openChatRoom(char.id, "private");
+    });
+    const bindBtn = document.getElementById("cf-bind-btn");
+    if (bindBtn) bindBtn.addEventListener("click", () => {
+      const char = cfCharNow();
+      if (char) openCharMaskPicker(char);
+    });
+    const tabs = document.getElementById("cf-tabs");
+    if (tabs) tabs.addEventListener("click", (e) => {
+      const btn = e.target.closest(".profile-tab");
+      if (!btn) return;
+      cfTab = btn.dataset.cftab || "posts";
+      tabs.querySelectorAll(".profile-tab").forEach((t) => t.classList.toggle("active", t === btn));
+      cfRenderFeed();
+    });
+    const list = document.getElementById("cf-feed-list");
+    if (list) list.addEventListener("click", (e) => {
+      const art = e.target.closest("[data-profile-open-feed]");
+      if (art && typeof openFeedDetail === "function") {
+        openFeedDetail(art.dataset.profileOpenFeed);
+      }
+    });
+    cfUIReady = true;
+  }
+  function openCharMaskPicker(char) {
+    const ov = document.createElement("div");
+    ov.className = "modal-overlay visible";
+    ov.style.cssText = "position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.34);padding:22px;";
+    const rows = (db.masks || []).map((m) => {
+      const on = (char.maskIds || []).indexOf(m.id) >= 0;
+      return '<label style="display:flex;align-items:center;gap:10px;padding:10px 2px;border-bottom:1px solid #f2f2f2;cursor:pointer;">'
+        + '<input type="checkbox" value="' + escapeHtml(m.id) + '" ' + (on ? "checked" : "") + ' style="width:17px;height:17px;">'
+        + '<img src="' + escapeHtml(m.avatar || "") + '" style="width:28px;height:28px;border-radius:50%;object-fit:cover;background:#eee;">'
+        + '<span style="font-size:13.5px;color:#1a1a1c;">' + escapeHtml(m.name || "未命名") + '</span>'
+        + (m.id === db.activeMaskId ? '<span style="font-size:10px;color:#9a9a9e;margin-left:auto;">使用中</span>' : "")
+        + '</label>';
+    }).join("");
+    ov.innerHTML = '<div style="width:100%;max-width:360px;background:#fff;border-radius:18px;padding:18px 18px 14px;box-shadow:0 18px 50px rgba(0,0,0,.18);">'
+      + '<div style="font-size:15px;font-weight:700;color:#0a0a0a;margin-bottom:4px;">绑定面具</div>'
+      + '<div style="font-size:11.5px;color:#8e8e93;margin-bottom:10px;line-height:1.6;">勾选后，这个角色会出现在对应面具的主页消息列表里。</div>'
+      + '<div id="cf-mask-pick-rows" style="max-height:46vh;overflow:auto;">' + (rows || '<div style="font-size:12px;color:#96969a;padding:14px 0;">还没有面具，先去「我的」里创建一个。</div>') + '</div>'
+      + '<div style="display:flex;gap:10px;margin-top:16px;">'
+      + '<button type="button" id="cf-mask-pick-cancel" style="flex:1;height:42px;border-radius:12px;border:1px solid #e2e2e2;background:#fff;color:#3a3a3c;font-size:13.5px;">取消</button>'
+      + '<button type="button" id="cf-mask-pick-save" style="flex:1.4;height:42px;border-radius:12px;border:none;background:#0a0a0a;color:#fff;font-size:13.5px;font-weight:600;">保存</button>'
+      + '</div></div>';
+    document.body.appendChild(ov);
+    const close = () => { if (ov.parentNode) ov.parentNode.removeChild(ov); };
+    ov.addEventListener("click", (e) => { if (e.target === ov) close(); });
+    ov.querySelector("#cf-mask-pick-cancel").addEventListener("click", close);
+    ov.querySelector("#cf-mask-pick-save").addEventListener("click", async () => {
+      const ids = [...ov.querySelectorAll("#cf-mask-pick-rows input[type=checkbox]")].filter((i) => i.checked).map((i) => i.value);
+      char.maskIds = ids;
+      await saveData();
+      close();
+      renderCharProfile();
+      renderContactList();
+      renderChatList();
+      showToast("面具绑定已更新");
+    });
+  }
+  function renderCharProfile() {
+    const char = cfCharNow();
+    if (!char) return;
+    cfSetupUI();
+    const name = char.remarkName || char.realName || "未命名";
+    const avatarEl = document.getElementById("cf-avatar");
+    if (avatarEl) avatarEl.src = char.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
+    const coverEl = document.getElementById("cf-cover");
+    if (coverEl) {
+      const cover = char.cover || char.chatBg || PROFILE_DEFAULT_COVER;
+      coverEl.style.backgroundImage = 'url("' + String(cover).replace(/"/g, "%22") + '")';
+    }
+    const tagEl = document.getElementById("cf-cover-tag");
+    if (tagEl) tagEl.textContent = "CHARACTER / " + ((char.status || "404").toUpperCase());
+    const nameEl = document.getElementById("cf-name");
+    if (nameEl) nameEl.textContent = name;
+    const handleEl = document.getElementById("cf-handle");
+    if (handleEl) handleEl.textContent = "@404 / " + (char.realName || name) + (char.status ? " · " + char.status : "");
+    const bioEl = document.getElementById("cf-bio");
+    if (bioEl) bioEl.textContent = (char.persona || "").trim() || "还没有写下这个人的样子。";
+    const postList = (db.feeds || []).filter((f) => f && f.authorType === "char" && f.authorId === char.id);
+    const chatCount = chatHistoryView(char).filter((m) => m && m.role !== "system" && m.type !== "system_note").length;
+    const masks = cfMaskList(char);
+    const pEl = document.getElementById("cf-stat-posts");
+    if (pEl) pEl.textContent = postList.length;
+    const cEl = document.getElementById("cf-stat-chat");
+    if (cEl) cEl.textContent = chatCount;
+    const mEl = document.getElementById("cf-stat-masks");
+    if (mEl) mEl.textContent = masks.length;
+    const chips = document.getElementById("cf-mask-chips");
+    if (chips) {
+      if (!masks.length) {
+        chips.innerHTML = '<div class="cf-mask-empty">还没有绑定面具。绑定后，这个角色才会出现在对应面具的主页消息列表里。</div>';
+      } else {
+        chips.innerHTML = masks.map((m) => '<span class="cf-mask-chip' + (m.id === db.activeMaskId ? " cur" : "") + '">'
+          + '<img src="' + escapeHtml(m.avatar || "") + '" alt="">'
+          + '<span>' + escapeHtml(m.name || "未命名") + '</span></span>').join("");
+      }
+    }
+    const subEl = document.getElementById("cf-mask-sub");
+    if (subEl) subEl.textContent = masks.length ? "MASK BINDINGS / " + String(masks.length).padStart(2, "0") : "MASK BINDINGS";
+    const tabs = document.getElementById("cf-tabs");
+    if (tabs) tabs.querySelectorAll(".profile-tab").forEach((t) => t.classList.toggle("active", (t.dataset.cftab || "posts") === cfTab));
+    cfRenderFeed();
+  }
+  window.renderCharProfile = renderCharProfile;
+  function cfRenderFeed() {
+    const char = cfCharNow();
+    const list = document.getElementById("cf-feed-list");
+    if (!list) return;
+    if (!char) { list.innerHTML = ""; return; }
+    const esc = (v) => escapeHtml(String(v == null ? "" : v));
+    const mine = (db.feeds || []).filter((f) => f && f.authorType === "char" && f.authorId === char.id).sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    const postHtml = (f, i, kind) => {
+      const time = f.ts ? feedTimeText(f.ts) : "";
+      const content = f.content ? '<div class="profile-post-text">' + esc(f.content).replace(/\n/g, "<br>") + '</div>' : "";
+      const image = f.image ? '<img class="profile-post-image" src="' + esc(f.image) + '" alt="">' : "";
+      const likes = (f.likes || []).length;
+      const comments = (f.comments || []).length;
+      return '<article class="profile-post" data-profile-open-feed="' + esc(f.id) + '">'
+        + '<img class="profile-post-avatar" src="' + esc(f.authorAvatar || char.avatar || "") + '" alt="">'
+        + '<div class="profile-post-body">'
+        + '<div class="profile-post-head"><span class="profile-post-name">' + esc(f.authorName || char.realName || "") + '</span>'
+        + '<span class="profile-post-time">' + esc(time) + '</span>'
+        + '<span class="profile-post-kind">' + (kind || "THREAD / " + String(i + 1).padStart(2, "0")) + '</span></div>'
+        + content + image
+        + '<div class="profile-post-actions"><span><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>' + likes + '</span>'
+        + '<span><svg viewBox="0 0 24 24"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 20l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>' + comments + '</span>'
+        + '</div></div></article>';
+    };
+    if (cfTab === "posts") {
+      if (!mine.length) {
+        list.innerHTML = '<div class="profile-empty"><b>TA 还没发过动态</b><span>TA 发的动态会出现在这里。</span></div>';
+        return;
+      }
+      list.innerHTML = mine.slice(0, 20).map((f, i) => postHtml(f, i)).join("");
+      return;
+    }
+    if (cfTab === "replies") {
+      const rows = [];
+      (db.feeds || []).forEach((f) => {
+        (f.comments || []).forEach((c) => {
+          if (c.authorType === "char" && (c.authorId === char.id || c.authorName === (char.remarkName || char.realName))) rows.push({ c: c, f: f });
+        });
+      });
+      rows.sort((a, b) => (b.c.ts || 0) - (a.c.ts || 0));
+      if (!rows.length) {
+        list.innerHTML = '<div class="profile-empty"><b>还没有回复过别人</b><span>TA 在动态下的回复会出现在这里。</span></div>';
+        return;
+      }
+      list.innerHTML = rows.slice(0, 20).map(({ c, f }) => {
+        const context = "回复 @" + (f.authorName || "动态");
+        const parent = String(f.content || "").slice(0, 42);
+        return '<article class="profile-post">'
+          + '<img class="profile-post-avatar" src="' + esc(char.avatar || "") + '" alt="">'
+          + '<div class="profile-post-body">'
+          + '<div class="profile-post-head"><span class="profile-post-name">' + esc(c.authorName || char.realName || "") + '</span>'
+          + '<span class="profile-post-time">' + esc(feedTimeText(c.ts)) + '</span>'
+          + '<span class="profile-post-kind">REPLY</span></div>'
+          + '<div class="profile-reply-context">' + esc(context) + ' · ' + esc(parent) + '</div>'
+          + '<div class="profile-post-text">' + esc(c.content || "").replace(/\n/g, "<br>") + '</div>'
+          + '</div></article>';
+      }).join("");
+      return;
+    }
+    const reps = mine.filter((f) => /^\s*转发\s*@/.test(String(f.content || "")));
+    if (!reps.length) {
+      list.innerHTML = '<div class="profile-empty"><b>还没有转发过动态</b><span>TA 转发的动态会出现在这里。</span></div>';
+      return;
+    }
+    list.innerHTML = reps.slice(0, 20).map((f, i) => postHtml(f, i, "REPOST")).join("");
+  }
   function setupAddCharModal() {
     addCharForm.addEventListener("submit", async (e) => {
       e.preventDefault();
@@ -13536,7 +13968,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (longPressStartX != null && !longPressFired) {
         const t = ptrT(e);
         const ldx = t.clientX - longPressStartX, ldy = t.clientY - longPressStartY;
-        if (Math.sqrt(ldx * ldx + ldy * ldy) > 10) {
+        if (Math.sqrt(ldx * ldx + ldy * ldy) > 28) {
           clearTimeout(longPressTimer);
           longPressStartX = null;
           longPressStartY = null;
@@ -13553,6 +13985,18 @@ document.addEventListener("DOMContentLoaded", () => {
       longPressStartY = null;
       longPressFired = false;
     });
+    /* 滑到顶自动补更早消息，避免"滑不动"的感觉 */
+    let loadMoreBusy = false;
+    messageArea.addEventListener("scroll", () => {
+      if (loadMoreBusy || messageArea.scrollTop > 36) return;
+      const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
+      if (!chat) return;
+      const total = chatHistoryView(chat).length;
+      if (total <= currentPage * MESSAGES_PER_PAGE) return;
+      loadMoreBusy = true;
+      loadMoreMessages();
+      setTimeout(() => { loadMoreBusy = false; }, 260);
+    }, { passive: true });
     saveEditBtn.addEventListener("click", saveMessageEdit);
     cancelEditBtn.addEventListener("click", cancelMessageEdit);
     cancelMultiSelectBtn.addEventListener("click", exitMultiSelectMode);
@@ -13623,9 +14067,25 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isInMultiSelectMode) return;
     clearTimeout(longPressTimer);
     const messageId = messageWrapper.dataset.id;
-    const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
-    const message = chat.history.find((m) => sameMsgId(m.id, messageId));
-    if (!message) return;
+    let chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
+    if (!chat && messageWrapper.dataset.chatId) {
+      chat = db.characters.find((c) => c.id === messageWrapper.dataset.chatId) || db.groups.find((g) => g.id === messageWrapper.dataset.chatId);
+    }
+    if (!chat || !Array.isArray(chat.history)) {
+      showToast("菜单打不开：没找到当前会话");
+      return;
+    }
+    let message = chat.history.find((m) => sameMsgId(m.id, messageId));
+    if (!message) {
+      for (const c of [...(db.characters || []), ...(db.groups || [])]) {
+        const hit = (c.history || []).find((m) => sameMsgId(m.id, messageId));
+        if (hit) { message = hit; chat = c; break; }
+      }
+    }
+    if (!message) {
+      showToast("菜单打不开：这条消息已不在记录里");
+      return;
+    }
     const isImageRecognitionMsg = message.parts && message.parts.some((p) => p.type === "image");
     const isVoiceMessage = /\[.*?的语音：.*?\]/.test(message.content);
     const isStickerMessage = /\[.*?的表情包：.*?\]|\[.*?发送的表情包：.*?\]/.test(message.content);
@@ -13811,11 +14271,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
     if (!chat || !chat.history) return;
     const oldScrollHeight = messageArea.scrollHeight;
-    const totalMessages = chat.history.length;
+    const __view = chatHistoryView(chat);
+    const totalMessages = __view.length;
     try { messageArea.setAttribute("data-conversation", "01—" + pad(totalMessages)); } catch (e) {}
     const end = totalMessages - (currentPage - 1) * MESSAGES_PER_PAGE;
     const start = Math.max(0, end - MESSAGES_PER_PAGE);
-    const messagesToRender = chat.history.slice(start, end);
+    const messagesToRender = __view.slice(start, end);
     if (!isLoadMore) messageArea.innerHTML = "";
     const fragment = document.createDocumentFragment();
     let lastDateKey = null;
@@ -13966,6 +14427,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     const wrapper = document.createElement("div");
     wrapper.dataset.id = id;
+    if (currentChatId) wrapper.dataset.chatId = String(currentChatId);
     if (timeSkipMatch || inviteMatch || renameMatch) {
       wrapper.className = "message-wrapper system-notification";
       let bubbleText = "";
@@ -14062,10 +14524,15 @@ document.addEventListener("DOMContentLoaded", () => {
         stickerSrc = stickerData;
       } else {
         const rawPath = receivedStickerMatch[1].trim();
-        const pathExtractionRegex = /[a-zA-Z0-9]+\/.*$/;
-        const extractedPathMatch = rawPath.match(pathExtractionRegex);
-        const finalPath = extractedPathMatch ? extractedPathMatch[0] : rawPath;
-        stickerSrc = "https://i.postimg.cc/".concat(finalPath);
+        const uploadedSticker = (db.myStickers || []).find((st) => st.name === rawPath || st.id === rawPath);
+        if (uploadedSticker) {
+          stickerSrc = uploadedSticker.data;
+        } else {
+          const pathExtractionRegex = /[a-zA-Z0-9]+\/.*$/;
+          const extractedPathMatch = rawPath.match(pathExtractionRegex);
+          const finalPath = extractedPathMatch ? extractedPathMatch[0] : rawPath;
+          stickerSrc = "https://i.postimg.cc/".concat(finalPath);
+        }
       }
       bubbleElement.innerHTML = '<img src="'.concat(stickerSrc, '" alt="\u8868\u60C5\u5305">');
     } else if (pddCardMatch) {
@@ -14533,7 +15000,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (chat.blockedByChar) {
       message.blockedByChar = true;
     }
-    chat.history.push(message);
+    chat.history.push(stampMask(message, chat));
     try { TimeSense.recordCommitments(chat, text, message.timestamp, "user"); } catch (e) {}
     addMessageBubble(message);
     await saveData();
@@ -14555,7 +15022,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentChatType === "group") {
       message.senderId = "user_me";
     }
-    chat.history.push(message);
+    chat.history.push(stampMask(message, chat));
     addMessageBubble(message);
     await saveData();
     renderChatList();
@@ -14564,18 +15031,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
     const myName = currentChatType === "private" ? chat.myName : chat.me.nickname;
     const messageContentForAI = "[".concat(myName, "\u7684\u8868\u60C5\u5305\uFF1A").concat(sticker.name, "]");
+    const stickerParts = [{ type: "text", text: messageContentForAI }];
+    if (sticker.data) stickerParts.push({ type: "image", data: sticker.data });
     const message = {
       id: "msg_".concat(Date.now()),
       role: "user",
       content: messageContentForAI,
-      parts: [{ type: "text", text: messageContentForAI }],
+      parts: stickerParts,
       timestamp: Date.now(),
       stickerData: sticker.data
     };
     if (currentChatType === "group") {
       message.senderId = "user_me";
     }
-    chat.history.push(message);
+    chat.history.push(stampMask(message, chat));
     addMessageBubble(message);
     await saveData();
     renderChatList();
@@ -14596,7 +15065,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentChatType === "group") {
       message.senderId = "user_me";
     }
-    chat.history.push(message);
+    chat.history.push(stampMask(message, chat));
     addMessageBubble(message);
     await saveData();
     renderChatList();
@@ -14617,7 +15086,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentChatType === "group") {
       message.senderId = "user_me";
     }
-    chat.history.push(message);
+    chat.history.push(stampMask(message, chat));
     addMessageBubble(message);
     await saveData();
     renderChatList();
@@ -14635,7 +15104,7 @@ document.addEventListener("DOMContentLoaded", () => {
         timestamp: Date.now(),
         transferStatus: "pending"
       };
-      chat.history.push(message);
+      chat.history.push(stampMask(message, chat));
       addMessageBubble(message);
     } else {
       currentGroupAction.recipients.forEach((recipientId) => {
@@ -14650,7 +15119,7 @@ document.addEventListener("DOMContentLoaded", () => {
             timestamp: Date.now(),
             senderId: "user_me"
           };
-          chat.history.push(message);
+          chat.history.push(stampMask(message, chat));
           addMessageBubble(message);
         }
       });
@@ -14672,7 +15141,7 @@ document.addEventListener("DOMContentLoaded", () => {
         timestamp: Date.now(),
         giftStatus: "sent"
       };
-      chat.history.push(message);
+      chat.history.push(stampMask(message, chat));
       addMessageBubble(message);
     } else {
       currentGroupAction.recipients.forEach((recipientId) => {
@@ -14687,7 +15156,7 @@ document.addEventListener("DOMContentLoaded", () => {
             timestamp: Date.now(),
             senderId: "user_me"
           };
-          chat.history.push(message);
+          chat.history.push(stampMask(message, chat));
           addMessageBubble(message);
         }
       });
@@ -14732,7 +15201,7 @@ document.addEventListener("DOMContentLoaded", () => {
       contextMessage.senderId = "user_me";
       visualMessage.senderId = "user_me";
     }
-    chat.history.push(visualMessage, contextMessage);
+    chat.history.push(stampMask(visualMessage, chat), stampMask(contextMessage, chat));
     addMessageBubble(visualMessage);
     await saveData();
     renderChatList();
@@ -14761,7 +15230,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return results;
   }
   function getCharacterMemories(charId) {
-    const all = (db.memories || []).filter((m) => (m.charId || m.chatId) === charId);
+    const all = memView(db.memories || []).filter((m) => (m.charId || m.chatId) === charId);
     const facts = all.filter((m) => m.type !== "impression");
     const impressions = all.filter((m) => m.type === "impression");
     facts.sort((a, b) => b.createdAt - a.createdAt);
@@ -14769,7 +15238,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return [...facts.slice(0, 14), ...impressions.slice(0, 6)];
   }
   function getCharacterFacts(charId) {
-    return (db.memories || []).filter((m) => (m.charId || m.chatId) === charId && m.type !== "impression").sort((a, b) => b.createdAt - a.createdAt);
+    return memView(db.memories || []).filter((m) => (m.charId || m.chatId) === charId && m.type !== "impression").sort((a, b) => b.createdAt - a.createdAt);
   }
   function splitHistoryRounds(history, isUserFn) {
     const rounds = [];
@@ -14819,6 +15288,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!content) return;
     const fact = type !== "impression";
     db.memories.push({
+      maskId: (getCurrentMask() ? getCurrentMask().id : "") || (function () { const c = (db.characters || []).find((x) => x.id === charId); return c && c.maskIds && c.maskIds[0] ? c.maskIds[0] : ""; })(),
       id: "mem_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
       chatId: charId,
       charId,
@@ -14832,7 +15302,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function trimMemories(charId) {
     const cap = 40;
-    const mine = (db.memories || []).filter((m) => m.chatId === charId);
+    const mine = memView(db.memories || []).filter((m) => m.chatId === charId);
     const facts = mine.filter((m) => m.type === "fact" || m.protected);
     if (mine.length > cap) {
       const surplus = mine.length - Math.max(cap, facts.length);
@@ -14976,6 +15446,12 @@ document.addEventListener("DOMContentLoaded", () => {
     prompt += "4. 你可以根据氛围选择发送表情包，但不是必需功能，也不需要每次发送。格式：\n";
     prompt += "[".concat(rn, "发送的表情包：图片路径]\n");
     prompt += "路径不需要包含“https://i.postimg.cc/”，只填写后面的部分，例如“害羞vHLfrV3K/1.jpg”。\n";
+    if (db.myStickers && db.myStickers.length) {
+      const _stickNames = db.myStickers.map((st) => st.name).filter(Boolean);
+      if (_stickNames.length) {
+        prompt += "我上传的可用表情包（需要发表情时，名称必须从下面原样选取，不要编造）：".concat(_stickNames.join("、"), "。\n");
+      }
+    }
     prompt += "5. 语音、照片/视频或转发论坛帖子时使用对应格式，仅在剧情和情境适合时使用，不要为了丰富形式而强行发送：\n";
     prompt += "[".concat(rn, "的语音：语音内容]\n");
     prompt += "[".concat(rn, "发来的照片/视频：内容描述]\n");
@@ -14983,7 +15459,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     prompt += "【五、收到我的消息时】\n";
     prompt += "请理解以下特殊消息的含义，并按角色身份自然回应：\n";
-    prompt += "- [".concat(mn, "的表情包：xxx]：我发送了名为 xxx 的表情包。理解其情绪或意图即可，不需要真的发送图片。\n");
+    prompt += "- [".concat(mn, "的表情包：xxx]：我发送了名为 xxx 的表情包，表情包图片已一并附上，请看清画面后按人设自然回应。\n");
     prompt += "- [".concat(mn, "发来了一张图片：xxx]：我发送了一张图片，请根据可获得的图片内容或描述回应。\n");
     prompt += "- [".concat(mn, "的语音：xxx]：我发送了一段内容为 xxx 的语音。\n");
     prompt += "- [".concat(mn, "发来的照片/视频：xxx]：我分享了描述为 xxx 的照片或视频。\n");
@@ -15231,7 +15707,7 @@ document.addEventListener("DOMContentLoaded", () => {
           return !!(m && m.content && String(m.content).trim());
         });
       } else {
-        historySlice = chat.history.slice(-chat.maxMemory).filter(function(m) {
+        historySlice = chatHistoryView(chat).slice(-chat.maxMemory).filter(function(m) {
           if (m && m.parts && m.parts.length) return m.parts.some(function(p) { return (p.type === "text" || p.type === "html") && p.text && String(p.text).trim(); });
           return !!(m && m.content && String(m.content).trim());
         });
@@ -15854,7 +16330,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (actionParts.length && !_roomMode) {
         actionParts.forEach((a) => {
           const am = { id: "msg_" + Date.now() + "_" + Math.random(), role: "assistant", type: "action", content: a, parts: [{ type: "text", text: a }], timestamp: Date.now() };
-          chat.history.push(am); if (!skipBubbles && _isCur) addMessageBubble(am);
+          chat.history.push(stampMask(am, chat)); if (!skipBubbles && _isCur) addMessageBubble(am);
         });
       }
       fullResponse = String(fullResponse).trim();
@@ -15899,13 +16375,13 @@ document.addEventListener("DOMContentLoaded", () => {
           lastPushedMsgIds.push(message.id);
           try {
             if (_musicRoomF || _mvRoomF) {
-              chat.history.push(message);
+              chat.history.push(stampMask(message, chat));
               if (_musicRoomF) MS.roomChat.msgs.push(message);
               else { if (typeof mvClearErrors === "function") mvClearErrors(); MV.roomChat.msgs.push(message); if (typeof mvSetWaiting === "function") mvSetWaiting(false); if (typeof mvRenderChat === "function") mvRenderChat(); }
               if (!skipBubbles && _isCur) addMessageBubble(message);
-            } else { chat.history.push(message); if (!skipBubbles && _isCur) addMessageBubble(message); }
+            } else { chat.history.push(stampMask(message, chat)); if (!skipBubbles && _isCur) addMessageBubble(message); }
           } catch (e4) {
-            try { chat.history.push(message); } catch (e5) {
+            try { chat.history.push(stampMask(message, chat)); } catch (e5) {
             }
           }
         });
@@ -15934,10 +16410,10 @@ document.addEventListener("DOMContentLoaded", () => {
             if (typeof mvSetWaiting === "function") mvSetWaiting(false);
             if (typeof mvRenderChat === "function") mvRenderChat();
           }
-          chat.history.push(simpleMessage);
+          chat.history.push(stampMask(simpleMessage, chat));
           if (!skipBubbles) await addMessageBubble(simpleMessage);
         }
-        else { chat.history.push(simpleMessage); if (!skipBubbles) await addMessageBubble(simpleMessage); }
+        else { chat.history.push(stampMask(simpleMessage, chat)); if (!skipBubbles) await addMessageBubble(simpleMessage); }
       }
     }
     try {
@@ -16038,7 +16514,7 @@ document.addEventListener("DOMContentLoaded", () => {
               else if (groupSideNotes && groupSideNotes[sender.realName]) message.sideNote = groupSideNotes[sender.realName];
               else if (idx === messages.length - 1 && sideNote) message.sideNote = sideNote;
               lastPushedMsgIds.push(message.id);
-              group.history.push(message);
+              group.history.push(stampMask(message, group));
               addMessageBubble(message);
             }
           }
@@ -16060,7 +16536,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (groupSideNotes && groupSideNotes[firstMember.name || firstMember.realName]) simpleMessage.sideNote = groupSideNotes[firstMember.name || firstMember.realName];
           else if (groupSideNotes && groupSideNotes[firstMember.realName]) simpleMessage.sideNote = groupSideNotes[firstMember.realName];
           lastPushedMsgIds.push(simpleMessage.id);
-          group.history.push(simpleMessage);
+          group.history.push(stampMask(simpleMessage, group));
           await addMessageBubble(simpleMessage);
         }
       }
@@ -16393,7 +16869,7 @@ document.addEventListener("DOMContentLoaded", () => {
         parts: [{ type: "text", text: contextMessageContent }],
         timestamp: Date.now()
       };
-      character.history.push(contextMessage);
+      character.history.push(stampMask(contextMessage, character));
       await saveData();
       renderChatList();
     }
@@ -18055,7 +18531,7 @@ document.addEventListener("DOMContentLoaded", () => {
       timestamp: Date.now(),
       senderId: "user_me"
     };
-    group.history.push(message);
+    group.history.push(stampMask(message, group));
   }
   function sendRenameNotification(group, newName) {
     const myName = group.me.nickname;
@@ -18067,10 +18543,86 @@ document.addEventListener("DOMContentLoaded", () => {
       parts: [{ type: "text", text: messageContent }],
       timestamp: Date.now()
     };
-    group.history.push(message);
+    group.history.push(stampMask(message, group));
   }
   function getCurrentMask() {
     return (db.masks || []).find((m) => m.id === db.activeMaskId) || null;
+  }
+  /* 旧数据一次性归位：聊天记录归到该角色最早绑定的面具（当时聊天的那个） */
+  function migrateMaskScope() {
+    let changed = false;
+    const _chars = [...(db.characters || []), ...(db.groups || [])];
+    _chars.forEach((c) => {
+      const owner = (c.maskIds && c.maskIds[0]) || "";
+      (c.history || []).forEach((m) => {
+        if (m && typeof m.maskId !== "string") { m.maskId = owner; changed = true; }
+      });
+    });
+    (db.memories || []).forEach((m) => {
+      if (m && typeof m.maskId !== "string") { m.maskId = memMaskKey(m); changed = true; }
+    });
+    const _feedOwner = db.activeMaskId || "";
+    (db.feeds || []).forEach((f) => {
+      if (f && f.authorType === "user" && typeof f.maskId !== "string") { f.maskId = _feedOwner; changed = true; }
+    });
+    try {
+      ((db.forum && db.forum.posts) || []).forEach((f) => {
+        if (f && f.authorType === "user" && typeof f.maskId !== "string") { f.maskId = _feedOwner; changed = true; }
+      });
+    } catch (e) {}
+    if (changed) saveData();
+  }
+  /* ===== 面具数据隔离：聊天记录 / 记忆 / 动态按面具各存各的 ===== */
+  function curMaskKey() {
+    const _m = getCurrentMask();
+    return _m ? _m.id : "";
+  }
+  function chatMaskKey(chat) {
+    const _m = getCurrentMask();
+    if (_m) return _m.id;
+    return (chat && chat.maskIds && chat.maskIds[0]) || "";
+  }
+  function msgMaskKey(chat, msg) {
+    if (msg && typeof msg.maskId === "string") return msg.maskId;
+    /* 旧记录：归到该角色最早绑定的面具（当时聊天用的那个），不归到公共底 */
+    if (chat && chat.maskIds && chat.maskIds.length) return chat.maskIds[0];
+    return "";
+  }
+  function stampMask(msg, chat) {
+    try {
+      if (msg && typeof msg === "object" && typeof msg.maskId !== "string") {
+        msg.maskId = (getCurrentMask() ? getCurrentMask().id : "") || (chat && chat.maskIds && chat.maskIds[0]) || "";
+      }
+    } catch (e) {}
+    return msg;
+  }
+  function chatHistoryView(chat) {
+    const hist = chat && Array.isArray(chat.history) ? chat.history : [];
+    const _m = getCurrentMask();
+    if (!_m) return hist;
+    return hist.filter((msg) => msgMaskKey(chat, msg) === _m.id);
+  }
+  window.chatHistoryView = chatHistoryView;
+  function memMaskKey(mem) {
+    if (mem && typeof mem.maskId === "string") return mem.maskId;
+    const cid = mem && (mem.charId || mem.chatId);
+    const c = cid ? (db.characters || []).find((x) => x.id === cid) : null;
+    if (c && c.maskIds && c.maskIds.length) return c.maskIds[0];
+    return "";
+  }
+  function memView(list) {
+    const _m = getCurrentMask();
+    if (!_m) return list || [];
+    return (list || []).filter((mem) => memMaskKey(mem) === _m.id);
+  }
+  function feedMaskKey(feed) {
+    if (feed && typeof feed.maskId === "string") return feed.maskId;
+    return "";
+  }
+  function feedView(list) {
+    const _m = getCurrentMask();
+    if (!_m) return list || [];
+    return (list || []).filter((f) => !f || f.authorType !== "user" || feedMaskKey(f) === _m.id);
   }
   function setupMaskSystem() {
     var _a, _b, _c, _d;
@@ -18144,6 +18696,9 @@ document.addEventListener("DOMContentLoaded", () => {
         await saveData();
         renderMaskGrid();
         renderProfile();
+        if (typeof renderChatList === "function") renderChatList();
+        if (typeof renderFeeds === "function") renderFeeds();
+        if (typeof renderContactList === "function") renderContactList();
         showToast("\u5DF2\u5207\u6362\u5230\u9762\u5177\u300C" + m.name + "\u300D");
       });
       const edit = document.createElement("span");
@@ -18407,7 +18962,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!avatarEl) return;
 
     if (avatarEl) avatarEl.src = (mask && mask.avatar) || p.avatar || "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg";
-    const displayName = p.name || (mask && mask.name) || "我";
+    const displayName = (mask && mask.name) || p.name || "我";
     if (nameEl) nameEl.textContent = displayName;
     if (handleEl) handleEl.textContent = p.handle || "@404 / ME";
     if (bioEl) bioEl.textContent = p.bio || "在 404 里，换一个名字说话。";
@@ -18415,7 +18970,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const cover = p.cover || PROFILE_DEFAULT_COVER;
       coverEl.style.backgroundImage = 'url("' + String(cover).replace(/"/g, "%22") + '")';
     }
-    const posts = (db.feeds || []).filter((f) => f && f.authorType === "user").sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    const posts = feedView(db.feeds || []).filter((f) => f && f.authorType === "user").sort((a, b) => (b.ts || 0) - (a.ts || 0));
     const statPosts = document.getElementById("profile-stat-posts");
     const statFollowing = document.getElementById("profile-stat-following");
     const statFollowers = document.getElementById("profile-stat-followers");
@@ -18435,7 +18990,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const tab = window.__profileTab || "posts";
     const mask = getCurrentMask();
     const fallbackAvatar = (mask && mask.avatar) || "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg";
-    const posts = (db.feeds || []).filter((f) => f && f.authorType === "user").sort((a, b) => (b.ts || 0) - (a.ts || 0));
+    const posts = feedView(db.feeds || []).filter((f) => f && f.authorType === "user").sort((a, b) => (b.ts || 0) - (a.ts || 0));
     const esc = (v) => escapeHtml(String(v == null ? "" : v));
     const actionSvg = (kind) => {
       if (kind === "heart") return '<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>';
@@ -18469,7 +19024,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (tab === "replies") {
       const rows = [];
-      (db.feeds || []).forEach((f) => {
+      feedView(db.feeds || []).forEach((f) => {
         (f.comments || []).forEach((c) => {
           if (c.authorType === "user" || c.authorName === "我") {
             rows.push({ c: c, f: f });
@@ -18505,6 +19060,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function setupWalletApp() {
     var _a, _b, _c;
+    document.querySelectorAll("#wallet-screen .wq").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const inp = document.getElementById("wallet-amount-input");
+        if (inp) inp.value = btn.dataset.wamt || "";
+        document.querySelectorAll("#wallet-screen .wq").forEach((b) => b.classList.toggle("on", b === btn));
+      });
+    });
     (_a = document.getElementById("wallet-recharge-btn")) == null ? void 0 : _a.addEventListener("click", async () => {
       const amt = parseInt(document.getElementById("wallet-amount-input").value) || 0;
       if (amt <= 0) {
@@ -18543,12 +19105,22 @@ document.addEventListener("DOMContentLoaded", () => {
       listEl.innerHTML = '<div class="offline-empty-hint">\u6682\u65E0\u8F6C\u8D26\u8BB0\u5F55</div>';
       return;
     }
+    const countEl = document.getElementById("wallet-tx-count");
+    if (countEl) countEl.textContent = String(tx.length).padStart(2, "0");
     tx.slice(0, 20).forEach((t) => {
       const item = document.createElement("div");
       item.className = "tx-item";
-      const sign = t.type === "in" ? "+" : "-";
-      const cls = t.type === "in" ? "tx-amt" : "tx-amt";
-      item.innerHTML = "<span>".concat(escapeHtml(t.label), '</span><span class="').concat(cls, '">').concat(sign).concat(Number(t.amount).toFixed(2), "</span>");
+      const isIn = t.type === "in";
+      const cls = isIn ? "in" : "out";
+      const d = t.ts ? new Date(t.ts) : null;
+      const timeText = d && !isNaN(d.getTime())
+        ? "".concat(d.getFullYear(), "/").concat(pad(d.getMonth() + 1), "/").concat(pad(d.getDate()), "  ").concat(pad(d.getHours()), ":").concat(pad(d.getMinutes()))
+        : "";
+      const icon = isIn ? "+" : "−";
+      item.innerHTML = '<div class="tx-ic '.concat(cls, '">').concat(icon, '</div>')
+        + '<div class="tx-body"><div class="tx-title">'.concat(escapeHtml(t.label || (isIn ? "充值" : "支出")), '</div>')
+        + (timeText ? '<div class="tx-time">'.concat(timeText, "</div>") : "")
+        + '</div><div class="tx-amt '.concat(cls, '">').concat(isIn ? "+" : "-").concat(Number(t.amount || 0).toFixed(2), "</div>");
       listEl.appendChild(item);
     });
   }
@@ -18843,7 +19415,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       const endMsg = { id: "call_end_" + Date.now(), role: "system", type: "call_end", content: "\u901A\u8BDD\u5DF2\u7ED3\u675F \xB7 \u65F6\u957F ".concat(durText), createdAt: Date.now() };
-      chat.history.push(endMsg);
+      chat.history.push(stampMask(endMsg, chat));
       await saveData();
       switchScreen("chat-room-screen");
       renderMessages(false, true);
@@ -19627,6 +20199,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const mask = getCurrentMask();
       db.feeds.unshift({
         id: "feed_" + Date.now(),
+        maskId: (getCurrentMask() ? getCurrentMask().id : ""),
         authorType: "user",
         authorId: "user",
         authorName: mask ? mask.name : "\u6211",
@@ -19775,7 +20348,7 @@ document.addEventListener("DOMContentLoaded", () => {
       b.classList.toggle("on", (b.dataset.feedTab || "all") === tab);
     });
     const today = new Date();
-    const todayCount = db.feeds.filter((f) => {
+    const todayCount = feedView(db.feeds).filter((f) => {
       const d = new Date(f.ts);
       return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth() && d.getDate() === today.getDate();
     }).length;
@@ -19783,7 +20356,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (todayEl) todayEl.textContent = todayCount ? "01—" + String(todayCount).padStart(2, "0") : "00";
 
     container.innerHTML = "";
-    let feeds = [...db.feeds].sort((a, b) => b.ts - a.ts);
+    let feeds = [...feedView(db.feeds)].sort((a, b) => b.ts - a.ts);
     if (tab === "following") feeds = feeds.filter((f) => f.authorType === "char");
     if (query) {
       feeds = feeds.filter((f) => {
@@ -21961,7 +22534,7 @@ function setupPhoneSystem() {
     if (!container) return;
     container.innerHTML = "";
     const charIds = currentOfflineCharIds.length ? currentOfflineCharIds : currentOfflineSessionId ? [currentOfflineSessionId] : [];
-    const memories = (db.memories || []).filter((m) => charIds.includes(m.chatId));
+    const memories = memView(db.memories || []).filter((m) => charIds.includes(m.chatId));
     if (!memories.length) {
       container.innerHTML = '<div class="offline-empty-hint">\u8BB0\u5FC6\u5E93\u4E3A\u7A7A\u3002\u7EBF\u4E0B\u5BF9\u8BDD\u4F1A\u6309\u4F60\u8BBE\u5B9A\u7684\u8F6E\u6570\u81EA\u52A8\u603B\u7ED3\u5165\u8BB0\u5FC6\u5E93\uFF0C\u4E5F\u53EF\u624B\u52A8\u70B9\u51FB\u4E0A\u65B9\u6309\u94AE\u3002</div>';
       return;
@@ -22165,7 +22738,7 @@ function setupPhoneSystem() {
     tip.textContent = "\u6BCF\u4E2A\u89D2\u8272\u62E5\u6709\u72EC\u7ACB\u8BB0\u5FC6\u5E93\uFF0C\u70B9\u51FB\u89D2\u8272\u67E5\u770B\u8BB0\u5FC6";
     container.appendChild(tip);
     db.characters.forEach((c) => {
-      const mems = (db.memories || []).filter((m) => (m.charId || m.chatId) === c.id);
+      const mems = memView(db.memories || []).filter((m) => (m.charId || m.chatId) === c.id);
       const item = document.createElement("div");
       item.className = "memory-char-card";
       item.dataset.id = c.id;
@@ -22192,7 +22765,7 @@ function setupPhoneSystem() {
     const container = document.getElementById("memory-detail-container");
     if (!container) return;
     container.innerHTML = "";
-    let mems = (db.memories || []).filter((m) => (m.charId || m.chatId) === charId).sort((a, b) => b.createdAt - a.createdAt);
+    let mems = memView(db.memories || []).filter((m) => (m.charId || m.chatId) === charId).sort((a, b) => b.createdAt - a.createdAt);
     if (keyword && keyword.trim()) {
       const kw = keyword.trim().toLowerCase();
       mems = mems.filter((m) => String(m.content || "").toLowerCase().includes(kw));
@@ -22431,7 +23004,7 @@ function setupPhoneSystem() {
   function updateOfflineStatus() {
     const oc = getOfflineChat(currentChatId);
     document.getElementById("offline-round-count").textContent = oc.rounds;
-    const memCount = (db.memories || []).filter((m) => m.chatId === currentChatId).length;
+    const memCount = memView(db.memories || []).filter((m) => m.chatId === currentChatId).length;
     document.getElementById("offline-memory-count").textContent = memCount;
     const rounds = parseInt(oc.summaryRounds) || 6;
     const remain = rounds - oc.rounds % rounds;
@@ -22440,7 +23013,7 @@ function setupPhoneSystem() {
   function renderOfflineMemoryList() {
     const listEl = document.getElementById("offline-memory-list");
     listEl.innerHTML = "";
-    const memories = (db.memories || []).filter((m) => m.chatId === currentChatId).sort((a, b) => b.createdAt - a.createdAt);
+    const memories = memView(db.memories || []).filter((m) => m.chatId === currentChatId).sort((a, b) => b.createdAt - a.createdAt);
     if (memories.length === 0) {
       listEl.innerHTML = '<div class="offline-empty-hint">\u8BB0\u5FC6\u5E93\u4E3A\u7A7A\u3002\u7EBF\u4E0B\u5BF9\u8BDD\u4F1A\u6309\u4F60\u8BBE\u5B9A\u7684\u8F6E\u6570\u81EA\u52A8\u603B\u7ED3\u5165\u8BB0\u5FC6\u5E93\uFF0C\u4E5F\u53EF\u624B\u52A8\u70B9\u51FB\u4E0A\u65B9\u6309\u94AE\u3002</div>';
       return;
@@ -27466,7 +28039,7 @@ function setupPhoneSystem() {
         forumPost: { id: p.id, title: String(p.content || "").slice(0, 60), content: String(p.content || "").slice(0, 300), author: fxAuthorNameOf(p), imgs: imgsDesc.slice(0, 4) },
         timestamp: Date.now()
       };
-      char.history.push(msg);
+      char.history.push(stampMask(msg, char));
       await saveData();
       renderMessages(false, true);
       renderChatList();
@@ -27702,7 +28275,7 @@ function setupPhoneSystem() {
         parts: [{ type: "text", text: rep.trim().slice(0, 200) }],
         timestamp: Date.now()
       };
-      chat.history.push(msg);
+      chat.history.push(stampMask(msg, chat));
       await saveData();
       const chatScreenEl = document.getElementById("chat-room-screen");
       const inChat = chatScreenEl && chatScreenEl.classList.contains("active");
@@ -35399,7 +35972,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.3.7 ================= */
+/* ================= 404 桌面复刻 v5.4.0 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
