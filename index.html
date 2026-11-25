@@ -9883,16 +9883,21 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     </div>
 
     <!-- ===== 档案APP ===== -->
-    <div id="archive-screen" class="screen">
-        <header class="app-header">
+    <div id="archive-screen" class="screen o404-archive">
+        <header class="app-header o404-header">
             <button class="back-btn" data-target="home-screen">‹</button>
             <div class="title-container">
-                <h1 class="title">档案APP</h1>
+                <h1 class="title">档案</h1>
             </div>
             <button class="action-btn" id="archive-rel-btn" title="角色关系"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M12 2a5 5 0 0 0-5 5c0 1.6.76 3.02 1.94 3.94A7 7 0 0 0 4 18v2h16v-2a7 7 0 0 0-4.94-7.06A4.99 4.99 0 0 0 12 2zm0 2a3 3 0 1 1 0 6 3 3 0 0 1 0-6z"/></svg></button>
             <button class="action-btn" id="archive-add-btn">+</button>
         </header>
         <main class="content">
+            <div class="o404-archive-cover">
+                <span class="o404-label">CHARACTER ARCHIVE</span>
+                <div class="o404-script">who's in your world.</div>
+                <div class="o404-micro" id="archive-count-line">00 位角色</div>
+            </div>
             <div class="archive-list" id="archive-char-list"></div>
             <div class="offline-empty-hint" id="archive-empty-hint" style="display:none;">还没有角色档案，点击右上角"+"创建角色</div>
         </main>
@@ -10053,37 +10058,68 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         </main>
     </div>
 
-    <!-- ===== 线下APP·选择角色 ===== -->
-    <div id="offline-home-screen" class="screen">
-        <header class="app-header">
+    <!-- ===== 线下APP·404 三页 ===== -->
+    <div id="offline-home-screen" class="screen o404-home">
+        <header class="app-header o404-header">
             <button class="back-btn" data-target="home-screen">‹</button>
-            <div class="title-container">
-                <h1 class="title">线下</h1>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;">
-                <button class="action-btn" id="offline-home-preset-btn" style="font-size:14px; font-weight:600; width:auto; padding:6px 12px; border-radius:10px; background-color:#f1f2f5; color:#17171b; border:none;">预设</button>
-                <button class="action-btn" id="offline-home-settings-btn" style="font-size:14px; font-weight:600; width:auto; padding:6px 12px; border-radius:10px; background-color:var(--primary-color); color:var(--white-color);">设置</button>
+            <div class="title-container"><h1 class="title">线下</h1></div>
+            <div class="o404-head-actions">
+                <button class="o404-pill" id="offline-home-preset-btn" type="button">预设</button>
+                <button class="o404-pill o404-gear" id="offline-home-settings-btn" type="button" aria-label="设置">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                </button>
             </div>
         </header>
-        <main class="content offline-mag">
-            <div class="offline-mag-head">
-                <div class="omh-kicker">OFFLINE · SCENES</div>
-                <div class="omh-title">线下剧场</div>
-                <div class="omh-rule"><span></span></div>
-                <div class="omh-desc">每条线都是一段独立的故事，选好角色，开始见面。</div>
-            </div>
-            <button type="button" class="offline-preset-entry" id="offline-preset-entry-btn">
-                <span class="ope-ic">◇</span>
-                <span class="ope-tx"><b>线下预设</b><i>开场设定 · 开启后新开线下自动读取</i></span>
-                <span class="ope-arrow">›</span>
-            </button>
-            <div class="offline-mag-sec"><i>01</i><span>选择角色</span><em></em></div>
-            <div id="offline-char-select-list" class="offline-mag-chars"></div>
-            <div class="offline-mag-sec"><i>02</i><span>剧情线</span><em></em></div>
-            <div id="offline-lines-list"></div>
+        <main class="content o404-body">
+            <section class="o404-pane is-on" data-offline-pane="meet">
+                <div class="o404-clock-row">
+                    <div class="o404-clock" id="o404-time">20:14</div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.1.0</span></div>
+                </div>
+                <div class="o404-kicker-row">
+                    <span class="o404-label">OUR MOMENT</span>
+                    <span class="o404-label-note" id="offline-meet-note">未选角色</span>
+                </div>
+                <div id="offline-meet-stage" class="o404-meet-stage"></div>
+                <div class="o404-meet-copy">
+                    <div class="o404-script">meet me here.</div>
+                    <div class="o404-micro">OUR SCENE / 线下剧场</div>
+                    <div class="o404-desc">每条线都是一段独立的故事。选好角色，再开始见面。</div>
+                </div>
+                <div class="o404-summary" id="offline-selected-summary">已选 0 位角色 · 0 条剧情线</div>
+            </section>
+            <section class="o404-pane" data-offline-pane="role">
+                <div class="o404-clock-row">
+                    <div class="o404-clock">20:16</div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.1.0</span></div>
+                </div>
+                <div class="o404-kicker-row">
+                    <span class="o404-label">OUR CAST</span>
+                    <span class="o404-script o404-script-sm">who will you meet?</span>
+                    <span class="o404-label-note" id="offline-role-count">0 位</span>
+                </div>
+                <div id="offline-char-select-list" class="o404-cast-grid"></div>
+            </section>
+            <section class="o404-pane" data-offline-pane="story">
+                <div class="o404-clock-row">
+                    <div class="o404-clock">20:18</div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.1.0</span></div>
+                </div>
+                <div class="o404-kicker-row">
+                    <span class="o404-label">OUR STORY</span>
+                    <span class="o404-script o404-script-sm">we keep the moments.</span>
+                </div>
+                <div id="offline-lines-list"></div>
+            </section>
         </main>
-        <div class="offline-home-footer">
-            <button type="button" class="btn btn-primary" id="offline-enter-chat-btn" style="width:100%;">进入聊天</button>
+        <div class="o404-bottom">
+            <div class="o404-pager"><span id="o404-dots">● ○ ○</span><span id="o404-pager-num">1 / 3</span></div>
+            <button type="button" class="o404-cta" id="offline-enter-chat-btn">进入聊天</button>
+            <nav class="o404-dock" aria-label="线下分页">
+                <button type="button" class="o404-dock-btn is-on" data-offline-page="meet"><span class="o404-dock-ic">⌂</span><span>见面</span></button>
+                <button type="button" class="o404-dock-btn" data-offline-page="role"><span class="o404-dock-ic">♙</span><span>角色</span></button>
+                <button type="button" class="o404-dock-btn" data-offline-page="story"><span class="o404-dock-ic">▤</span><span>剧情</span></button>
+            </nav>
         </div>
     </div>
 
@@ -10156,9 +10192,9 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         </div>
     </div>
 
-    <!-- ===== 线下APP·聊天设置 ===== -->
-    <div id="offline-settings-screen" class="screen">
-        <header class="app-header">
+    <!-- ===== 线下APP·聊天设置 404 三分页 ===== -->
+    <div id="offline-settings-screen" class="screen o404-settings">
+        <header class="app-header o404-header">
             <button class="back-btn" data-target="offline-chat-screen">‹</button>
             <div class="title-container">
                 <h1 class="title">线下聊天设置</h1>
@@ -10166,6 +10202,33 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <div class="placeholder"></div>
         </header>
         <main class="content">
+            <div class="o404-tabs" id="offline-settings-tabs">
+                <button type="button" class="o404-tab is-on" data-otab="script">台本</button>
+                <button type="button" class="o404-tab" data-otab="memory">记忆</button>
+                <button type="button" class="o404-tab" data-otab="appearance">外观</button>
+            </div>
+            <div class="o404-setting-preview" data-otab-panel="script">
+                <div class="o404-micro">PREVIEW / 叙事小说体</div>
+                <div class="o404-setting-quote">她把伞往你这边偏了一点。</div>
+                <div class="o404-micro">第一人称 · 400–1200 字</div>
+            </div>
+            <div class="offline-config-card o404-force-hidden" data-otab-panel="appearance" id="offline-cover-card">
+                <div class="card-title">页面装饰</div>
+                <div class="o404-cover-slot" id="offline-cover-slot">
+                    <div class="o404-cover-empty" id="offline-cover-empty">
+                        <span class="o404-cam">⌗</span>
+                        <span>未设置图片</span>
+                        <small>用于见面页主视觉</small>
+                    </div>
+                    <img id="offline-cover-preview" alt="" style="display:none;">
+                </div>
+                <div class="o404-cover-actions">
+                    <button type="button" class="o404-small-pill" id="offline-cover-upload-btn">上传封面</button>
+                    <button type="button" class="o404-small-ghost" id="offline-cover-clear-btn">清除</button>
+                </div>
+                <div class="o404-micro" style="margin-top:8px;">不设置时，见面页自动使用已选角色头像。</div>
+                <input type="file" id="offline-cover-file" accept="image/*" style="display:none;">
+            </div>
             <div class="offline-config-card">
                 <div class="card-title">线下全局配置（整个线下APP共用）</div>
                 <div class="offline-config-row">
@@ -10245,6 +10308,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                     <label for="offline-remember-enabled">线上对话也自动沉淀记忆</label>
                     <div class="switch-wrap"><input type="checkbox" id="offline-remember-enabled" class="ios-sw"></div>
                 </div>
+            </div>
             <div class="offline-config-card">
                 <div class="card-title">气泡样式自定义（CSS）</div>
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -10762,7 +10826,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.0.0";
+  const APP_VERSION = "v6.1.0";
   let db = {
     characters: [],
     groups: [],
@@ -10780,7 +10844,8 @@ document.addEventListener("DOMContentLoaded", () => {
     memories: [],
     /* 记忆库：{id, chatId, source:'offline'|'online'|'call'|'dynamic', type:'fact'(永久事实)|'impression'(动态印象), protected(永久事实永不自动删), content, createdAt, weight} */
     offlineChats: [],
-    /* 线下记录：{chatId, persona, style, summaryRounds, summaryEnabled, rounds, history, maxChars, rememberOnline, useCustomBubbleCss, customBubbleCss} */
+    offlineCover: "",
+    /* 线下见面页装饰图（可选，空时用已选角色头像） */
     masks: [],
     /* 用户面具：{id, name, avatar, persona} */
     activeMaskId: null,
@@ -12656,7 +12721,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.0.0</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.1.0</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12690,7 +12755,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.0.0<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.1.0<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -20978,6 +21043,12 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     if (hint) hint.style.display = "none";
+    if (autoRows.length) {
+      const sec = document.createElement("div");
+      sec.className = "rel-404-section";
+      sec.innerHTML = '<span>角色自主</span><em>随总结更新</em>';
+      listEl.appendChild(sec);
+    }
     autoRows.forEach(function (row) {
       const li = document.createElement("li");
       li.className = "list-item relationship-item";
@@ -20987,6 +21058,12 @@ document.addEventListener("DOMContentLoaded", () => {
         + '<div class="item-preview">' + escapeHtml(row.label) + ' \xB7 \u89D2\u8272\u81EA\u4E3B\uFF08\u968F\u603B\u7ED3\u66F4\u65B0\uFF09</div></div>';
       listEl.appendChild(li);
     });
+    if ((db.relationships || []).length) {
+      const sec = document.createElement("div");
+      sec.className = "rel-404-section";
+      sec.innerHTML = '<span>手动设定</span><em>双向 / 单向</em>';
+      listEl.appendChild(sec);
+    }
     (db.relationships || []).forEach((r, i) => {
       const aname = r.aType === "user" ? "\u6211" : db.characters.find((c) => c.id === r.aId) ? db.characters.find((c) => c.id === r.aId).remarkName || db.characters.find((c) => c.id === r.aId).realName : "\u89D2\u8272";
       const bname = db.characters.find((c) => c.id === r.bId) ? db.characters.find((c) => c.id === r.bId).remarkName || db.characters.find((c) => c.id === r.bId).realName : "\u89D2\u8272";
@@ -21003,7 +21080,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function openArchiveMaskManager() {
     const ov = document.createElement("div");
-    ov.className = "modal-overlay visible";
+    ov.className = "modal-overlay visible amk-overlay";
     ov.style.zIndex = "520";
     const rows = (db.masks || []).map(function (m) {
       return '<div class="amk-row" data-mid="' + m.id + '" style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid #f0f0f0;">'
@@ -21059,7 +21136,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function openArchiveMaskEditor(maskId) {
     const m = maskId ? (db.masks || []).find(function (x) { return x.id === maskId; }) : null;
     const ov = document.createElement("div");
-    ov.className = "modal-overlay visible";
+    ov.className = "modal-overlay visible amke-overlay";
     ov.style.zIndex = "540";
     ov.innerHTML = '<div class="modal-window" style="width:88%;max-width:330px;padding:18px;">'
       + '<div style="font-size:15px;font-weight:700;color:#22252c;margin-bottom:12px;">' + (m ? "编辑面具" : "新建面具") + '</div>'
@@ -21129,11 +21206,17 @@ document.addEventListener("DOMContentLoaded", () => {
       openArchiveMaskManager();
     });
     listEl.appendChild(maskCard);
+    const countLine = document.getElementById("archive-count-line");
+    if (countLine) countLine.textContent = String(db.characters.length).padStart(2, "0") + " 位角色";
     if (!db.characters.length) {
       hint.style.display = "block";
       return;
     }
     hint.style.display = "none";
+    const sec = document.createElement("div");
+    sec.className = "archive-404-section";
+    sec.textContent = "角色档案";
+    listEl.appendChild(sec);
     db.characters.forEach((c) => {
       const item = document.createElement("div");
       item.className = "archive-char";
@@ -21929,14 +22012,204 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentOfflineCharIds = [];
   let currentOfflineSessionId = null;
   let offlineSelectedCharIds = [];
+  let offlineHomePage = "meet";
+  let offlineSettingsTab = "script";
+  function offline404Name(c) {
+    return (c && (c.remarkName || c.realName)) || "未命名";
+  }
+  function updateOffline404Clock() {
+    var d = new Date();
+    var hh = String(d.getHours()).padStart(2, "0");
+    var mm = String(d.getMinutes()).padStart(2, "0");
+    var md = String(d.getMonth() + 1).padStart(2, "0") + "." + String(d.getDate()).padStart(2, "0");
+    var wd = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][d.getDay()] || "";
+    ["o404-time"].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = hh + ":" + mm; });
+    ["o404-date", "o404-date-2", "o404-date-3"].forEach(function (id) { var el = document.getElementById(id); if (el) el.textContent = md + " " + wd; });
+  }
+  function setOfflineHomePage(page) {
+    if (["meet", "role", "story"].indexOf(page) < 0) page = "meet";
+    offlineHomePage = page;
+    document.querySelectorAll("#offline-home-screen .o404-pane").forEach(function (p) {
+      p.classList.toggle("is-on", p.dataset.offlinePane === page);
+    });
+    document.querySelectorAll("#offline-home-screen .o404-dock-btn").forEach(function (b) {
+      b.classList.toggle("is-on", b.dataset.offlinePage === page);
+    });
+    var idx = ["meet", "role", "story"].indexOf(page) + 1;
+    var dots = document.getElementById("o404-dots");
+    if (dots) dots.textContent = ["● ○ ○", "○ ● ○", "○ ○ ●"][idx - 1];
+    var num = document.getElementById("o404-pager-num");
+    if (num) num.textContent = idx + " / 3";
+    var pcount = document.getElementById("o404-page-count");
+    if (pcount) pcount.textContent = "0" + idx + " / 03";
+    var bottom = document.querySelector("#offline-home-screen .o404-bottom");
+    if (bottom) bottom.classList.toggle("no-cta", page === "story");
+  }
+  function renderOfflineHome404() {
+    updateOffline404Clock();
+    var stage = document.getElementById("offline-meet-stage");
+    if (!stage) return;
+    var chars = db.characters || [];
+    var selected = (offlineSelectedCharIds || []).map(function (id) {
+      return chars.find(function (c) { return c.id === id; });
+    }).filter(Boolean);
+    var main = selected[0] || chars[0] || null;
+    var side = (selected.length > 1 ? selected.slice(1) : chars.filter(function (c) { return selected.indexOf(c) < 0; })).slice(0, 2);
+    if (!main) {
+      stage.innerHTML = '<div class="o404-hero-card"><div class="o404-hero-empty"><b>NO CAST</b><small>还没有角色档案</small><span class="o404-micro">去档案 APP 创建角色</span></div><button type="button" class="o404-cover-change">去档案创建</button></div>'
+        + '<div class="o404-side-stack"><div class="o404-orb empty">＋</div><div class="o404-side-note">SCENE / 01</div></div>';
+      var go = stage.querySelector(".o404-cover-change");
+      if (go) go.onclick = function () { switchScreen("archive-screen"); renderArchiveList(); };
+      var note0 = document.getElementById("offline-meet-note");
+      if (note0) note0.textContent = "还没有角色";
+      var sum0 = document.getElementById("offline-selected-summary");
+      if (sum0) sum0.textContent = "已选 0 位角色 · " + ((db.offlineChats || []).filter(function (o) { return o && o.chatId; }).length) + " 条剧情线";
+      var rc0 = document.getElementById("offline-role-count");
+      if (rc0) rc0.textContent = "0 位";
+      return;
+    }
+    var cover = db.offlineCover || "";
+    var mainSrc = cover || main.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
+    var sideHtml = side.map(function (c) {
+      return '<div class="o404-orb"><img src="' + escapeHtml(c.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg") + '" alt=""></div>';
+    }).join("");
+    if (!side.length) sideHtml = '<div class="o404-orb empty">○</div>';
+    stage.innerHTML = '<div class="o404-hero-card">'
+      + '<img src="' + escapeHtml(mainSrc) + '" alt="">'
+      + '<button type="button" class="o404-cover-change">更换装饰图</button>'
+      + '</div>'
+      + '<div class="o404-side-stack">' + sideHtml + '<div class="o404-side-note">SCENE / 01</div></div>';
+    var change = stage.querySelector(".o404-cover-change");
+    if (change) change.onclick = function () {
+      switchScreen("offline-settings-screen");
+      setOfflineSettingsTab("appearance");
+    };
+    var note = document.getElementById("offline-meet-note");
+    if (note) note.textContent = selected.length ? "已选 " + selected.length + " 位" : "当前预览";
+    var summary = document.getElementById("offline-selected-summary");
+    if (summary) summary.textContent = "已选 " + selected.length + " 位角色 · " + ((db.offlineChats || []).filter(function (o) { return o && o.chatId; }).length) + " 条剧情线";
+    var roleCount = document.getElementById("offline-role-count");
+    if (roleCount) roleCount.textContent = chars.length + " 位" + (selected.length ? " · 已选 " + selected.length : "");
+  }
+  function setOfflineSettingsTab(tab) {
+    if (["script", "memory", "appearance"].indexOf(tab) < 0) tab = "script";
+    offlineSettingsTab = tab;
+    document.querySelectorAll("#offline-settings-tabs .o404-tab").forEach(function (b) {
+      b.classList.toggle("is-on", b.dataset.otab === tab);
+    });
+    document.querySelectorAll("#offline-settings-screen [data-otab-panel]").forEach(function (p) {
+      p.classList.toggle("o404-force-hidden", p.dataset.otabPanel !== tab);
+    });
+    var coverCard = document.getElementById("offline-cover-card");
+    if (coverCard) coverCard.classList.toggle("o404-force-hidden", tab !== "appearance");
+    var globalCardEl = document.getElementById("offline-min-chars");
+    var globalCard = globalCardEl && globalCardEl.closest(".offline-config-card");
+    if (globalCard) globalCard.classList.toggle("o404-force-hidden", tab === "appearance");
+    var customRow = document.getElementById("offline-custom-style-row");
+    if (customRow) {
+      var styleSel = document.getElementById("offline-style2");
+      var customOn = styleSel && (styleSel.value === "custom" || styleSel.value.indexOf("p:") === 0);
+      customRow.classList.toggle("o404-force-hidden", !(tab === "script" && customOn));
+    }
+    var sumBtn = document.getElementById("offline-summarize-btn2");
+    if (sumBtn) sumBtn.classList.toggle("o404-force-hidden", tab !== "memory");
+    var status = document.querySelector("#offline-settings-screen .offline-status-bar");
+    if (status) status.classList.toggle("o404-force-hidden", tab !== "memory");
+    if (tab === "appearance") renderOfflineCover();
+  }
+  function renderOfflineCover() {
+    var img = document.getElementById("offline-cover-preview");
+    var empty = document.getElementById("offline-cover-empty");
+    var cover = db.offlineCover || "";
+    if (img) {
+      if (cover) { img.src = cover; img.style.display = "block"; } else { img.removeAttribute("src"); img.style.display = "none"; }
+    }
+    if (empty) empty.style.display = cover ? "none" : "flex";
+  }
+  function setupOfflineCoverControls() {
+    var up = document.getElementById("offline-cover-upload-btn");
+    var file = document.getElementById("offline-cover-file");
+    var clear = document.getElementById("offline-cover-clear-btn");
+    if (!up || !file || up.dataset.bound) return;
+    up.dataset.bound = "1";
+    up.addEventListener("click", function (e) {
+      e.preventDefault();
+      file.click();
+    });
+    file.addEventListener("change", function (e) {
+      var f = e.target.files && e.target.files[0];
+      if (!f) return;
+      compressImage(f, { quality: 0.84, maxWidth: 1200, maxHeight: 1600 }).then(function (u) {
+        db.offlineCover = u;
+        saveData();
+        renderOfflineCover();
+        renderOfflineHome404();
+        showToast("见面页装饰图已更新");
+      }).catch(function () { showToast("图片读取失败"); });
+      file.value = "";
+    });
+    if (clear) clear.addEventListener("click", function () {
+      db.offlineCover = "";
+      saveData();
+      renderOfflineCover();
+      renderOfflineHome404();
+      showToast("已清除装饰图");
+    });
+  }
+  function initOfflineSettingsTabs() {
+    var tabWrap = document.getElementById("offline-settings-tabs");
+    if (tabWrap && !tabWrap.dataset.bound) {
+      tabWrap.dataset.bound = "1";
+      tabWrap.addEventListener("click", function (e) {
+        var b = e.target.closest(".o404-tab");
+        if (b) setOfflineSettingsTab(b.dataset.otab);
+      });
+    }
+    var scriptIds = ["offline-min-chars", "offline-max-chars", "offline-style2", "offline-preset-name", "offline-persona2", "offline-real-time", "offline-chain-enabled", "offline-chain-template"];
+    scriptIds.forEach(function (id) {
+      var el = document.getElementById(id);
+      var row = el && el.closest(".offline-config-row");
+      if (row) row.dataset.otabPanel = "script";
+    });
+    var memoryIds = ["offline-summary-rounds2", "offline-sum-total", "offline-summary-from", "offline-summary-prompt2", "offline-read-online-rounds", "offline-context-depth", "offline-summary-enabled2", "offline-remember-enabled"];
+    memoryIds.forEach(function (id) {
+      var el = document.getElementById(id);
+      var row = el && el.closest(".offline-config-row");
+      if (row) row.dataset.otabPanel = "memory";
+    });
+    var firstField = document.getElementById("offline-min-chars");
+    var firstCard = firstField && firstField.closest(".offline-config-card");
+    if (firstCard) {
+      var t = firstCard.querySelector(".card-title");
+      if (t) { t.textContent = "台本与叙述"; t.dataset.otabPanel = "script"; }
+      var statsRow = document.querySelector("#offline-settings-screen .offline-stats-inline");
+      if (statsRow) firstCard.insertBefore(statsRow, firstCard.firstChild);
+    }
+    var cssEl = document.getElementById("offline-custom-bubble-css");
+    var cssCard = cssEl && cssEl.closest(".offline-config-card");
+    if (cssCard) {
+      cssCard.dataset.otabPanel = "appearance";
+      var ct = cssCard.querySelector(".card-title");
+      if (ct) ct.textContent = "气泡样式";
+    }
+    var coverCard = document.getElementById("offline-cover-card");
+    if (coverCard) coverCard.dataset.otabPanel = "appearance";
+    var preview = document.querySelector("#offline-settings-screen .o404-setting-preview");
+    if (preview) preview.dataset.otabPanel = "script";
+    var status = document.querySelector("#offline-settings-screen .offline-status-bar");
+    if (status) status.dataset.otabPanel = "memory";
+    setOfflineSettingsTab(offlineSettingsTab);
+  }
   function openOfflineHome(preferredCharId) {
+    setOfflineHomePage("meet");
     renderOfflineLines();
     const listEl = document.getElementById("offline-char-select-list");
     if (!listEl) return;
     listEl.innerHTML = "";
     offlineSelectedCharIds = [];
     if (!db.characters.length) {
-      listEl.innerHTML = '<div class="offline-empty-hint" style="padding:40px 0;">\u8FD8\u6CA1\u6709\u89D2\u8272\uFF0C\u8BF7\u5148\u5728\u300C\u6863\u6848\u300DApp \u521B\u5EFA\u89D2\u8272</div>';
+      listEl.innerHTML = '<div class="offline-empty-hint" style="padding:40px 0;grid-column:1/-1;">\u8FD8\u6CA1\u6709\u89D2\u8272\uFF0C\u8BF7\u5148\u5728\u300C\u6863\u6848\u300DApp \u521B\u5EFA\u89D2\u8272</div>';
+      renderOfflineHome404();
       return;
     }
     db.characters.forEach((c) => {
@@ -21954,6 +22227,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const btn = document.getElementById("offline-enter-chat-btn");
         btn.textContent = offlineSelectedCharIds.length ? "\u8FDB\u5165\u804A\u5929\uFF08".concat(offlineSelectedCharIds.length, "\u4EBA\uFF09") : "\u8FDB\u5165\u804A\u5929";
+        renderOfflineHome404();
       });
       listEl.appendChild(chip);
     });
@@ -21969,6 +22243,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btn) btn.textContent = "\u8FDB\u5165\u804A\u5929\uFF081\u4EBA\uFF09";
       }
     }
+    renderOfflineHome404();
   }
   function openOfflineChat(charIds, type, chatId) {
     if (!Array.isArray(charIds)) charIds = [charIds];
@@ -22037,6 +22312,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       el.appendChild(card);
     });
+    renderOfflineHome404();
   }
   function initOfflineChatView() {
     if (!currentOfflineCharIds.length || !currentOfflineSessionId) return;
@@ -22105,7 +22381,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       const c = h.charId ? charById[h.charId] : char;
       const avatarSrc = isUser ? char.myAvatar || "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg" : c ? c.avatar : "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
-      let metaText = h.roundLabel ? h.roundLabel : displayName;
+      let metaText = h.roundLabel ? h.roundLabel : (isUser ? displayName : "");
       if (isUser && !h.roundLabel) {
         const dt = new Date(h.ts || Date.now());
         metaText = "\u4F60 \xB7 " + pad(dt.getHours()) + ":" + pad(dt.getMinutes());
@@ -23056,6 +23332,12 @@ function setupPhoneSystem() {
       switchScreen("offline-preset-screen");
     });
     renderOfflineLines();
+    initOfflineSettingsTabs();
+    setupOfflineCoverControls();
+    setOfflineHomePage("meet");
+    document.querySelectorAll("#offline-home-screen .o404-dock-btn").forEach(function (b) {
+      b.addEventListener("click", function () { setOfflineHomePage(b.dataset.offlinePage); });
+    });
     (_d = document.getElementById("offline-enter-chat-btn")) == null ? void 0 : _d.addEventListener("click", () => {
       if (!offlineSelectedCharIds.length) {
         showToast("\u8BF7\u81F3\u5C11\u9009\u62E9\u4E00\u4E2A\u89D2\u8272");
@@ -23715,6 +23997,9 @@ function setupPhoneSystem() {
     const sc2 = document.getElementById("offline-sum-cursor2");
     if (sc2 && ocNow) sc2.textContent = ocNow.summaryCursor || 0;
     renderOfflineStyleSelect();
+    initOfflineSettingsTabs();
+    setupOfflineCoverControls();
+    renderOfflineCover();
   }
   function renderOfflineStyleSelect() {
     const sel = document.getElementById("offline-style2");
@@ -38498,6 +38783,478 @@ window.bsRoomAI = bsRoomAI;
 .offline-stats-inline span { display:block; font-size:11px; color:#777; letter-spacing:.04em; line-height:1.8; border-top:1px solid #0a0a0a; padding-top:10px; }
 .offline-stats-inline b { color:#0a0a0a !important; font-family:Georgia,serif; font-weight:400; font-size:13px; }
 
+/* ================= 404 黑白编辑排版 v6.1 ================= */
+/* 共用：白纸、黑字、1px 黑细线、衬线斜体、点阵 */
+#offline-home-screen, #offline-settings-screen, #archive-screen, #archive-create-screen,
+#archive-edit-screen, #relationship-screen, #relationship-edit-screen { background:#fff; }
+
+.o404-header { min-height:56px; padding:max(env(safe-area-inset-top), 10px) 16px 8px !important; }
+.o404-header .back-btn { font-size:22px !important; font-weight:400 !important; }
+.o404-header .title {
+  font-family:Georgia, 'Songti SC', 'Noto Serif SC', serif !important;
+  font-size:14px !important; font-weight:500 !important; letter-spacing:.22em !important;
+}
+#offline-home-screen .o404-header,
+#offline-settings-screen .o404-header,
+#archive-screen .o404-header {
+  background:#fff !important;
+  border-bottom:1px solid #ececec !important;
+  box-shadow:none !important;
+  backdrop-filter:none !important;
+  -webkit-backdrop-filter:none !important;
+}
+#offline-home-screen .o404-header .back-btn,
+#offline-settings-screen .o404-header .back-btn,
+#archive-screen .o404-header .back-btn { color:#111 !important; }
+#offline-home-screen .o404-header .title,
+#offline-settings-screen .o404-header .title,
+#archive-screen .o404-header .title { color:#111 !important; }
+#offline-home-screen #offline-home-preset-btn,
+#offline-home-screen #offline-home-settings-btn {
+  background:#fff !important; color:#111 !important;
+  border:1px solid #111 !important; border-radius:999px !important;
+  letter-spacing:.12em !important; font-weight:500 !important; font-size:10px !important;
+  padding:0 11px !important; height:28px !important; width:auto !important;
+}
+#offline-home-screen #offline-home-settings-btn { width:30px !important; padding:0 !important; }
+#offline-settings-screen input[type=checkbox].ios-sw,
+#archive-create-screen input[type=checkbox].ios-sw,
+#archive-edit-screen input[type=checkbox].ios-sw {
+  border-radius:999px !important;
+  background:#e3e3e8 !important;
+  width:46px !important; height:28px !important;
+}
+#offline-settings-screen input[type=checkbox].ios-sw::after,
+#archive-create-screen input[type=checkbox].ios-sw::after,
+#archive-edit-screen input[type=checkbox].ios-sw::after {
+  border-radius:50% !important; width:24px !important; height:24px !important; top:2px !important; left:2px !important;
+}
+#offline-settings-screen input[type=checkbox].ios-sw:checked,
+#archive-create-screen input[type=checkbox].ios-sw:checked,
+#archive-edit-screen input[type=checkbox].ios-sw:checked { background:#111 !important; }
+#offline-settings-screen input[type=checkbox].ios-sw:checked::after,
+#archive-create-screen input[type=checkbox].ios-sw:checked::after,
+#archive-edit-screen input[type=checkbox].ios-sw:checked::after { left:20px !important; }
+.o404-force-hidden { display:none !important; }
+.o404-head-actions { display:flex; align-items:center; gap:8px; }
+.o404-pill {
+  height:28px; padding:0 11px; border:1px solid #111; border-radius:999px;
+  background:#fff; color:#111; font-size:10px; letter-spacing:.12em;
+  display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.o404-pill:active { background:#111; color:#fff; }
+.o404-gear { width:30px; padding:0; }
+
+/* 线下主页：三页 */
+#offline-home-screen .o404-body {
+  padding:0 16px 178px;
+  background-color:#fff;
+  background-image:radial-gradient(rgba(0,0,0,.055) 1px, transparent 1.2px);
+  background-size:16px 16px;
+}
+.o404-pane { display:none; padding-top:14px; }
+.o404-pane.is-on { display:block; }
+.o404-clock-row { display:flex; justify-content:space-between; align-items:flex-start; }
+.o404-clock {
+  font-family:Georgia, 'Times New Roman', serif;
+  font-size:34px; line-height:1; letter-spacing:-.02em; color:#111; font-weight:400;
+}
+.o404-meta { display:flex; flex-direction:column; align-items:flex-end; gap:2px; font-size:8px; line-height:1.4; color:#8c8c8c; letter-spacing:.12em; }
+.o404-kicker-row { display:flex; align-items:center; gap:10px; margin-top:14px; min-height:24px; }
+.o404-label {
+  display:inline-flex; align-items:center; height:23px; padding:0 9px;
+  border:1px solid #111; border-radius:999px; background:#fff;
+  font-size:8px; letter-spacing:.2em; color:#111; white-space:nowrap;
+}
+.o404-script { font-family:Georgia, 'Times New Roman', serif; font-style:italic; font-size:27px; line-height:1.05; color:#111; }
+.o404-script-sm { font-size:14px; flex:1; min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.o404-label-note { margin-left:auto; font-size:8.5px; color:#8a8a8a; letter-spacing:.08em; white-space:nowrap; }
+
+.o404-meet-stage { display:grid; grid-template-columns:minmax(0,1.18fr) 82px; gap:16px; align-items:start; margin-top:12px; }
+.o404-hero-card {
+  position:relative; aspect-ratio:4 / 5; border:1px solid #111; border-radius:18px;
+  background:#f3f3f3; overflow:hidden;
+}
+.o404-hero-card img { width:100%; height:100%; object-fit:cover; display:block; }
+.o404-hero-empty {
+  width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:8px; text-align:center; padding:20px; color:#777;
+}
+.o404-hero-empty b { font-family:Georgia, serif; font-size:20px; color:#111; font-weight:400; }
+.o404-hero-empty small { font-size:9px; color:#888; letter-spacing:.08em; }
+.o404-cover-change {
+  position:absolute; left:10px; bottom:10px; z-index:3;
+  height:26px; padding:0 10px; border:1px solid #111; border-radius:999px;
+  background:rgba(255,255,255,.94); color:#111; font-size:9px; letter-spacing:.08em; cursor:pointer;
+}
+.o404-side-stack { display:flex; flex-direction:column; align-items:center; gap:9px; padding-top:28px; }
+.o404-orb { width:70px; height:70px; border-radius:50%; border:1px solid #111; overflow:hidden; background:#f0f0f0; }
+.o404-orb img { width:100%; height:100%; object-fit:cover; display:block; }
+.o404-orb.empty { display:flex; align-items:center; justify-content:center; color:#aaa; font-size:16px; }
+.o404-side-note { margin-top:3px; font-size:7.5px; letter-spacing:.14em; color:#8c8c8c; writing-mode:vertical-rl; }
+.o404-meet-copy { margin-top:13px; padding:0 2px; }
+.o404-micro { font-size:8px; letter-spacing:.15em; color:#8b8b8b; }
+.o404-meet-copy .o404-micro { margin-top:6px; }
+.o404-desc { margin-top:5px; font-size:10px; line-height:1.75; color:#555; letter-spacing:.02em; }
+.o404-summary { margin-top:21px; text-align:center; font-size:9px; letter-spacing:.1em; color:#666; }
+
+/* 角色页网格 */
+.o404-cast-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px 0 0; }
+.offline-char-chip {
+  width:auto !important; min-width:0; padding:0 !important; display:flex !important;
+  flex-direction:column !important; align-items:stretch !important; gap:0 !important;
+  position:relative; overflow:hidden; text-align:left;
+  border:1px solid #111 !important; border-radius:16px !important;
+  background:#fff !important; box-shadow:none !important; cursor:pointer;
+}
+.offline-char-chip.selected { border-width:2px !important; }
+.offline-char-chip .chip-ava { display:block !important; width:100% !important; height:auto !important; }
+.offline-char-chip img {
+  width:100% !important; height:auto !important; aspect-ratio:4 / 5; object-fit:cover;
+  border:0 !important; border-radius:0 !important; box-shadow:none !important;
+  filter:none !important; display:block;
+}
+.offline-char-chip .chip-name {
+  padding:8px 10px 0; font-size:11.5px !important; line-height:1.3; font-weight:600 !important;
+  color:#111 !important; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.offline-char-chip .chip-p {
+  padding:4px 10px 10px; font-size:8.5px !important; line-height:1.4; color:#8b8b8b !important;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-height:none !important;
+  display:block !important; -webkit-line-clamp:unset !important;
+}
+.offline-char-chip .chip-check {
+  display:none; position:absolute; top:8px; right:8px; width:18px; height:18px;
+  border:1px solid #fff !important; border-radius:50% !important; background:#111 !important;
+  color:#fff !important; font-size:10px; line-height:16px; text-align:center; z-index:2;
+}
+.offline-char-chip.selected .chip-check { display:flex; align-items:center; justify-content:center; }
+
+/* 剧情页 */
+#offline-lines-list { display:flex; flex-direction:column; gap:14px; padding:12px 0 0; }
+.offline-line-card {
+  position:relative; display:grid !important; grid-template-columns:64px minmax(0,1fr) auto;
+  align-items:center !important; gap:14px !important;
+  padding:13px !important; border:1px solid #111 !important; border-radius:18px !important;
+  background:#fff !important; box-shadow:none !important;
+}
+.offline-line-card:active { background:#f5f5f5 !important; }
+.offline-line-card .line-idx {
+  display:flex; align-items:center; justify-content:center;
+  width:64px; height:80px; background:#111; color:#fff;
+  font-family:Georgia, serif; font-style:normal; font-size:24px; line-height:1; letter-spacing:.02em;
+}
+.offline-line-card .line-info { display:flex !important; flex-direction:column !important; align-items:flex-start !important; gap:5px !important; min-width:0; }
+.offline-line-card .line-name { font-size:15px !important; line-height:1.35; font-weight:600 !important; color:#111 !important; max-width:100% !important; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.offline-line-card .line-type { font-size:8px !important; letter-spacing:.12em; padding:2px 6px !important; border-radius:999px !important; }
+.offline-line-card .line-type.main { background:#111 !important; color:#fff !important; }
+.offline-line-card .line-type.side { background:#fff !important; color:#111 !important; border:1px solid #111 !important; }
+.offline-line-card .line-meta { font-family:Georgia, serif; font-size:9px !important; color:#888 !important; letter-spacing:.06em; align-self:end; }
+.offline-line-card .offline-line-del {
+  position:absolute; top:8px; right:8px; width:18px; height:18px; line-height:16px;
+  border:1px solid #111 !important; border-radius:50% !important; background:#fff !important;
+  color:#111 !important; font-size:9px !important;
+}
+.offline-line-card .offline-line-del:active { background:#111 !important; color:#fff !important; }
+
+/* 底部 */
+.o404-bottom {
+  position:absolute; left:0; right:0; bottom:0; z-index:9;
+  padding:10px 16px calc(9px + env(safe-area-inset-bottom));
+  background:linear-gradient(180deg, rgba(255,255,255,0), #fff 24%);
+  max-width:480px; margin:0 auto;
+}
+.o404-pager { display:flex; justify-content:space-between; align-items:center; padding:0 4px 6px; font-size:8px; color:#8a8a8a; letter-spacing:.12em; }
+.o404-pager #o404-dots { color:#111; letter-spacing:.2em; }
+.o404-cta {
+  width:100%; height:44px; border:1px solid #111; border-radius:999px;
+  background:#111; color:#fff; font-size:11px; letter-spacing:.2em;
+  font-weight:500; cursor:pointer;
+}
+.o404-cta:active { background:#fff; color:#111; }
+.o404-bottom.no-cta .o404-cta { display:none; }
+.o404-bottom.no-cta .o404-dock { margin-top:0; }
+.o404-dock {
+  margin-top:7px; height:52px; display:flex; align-items:center;
+  border:1px solid #111; border-radius:999px; background:#fff;
+  box-shadow:0 7px 22px rgba(0,0,0,.07);
+}
+.o404-dock-btn {
+  flex:1; height:100%; border:0; background:transparent; color:#111;
+  display:flex; align-items:center; justify-content:center; gap:5px;
+  font-size:10px; letter-spacing:.1em; cursor:pointer;
+}
+.o404-dock-btn.is-on { font-weight:700; }
+.o404-dock-btn.is-on .o404-dock-ic { background:#111; color:#fff; border-color:#111; }
+.o404-dock-ic {
+  width:19px; height:19px; border:1px solid #111; border-radius:50%;
+  display:inline-flex; align-items:center; justify-content:center;
+  font-size:10px; line-height:1; color:#111;
+}
+
+/* 设置：三分页 */
+#offline-settings-screen .content {
+  padding:0 16px 34px !important; background:#fff !important;
+}
+.o404-tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; padding:14px 0 16px; }
+.o404-tab {
+  height:34px; border:1px solid #111; border-radius:999px; background:#fff;
+  color:#111; font-size:10.5px; letter-spacing:.14em; cursor:pointer;
+}
+.o404-tab.is-on { background:#111; color:#fff; }
+.o404-setting-preview {
+  border:1px solid #111; border-radius:16px; background:#fff;
+  padding:16px 17px; margin-bottom:14px;
+}
+.o404-setting-quote { font-family:Georgia,'Songti SC',serif; font-style:italic; font-size:19px; color:#111; margin:8px 0 8px; line-height:1.5; }
+#offline-cover-card { display:block; }
+#offline-settings-screen .offline-config-card {
+  border:1px solid #111 !important; border-top:1px solid #111 !important;
+  border-radius:16px !important; background:#fff !important;
+  padding:15px 16px !important; margin:0 0 14px !important;
+}
+#offline-settings-screen .offline-config-card .card-title {
+  font-family:Georgia,'Songti SC',serif; font-size:12px; font-weight:500;
+  letter-spacing:.1em; color:#111; margin:0 0 10px;
+}
+#offline-settings-screen .offline-config-card .card-title:after { display:none; }
+#offline-settings-screen .offline-config-row {
+  border-top:1px solid #e7e7e7 !important; padding:12px 0 !important;
+  grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr) !important;
+  column-gap:14px !important;
+}
+#offline-settings-screen .offline-config-row label { font-size:9.5px !important; letter-spacing:.1em; color:#333 !important; font-weight:500 !important; }
+#offline-settings-screen .offline-config-row select,
+#offline-settings-screen .offline-config-row input[type="number"],
+#offline-settings-screen .offline-config-row input[type="text"] {
+  border:0 !important; border-bottom:1px solid #111 !important; border-radius:0 !important;
+  background:#fff !important; font-size:12.5px; padding:6px 0 !important; color:#111;
+}
+#offline-settings-screen .offline-config-row textarea {
+  border:1px solid #111 !important; border-radius:12px !important; background:#f7f7f7 !important;
+  font-size:11.5px; padding:9px !important; color:#333; line-height:1.7;
+}
+#offline-settings-screen .offline-config-row > input[type="checkbox"].ios-sw { border-radius:999px; }
+#offline-settings-screen #offline-custom-bubble-css {
+  border:1px solid #111 !important; border-radius:12px !important; background:#f7f7f7 !important;
+  font-family:ui-monospace,Menlo,monospace !important; font-size:10.5px !important;
+}
+#offline-settings-screen .offline-btn-row { border-top:1px solid #111 !important; border-bottom:1px solid #111 !important; margin:0 0 16px; }
+#offline-settings-screen .offline-btn-row .btn { border-radius:0 !important; font-size:10px; letter-spacing:.14em; padding:13px 0; }
+#offline-settings-screen #offline-save-config-btn { background:#111 !important; color:#fff !important; }
+#offline-settings-screen #offline-summarize-btn2 { background:#fff !important; color:#111 !important; }
+#offline-settings-screen .offline-status-bar { background:#111 !important; color:#fff !important; border-radius:12px !important; }
+#offline-settings-screen .offline-stats-inline {
+  display:block !important; background:#111 !important; color:#fff !important;
+  border:0 !important; border-radius:14px !important; padding:13px 14px !important;
+  margin:0 0 8px !important;
+}
+#offline-settings-screen .offline-stats-inline span {
+  display:block; font-size:10.5px; line-height:1.8; color:#fff !important;
+  border-top:0 !important; padding-top:0 !important; letter-spacing:.03em;
+}
+#offline-settings-screen .offline-stats-inline b { color:#fff !important; font-family:Georgia,serif; font-weight:400; font-size:14px; }
+#offline-settings-screen .o404-cover-slot {
+  width:100%; aspect-ratio:16 / 10; border:1px dashed #111; border-radius:14px;
+  background:#fafafa; overflow:hidden; position:relative;
+}
+#offline-settings-screen .o404-cover-slot img { width:100%; height:100%; object-fit:cover; display:block; }
+#offline-settings-screen .o404-cover-empty {
+  width:100%; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:5px; color:#777; font-size:9px; letter-spacing:.08em;
+}
+#offline-settings-screen .o404-cover-empty .o404-cam { font-size:28px; line-height:1; color:#111; }
+#offline-settings-screen .o404-cover-empty small { color:#aaa; font-size:8px; letter-spacing:.06em; }
+#offline-settings-screen .o404-cover-actions { display:flex; gap:8px; margin-top:10px; }
+#offline-settings-screen .o404-small-pill {
+  height:28px; padding:0 12px; border:1px solid #111; border-radius:999px;
+  background:#fff; color:#111; font-size:9.5px; letter-spacing:.1em; cursor:pointer;
+}
+#offline-settings-screen .o404-small-ghost {
+  height:28px; padding:0 8px; border:0; background:transparent; color:#8a8a8a;
+  font-size:9.5px; letter-spacing:.08em; cursor:pointer;
+}
+
+/* 线下聊天：结构不动，只换气泡 */
+#offline-chat-screen .offline-bubble-card {
+  border:1px solid #111 !important;
+  border-radius:18px !important;
+  background:#fff !important;
+  box-shadow:none !important;
+  overflow:hidden;
+}
+#offline-chat-screen .offline-bubble-card.sent {
+  background:#111 !important;
+  border-color:#111 !important;
+}
+#offline-chat-screen .obc-avatar {
+  border-radius:50% !important;
+  border:1px solid #111 !important;
+  filter:none !important;
+  box-shadow:none !important;
+  overflow:hidden;
+}
+#offline-chat-screen .offline-bubble-card.sent .obc-avatar { border-color:rgba(255,255,255,.65) !important; }
+#offline-chat-screen .obc-divider { border-top:1px solid #111 !important; }
+#offline-chat-screen .offline-bubble-card.sent .obc-divider { border-top-color:rgba(255,255,255,.45) !important; }
+#offline-chat-screen .obc-body { color:#151515 !important; }
+#offline-chat-screen .offline-bubble-card.sent .obc-body { color:#f7f7f7 !important; }
+#offline-chat-screen .obc-chain-body { border:1px solid #111; border-left:2px solid #111; border-radius:10px; background:#f4f4f4; }
+#offline-chat-screen .obc-tool { border-radius:999px !important; }
+#offline-chat-screen .offline-bubble-card.sent .obc-tool { color:#bdbdbd !important; }
+#offline-chat-screen .offline-bubble-card.sent .obc-tool:hover { background:#2a2a2a !important; color:#fff !important; }
+#offline-chat-screen .obc-act { border-radius:999px !important; font-size:9.5px; }
+#offline-chat-screen .offline-bubble-card.sent .obc-act { background:#2a2a2a !important; color:#e8e8e8 !important; }
+
+/* 档案：首页网格 */
+.o404-archive .content {
+  padding:0 16px 34px !important;
+  background-color:#fff;
+  background-image:radial-gradient(rgba(0,0,0,.045) 1px, transparent 1.2px);
+  background-size:18px 18px;
+}
+.o404-archive-cover { padding:18px 2px 14px; }
+.o404-archive-cover .o404-script { font-size:25px; margin:8px 0 6px; }
+#archive-char-list { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:0; }
+#archive-char-list .memory-char-card {
+  display:flex !important; flex-direction:column !important; align-items:flex-start !important;
+  gap:6px !important; min-height:100px; margin:0 !important; padding:12px !important;
+  border:1px solid #111 !important; border-radius:16px !important;
+  background:#fff !important; box-shadow:none !important;
+}
+#archive-char-list .memory-char-card > svg:first-child { width:26px !important; height:26px !important; }
+#archive-char-list .memory-char-card > svg:last-child { display:none !important; }
+#archive-char-list .memory-char-card .mcc-name { font-family:Georgia,'Songti SC',serif; font-size:13px; color:#111; font-weight:500; letter-spacing:.03em; }
+#archive-char-list .memory-char-card .mcc-meta { font-size:9px; color:#858585; line-height:1.65; }
+#archive-char-list .archive-char {
+  display:flex !important; flex-direction:column !important; align-items:stretch !important;
+  gap:0 !important; margin:0 !important; padding:0 !important; overflow:hidden;
+  border:1px solid #111 !important; border-radius:16px !important;
+  background:#fff !important; cursor:pointer;
+}
+#archive-char-list .archive-char img {
+  width:100% !important; height:auto !important; aspect-ratio:4 / 5; object-fit:cover;
+  border-radius:0 !important; display:block; flex:none;
+}
+#archive-char-list .archive-char > div { padding:9px 10px 10px; min-width:0; }
+#archive-char-list .archive-char .a-name { font-size:13.5px; line-height:1.3; font-weight:600; color:#111; }
+#archive-char-list .archive-char .a-sub { font-size:9px; color:#888; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#archive-char-list .archive-tags { gap:4px; margin-top:6px; }
+#archive-char-list .archive-tag {
+  font-size:8px; line-height:1.4; padding:2px 5px; border:1px solid #ddd; border-radius:999px;
+  background:#fff; color:#666;
+}
+.archive-404-section {
+  grid-column:1 / -1; display:flex; align-items:center; gap:9px;
+  padding:10px 2px 0; font-size:9px; letter-spacing:.2em; color:#111;
+}
+.archive-404-section:after { content:""; flex:1; height:1px; background:#dcdcdc; }
+
+/* 档案：创建 / 编辑 / 关系编辑 表单 */
+#archive-create-screen .content, #archive-edit-screen .content, #relationship-edit-screen .content {
+  padding:0 16px 34px !important; background:#fff !important;
+}
+#archive-create-form .form-group, #archive-edit-form .form-group, #relationship-form .form-group {
+  border:1px solid #111 !important; border-radius:16px !important;
+  background:#fff !important; padding:12px 13px !important; margin:0 0 10px !important;
+}
+#archive-create-form .form-group label, #archive-edit-form .form-group label, #relationship-form .form-group label {
+  font-size:9.5px !important; letter-spacing:.1em; color:#333 !important; font-weight:600;
+}
+#archive-create-form input[type="text"], #archive-edit-form input[type="text"], #relationship-form input[type="text"],
+#archive-create-form textarea, #archive-edit-form textarea, #relationship-form select {
+  border:0 !important; border-bottom:1px solid #111 !important; border-radius:0 !important;
+  background:#fff !important; padding:7px 0 !important; font-size:12.5px; color:#111;
+}
+#archive-create-form textarea, #archive-edit-form textarea {
+  border:1px solid #111 !important; border-radius:12px !important; background:#f7f7f7 !important; padding:9px !important;
+}
+#archive-create-form .avatar-preview, #archive-edit-form .avatar-preview {
+  width:96px !important; height:96px !important; border-radius:50% !important;
+  border:1px solid #111 !important; object-fit:cover;
+}
+#archive-create-form .btn-primary, #archive-edit-form .btn-primary, #relationship-form .btn-primary {
+  width:100%; border:1px solid #111 !important; border-radius:999px !important;
+  background:#111 !important; color:#fff !important; padding:13px 0 !important;
+  font-size:11px; letter-spacing:.16em;
+}
+#archive-edit-screen .btn-danger {
+  width:100%; border:1px solid #111 !important; border-radius:999px !important;
+  background:#fff !important; color:#111 !important; padding:12px 0 !important;
+  font-size:10px; letter-spacing:.12em;
+}
+#archive-create-form .select-box-list label, #archive-edit-form .select-box-list label {
+  background:#f7f7f7 !important; border:1px solid #e5e5e5; border-radius:10px;
+}
+
+/* 档案：关系列表 */
+#relationship-screen .content { padding:0 16px 34px !important; background:#fff !important; }
+#relationship-screen .relationship-list { display:flex; flex-direction:column; gap:10px; }
+#relationship-screen .rel-tip { font-size:9.5px !important; color:#888 !important; line-height:1.8 !important; border-top:1px solid #e6e6e6; padding-top:12px; margin-top:16px !important; }
+#relationship-screen .rel-row, #relationship-screen .relationship-item, #relationship-screen .rel-card {
+  border:1px solid #111 !important; border-radius:16px !important; background:#fff !important; box-shadow:none !important;
+}
+
+/* 档案：面具弹层 */
+.modal-overlay .modal-window {
+  border:1px solid #111 !important;
+  border-radius:20px !important;
+  background:#fff !important;
+  box-shadow:0 18px 60px rgba(0,0,0,.14) !important;
+}
+.modal-overlay .amk-row { border-bottom:1px solid #e8e8e8 !important; }
+.modal-overlay .amk-row img { border-radius:50% !important; border:1px solid #111; }
+.modal-overlay .amk-edit { background:#fff !important; border:1px solid #111 !important; border-radius:999px !important; color:#111 !important; }
+.modal-overlay .amk-del { color:#777 !important; }
+.modal-overlay .amk-new { background:#111 !important; color:#fff !important; border-radius:999px !important; }
+.modal-overlay .amke-name, .modal-overlay .amke-persona {
+  border:1px solid #111 !important; border-radius:12px !important; background:#fff !important;
+}
+.modal-overlay .amke-pick { background:#fff !important; border:1px solid #111 !important; border-radius:999px !important; }
+.modal-overlay .amke-save { background:#111 !important; border-radius:999px !important; }
+.amk-overlay { align-items:flex-end !important; background:rgba(0,0,0,.28) !important; }
+.amk-overlay .modal-window {
+  width:100% !important; max-width:480px !important; max-height:78vh !important;
+  border-radius:26px 26px 0 0 !important; border-bottom:0 !important;
+  padding:18px 18px calc(14px + env(safe-area-inset-bottom)) !important;
+}
+.amk-overlay .modal-window > div:first-child,
+.amke-overlay .modal-window > div:first-child { font-family:Georgia,'Songti SC',serif; font-weight:500 !important; letter-spacing:.06em; }
+.amke-overlay { align-items:flex-end !important; background:rgba(0,0,0,.28) !important; }
+.amke-overlay .modal-window {
+  width:100% !important; max-width:480px !important;
+  border-radius:26px 26px 0 0 !important; border-bottom:0 !important;
+  padding:18px 18px calc(14px + env(safe-area-inset-bottom)) !important;
+}
+#archive-screen .action-btn { color:#111 !important; font-weight:400 !important; }
+#archive-screen .app-header { justify-content:flex-start !important; }
+#archive-screen #archive-rel-btn { margin-left:auto !important; }
+#relationship-edit-screen input[type=checkbox].ios-sw:checked { background:#111 !important; }
+#relationship-edit-screen input[type=checkbox].ios-sw:checked::after { left:auto; right:2px; background:#fff !important; }
+#archive-create-screen .app-header, #archive-edit-screen .app-header,
+#relationship-screen .app-header, #relationship-edit-screen .app-header {
+  background:#fff !important; border-bottom:1px solid #ececec !important;
+  backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+  min-height:56px; padding:max(env(safe-area-inset-top), 10px) 16px 8px !important;
+}
+#archive-create-screen .app-header .title, #archive-edit-screen .app-header .title,
+#relationship-screen .app-header .title, #relationship-edit-screen .app-header .title {
+  color:#111 !important; font-family:Georgia,'Songti SC',serif !important;
+  font-size:14px !important; font-weight:500 !important; letter-spacing:.22em !important;
+}
+#archive-create-screen .app-header .back-btn, #archive-edit-screen .app-header .back-btn,
+#relationship-screen .app-header .back-btn, #relationship-edit-screen .app-header .back-btn { color:#111 !important; font-weight:400 !important; }
+#relationship-screen .relationship-list { list-style:none; padding:0; margin:0; }
+.rel-404-section { display:flex; align-items:center; gap:8px; padding:12px 2px 2px; font-size:9px; letter-spacing:.16em; color:#111; }
+.rel-404-section em { margin-left:auto; font-style:normal; font-size:8px; color:#999; letter-spacing:.06em; }
+.rel-404-section:after { content:""; width:28px; height:1px; background:#111; order:-1; margin-right:2px; }
+#relationship-list .relationship-item {
+  margin:0 !important; padding:13px 14px !important; border:1px solid #111 !important;
+  border-radius:16px !important; background:#fff !important; box-shadow:none !important;
+  list-style:none;
+}
+#relationship-list .relationship-item .item-name { font-size:13px !important; font-weight:600; color:#111; }
+#relationship-list .relationship-item .item-preview { font-size:9.5px !important; color:#888; margin-top:4px; }
 </style>
 
 <div id="time-mail-screen" class="screen tp-screen">
