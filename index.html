@@ -10754,7 +10754,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.5.4";
+  const APP_VERSION = "v5.5.5";
   let db = {
     characters: [],
     groups: [],
@@ -12648,7 +12648,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.4</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.5</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12682,7 +12682,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.4<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.5<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -15409,7 +15409,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     return { facts, impressions };
   }
-  function pushMemory(charId, source, content, type) {
+  function pushMemory(charId, source, content, type, maskId) {
     if (!content) return;
     try {
       const isImpress = type === "impression";
@@ -15418,7 +15418,8 @@ document.addEventListener("DOMContentLoaded", () => {
         source_type: source || "summary",
         importance: isImpress ? 0.7 : 0.9,
         confidence: isImpress ? 0.45 : 0.75,
-        tags: isImpress ? ["印象"] : ["剧情"]
+        tags: isImpress ? ["印象"] : ["剧情"],
+        mask_id: maskId
       });
       return;
     } catch (e) {}
@@ -18848,6 +18849,25 @@ document.addEventListener("DOMContentLoaded", () => {
     return false;
   }
   async function ensureMaskBinding(char) { return bindMaskOnMessage(char); }
+  /* 记忆归属：优先用「这段对话真正用的面具」，而不是此刻切到的面具。
+     优先级：当前面具已绑定该角色 → 用它；否则按聊天里的 myName 反查已绑面具；再否则取最后绑定的那个。 */
+  function resolveMaskForChat(chat) {
+    if (!chat) return (getCurrentMask() || {}).id || "";
+    const c = typeof chat === "string"
+      ? ((db.characters || []).find(function (x) { return x.id === chat; }) || (db.groups || []).find(function (x) { return x.id === chat; }))
+      : chat;
+    if (!c) return (getCurrentMask() || {}).id || "";
+    const cur = getCurrentMask();
+    const bound = c.maskIds || [];
+    const byName = (db.masks || []).find(function (m) {
+      return bound.indexOf(m.id) >= 0 && m.name && c.myName && String(m.name) === String(c.myName);
+    });
+    if (byName) return byName.id;
+    if (cur && bound.indexOf(cur.id) >= 0) return cur.id;
+    if (bound.length) return bound[bound.length - 1];
+    return cur ? cur.id : "";
+  }
+  window.resolveMaskForChat = resolveMaskForChat;
   window.applyMaskPersona = applyMaskPersona;
   window.bindMaskOnMessage = bindMaskOnMessage;
   window.ensureMaskBinding = ensureMaskBinding;
@@ -19009,7 +19029,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!text || text.length < 3) return null;
       mems();
       const cid = charId || opts.character_id || "";
-      const mid = opts.mask_id || maskOf(cid);
+      const mid = opts.mask_id || (typeof resolveMaskForChat === "function" ? resolveMaskForChat(cid) : maskOf(cid));
       if (!cid || !mid) return null;
       const cls = opts.memory_type ? { type: opts.memory_type, importance: opts.importance || 0.6, tags: opts.tags || [], entities: opts.entities || [] } : classify(text);
       const pool = db.memories.filter(function (m) { return m.character_id === cid && m.mask_id === mid && m.status !== "archived" && m.memory_type === cls.type; });
@@ -19126,7 +19146,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     function ingestTurn(chat, chatType, windowRounds) {
       if (!chat) return;
-      const mid = maskOf(chat.id);
+      const mid = (typeof resolveMaskForChat === "function" ? resolveMaskForChat(chat) : maskOf(chat.id));
       if (!mid) return;
       const hist = (typeof chatHistoryView === "function" ? chatHistoryView(chat) : (chat.history || []));
       const _wr = Math.max(2, Math.min(12, parseInt(windowRounds, 10) || 3));
@@ -19152,7 +19172,7 @@ document.addEventListener("DOMContentLoaded", () => {
         picks.forEach(function (s) {
           const cls = classify(s);
           const t = cls.type === "life" ? "profile" : cls.type;
-          add(cid, s, { memory_type: t, source_type: chatType === "group" ? "group" : "online", confidence: 0.5, created_at: at, importance: cls.importance });
+          add(cid, s, { memory_type: t, source_type: chatType === "group" ? "group" : "online", confidence: 0.5, created_at: at, importance: cls.importance, mask_id: mid });
         });
       }
       /* 角色自己的生活连续性：只取自称且带时间/状态的短句，避免把每句台词都当记忆 */
@@ -19165,7 +19185,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (selfLife.length < 1) selfLife.push(t);
       });
       selfLife.forEach(function (s) {
-        add(cid, s, { memory_type: "life", source_type: "online", confidence: 0.45, created_at: at, importance: 0.42, expiration_at: now() + 3 * DAY });
+        add(cid, s, { memory_type: "life", source_type: "online", confidence: 0.45, created_at: at, importance: 0.42, expiration_at: now() + 3 * DAY, mask_id: mid });
       });
       /* TA 自己许下的约定/承诺 → 未完成事项（不会自动算完成） */
       const prom = [];
@@ -19177,7 +19197,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (prom.length < 1) prom.push(t);
       });
       prom.forEach(function (s) {
-        add(cid, s, { memory_type: "loop", source_type: "online", confidence: 0.5, created_at: at, importance: 0.55, status: "pending" });
+        add(cid, s, { memory_type: "loop", source_type: "online", confidence: 0.5, created_at: at, importance: 0.55, status: "pending", mask_id: mid });
       });
     }
 
@@ -19307,7 +19327,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ---------- 权限与用户控制 ---------- */
-    function own(m) { return m && m.mask_id === maskOf(m.character_id); }
+    function own(m) { return !!(m && m.character_id); }
     function remove(id) {
       const m = mems().find(function (x) { return x.id === id; });
       if (!m || !own(m)) return false;
@@ -23405,6 +23425,7 @@ function setupPhoneSystem() {
   }
   async function summarizeOnlineChat(character, fromR, toR) {
     const oc = getOfflineChat(character.id);
+    const midNow = resolveMaskForChat(character);
     const rounds = splitHistoryRounds(character.history, (m) => m.role === "user");
     const totalRounds = rounds.length;
     let f = fromR || (character.summaryCursor || 0) + 1;
@@ -23435,8 +23456,8 @@ function setupPhoneSystem() {
         if (c) factList.push(c);
       });
     }
-    if (factList.length) pushMemory(character.id, "online", factList.join("\uFF1B"), "fact");
-    if (impressList.length) pushMemory(character.id, "online", impressList.join("\uFF1B"), "impression");
+    if (factList.length) pushMemory(character.id, "online", factList.join("\uFF1B"), "fact", midNow);
+    if (impressList.length) pushMemory(character.id, "online", impressList.join("\uFF1B"), "impression", midNow);
     trimMemories(character.id);
     character.summaryCursor = t;
     await saveData();
@@ -23984,9 +24005,12 @@ function setupPhoneSystem() {
       + '<div style="margin:14px 0 4px;border-top:1px solid #f1f2f4;"></div>'
       + rows.map(function (r) { return '<div style="display:flex;gap:10px;padding:7px 0;font-size:12px;"><span style="width:66px;color:#9aa0a6;flex:0 0 auto;">' + r[0] + '</span><span style="color:#3f4348;flex:1;word-break:break-all;">' + escapeHtml(String(r[1])) + '</span></div>'; }).join("")
       + ((m.tags || []).length ? '<div style="margin-top:8px;font-size:11.5px;color:#8d9298;">标签：' + escapeHtml((m.tags || []).join(" · ")) + '</div>' : "")
+      + ((m.versions || []).length ? '<div style="margin-top:10px;font-size:11px;color:#8d9298;">修订记录</div>'
+        + (m.versions || []).map(function (v) { return '<div style="font-size:11px;color:#b0b4b9;line-height:1.6;padding:2px 0;">' + escapeHtml(MemoryOS.fmt(v.at || 0)) + ' · ' + escapeHtml(String(v.content || "").slice(0, 40)) + '</div>'; }).join("") : "")
       + '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;">'
       + '<button type="button" data-mact="star" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">' + ((m.importance || 0) >= 0.8 ? "取消重要" : "标记重要") + '</button>'
       + '<button type="button" data-mact="scope" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">' + (m.memory_scope === "shared" ? "改为私密" : "设为共享") + '</button>'
+      + '<button type="button" data-mact="mask" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">改归属面具</button>'
       + (m.memory_type === "loop" ? '<button type="button" data-mact="done" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">标记完成</button>' : "")
       + '<button type="button" data-mact="edit" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">纠正内容</button>'
       + '<button type="button" data-mact="del" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #f0d6d4;background:#fff;font-size:12.5px;color:#b4544f;">删除</button>'
@@ -24005,6 +24029,39 @@ function setupPhoneSystem() {
       if (act === "star") {
         MemoryOS.update(m.id, { importance: (m.importance || 0) >= 0.8 ? 0.5 : 0.95 });
         close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); return;
+      }
+      if (act === "mask") {
+        const c = (db.characters || []).find(function (x) { return x.id === m.character_id; }) || (db.groups || []).find(function (x) { return x.id === m.character_id; });
+        const ids = ((c && c.maskIds) || []).slice();
+        (db.masks || []).forEach(function (mm) { if (ids.indexOf(mm.id) < 0) ids.push(mm.id); });
+        const pick = document.createElement("div");
+        pick.className = "modal-overlay visible";
+        pick.style.cssText = "position:fixed;inset:0;z-index:10080;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.38);";
+        pick.innerHTML = '<div style="width:100%;max-width:420px;background:#fff;border-radius:22px 22px 0 0;padding:16px 18px calc(16px + env(safe-area-inset-bottom,0px));">'
+          + '<div style="font-size:12px;color:#8d9298;margin-bottom:8px;">这条记忆归属哪个面具？</div>'
+          + ids.map(function (id, i) {
+            const nm = (db.masks || []).find(function (x) { return x.id === id; });
+            return '<div data-mid="' + escapeHtml(id) + '" style="display:flex;align-items:center;gap:10px;padding:12px 0;border-top:1px solid #f1f2f4;font-size:13px;color:#15161a;cursor:pointer;">'
+              + '<span>' + escapeHtml(nm ? nm.name : id) + '</span>'
+              + (id === m.mask_id ? '<span style="margin-left:auto;font-size:10px;color:#9aa0a6;">当前</span>' : '')
+              + '</div>';
+          }).join("")
+          + '<button type="button" data-cancel="1" style="width:100%;margin-top:12px;height:40px;border-radius:12px;border:none;background:#f4f5f7;color:#6b7076;font-size:13px;cursor:pointer;">取消</button></div>';
+        pick.addEventListener("click", function (e) {
+          if (e.target === pick || e.target.closest("[data-cancel]")) { pick.remove(); return; }
+          const row = e.target.closest("[data-mid]");
+          if (!row) return;
+          const target = row.dataset.mid;
+          pick.remove(); close();
+          if (target && target !== m.mask_id) {
+            MemoryOS.update(m.id, { mask_id: target, confidence: 0.95 });
+            showToast("已改归属 · " + ((db.masks || []).find(function (x) { return x.id === target; }) || {}).name);
+            renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || "");
+            try { renderMemoryScreen(); } catch (e2) {}
+          }
+        });
+        document.body.appendChild(pick);
+        return;
       }
       if (act === "scope") {
         MemoryOS.update(m.id, { memory_scope: m.memory_scope === "shared" ? "private" : "shared" });
@@ -37256,7 +37313,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.5.4 ================= */
+/* ================= 404 桌面复刻 v5.5.5 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
