@@ -21997,8 +21997,10 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!text) text = "有些话，留在草稿里就好。";
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
       const sys = "你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。请从下面这条动态里提炼一句适合做成文字图片的短句，12-26字，保留你的口吻和画面感，像随手写下来的一行字。不要解释，不要总结，不要加引号，不要写成广告或鸡汤，不要提到AI。只输出这一句。";
+      const _wbTi = wbTextFor([char], "online");
+      const _sysTi = _wbTi ? sys + "\n\n【世界书·必须内化】\n" + _wbTi : sys;
       const user = "动态原文：" + String(source || "").slice(0, 180);
-      const gen = await offlineRequest(sys, [{ role: "user", content: user }], 80, true);
+      const gen = await offlineRequest(_sysTi, [{ role: "user", content: user }], 80, true);
       if (gen && gen.trim()) {
         text = gen.trim().replace(/^["“”]+|["“”]+$/g, "").replace(/[\r\n]+/g, " ").slice(0, 28);
       }
@@ -29193,7 +29195,10 @@ function setupPhoneSystem() {
     }
   };
   function coupleAI(sys, user, silent) {
-    return offlineRequest(sys, [{ role: "user", content: user }], 1600, true).catch((e) => {
+    const _wbCpChar = CP.partner();
+    const _wbCp = wbTextFor(_wbCpChar ? [_wbCpChar] : [], "online");
+    const _sysCp = _wbCp ? sys + "\n\n【世界书·必须内化】\n" + _wbCp : sys;
+    return offlineRequest(_sysCp, [{ role: "user", content: user }], 1600, true).catch((e) => {
       if (!silent) showToast("API\u8BF7\u6C42\u5931\u8D25\uFF1A" + (e && e.message ? e.message : "\u672A\u77E5\u9519\u8BEF"));
       return "";
     });
@@ -29426,7 +29431,8 @@ function setupPhoneSystem() {
       const canApi = !!(db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model);
       if (canApi) {
         const sys = "\u4F60\u662F" + (c.realName || "") + "\uFF0C\u4E00\u4E2A\u771F\u5B9E\u9C9C\u6D3B\u7684\u4EBA\uFF0C\u6B63\u5728\u4EA4\u6362\u65E5\u8BB0\u91CC\u56DE\u5E94" + (d.who === "me" ? CP.meName() + "\u5199\u7ED9\u4F60\u7684\u65E5\u8BB0" : "\u4F60\u81EA\u5DF1\u7684\u65E5\u8BB0") + "\u3002\u65E5\u8BB0\u5185\u5BB9\uFF1A" + String(d.content || "").slice(0, 300) + "\u3002\u8BF7\u6839\u636E\u65E5\u8BB0\u5185\u5BB9\u771F\u8BDA\u56DE\u5E94\u4E00\u53E5\uFF0810-40\u5B57\uFF09\uFF0C\u8D34\u5408\u4EBA\u8BBE\uFF0C\u53E3\u8BED\u81EA\u7136\uFF0C\u7EDD\u4E0D\u8BF4\u4F60\u662FAI\u3002";
-        cm = String(await offlineRequest(sys, [{ role: "user", content: "\u56DE\u5E94\u8FD9\u7BC7\u65E5\u8BB0\u3002" }], 120, true) || "").trim();
+        const _wbD = wbTextFor([c], "online");
+        cm = String(await offlineRequest(_wbD ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbD : sys, [{ role: "user", content: "\u56DE\u5E94\u8FD9\u7BC7\u65E5\u8BB0\u3002" }], 120, true) || "").trim();
       }
     } catch (e) {
     }
@@ -30122,7 +30128,8 @@ function setupPhoneSystem() {
       if (canApi) {
         const myName = CP.meName();
         const sys = "\u4F60\u662F" + (c.realName || "") + "\uFF0C\u4E00\u4E2A\u771F\u5B9E\u9C9C\u6D3B\u7684\u4EBA\uFF0C\u6B63\u5728\u60C5\u4FA3\u7A7A\u95F4\u91CC\u56DE\u5E94" + myName + (l.from === "me" ? "\u5199\u7ED9" + myName + "\u7684\u4FE1" : "\u4F60\u7684\u4FE1") + "\u3002\u4FE1\u7684\u5185\u5BB9\uFF1A" + String(l.content || "").slice(0, 300) + "\u3002\u8BF7\u4F60\u6839\u636E\u4FE1\u4EF6\u5185\u5BB9\u771F\u8BDA\u5730\u56DE\u5E94\u4E00\u53E5\u5FC3\u91CC\u8BDD\uFF0810-40\u5B57\uFF09\uFF0C\u5B8C\u5168\u8D34\u5408\u4F60\u7684\u4EBA\u8BBE\u548C\u4F60\u4EEC\u7684\u5173\u7CFB\uFF0C\u53E3\u8BED\u81EA\u7136\uFF0C\u7EDD\u4E0D\u8BF4\u4F60\u662FAI\u3002";
-        cm = String(await offlineRequest(sys, [{ role: "user", content: "\u56DE\u5E94\u8FD9\u5C01\u4FE1\u3002" }], 120, true) || "").trim();
+        const _wbL = wbTextFor([c], "online");
+        cm = String(await offlineRequest(_wbL ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbL : sys, [{ role: "user", content: "\u56DE\u5E94\u8FD9\u5C01\u4FE1\u3002" }], 120, true) || "").trim();
       }
     } catch (e) {
     }
@@ -30930,9 +30937,11 @@ function setupPhoneSystem() {
     const chat = char;
     const myName = chat.myName || (mask ? mask.name : "\u6211");
     const sys = "\u4F60\u6B63\u5728\u7EBF\u4E0A\u804A\u5929APP\u91CC\u626E\u6F14\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u521A\u5728\u8BBA\u575B\u5237\u5230\u300C").concat(myName, "\u300D\u53D1\u7684\u5E16\u5B50\uFF1A\u300C").concat(String(post.content || "").slice(0, 60), "\u300D\u3002\u4F60\u6709\u70B9\u60F3\u804A\u8FD9\u4E2A\uFF0C\u4E8E\u662F\u4E3B\u52A8\u7ED9 Ta \u53D1\u4E86\u6761\u6D88\u606F\u2014\u2014\u8BED\u6C14\u5B8C\u5168\u7B26\u5408\u4F60\u7684\u4EBA\u8BBE\uFF0C\u81EA\u7136\u968F\u610F\uFF0C\u50CF\u771F\u4EBA\u627E\u8BDD\u9898\uFF0C\u4E0D\u8981\u6C47\u62A5\u5F0F\u3001\u4E0D\u8981\u603B\u7ED3\u5F0F\uFF0C\u4E0D\u63D0\u300CAI\u300D\u300C\u6A21\u578B\u300D\u7B49\u8BCD\u3002").concat((getCharacterMemories(char.id) || []).slice(0, 3).map((m) => "-" + m.content).join("\n") ? "\u4F60\u7684\u8BB0\u5FC6\uFF1A\n" + (getCharacterMemories(char.id) || []).slice(0, 3).map((m) => "-" + m.content).join("\n") : "").concat(fxWv(), "\n15-50\u5B57\u3002");
+    const _wbOp = wbTextFor([char], "online");
+    const _sysOp = _wbOp ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbOp : sys;
     const rep = await (async () => {
       try {
-        return await offlineRequest(sys, [{ role: "user", content: "\u7ED9\u300C" + myName + "\u300D\u53D1\u6761\u6D88\u606F\u3002" }], 200, true);
+        return await offlineRequest(_sysOp, [{ role: "user", content: "\u7ED9\u300C" + myName + "\u300D\u53D1\u6761\u6D88\u606F\u3002" }], 200, true);
       } catch (e) {
         if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) showToast("API\u8C03\u7528\u5931\u8D25\uFF1A" + (e && e.message ? e.message : "\u7F51\u7EDC\u9519\u8BEF") + "\uFF0C\u5DF2\u7528\u5185\u7F6E\u6A21\u677F");
         return null;
@@ -31042,10 +31051,12 @@ function setupPhoneSystem() {
     if (!p) return;
     const nm = peerNm || FX_PASSERBY_NAMES[Math.floor(Math.random() * FX_PASSERBY_NAMES.length)];
     const sys = "\u4F60\u662F\u8BBA\u575B\u91CC\u7684\u666E\u901A\u7F51\u53CB\u300C".concat(nm, "\u300D\uFF08\u968F\u610F\u8D77\u4E2A\u7F51\u540D\u5373\u53EF\uFF09\u3002\u7528\u6237\u300C").concat(userCmt ? userCmt.authorName : "\u6211", "\u300D\u5728\u5E16\u5B50\u300C").concat(String(p.content || "").slice(0, 80), "\u300D\u4E0B\u8BC4\u8BBA\u4E86\uFF1A\u300C").concat(userCmt ? String(userCmt.content || "").slice(0, 60) : "\uFF08\u672A\u7559\u5185\u5BB9\uFF09", "\u300D\u3002\u8BF7\u4EE5\u666E\u901A\u7F51\u53CB\u7684\u53E3\u543B\uFF0C\u752815-40\u5B57\u81EA\u7136\u5730\u56DE\u590D\u7528\u6237\u8FD9\u6761\u8BC4\u8BBA\u2014\u2014\u50CF\u771F\u5B9E\u7F51\u6C11\u4E00\u6837\uFF0C\u56F4\u7ED5\u8FD9\u6761\u8BC4\u8BBA\u5185\u5BB9\u672C\u8EAB\uFF0C\u81EA\u7136\u968F\u610F\u3002").concat(fxWv());
+    const _wbPasserby = wbTextFor([], "online");
+    const _sysPasserby = _wbPasserby ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbPasserby : sys;
     fxBusy("\u56DE\u590D\u751F\u6210\u4E2D\u2026", true);
     const rep = await (async () => {
       try {
-        return await offlineRequest(sys, [{ role: "user", content: "\u8BF7\u56DE\u590D\u3002" }], 120, true);
+        return await offlineRequest(_sysPasserby, [{ role: "user", content: "\u8BF7\u56DE\u590D\u3002" }], 120, true);
       } catch (e) {
         if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) showToast("API\u8C03\u7528\u5931\u8D25\uFF1A" + (e && e.message ? e.message : "\u7F51\u7EDC\u9519\u8BEF") + "\uFF0C\u5DF2\u7528\u5185\u7F6E\u6A21\u677F");
         return null;
@@ -31062,11 +31073,13 @@ function setupPhoneSystem() {
     if (!p || !parentCmt) return;
     const nm = FX_PASSERBY_NAMES[Math.floor(Math.random() * FX_PASSERBY_NAMES.length)];
     const sys = "\u4F60\u662F\u8BBA\u575B\u91CC\u7684\u666E\u901A\u7F51\u53CB\u300C".concat(nm, "\u300D\u3002\u5728\u5E16\u5B50\u300C").concat(String(p.content || "").slice(0, 80), "\u300D\u4E0B\uFF0C").concat(parentCmt.authorName, "\u8BC4\u8BBA\u4E86\uFF1A\u300C").concat(String(parentCmt.content || "").slice(0, 60), "\u300D\u3002\u8BF7\u4EE5\u666E\u901A\u7F51\u53CB\u7684\u53E3\u543B\uFF0C\u7528\uFF08").concat(8 + depth * 6, "-").concat(25 + depth * 4, "\u5B57\uFF09\u81EA\u7136\u5730\u56DE\u590D").concat(parentCmt.authorName, "\u8FD9\u6761\u8BC4\u8BBA\uFF0C\u5C31\u50CF\u771F\u5B9E\u7684\u697C\u4E2D\u697C\u90A3\u6837\uFF0C\u56F4\u7ED5\u5BF9\u65B9\u8BC4\u8BBA\u5185\u5BB9\uFF0C\u81EA\u7136\u968F\u610F\u3002").concat(fxWv());
+    const _wbPasserbyN = wbTextFor([], "online");
+    const _sysPasserbyN = _wbPasserbyN ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbPasserbyN : sys;
     fxBusy("\u56DE\u590D\u751F\u6210\u4E2D\u2026", true);
     let content = "";
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
       try {
-        const rep = await offlineRequest(sys, [{ role: "user", content: "\u8BF7\u56DE\u590D\u3002" }], 120, true);
+        const rep = await offlineRequest(_sysPasserbyN, [{ role: "user", content: "\u8BF7\u56DE\u590D\u3002" }], 120, true);
         content = rep && rep.trim() ? rep.trim().slice(0, 100) : "";
       } catch (e) {
         content = "";
@@ -31160,7 +31173,7 @@ function setupPhoneSystem() {
       }
       if (chars.length) {
         const passers = (p.comments || []).filter((x) => x.authorType === "passerby");
-        const sysChar = "\u4F60\u5728\u4E00\u4E2A\u8BBA\u575B\u91CC\u3002\u5E16\u5B50\uFF1A\u300C".concat(String(p.content || "").slice(0, 150), "\u300D\uFF08\u4F5C\u8005\uFF1A").concat(author.name).concat(fxPostImgText(p), "\uFF09").concat(wbText).concat(fxWv(), "\n\u8BBA\u575B\u91CC\u5DF2\u7ECF\u6709\u8FD9\u4E9B\u8DEF\u4EBA\u8BC4\u8BBA\uFF1A").concat(passers.map((x) => x.authorName + "\uFF1A" + String(x.content || "").slice(0, 30)).join("\n") || "\uFF08\u6682\u65F6\u6CA1\u6709\uFF09", "\n\u4F60\u8981\u626E\u6F14\u4EE5\u4E0B\u89D2\u8272\uFF08\u540C\u4E00\u4E16\u754C\u89C2\uFF0C\u89D2\u8272\u4E4B\u95F4\u4E5F\u4F1A\u4E92\u76F8\u56DE\u5E94\u5BF9\u65B9\u7684\u8BC4\u8BBA\uFF09\uFF1A").concat(chars.map((c) => "\u300C".concat(c.remarkName || c.realName, "\u300D\uFF1A").concat((c.persona || "").slice(0, 80))).join("\n"), "\n\u8BF7\u8FD9\u4E9B\u89D2\u8272\u5404\u53D1\u8868\u4E00\u6761\u8BC4\u8BBA\uFF0C\u6BCF\u6761\u4E00\u884C\uFF0C\u683C\u5F0F\u4E25\u683C\u4E3A\u300C\u89D2\u8272\u540D\uFF1A\u8BC4\u8BBA\u5185\u5BB9\u300D\u3002\u4E5F\u53EF\u4EE5\u8BA9\u67D0\u4E2A\u89D2\u8272\u9009\u62E9\u56DE\u590D\u67D0\u6761\u8BC4\u8BBA\uFF08\u53EF\u4EE5\u662F\u8DEF\u4EBA\u7684\uFF0C\u4E5F\u53EF\u4EE5\u662F\u5176\u4ED6\u89D2\u8272\u7684\uFF0C\u56DE\u590D\u540E\u8FD8\u53EF\u4EE5\u88AB\u518D\u56DE\u590D\uFF0C\u5C42\u53EF\u4EE5\u5F88\u6DF1\uFF09\uFF0C\u683C\u5F0F\u4E3A\u300C\u89D2\u8272\u540D\uFF1A@\u4ED6\u4EBA\u540D \u5185\u5BB9\u300D\u3002\u4E0D\u8981\u53EA\u6709\u5360\u4F4D\u5E16\uFF0C\u4E5F\u8BA9\u89D2\u8272\u4E4B\u95F4\u4E92\u76F8\u56DE\u5E94\u3002\u6BCF\u6761\u8BC4\u8BBA\u5FC5\u987B\u56F4\u7ED5\u5E16\u5B50\u5185\u5BB9\u672C\u8EAB\uFF08\u5185\u5BB9\u3001\u89C2\u70B9\u3001\u914D\u56FE\uFF09\uFF0C\u4E25\u7981\u8DD1\u9898\u3002\u6BCF\u676125-60\u5B57\uFF0C\u4E25\u683C\u8D34\u5408\u5404\u89D2\u8272\u4EBA\u8BBE\uFF0C\u50CF\u771F\u5B9E\u7684\u4EBA\u5237\u5230\u5E16\u5B50\u81EA\u7136\u53D1\u8A00\uFF0C\u7EDD\u4E0D\u4EBA\u673A\u3002");
+        const sysChar = "\u4F60\u5728\u4E00\u4E2A\u8BBA\u575B\u91CC\u3002\u5E16\u5B50\uFF1A\u300C".concat(String(p.content || "").slice(0, 150), "\u300D\uFF08\u4F5C\u8005\uFF1A").concat(author.name).concat(fxPostImgText(p), "\uFF09").concat(fxBoardWvText(board, chars)).concat(fxWv(), "\n\u8BBA\u575B\u91CC\u5DF2\u7ECF\u6709\u8FD9\u4E9B\u8DEF\u4EBA\u8BC4\u8BBA\uFF1A").concat(passers.map((x) => x.authorName + "\uFF1A" + String(x.content || "").slice(0, 30)).join("\n") || "\uFF08\u6682\u65F6\u6CA1\u6709\uFF09", "\n\u4F60\u8981\u626E\u6F14\u4EE5\u4E0B\u89D2\u8272\uFF08\u540C\u4E00\u4E16\u754C\u89C2\uFF0C\u89D2\u8272\u4E4B\u95F4\u4E5F\u4F1A\u4E92\u76F8\u56DE\u5E94\u5BF9\u65B9\u7684\u8BC4\u8BBA\uFF09\uFF1A").concat(chars.map((c) => "\u300C".concat(c.remarkName || c.realName, "\u300D\uFF1A").concat((c.persona || "").slice(0, 80))).join("\n"), "\n\u8BF7\u8FD9\u4E9B\u89D2\u8272\u5404\u53D1\u8868\u4E00\u6761\u8BC4\u8BBA\uFF0C\u6BCF\u6761\u4E00\u884C\uFF0C\u683C\u5F0F\u4E25\u683C\u4E3A\u300C\u89D2\u8272\u540D\uFF1A\u8BC4\u8BBA\u5185\u5BB9\u300D\u3002\u4E5F\u53EF\u4EE5\u8BA9\u67D0\u4E2A\u89D2\u8272\u9009\u62E9\u56DE\u590D\u67D0\u6761\u8BC4\u8BBA\uFF08\u53EF\u4EE5\u662F\u8DEF\u4EBA\u7684\uFF0C\u4E5F\u53EF\u4EE5\u662F\u5176\u4ED6\u89D2\u8272\u7684\uFF0C\u56DE\u590D\u540E\u8FD8\u53EF\u4EE5\u88AB\u518D\u56DE\u590D\uFF0C\u5C42\u53EF\u4EE5\u5F88\u6DF1\uFF09\uFF0C\u683C\u5F0F\u4E3A\u300C\u89D2\u8272\u540D\uFF1A@\u4ED6\u4EBA\u540D \u5185\u5BB9\u300D\u3002\u4E0D\u8981\u53EA\u6709\u5360\u4F4D\u5E16\uFF0C\u4E5F\u8BA9\u89D2\u8272\u4E4B\u95F4\u4E92\u76F8\u56DE\u5E94\u3002\u6BCF\u6761\u8BC4\u8BBA\u5FC5\u987B\u56F4\u7ED5\u5E16\u5B50\u5185\u5BB9\u672C\u8EAB\uFF08\u5185\u5BB9\u3001\u89C2\u70B9\u3001\u914D\u56FE\uFF09\uFF0C\u4E25\u7981\u8DD1\u9898\u3002\u6BCF\u676125-60\u5B57\uFF0C\u4E25\u683C\u8D34\u5408\u5404\u89D2\u8272\u4EBA\u8BBE\uFF0C\u50CF\u771F\u5B9E\u7684\u4EBA\u5237\u5230\u5E16\u5B50\u81EA\u7136\u53D1\u8A00\uFF0C\u7EDD\u4E0D\u4EBA\u673A\u3002");
         const repChar = await (async () => {
           try {
             return await offlineRequest(sysChar, [{ role: "user", content: "\u751F\u6210\u89D2\u8272\u8BC4\u8BBA\u3002" }], 500, true);
@@ -31266,7 +31279,7 @@ function setupPhoneSystem() {
         const ratios = ["1:1", "3:4", "4:3", "16:10", "16:9"];
         for (let i = 0; i < n; i++) {
           const ratio = n === 1 ? ratios[Math.floor(Math.random() * ratios.length)] : "1:1";
-          const _desc = await fxImgSceneDesc(content);
+          const _desc = await fxImgSceneDesc(content, char);
           imgs.push({ url: FX_MOCK_IMG, desc: _desc, mock: true, ratio });
         }
       }
@@ -31287,7 +31300,7 @@ function setupPhoneSystem() {
         reposted: false
       };
       (db.forum.posts || []).unshift(p);
-      pushMemory(char.id, "forum", "\uFF08\u8BBA\u575B\uFF09\u6211\u5728\u300C".concat(board.name, "\u300D\u677F\u5757\u53D1\u4E86\u4E00\u6761\u5E16\u5B50\uFF1A\u300C").concat(String(content).slice(0, 50), "\u300D").concat(img ? "\uFF08\u5E26\u56FE\uFF09" : "", "\u3002"), "fact");
+      pushMemory(char.id, "forum", "\uFF08\u8BBA\u575B\uFF09\u6211\u5728\u300C".concat(board.name, "\u300D\u677F\u5757\u53D1\u4E86\u4E00\u6761\u5E16\u5B50\uFF1A\u300C").concat(String(content).slice(0, 50), "\u300D").concat(imgs.length ? "\uFF08\u5E26\u56FE\uFF09" : "", "\u3002"), "fact");
       await saveData();
       const others = (board.charIds || []).map((id) => db.characters.find((c) => c.id === id && c.id !== char.id)).filter(Boolean);
       if (others.length && Math.random() < 0.45) {
@@ -31579,12 +31592,14 @@ function setupPhoneSystem() {
   function fxContentDesc(content, fallback) {
     return fxSceneDescFor(content, 0);
   }
-  async function fxImgSceneDesc(content) {
+  async function fxImgSceneDesc(content, char) {
     const c = String(content || "").slice(0, 120);
     if (c && db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
       try {
         const sys = "\u4F60\u662F\u4E00\u4E2A\u521A\u5728\u8BBA\u575B\u53D1\u5E16\u7684\u771F\u4EBA\uFF0C\u5E76\u7ED9\u8FD9\u6761\u5E16\u914D\u4E86\u4E00\u5F20\u7167\u7247\u3002\u8BF7\u6839\u636E\u5E16\u5B50\u5185\u5BB9\uFF0C\u752815-40\u5B57\u63CF\u8FF0\u7167\u7247\u91CC\u62CD\u5230\u4E86\u4EC0\u4E48\u753B\u9762\uFF08\u50CF\u76F8\u518C\u56FE\u7247\u63CF\u8FF0\u90A3\u6837\uFF0C\u76F4\u63E5\u8BF4\u753B\u9762\u91CC\u6709\u4EC0\u4E48\u3001\u4EC0\u4E48\u573A\u666F\u3001\u4EC0\u4E48\u5149\u3001\u4EC0\u4E48\u7269\u4F53\uFF09\uFF0C\u5FC5\u987B\u7D27\u6263\u5E16\u5B50\u4E3B\u9898\uFF0C\u4E0D\u8981\u51FA\u73B0\u201C\u968F\u624B\u62CD\u201D\u201C\u914D\u56FE\u201D\u201C\u4E3B\u9898\u201D\u201C\u56FE\u7247\u201D\u201C\u7167\u7247\u201D\u8FD9\u7C7B\u8BF4\u660E\u8BCD\uFF0C\u76F4\u63A5\u63CF\u8FF0\u753B\u9762\u3002";
-        const rep = await offlineRequest(sys, [{ role: "user", content: "\u5E16\u5B50\uFF1A" + c }], 140, true);
+        const _wbImgDesc = wbTextFor(char ? [char] : [], "online");
+        const _sysImgDesc = _wbImgDesc ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbImgDesc : sys;
+        const rep = await offlineRequest(_sysImgDesc, [{ role: "user", content: "\u5E16\u5B50\uFF1A" + c }], 140, true);
         const txt = rep && rep.trim() ? rep.trim().replace(/^["\u201C]+|["\u201D]+$/g, "").slice(0, 40) : "";
         if (txt) return txt;
       } catch (e) {
@@ -31602,14 +31617,15 @@ function setupPhoneSystem() {
   function fxBoardWvText(board, extraChars) {
     let s = "";
     const boardChars = board && board.charIds ? board.charIds.map(function(id) { return db.characters.find(function(c) { return c.id === id; }); }).filter(Boolean) : [];
-    const allChars = boardChars.concat((extraChars || []).filter(Boolean));
+    /* 只把“当前正在生成的角色”挂载的局部书注入给他本人；板块公共设定和全局书所有人都能读。 */
+    const allChars = (extraChars || []).filter(Boolean);
     if (board) {
       if (board.worldView && board.worldView.trim()) s += "\n板块世界观：" + board.worldView.trim().slice(0, 300);
-      const wbText = wbTextFor(allChars, "online", board.wbIds || []);
-      if (wbText) s += "\n【世界书·必须内化】以下设定是这个论坛与角色所处世界的既定事实，写帖、评论、回复时自然体现，不要照搬背诵；局部设定只对挂载它的角色生效：\n" + wbText;
+      const wbText = wbTextLabeledFor(allChars, "online", board.wbIds || []);
+      if (wbText) s += "\n【世界书·必须内化】以下设定是这个论坛与角色所处世界的既定事实，写帖、评论、回复时自然体现，不要照搬背诵；标注为某个角色专属的设定只对这个角色生效，其他角色不应知道：\n" + wbText;
       if (boardChars.length) s += "\n板块参与角色（他们的言行、人设都必须被尊重）：" + boardChars.map(function(c) { return "「" + (c.remarkName || c.realName) + "」人设：" + String(c.persona || "").slice(0, 180) + (c.signature ? "，签名：" + String(c.signature).slice(0, 60) : ""); }).join("；").slice(0, 700);
     } else {
-      const wbText = wbTextFor(allChars, "online");
+      const wbText = wbTextLabeledFor(allChars, "online");
       if (wbText) s += "\n【世界书·必须内化】\n" + wbText;
     }
     return s;
@@ -31625,9 +31641,11 @@ function setupPhoneSystem() {
         const mem = getCharacterMemories(char.id).slice(0, 5).map((m) => "-" + m.content).join("\n");
         const wv = fxWv();
         const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u6B63\u5728\u4E3A\u81EA\u5DF1\u51C6\u5907\u8BBA\u575B\u9A6C\u7532\u2014\u2014\u8BF7\u6309\u4EBA\u8BBE\u7ED9\u81EA\u5DF1\u53D6\u4E00\u4E2A\u8BBA\u575B\u6635\u79F0\uFF082-6\u5B57\uFF0C\u6709\u8FA8\u8BC6\u5EA6\uFF0C\u53EF\u4EE5\u662F\u7F51\u540D/\u4EE3\u53F7\uFF0C\u4E0D\u4E00\u5B9A\u662F\u771F\u540D\uFF09\u3001\u4E00\u4E2A\u8BBA\u575BID\uFF08@\u540E\u9762\uFF0C\u7B80\u77ED\u82F1\u6587/\u6570\u5B57/\u62FC\u97F3\u7EC4\u5408\uFF09\u3001\u4EE5\u53CA\u4E00\u53E5\u4E3B\u9875\u7B80\u4ECB\uFF08bio\uFF0C30-60\u5B57\uFF0C\u50CF\u771F\u5B9E\u7684\u4EBA\u5199\u81EA\u6211\u4ECB\u7ECD\uFF1A\u6027\u683C\u3001\u559C\u6B22\u4EC0\u4E48\u3001\u6700\u8FD1\u5728\u5FD9\u4EC0\u4E48\uFF0C\u81EA\u7136\u6709\u751F\u6D3B\u611F\uFF09").concat(mem ? "\n\u53EF\u53C2\u8003\u4F60\u7684\u8BB0\u5FC6\uFF1A\n" + mem : "").concat(wv, "\u3002\n\u4E25\u683C\u6309\u4EE5\u4E0B\u4E09\u884C\u683C\u5F0F\u8FD4\u56DE\uFF0C\u4E0D\u8981\u591A\u4F59\u5185\u5BB9\uFF1A\n\u6635\u79F0\uFF1Axxx\nID\uFF1Axxx\n\u7B80\u4ECB\uFF1Axxx");
+        const _wbPf = wbTextFor([char], "online");
+        const _sysPf = _wbPf ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbPf : sys;
         const rep = await (async () => {
           try {
-            return await offlineRequest(sys, [{ role: "user", content: "\u751F\u6210\u8BBA\u575B\u9A6C\u7532\u3002" }], 220, true);
+            return await offlineRequest(_sysPf, [{ role: "user", content: "\u751F\u6210\u8BBA\u575B\u9A6C\u7532\u3002" }], 220, true);
           } catch (e) {
             if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) showToast("API\u8C03\u7528\u5931\u8D25\uFF1A" + (e && e.message ? e.message : "\u7F51\u7EDC\u9519\u8BEF") + "\uFF0C\u5DF2\u7528\u5185\u7F6E\u6A21\u677F");
             return null;
@@ -32511,9 +32529,11 @@ function setupPhoneSystem() {
           const wv = fxWv();
           const hist = (conv.msgs || []).slice(-6).map((m) => (m.from === "me" ? (getCurrentMask() || {}).name || "\u6211" : conv.peerName) + "\uFF1A" + m.content).join("\n");
           const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u5728\u8BBA\u575B\u79C1\u4FE1\u91CC\u548C\u300C").concat((getCurrentMask() || {}).name || "\u5BF9\u65B9", "\u300D\u804A\u5929\u3002\u6700\u8FD1\u7684\u5BF9\u8BDD\uFF1A\n").concat(hist, "\n\u8BF7\u81EA\u7136\u56DE\u590D Ta \u521A\u8BF4\u7684\uFF1A\u300C").concat(myText, "\u300D").concat(mem ? "\n\u4F60\u7684\u8BB0\u5FC6\uFF08\u53EF\u81EA\u7136\u5173\u8054\uFF09\uFF1A\n" + mem : "").concat(wv, "\n15-60\u5B57\uFF0C\u81EA\u7136\u53E3\u8BED\uFF0C\u53EF\u4EE5\u63A5\u8BDD\u3001\u56DE\u5E94\u3001\u5206\u4EAB\u81EA\u5DF1\u7684\u4E8B\u3002\u4E25\u7981\u627F\u8BA4\u81EA\u5DF1\u662FAI\u6216\u4EBA\u673A\uFF0C\u7EDD\u4E0DOOC\u3002");
+          const _wbDm = wbTextFor([char], "online");
+          const _sysDm = _wbDm ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbDm : sys;
           const rep = await (async () => {
             try {
-              return await offlineRequest(sys, [{ role: "user", content: "\u56DE\u590D\u79C1\u4FE1\u3002" }], 160, true);
+              return await offlineRequest(_sysDm, [{ role: "user", content: "\u56DE\u590D\u79C1\u4FE1\u3002" }], 160, true);
             } catch (e) {
               if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) showToast("API\u8C03\u7528\u5931\u8D25\uFF1A" + (e && e.message ? e.message : "\u7F51\u7EDC\u9519\u8BEF") + "\uFF0C\u5DF2\u7528\u5185\u7F6E\u6A21\u677F");
               return null;
@@ -32526,9 +32546,11 @@ function setupPhoneSystem() {
         const wv = fxWv();
         const hist = (conv.msgs || []).slice(-4).map((m) => (m.from === "me" ? "\u6211" : conv.peerName) + "\uFF1A" + m.content).join("\n");
         const sys = "\u4F60\u662F\u666E\u901A\u7F51\u53CB\u300C".concat(conv.peerName, "\u300D\uFF0C\u6B63\u5728\u8BBA\u575B\u79C1\u4FE1\u91CC\u548C\u4E00\u4E2A\u4EBA\u804A\u5929\u3002\u6700\u8FD1\u7684\u5BF9\u8BDD\uFF1A\n").concat(hist, "\n\u8BF7\u4EE5\u666E\u901A\u7F51\u53CB\u7684\u53E3\u543B\u81EA\u7136\u56DE\u590D\uFF1A\u300C").concat(myText, "\u300D").concat(wv, "\n10-40\u5B57\uFF0C\u81EA\u7136\u968F\u610F\uFF0C\u50CF\u771F\u5B9E\u7F51\u53CB\u3002");
+        const _wbDmG = wbTextFor([], "online");
+        const _sysDmG = _wbDmG ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbDmG : sys;
         const rep = await (async () => {
           try {
-            return await offlineRequest(sys, [{ role: "user", content: "\u56DE\u590D\u79C1\u4FE1\u3002" }], 120, true);
+            return await offlineRequest(_sysDmG, [{ role: "user", content: "\u56DE\u590D\u79C1\u4FE1\u3002" }], 120, true);
           } catch (e) {
             if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) showToast("API\u8C03\u7528\u5931\u8D25\uFF1A" + (e && e.message ? e.message : "\u7F51\u7EDC\u9519\u8BEF") + "\uFF0C\u5DF2\u7528\u5185\u7F6E\u6A21\u677F");
             return null;
@@ -32599,9 +32621,11 @@ function setupPhoneSystem() {
         if (!char) return;
         const mem = getCharacterMemories(char.id).slice(0, 4).map((m) => "-" + m.content).join("\n");
         const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u6B63\u5728\u8BBA\u575B\u79C1\u4FE1\u91CC\u548C\u300C").concat((getCurrentMask() || {}).name || "\u5BF9\u65B9", "\u300D\u7EE7\u7EED\u804A\u5929\u2014\u2014\u53EF\u4EE5\u5206\u4EAB\u521A\u770B\u5230\u7684\u4E8B\u3001\u95EE\u4E2A\u95EE\u9898\u3001\u968F\u53E3\u804A\u4E24\u53E5\u3002").concat(mem ? "\u4F60\u7684\u8BB0\u5FC6\uFF1A\n" + mem : "").concat(wv, "\n15-45\u5B57\uFF0C\u81EA\u7136\u968F\u610F\u3002\u4E25\u7981\u627F\u8BA4\u81EA\u5DF1\u662FAI\uFF0C\u4E0DOOC\u3002");
+        const _wbDm1 = wbTextFor([char], "online");
+        const _sysDm1 = _wbDm1 ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbDm1 : sys;
         const rep = await (async () => {
           try {
-            return await offlineRequest(sys, [{ role: "user", content: "\u53D1\u4E00\u6761\u79C1\u4FE1\u3002" }], 120, true);
+            return await offlineRequest(_sysDm1, [{ role: "user", content: "\u53D1\u4E00\u6761\u79C1\u4FE1\u3002" }], 120, true);
           } catch (e) {
             if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) showToast("API\u8C03\u7528\u5931\u8D25\uFF1A" + (e && e.message ? e.message : "\u7F51\u7EDC\u9519\u8BEF") + "\uFF0C\u5DF2\u7528\u5185\u7F6E\u6A21\u677F");
             return null;
@@ -32623,9 +32647,11 @@ function setupPhoneSystem() {
         const char = chars[Math.floor(Math.random() * chars.length)];
         const mem = getCharacterMemories(char.id).slice(0, 4).map((m) => "-" + m.content).join("\n");
         const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u5728\u8BBA\u575B\u4E0A\u770B\u5230\u4E86\u300C").concat((getCurrentMask() || {}).name || "\u4E00\u4E2A\u7528\u6237", "\u300D\uFF0C\u60F3\u7ED9 Ta \u53D1\u7B2C\u4E00\u6761\u79C1\u4FE1\u6253\u62DB\u547C/\u642D\u8BDD\u3002").concat(mem ? "\u4F60\u7684\u8BB0\u5FC6\uFF1A\n" + mem : "").concat(wv, "\n15-45\u5B57\uFF0C\u81EA\u7136\u968F\u610F\u3002\u4E25\u7981\u627F\u8BA4\u81EA\u5DF1\u662FAI\uFF0C\u4E0DOOC\u3002");
+        const _wbDm2 = wbTextFor([char], "online");
+        const _sysDm2 = _wbDm2 ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbDm2 : sys;
         const rep = await (async () => {
           try {
-            return await offlineRequest(sys, [{ role: "user", content: "\u53D1\u4E00\u6761\u79C1\u4FE1\u3002" }], 120, true);
+            return await offlineRequest(_sysDm2, [{ role: "user", content: "\u53D1\u4E00\u6761\u79C1\u4FE1\u3002" }], 120, true);
           } catch (e) {
             if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) showToast("API\u8C03\u7528\u5931\u8D25\uFF1A" + (e && e.message ? e.message : "\u7F51\u7EDC\u9519\u8BEF") + "\uFF0C\u5DF2\u7528\u5185\u7F6E\u6A21\u677F");
             return null;
@@ -32649,9 +32675,11 @@ function setupPhoneSystem() {
         if (myPost && db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
           try {
             const sys = "\u4F60\u662F\u666E\u901A\u7F51\u53CB\u300C".concat(nm, "\u300D\uFF0C\u5728\u8BBA\u575B\u5237\u5230\u4E86\u300C\u6211\u300D\u53D1\u7684\u5E16\u5B50\uFF1A\u300C").concat(String(myPost.content || "").slice(0, 80), "\u300D\u3002\u4F60\u60F3\u7ED9 Ta \u53D1\u7B2C\u4E00\u6761\u79C1\u4FE1\u2014\u2014\u53EF\u4EE5\u662F\u770B\u4E86\u5E16\u5B50\u60F3\u642D\u8BDD\u3001\u597D\u5947\u3001\u5410\u69FD\u3001\u8BF7\u6559\uFF0C\u81EA\u7136\u968F\u610F\uFF0C\u50CF\u771F\u5B9E\u7F51\u53CB\u300210-40\u5B57\u3002").concat(wv);
+            const _wbDm3 = wbTextFor([], "online");
+            const _sysDm3 = _wbDm3 ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbDm3 : sys;
             const rep = await (async () => {
               try {
-                return await offlineRequest(sys, [{ role: "user", content: "\u53D1\u4E00\u6761\u79C1\u4FE1\u3002" }], 120, true);
+                return await offlineRequest(_sysDm3, [{ role: "user", content: "\u53D1\u4E00\u6761\u79C1\u4FE1\u3002" }], 120, true);
               } catch (e) {
                 if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) showToast("API\u8C03\u7528\u5931\u8D25\uFF1A" + (e && e.message ? e.message : "\u7F51\u7EDC\u9519\u8BEF") + "\uFF0C\u5DF2\u7528\u5185\u7F6E\u6A21\u677F");
                 return null;
@@ -32684,9 +32712,11 @@ function setupPhoneSystem() {
       try {
         const wv = fxWv();
         const sys = "\u4F60\u662F\u8BBA\u575B\u91CC\u7684\u666E\u901A\u7F51\u53CB\u300C".concat(name, "\u300D\u3002\u8BF7\u5199\u4E00\u53E5\u4E3B\u9875\u7B80\u4ECB\uFF08bio\uFF09\uFF0C15-40\u5B57\uFF0C\u50CF\u771F\u5B9E\u7F51\u53CB\uFF1A\u53EF\u4EE5\u8BF4\u81EA\u5DF1\u7684\u65E5\u5E38\u3001\u6027\u683C\u3001\u6700\u8FD1\u5728\u5E72\u561B\u3002").concat(wv, " \u81EA\u7136\u968F\u610F\u3002");
+        const _wbPp = wbTextFor([], "online");
+        const _sysPp = _wbPp ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbPp : sys;
         const rep = await (async () => {
           try {
-            return await offlineRequest(sys, [{ role: "user", content: "\u5199\u4E3B\u9875\u7B80\u4ECB\u3002" }], 100, true);
+            return await offlineRequest(_sysPp, [{ role: "user", content: "\u5199\u4E3B\u9875\u7B80\u4ECB\u3002" }], 100, true);
           } catch (e) {
             if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) showToast("API\u8C03\u7528\u5931\u8D25\uFF1A" + (e && e.message ? e.message : "\u7F51\u7EDC\u9519\u8BEF") + "\uFF0C\u5DF2\u7528\u5185\u7F6E\u6A21\u677F");
             return null;
