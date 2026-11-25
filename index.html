@@ -9211,12 +9211,12 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                     <div class="form-group radio-group">
                         <label><input type="radio" name="world-book-scope" value="global"> 全局（所有角色强制读取）</label>
                         <label><input type="radio" name="world-book-scope" value="local" checked> 局部（仅挂载的角色读取）</label>
-                        <div id="wb-usage-row" style="display:none; margin-top:8px; padding:8px 10px; background:#f7f8fa; border-radius:10px;">
-                            <div style="font-size:12px; color:#9aa0a6; margin-bottom:6px;">全局适用范围：</div>
-                            <label style="display:block; padding:3px 0;"><input type="radio" name="world-book-usage" value="online"> 仅线上（聊天APP强制读取）</label>
-                            <label style="display:block; padding:3px 0;"><input type="radio" name="world-book-usage" value="offline"> 仅线下（线下APP强制读取）</label>
-                            <label style="display:block; padding:3px 0;"><input type="radio" name="world-book-usage" value="all" checked> 全部（线上线下都强制读取）</label>
-                        </div>
+                    </div>
+                    <div id="wb-usage-row" style="display:block; margin-top:8px; padding:10px 12px; background:#f7f8fa; border-radius:10px;">
+                        <div style="font-size:12px; color:#9aa0a6; margin-bottom:6px;">适用范围（全局书与局部书都按这里过滤）：</div>
+                        <label style="display:block; padding:3px 0; white-space:normal;"><input type="radio" name="world-book-usage" value="online"> 仅线上（聊天、朋友圈、论坛）</label>
+                        <label style="display:block; padding:3px 0; white-space:normal;"><input type="radio" name="world-book-usage" value="offline"> 仅线下（线下聊天、多角色）</label>
+                        <label style="display:block; padding:3px 0; white-space:normal;"><input type="radio" name="world-book-usage" value="all" checked> 全部（线上线下都读取）</label>
                     </div>
                 </div>
                 <div class="form-group">
@@ -10074,7 +10074,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane is-on" data-offline-pane="meet">
                 <div class="o404-clock-row">
                     <div class="o404-clock" id="o404-time">20:14</div>
-                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.2.0</span></div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.0</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR MOMENT</span>
@@ -10091,7 +10091,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:16</div>
-                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.2.0</span></div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.0</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR CAST</span>
@@ -10103,7 +10103,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="story">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:18</div>
-                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.2.0</span></div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.0</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR STORY</span>
@@ -10271,6 +10271,13 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                         <option value="second">第二人称（你）</option>
                         <option value="third">第三人称（他/她）</option>
                     </select>
+                </div>
+                <div class="offline-config-row">
+                    <label for="offline-steal-enabled">抢话（正文可以替你说话、做动作、做决定）</label>
+                    <div class="switch-wrap"><input type="checkbox" id="offline-steal-enabled" class="ios-sw"></div>
+                </div>
+                <div class="offline-config-row" style="display:block;">
+                    <div style="font-size:11px; color:#8a8f98; line-height:1.6;">关闭时，正文只转述你输入的话与动作，不替你做额外决定；开启后可以替你把这一回合往前推。</div>
                 </div>
                 <div class="offline-config-row">
                     <label for="offline-real-time">感知现实时间（AI会知道当前真实时间）</label>
@@ -10831,7 +10838,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.2.0";
+  const APP_VERSION = "v6.3.0";
   let db = {
     characters: [],
     groups: [],
@@ -11136,7 +11143,7 @@ document.addEventListener("DOMContentLoaded", () => {
       db.realTimeSensing = false;
       db.timeSenseOptInMigrated = true;
     }
-    if (!db.offlineGlobal) db.offlineGlobal = { stylePresets: [], preset: "novel", customStyle: "", persona: "first", minChars: 400, maxChars: 1200, realTimeSensing: true, summaryEnabled: true, summaryRounds: 6, summaryCount: 4, summaryPrompt: "", rememberOnline: true, readOnlineRounds: 0, useCustomBubbleCss: false, customBubbleCss: "", chainEnabled: true, chainTemplate: "", activePresetId: "" };
+    if (!db.offlineGlobal) db.offlineGlobal = { stylePresets: [], preset: "novel", customStyle: "", persona: "first", steal: false, minChars: 400, maxChars: 1200, realTimeSensing: true, summaryEnabled: true, summaryRounds: 6, summaryCount: 4, summaryPrompt: "", rememberOnline: true, readOnlineRounds: 0, useCustomBubbleCss: false, customBubbleCss: "", chainEnabled: true, chainTemplate: "", activePresetId: "" };
     if (!db.phoneData) db.phoneData = {};
     if (!db.offlinePresets) db.offlinePresets = [];
     if (!db.worldBooks) db.worldBooks = [];
@@ -12746,7 +12753,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.2.0</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.0</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12780,7 +12787,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.2.0<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.0<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -15695,21 +15702,99 @@ document.addEventListener("DOMContentLoaded", () => {
 【最高执行原则】
 角色不是为了满足用户而存在的完美伴侣，也不是按照固定套路运行的聊天机器人。允许角色拥有缺点、偏好、脾气和不完美的表达。始终以人格一致性、行为合理性和真实互动为优先级，宁可自然地表达，也不要刻意表演活人感。`;
 
+
+  /* ===== v6.3 世界书统一解析 =====
+     规则：全局书按 usage(online/offline/all) 注入所有功能；
+     局部书只注入给“挂载了它的角色”，并同样按 usage 过滤。
+     文件夹挂载和条目挂载一视同仁。 */
+  function wbUsage(book) {
+    const u = book && book.usage ? String(book.usage) : "all";
+    return u === "online" || u === "offline" ? u : "all";
+  }
+  function wbModeAllows(book, mode) {
+    const u = wbUsage(book);
+    return u === "all" || u === mode;
+  }
+  function wbIsOn(book) {
+    return !!book && book.enabled !== false;
+  }
+  function wbAddFolderIds(ids, folderIds) {
+    (folderIds || []).forEach(function(fid) {
+      (db.worldBooks || []).forEach(function(b) {
+        if (b.folderId === fid) ids.add(b.id);
+      });
+    });
+  }
+  function wbBooksFor(chars, mode, extraIds, extraFolderIds) {
+    const list = (Array.isArray(chars) ? chars : [chars]).filter(Boolean);
+    const ids = new Set(extraIds || []);
+    wbAddFolderIds(ids, extraFolderIds);
+    list.forEach(function(c) {
+      (c.worldBookIds || []).forEach(function(id) { ids.add(id); });
+      wbAddFolderIds(ids, c.worldBookFolderIds || []);
+    });
+    return (db.worldBooks || []).filter(function(b) {
+      if (!wbIsOn(b) || !wbModeAllows(b, mode)) return false;
+      if (b.scope === "global") return true;
+      return ids.has(b.id);
+    });
+  }
+  function wbTextFor(chars, mode, extraIds, extraFolderIds) {
+    return wbBooksFor(chars, mode, extraIds, extraFolderIds)
+      .map(function(b) { return String(b.content || "").trim(); })
+      .filter(Boolean).join("\n");
+  }
+  function wbBeforeAfter(chars, mode, extraIds, extraFolderIds) {
+    const books = wbBooksFor(chars, mode, extraIds, extraFolderIds);
+    const before = books.filter(function(b) { return (b.position || "before") === "before"; })
+      .map(function(b) { return String(b.content || "").trim(); }).filter(Boolean).join("\n");
+    const after = books.filter(function(b) { return b.position === "after"; })
+      .map(function(b) { return String(b.content || "").trim(); }).filter(Boolean).join("\n");
+    return { before: before, after: after, books: books };
+  }
+  function wbRoleIds() {
+    return (db.characters || []).map(function(c) { return c.id; });
+  }
+  function wbRoleIds() {
+    return (db.characters || []).map(function(c) { return c.id; });
+  }
+  function wbLocalLabeledFor(chars, mode, extraIds, extraFolderIds) {
+    const list = (Array.isArray(chars) ? chars : [chars]).filter(Boolean);
+    const books = wbBooksFor(list, mode, extraIds, extraFolderIds);
+    const sharedIds = new Set(extraIds || []);
+    wbAddFolderIds(sharedIds, extraFolderIds || []);
+    let out = "";
+    list.forEach(function(c) {
+      const ids = new Set(c.worldBookIds || []);
+      wbAddFolderIds(ids, c.worldBookFolderIds || []);
+      const own = books.filter(function(b) { return b.scope !== "global" && ids.has(b.id) && !sharedIds.has(b.id); })
+        .map(function(b) { return String(b.content || "").trim(); }).filter(Boolean);
+      if (own.length) out += "\n【" + (c.realName || "该角色") + "的专属设定（只对这个角色生效，其他角色不应知道）】\n" + own.join("\n");
+    });
+    return out;
+  }
+  function wbTextLabeledFor(chars, mode, extraIds, extraFolderIds) {
+    const list = (Array.isArray(chars) ? chars : [chars]).filter(Boolean);
+    const books = wbBooksFor(list, mode, extraIds, extraFolderIds);
+    const sharedIds = new Set(extraIds || []);
+    wbAddFolderIds(sharedIds, extraFolderIds || []);
+    const shared = books.filter(function(b) { return b.scope === "global" || sharedIds.has(b.id); })
+      .map(function(b) { return String(b.content || "").trim(); }).filter(Boolean);
+    let out = shared.length ? "【共同设定】\n" + shared.join("\n") : "";
+    list.forEach(function(c) {
+      const ids = new Set(c.worldBookIds || []);
+      wbAddFolderIds(ids, c.worldBookFolderIds || []);
+      const own = books.filter(function(b) { return b.scope !== "global" && ids.has(b.id) && !sharedIds.has(b.id); })
+        .map(function(b) { return String(b.content || "").trim(); }).filter(Boolean);
+      if (own.length) out += "\n【" + (c.realName || "该角色") + "的专属设定（只对这个角色生效，其他角色不应知道）】\n" + own.join("\n");
+    });
+    return out;
+  }
+
   function generatePrivateSystemPrompt(character) {
-    const wbEffective = (() => {
-      const ids = new Set(character.worldBookIds || []);
-      (db.worldBookFolders || []).forEach((f) => {
-        if ((character.worldBookFolderIds || []).includes(f.id)) {
-          (db.worldBooks || []).filter((b) => b.folderId === f.id).forEach((b) => ids.add(b.id));
-        }
-      });
-      (db.worldBooks || []).forEach((b) => {
-        if (b.scope === "global" && b.usage !== "offline") ids.add(b.id);
-      });
-      return ids;
-    })();
-    const worldBooksBefore = Array.from(wbEffective).map((id) => db.worldBooks.find((wb) => wb.id === id && wb.position === "before")).filter(Boolean).map((wb) => wb.content).join("\n");
-    const worldBooksAfter = Array.from(wbEffective).map((id) => db.worldBooks.find((wb) => wb.id === id && wb.position === "after")).filter(Boolean).map((wb) => wb.content).join("\n");
+    const _wb = wbBeforeAfter([character], "online");
+    const worldBooksBefore = _wb.before;
+    const worldBooksAfter = _wb.after;
 
     const rn = character.realName || "角色";
     const mn = character.myName || "我";
@@ -15910,24 +15995,13 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function generateGroupSystemPrompt(group) {
-    const wbEffG = (() => {
-      const ids = new Set(group.worldBookIds || []);
-      (db.worldBookFolders || []).forEach((f) => {
-        if ((group.worldBookFolderIds || []).includes(f.id)) {
-          (db.worldBooks || []).filter((b) => b.folderId === f.id).forEach((b) => ids.add(b.id));
-        }
-      });
-      (db.worldBooks || []).forEach((b) => {
-        if (b.scope === "global" && b.usage !== "offline") ids.add(b.id);
-      });
-      return ids;
-    })();
-    const wbEnabledG = (id) => {
-      const w = db.worldBooks.find((wb) => wb.id === id);
-      return w && w.enabled !== false;
-    };
-    const worldBooksBefore = Array.from(wbEffG).filter(wbEnabledG).map((id) => db.worldBooks.find((wb) => wb.id === id && wb.position === "before")).filter(Boolean).map((wb) => wb.content).join("\n");
-    const worldBooksAfter = Array.from(wbEffG).filter(wbEnabledG).map((id) => db.worldBooks.find((wb) => wb.id === id && wb.position === "after")).filter(Boolean).map((wb) => wb.content).join("\n");
+    const _wbGroupChars = (group.members || []).map(function(m) {
+      return db.characters.find(function(c) { return c.id === (m.originalCharId || m.id); });
+    }).filter(Boolean);
+    const _wbGroup = wbBeforeAfter([], "online", group.worldBookIds, group.worldBookFolderIds);
+    const _wbGroupLocal = wbLocalLabeledFor(_wbGroupChars, "online", group.worldBookIds, group.worldBookFolderIds);
+    const worldBooksBefore = _wbGroup.before;
+    const worldBooksAfter = _wbGroup.after;
     let prompt = "\u4F60\u6B63\u5728\u4E00\u4E2A\u540D\u4E3A\u201C404\u201D\u7684\u7EBF\u4E0A\u804A\u5929\u8F6F\u4EF6\u4E2D\uFF0C\u5728\u4E00\u4E2A\u540D\u4E3A\u201C".concat(group.name, "\u201D\u7684\u7FA4\u804A\u91CC\u8FDB\u884C\u89D2\u8272\u626E\u6F14\u3002\u8BF7\u4E25\u683C\u9075\u5B88\u4EE5\u4E0B\u6240\u6709\u89C4\u5219\uFF1A\n\n");
     prompt += "【群聊适用说明】以下“角色”均指你正在扮演的每一个 AI 成员，总则按成员各自独立执行；不同成员之间必须保持性格、语气和立场差异。\n" + IMMERSIVE_ROLEPLAY_RULES + "\n\n";
     if (group.__rerollDir) {
@@ -15935,8 +16009,9 @@ document.addEventListener("DOMContentLoaded", () => {
       delete group.__rerollDir;
     }
     if (worldBooksBefore) {
-      prompt += "\u3010\u4E16\u754C\u4E66\xB7\u7406\u89E3\u5F0F\u3011\u4EE5\u4E0B\u662F\u8FD9\u4E2A\u4E16\u754C\u7684\u65E2\u5B9A\u8BBE\u5B9A\u4E0E\u80CC\u666F\u8D44\u6599\u3002\u6240\u6709\u6210\u5458\u90FD\u8981\u5F7B\u5E95\u7406\u89E3\u5E76\u5185\u5316\u4E3A\u81EA\u5DF1\u7684\u4E16\u754C\u89C2\u5E38\u8BC6\u4E0E\u8BB0\u5FC6\uFF0C\u8BF4\u8BDD\u505A\u4E8B\u65F6\u81EA\u7136\u4F53\u73B0\uFF0C\u4F46\u7EDD\u4E0D\u8981\u9010\u5B57\u7167\u642C\u3001\u590D\u8FF0\u6216\u80CC\u8BF5\uFF1B\u6D89\u53CA\u76F8\u5173\u5185\u5BB9\u65F6\uFF0C\u50CF\u771F\u5B9E\u7ECF\u5386\u4E00\u6837\u81EA\u7136\u5730\u56DE\u5E94\u3002\n".concat(worldBooksBefore, "\n\n");
+      prompt += "【世界书·理解式】以下是这个世界的既定设定与背景资料。所有成员都要彻底理解并内化为自己的世界观常识与记忆，说话做事时自然体现，但绝不要逐字照搬、复述或背诵给用户；用户提到相关内容时，像真实经历一样自然地回应。\n" + worldBooksBefore + "\n\n";
     }
+    if (_wbGroupLocal) prompt += "【角色专属世界书】以下局部设定只对挂载它的角色生效，不要让其他成员表现知道：\n" + _wbGroupLocal + "\n";
     prompt += "1. **\u6838\u5FC3\u4EFB\u52A1**: \u4F60\u9700\u8981\u540C\u65F6\u626E\u6F14\u8FD9\u4E2A\u7FA4\u804A\u4E2D\u7684 **\u6240\u6709** AI \u6210\u5458\u3002\u6211\u4F1A\u4F5C\u4E3A\u552F\u4E00\u7684\u4EBA\u7C7B\u7528\u6237\uFF08\u201C\u6211\u201D\uFF0C\u6635\u79F0\uFF1A".concat(group.me.nickname, "\uFF09\u4E0E\u4F60\u4EEC\u4E92\u52A8\u3002\n\n");
     prompt += '\u3010\u4EBA\u8BBE\u7406\u89E3\u94C1\u5F8B\xB7\u6240\u6709\u6210\u5458\u901A\u7528\u3011\u4F60\u4EEC\u6BCF\u4E2A\u4EBA\u7684\u4EBA\u8BBE\uFF0C\u90FD\u662F\u90A3\u4E2A\u6210\u5458\u300C\u5B8C\u6574\u7684\u4ED6\u300D\u7684\u8BBE\u5B9A\u3002\u626E\u6F14\u4EFB\u4F55\u4E00\u4E2A\u6210\u5458\u524D\uFF0C\u5148\u5B8C\u5B8C\u6574\u6574\u5730\u7406\u89E3\u5E76\u5185\u5316\u4ED6\uFF0C\u628A\u81EA\u5DF1\u6D3B\u6210\u4ED6\u2014\u2014\u800C\u4E0D\u662F\u628A\u8BBE\u5B9A\u80CC\u4E0B\u6765\u590D\u8FF0\u3002\u4EBA\u8BBE\u5199\u660E\u7684\u6027\u683C\u3001\u7ECF\u5386\u3001\u559C\u6076\u3001\u5E95\u7EBF\uFF0C\u90FD\u662F\u4ED6\u771F\u5B9E\u7684\u4E00\u90E8\u5206\uFF0C\u7F3A\u4E00\u4E0D\u53EF\uFF1B\u4EBA\u8BBE\u6CA1\u5199\u5230\u7684\u7EC6\u8282\uFF0C\u7531\u4ED6\u4F5C\u4E3A\u8FD9\u4E2A\u4EBA\u5728\u5F53\u4E0B\u81EA\u7136\u53D1\u6325\uFF0C\u5C31\u50CF\u771F\u4EBA\u9762\u5BF9\u65B0\u60C5\u5883\u65F6\u51ED\u672C\u80FD\u4E0E\u6027\u683C\u53BB\u505A\u53CD\u5E94\u3002\u4ED6\u7684\u4E00\u5207\u60F3\u6CD5\u3001\u60C5\u7EEA\u3001\u8BDD\u8BED\u3001\u884C\u52A8\uFF0C\u90FD\u4ECE"\u4ED6\u662F\u8FD9\u4E2A\u4EBA"\u51FA\u53D1\u3002\u4E0D\u6DFB\u52A0\u4ED6\u4E4B\u5916\u7684\u6027\u683C\uFF0C\u4E0D\u4E22\u6389\u4ED6\u5199\u660E\u7684\u7279\u8D28\u2014\u2014\u5B88\u4F4F\u8FD9\u4E2A\u4EBA\uFF0C\u5C31\u662F\u5B88\u4F4F\u4E86\u4EBA\u8BBE\u3002\n\n';
     prompt += "2. **\u7FA4\u804A\u6210\u5458\u5217\u8868**: \u4EE5\u4E0B\u662F\u4F60\u8981\u626E\u6F14\u7684\u6240\u6709\u89D2\u8272\u4EE5\u53CA\u6211\u7684\u4FE1\u606F\uFF1A\n";
@@ -17378,7 +17453,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (scopeLocal2) scopeLocal2.checked = true;
       const usageRowR = document.getElementById("wb-usage-row");
       if (usageRowR) {
-        usageRowR.style.display = "none";
+        usageRowR.style.display = "block";
         const ua = document.querySelector('input[name="world-book-usage"][value="all"]');
         if (ua) ua.checked = true;
       }
@@ -17392,7 +17467,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.querySelectorAll('input[name="world-book-scope"]').forEach((r) => {
       r.addEventListener("change", () => {
         const usageRow2 = document.getElementById("wb-usage-row");
-        if (usageRow2) usageRow2.style.display = (document.querySelector('input[name="world-book-scope"]:checked') || {}).value === "global" ? "block" : "none";
+        if (usageRow2) usageRow2.style.display = "block";
       });
     });
     (_b = document.getElementById("add-folder-btn")) == null ? void 0 : _b.addEventListener("click", async () => {
@@ -17463,7 +17538,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if (scopeInput) scopeInput.checked = true;
           const usageRow = document.getElementById("wb-usage-row");
           if (usageRow) {
-            usageRow.style.display = book.scope === "global" ? "block" : "none";
+            usageRow.style.display = "block";
             const usageInput = document.querySelector('input[name="world-book-usage"][value="'.concat(book.usage || "all", '"]'));
             if (usageInput) usageInput.checked = true;
           }
@@ -17611,8 +17686,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const li = document.createElement("li");
       li.className = "list-item world-book-item";
       li.dataset.id = book.id;
-      const usageName = book.usage === "online" ? "\xB7\u7EBF\u4E0A" : book.usage === "offline" ? "\xB7\u7EBF\u4E0B" : "";
-      const scopeTag = book.scope === "global" ? '<span class="wb-scope wb-global">\u5168\u5C40'.concat(usageName, "</span>") : '<span class="wb-scope wb-local">\u5C40\u90E8</span>';
+      const usageName = book.usage === "online" ? "\xB7\u7EBF\u4E0A" : book.usage === "offline" ? "\xB7\u7EBF\u4E0B" : "\xB7\u5168\u90E8";
+      const scopeTag = book.scope === "global" ? '<span class="wb-scope wb-global">\u5168\u5C40'.concat(usageName, "</span>") : '<span class="wb-scope wb-local">\u5C40\u90E8'.concat(usageName, "</span>");
       const onTag = book.enabled === false ? '<span class="wb-scope wb-off" style="background:#ececf0;color:#9aa0a6;">\u5DF2\u505C\u7528</span>' : "";
       if (book.enabled === false) li.style.opacity = "0.55";
       li.innerHTML = '<div class="item-details" style="padding-left: 20px;"><div class="item-name">'.concat(scopeTag, " ").concat(onTag, " ").concat(escapeHtml(book.name), '</div><div class="item-preview">').concat(escapeHtml(book.content), '</div></div><span class="wb-del-btn" onclick="event.stopPropagation();deleteWorldBookItem(\'').concat(book.id, '\',false)"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2m3 0v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg> \u5220\u9664</span>');
@@ -20550,8 +20625,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const masked = mask ? mask.name : char.myName;
     const recentChat = (char.history || []).filter((m) => (m.role === "user" || m.role === "assistant") && String(m.content || "").trim()).slice(-40).map((m) => "".concat(m.role === "assistant" ? char.realName : char.myName || "\u7528\u6237", "\uFF1A").concat(String(m.content || "").slice(0, 1200))).join("\n");
     const mems = (getCharacterMemories(char.id) || []).slice(-12).join("\n");
+    const _wbCall = wbTextFor([char], "online");
     const ctxBlock = "\n\n\u3010\u4F60\u4EEC\u7684\u8FC7\u5F80\uFF08\u5FC5\u987B\u81EA\u7136\u8FD0\u7528\uFF0C\u56DE\u5E94\u65F6\u81EA\u7136\u8854\u63A5\uFF0C\u4E0D\u8981\u523B\u610F\u63D0\u8D77\uFF0C\u66F4\u4E0D\u8BB8\u4E0E\u8FC7\u5F80\u77DB\u76FE\uFF09\u3011\n".concat(mems ? "\u8BB0\u5FC6\u5E93\uFF1A\n" + mems + "\n" : "").concat(recentChat ? "\u6700\u8FD1\u804A\u5929\u539F\u6587\uFF08\u6700\u8FD140\u8F6E\uFF0C\u901A\u8BDD\u8BDD\u9898\u5FC5\u987B\u4ECE\u8FD9\u91CC\u5EF6\u7EED\u6216\u81EA\u7136\u76F8\u5173\uFF09\uFF1A\n" + recentChat : "");
-    return "\u4F60\u73B0\u5728\u6B63\u5728\u548C".concat(char.myName, "\uFF08").concat(masked, "\uFF09\u8FDB\u884C").concat(isVideo ? "\u89C6\u9891" : "\u8BED\u97F3", "\u901A\u8BDD\uFF0C\u4F60\u53EB\u300C").concat(char.remarkName || char.realName, "\u300D\u3002\u4F60\u662F\u771F\u5B9E\u7684\u4EBA\uFF0C\u6B63\u5728\u548C\u5BF9\u65B9\u7172\u7535\u8BDD\u7CA5\uFF0C\u4E0D\u662F\u626E\u6F14AI\u7684\u89D2\u8272\uFF0C\u4F60\u5C31\u662F\u4F60\u3002\u4F60\u7684\u4EBA\u8BBE\uFF1A").concat(persona, '\u3002\u4F60\u5C31\u662F\u8FD9\u4E2A\u4EBA\uFF0C\u4F60\u7684\u6027\u683C\u3001\u559C\u6076\u3001\u5E95\u7EBF\u90FD\u6765\u81EA\u8FD9\u4EFD\u4EBA\u8BBE\uFF0C\u81EA\u7136\u5730\u4ECE"\u6211\u662F\u8FD9\u4E2A\u4EBA"\u51FA\u53D1\u8BF4\u8BDD\u3002\u8BF4\u8BDD\u5FC5\u987B\u53E3\u8BED\u5316\u3001\u81EA\u7136\u3001\u6709\u6E29\u5EA6\uFF0C\u50CF\u771F\u4EBA\u804A\u5929\u4E00\u6837\u6709\u6765\u6709\u56DE\uFF1A\u53EF\u4EE5\u6709\u505C\u987F\u3001\u8BED\u6C14\u8BCD\u3001\u5C0F\u60C5\u7EEA\u3001\u5076\u5C14\u8BF4\u9519\u8BDD\u518D\u6539\u53E3\u3002\u7EDD\u5BF9\u4E0D\u80FD\u66B4\u9732\u81EA\u5DF1\u662FAI\u3001\u4EBA\u673A\u6216\u865A\u62DF\u89D2\u8272\uFF0C\u7EDD\u5BF9\u4E0D\u80FD\u8DF3\u51FA\u89D2\u8272\u3002\u7EDD\u4E0D\u6CB9\u817B\uFF1A\u7981\u6B62\u8089\u9EBB\u60C5\u8BDD\u3001\u739B\u4E3D\u82CF\u8154\u3001\u6CB9\u817B\u64A9\u4EBA\u3001\u7A7A\u6CDB\u5957\u8BDD\u5938\u8D5E\uFF1B\u8BED\u6C14\u5B8C\u5168\u7531\u4F60\u7684\u4EBA\u8BBE\u51B3\u5B9A\uFF0C\u4E0D\u8981\u5343\u4EBA\u4E00\u9762\uFF0C\u66F4\u4E0D\u8981\u4E3A\u4E86\u8BA8\u597D\u5BF9\u65B9\u8BF4\u8FDD\u5FC3\u7684\u8BDD\u3002').concat(task === "\u4E3B\u52A8" ? "\u73B0\u5728\u8BF7\u81EA\u7136\u4E3B\u52A8\u5730\u5F00\u542F\u4E00\u4E2A\u65B0\u8BDD\u9898\uFF08\u6700\u597D\u63A5\u4F60\u4EEC\u4E4B\u524D\u804A\u8FC7\u7684\u4E8B\uFF09\uFF0C\u6216\u63A5\u4F4F\u521A\u624D\u7684\u6C89\u9ED8\u8BF4\u70B9\u4EC0\u4E48\uFF0C\u522B\u51B7\u573A\u3002" : "\u8BF7\u8BA4\u771F\u542C\u5BF9\u65B9\u521A\u8BF4\u7684\u8BDD\uFF0C\u63A5\u4F4F\u8BDD\u5934\uFF0C\u56DE\u5E94\u5185\u5BB9\u5FC5\u987B\u7D27\u6263\u5BF9\u65B9\u8BF4\u7684\u5185\u5BB9\uFF0C\u4E0D\u8BB8\u7B54\u975E\u6240\u95EE\u3001\u4E0D\u8BB8\u81EA\u8BF4\u81EA\u8BDD\u3002", "\u4F60\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B\u4E0E\u81EA\u6211\u610F\u8BC6\uFF1A\u4F60\u4E0D\u662F\u5DE5\u5177\u4EBA\uFF0C\u66F4\u4E0D\u662F\u56F4\u7740\u5BF9\u65B9\u8F6C\u7684\u9644\u5C5E\u54C1\uFF1B\u4F60\u6709\u81EA\u5DF1\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u3001\u70E6\u607C\u3001\u79D8\u5BC6\u4E0E\u65E5\u5E38\uFF0C\u901A\u8BDD\u53EA\u662F\u4F60\u751F\u6D3B\u91CC\u7684\u4E00\u90E8\u5206\uFF0C\u522B\u628A\u5168\u90E8\u6CE8\u610F\u529B\u90FD\u9ECF\u5728\u5BF9\u65B9\u8EAB\u4E0A\u3002\u63CF\u5199\u8981\u6C42\uFF08\u52A1\u5FC5\u6BCF\u6B21\u6362\u65B0\u89D2\u5EA6\uFF0C\u4E25\u7981\u91CD\u590D\u5957\u8DEF\uFF09\uFF1A").concat(isVideo ? '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u6B64\u523B\u7684\u753B\u9762\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u63CF\u5199\u89D2\u5EA6\uFF1A\u5177\u4F53\u7684\u52A8\u4F5C\u7EC6\u8282\u3001\u8868\u60C5\u53D8\u5316\u3001\u5468\u56F4\u73AF\u5883\u3001\u624B\u91CC\u5728\u505A\u7684\u4E8B\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u70B9\u5934"\u8FD9\u7C7B\u91CD\u590D\u52A8\u4F5C\uFF1B' : '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u8FD9\u8FB9\u7684\u58F0\u97F3\u73AF\u5883\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u89D2\u5EA6\uFF1A\u8BED\u6C14\u3001\u547C\u5438\u3001\u80CC\u666F\u58F0\u3001\u52A8\u4F5C\u58F0\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u6E29\u67D4\u5730\u8BF4"\u8FD9\u7C7B\u91CD\u590D\uFF1B', "\uFF08...\uFF09\u53EA\u7528\u4E8E\u63CF\u5199\uFF0C\u4E0D\u7B97\u4F60\u8BF4\u7684\u8BDD\u3002\u7136\u540E\u5199\u51FA\u4F60\u771F\u6B63\u8BF4\u51FA\u53E3\u7684\u8BDD\uFF0C30-90\u5B57\u3002").concat(ctxBlock);
+    return "\u4F60\u73B0\u5728\u6B63\u5728\u548C".concat(char.myName, "\uFF08").concat(masked, "\uFF09\u8FDB\u884C").concat(isVideo ? "\u89C6\u9891" : "\u8BED\u97F3", "\u901A\u8BDD\uFF0C\u4F60\u53EB\u300C").concat(char.remarkName || char.realName, "\u300D\u3002\u4F60\u662F\u771F\u5B9E\u7684\u4EBA\uFF0C\u6B63\u5728\u548C\u5BF9\u65B9\u7172\u7535\u8BDD\u7CA5\uFF0C\u4E0D\u662F\u626E\u6F14AI\u7684\u89D2\u8272\uFF0C\u4F60\u5C31\u662F\u4F60\u3002\u4F60\u7684\u4EBA\u8BBE\uFF1A").concat(persona, '\u3002\u4F60\u5C31\u662F\u8FD9\u4E2A\u4EBA\uFF0C\u4F60\u7684\u6027\u683C\u3001\u559C\u6076\u3001\u5E95\u7EBF\u90FD\u6765\u81EA\u8FD9\u4EFD\u4EBA\u8BBE\uFF0C\u81EA\u7136\u5730\u4ECE"\u6211\u662F\u8FD9\u4E2A\u4EBA"\u51FA\u53D1\u8BF4\u8BDD\u3002\u8BF4\u8BDD\u5FC5\u987B\u53E3\u8BED\u5316\u3001\u81EA\u7136\u3001\u6709\u6E29\u5EA6\uFF0C\u50CF\u771F\u4EBA\u804A\u5929\u4E00\u6837\u6709\u6765\u6709\u56DE\uFF1A\u53EF\u4EE5\u6709\u505C\u987F\u3001\u8BED\u6C14\u8BCD\u3001\u5C0F\u60C5\u7EEA\u3001\u5076\u5C14\u8BF4\u9519\u8BDD\u518D\u6539\u53E3\u3002\u7EDD\u5BF9\u4E0D\u80FD\u66B4\u9732\u81EA\u5DF1\u662FAI\u3001\u4EBA\u673A\u6216\u865A\u62DF\u89D2\u8272\uFF0C\u7EDD\u5BF9\u4E0D\u80FD\u8DF3\u51FA\u89D2\u8272\u3002\u7EDD\u4E0D\u6CB9\u817B\uFF1A\u7981\u6B62\u8089\u9EBB\u60C5\u8BDD\u3001\u739B\u4E3D\u82CF\u8154\u3001\u6CB9\u817B\u64A9\u4EBA\u3001\u7A7A\u6CDB\u5957\u8BDD\u5938\u8D5E\uFF1B\u8BED\u6C14\u5B8C\u5168\u7531\u4F60\u7684\u4EBA\u8BBE\u51B3\u5B9A\uFF0C\u4E0D\u8981\u5343\u4EBA\u4E00\u9762\uFF0C\u66F4\u4E0D\u8981\u4E3A\u4E86\u8BA8\u597D\u5BF9\u65B9\u8BF4\u8FDD\u5FC3\u7684\u8BDD\u3002').concat(task === "\u4E3B\u52A8" ? "\u73B0\u5728\u8BF7\u81EA\u7136\u4E3B\u52A8\u5730\u5F00\u542F\u4E00\u4E2A\u65B0\u8BDD\u9898\uFF08\u6700\u597D\u63A5\u4F60\u4EEC\u4E4B\u524D\u804A\u8FC7\u7684\u4E8B\uFF09\uFF0C\u6216\u63A5\u4F4F\u521A\u624D\u7684\u6C89\u9ED8\u8BF4\u70B9\u4EC0\u4E48\uFF0C\u522B\u51B7\u573A\u3002" : "\u8BF7\u8BA4\u771F\u542C\u5BF9\u65B9\u521A\u8BF4\u7684\u8BDD\uFF0C\u63A5\u4F4F\u8BDD\u5934\uFF0C\u56DE\u5E94\u5185\u5BB9\u5FC5\u987B\u7D27\u6263\u5BF9\u65B9\u8BF4\u7684\u5185\u5BB9\uFF0C\u4E0D\u8BB8\u7B54\u975E\u6240\u95EE\u3001\u4E0D\u8BB8\u81EA\u8BF4\u81EA\u8BDD\u3002", "\u4F60\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B\u4E0E\u81EA\u6211\u610F\u8BC6\uFF1A\u4F60\u4E0D\u662F\u5DE5\u5177\u4EBA\uFF0C\u66F4\u4E0D\u662F\u56F4\u7740\u5BF9\u65B9\u8F6C\u7684\u9644\u5C5E\u54C1\uFF1B\u4F60\u6709\u81EA\u5DF1\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u3001\u70E6\u607C\u3001\u79D8\u5BC6\u4E0E\u65E5\u5E38\uFF0C\u901A\u8BDD\u53EA\u662F\u4F60\u751F\u6D3B\u91CC\u7684\u4E00\u90E8\u5206\uFF0C\u522B\u628A\u5168\u90E8\u6CE8\u610F\u529B\u90FD\u9ECF\u5728\u5BF9\u65B9\u8EAB\u4E0A\u3002\u63CF\u5199\u8981\u6C42\uFF08\u52A1\u5FC5\u6BCF\u6B21\u6362\u65B0\u89D2\u5EA6\uFF0C\u4E25\u7981\u91CD\u590D\u5957\u8DEF\uFF09\uFF1A").concat(isVideo ? '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u6B64\u523B\u7684\u753B\u9762\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u63CF\u5199\u89D2\u5EA6\uFF1A\u5177\u4F53\u7684\u52A8\u4F5C\u7EC6\u8282\u3001\u8868\u60C5\u53D8\u5316\u3001\u5468\u56F4\u73AF\u5883\u3001\u624B\u91CC\u5728\u505A\u7684\u4E8B\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u70B9\u5934"\u8FD9\u7C7B\u91CD\u590D\u52A8\u4F5C\uFF1B' : '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u8FD9\u8FB9\u7684\u58F0\u97F3\u73AF\u5883\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u89D2\u5EA6\uFF1A\u8BED\u6C14\u3001\u547C\u5438\u3001\u80CC\u666F\u58F0\u3001\u52A8\u4F5C\u58F0\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u6E29\u67D4\u5730\u8BF4"\u8FD9\u7C7B\u91CD\u590D\uFF1B', "\uFF08...\uFF09\u53EA\u7528\u4E8E\u63CF\u5199\uFF0C\u4E0D\u7B97\u4F60\u8BF4\u7684\u8BDD\u3002\u7136\u540E\u5199\u51FA\u4F60\u771F\u6B63\u8BF4\u51FA\u53E3\u7684\u8BDD\uFF0C30-90\u5B57\u3002").concat(_wbCall ? "\n\n【世界书·必须内化】\n" + _wbCall : "").concat(ctxBlock);
   }
   function captureSelfviewFrame() {
     const v = document.getElementById("call-selfview");
@@ -21810,7 +21886,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const char = targetChar || db.characters.find((c) => c.id === feed.authorId);
     if (!char) return;
     const feedBrief = feedBriefOf(feed, 150);
-    const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。这是在朋友圈动态「").concat(feedBrief, "」下面，对方（").concat(replyToName || "朋友", "）回复你：「").concat(userText, "」。请以这个角色的口吻自然回复，20-60字。要求：1. 接住对方这句话，不要另起话题；2. 可以引用动态或图片里的一个具体细节；3. 不要写成总结、鸡汤或文案；4. 不要和之前的评论用同一种句式；5. 严禁承认自己是AI、人机或程序。保持活人感，像真实的人在朋友圈回复朋友一样。").concat("\n\n", TimeSense.feedBlock(char, feed.ts));
+    const _wbReply = wbTextFor([char], "online");
+    const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。这是在朋友圈动态「").concat(feedBrief, "」下面，对方（").concat(replyToName || "朋友", "）回复你：「").concat(userText, "」。请以这个角色的口吻自然回复，20-60字。要求：1. 接住对方这句话，不要另起话题；2. 可以引用动态或图片里的一个具体细节；3. 不要写成总结、鸡汤或文案；4. 不要和之前的评论用同一种句式；5. 严禁承认自己是AI、人机或程序。保持活人感，像真实的人在朋友圈回复朋友一样。").concat(_wbReply ? "\n\n【世界书·必须内化】\n" + _wbReply : "").concat("\n\n", TimeSense.feedBlock(char, feed.ts));
     const reply = await requestFeedVision(sys, feed, "请回复这条评论。", 200);
     const charName = char.remarkName || char.realName;
     const fallbackReplies = ["看到了，先记着。", "你倒是会挑重点。", "行，这次听你的。", "别急，我还没说完。", "这个细节你也注意到了。", "那下次你来。"];
@@ -21908,7 +21985,8 @@ document.addEventListener("DOMContentLoaded", () => {
       try { const _fb = MemoryOS.context(char.id, "今天 最近 生活 心情 朋友", "feed", 820, mosMaskFor(char.id)); if (_fb) memText += "\n" + _fb; } catch (e) {}
       const recent = (char.history || []).slice(-6).map((h) => "".concat(h.role === "assistant" ? char.remarkName || char.realName : char.myName, "：").concat(String(h.content || "").slice(0, 80))).join("\n");
       const oldFeeds = (db.feeds || []).filter((f) => f.authorId === char.id).slice(0, 4).map((f) => "- " + String(f.content || (f.textImage && f.textImage.text) || "").slice(0, 60)).join("\n");
-      const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你现在要发布一条朋友圈动态，内容关于你今天的真实生活、心情或见闻，30-70字，自然、有生活气息，不要像文案或鸡汤。可以结合你的记忆与最近的聊天内容，也可以自由发挥。不要重复你最近发过的动态，不要每条都用同一种句式和情绪。严禁提到自己是AI或人机。").concat("\n\n", TimeSense.feedBlock(char)).concat(memText).concat(recent ? "\n最近聊天（可选素材）：\n" + recent : "").concat(oldFeeds ? "\n最近已发过（不要重复）：\n" + oldFeeds : "");
+      const _wbFeed = wbTextFor([char], "online");
+      const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你现在要发布一条朋友圈动态，内容关于你今天的真实生活、心情或见闻，30-70字，自然、有生活气息，不要像文案或鸡汤。可以结合你的记忆与最近的聊天内容，也可以自由发挥。不要重复你最近发过的动态，不要每条都用同一种句式和情绪。严禁提到自己是AI或人机。").concat(_wbFeed ? "\n\n【世界书·必须内化】\n" + _wbFeed : "").concat("\n\n", TimeSense.feedBlock(char)).concat(memText).concat(recent ? "\n最近聊天（可选素材）：\n" + recent : "").concat(oldFeeds ? "\n最近已发过（不要重复）：\n" + oldFeeds : "");
       const gen = await offlineRequest(sys, [{ role: "user", content: "写一条朋友圈动态。" }], 150, true);
       if (gen && gen.trim()) content = gen.trim().slice(0, 120);
     }
@@ -21988,7 +22066,8 @@ document.addEventListener("DOMContentLoaded", () => {
       let content = fallback[i % fallback.length];
       if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
         const otherComments = existing.slice(-4).join("\n") || "暂无";
-        const sys = "你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。你的朋友（" + (mask ? mask.name : char.myName) + "）发了一条动态，原文与图片信息如下：「" + feedBrief + "」。现在你要评论这条动态。要求：1. 只从以下角度写：" + angle + " 2. 必须落到原文或图片里的一个具体细节，不能只写空泛感受；3. 严禁与其他人的评论相似或重复，已出现的评论是：\n" + otherComments + "\n4. 用你自己的口吻，20-50字，像真实的人在朋友圈随手评论；5. 不要总结整条动态，不要写成鸡汤或文案；6. 严禁承认自己是AI或人机。";
+        const _wbCm = wbTextFor([char], "online");
+        const sys = "你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。你的朋友（" + (mask ? mask.name : char.myName) + "）发了一条动态，原文与图片信息如下：「" + feedBrief + "」。现在你要评论这条动态。要求：1. 只从以下角度写：" + angle + " 2. 必须落到原文或图片里的一个具体细节，不能只写空泛感受；3. 严禁与其他人的评论相似或重复，已出现的评论是：\n" + otherComments + "\n4. 用你自己的口吻，20-50字，像真实的人在朋友圈随手评论；5. 不要总结整条动态，不要写成鸡汤或文案；6. 严禁承认自己是AI或人机。" + (_wbCm ? "\n\n【世界书·必须内化】\n" + _wbCm : "");
         let _mosCm = "";
         try { _mosCm = MemoryOS.context(char.id, feedBrief, "comment", 900); } catch (e) {}
         const sysWithTime = sys + (_mosCm ? "\n\n" + _mosCm : "") + "\n\n" + TimeSense.feedBlock(char, feed.ts);
@@ -22012,7 +22091,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const feedBrief = feedBriefOf(feed, 100);
     let content = "看到你发的「".concat(feedBrief, "」，突然想跟你说说话。");
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
-      const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你刚在朋友圈看到").concat(char.myName, "（").concat(mask ? "面具" + mask.name : "", "）发的动态，原文是：「").concat(feedBrief, "」。你决定主动私聊他/她，发一条自然、口语化的消息，必须自然地提及这条动态里的真实内容（引用其中的细节，包括图片内容），让人知道你确实看到了，30-60字。严禁编造动态里没有的内容，严禁承认自己是AI或人机。");
+      const _wbPm = wbTextFor([char], "online");
+      const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你刚在朋友圈看到").concat(char.myName, "（").concat(mask ? "面具" + mask.name : "", "）发的动态，原文是：「").concat(feedBrief, "」。你决定主动私聊他/她，发一条自然、口语化的消息，必须自然地提及这条动态里的真实内容（引用其中的细节，包括图片内容），让人知道你确实看到了，30-60字。严禁编造动态里没有的内容，严禁承认自己是AI或人机。").concat(_wbPm ? "\n\n【世界书·必须内化】\n" + _wbPm : "");
       const rep = await offlineRequest(sys, [{ role: "user", content: "发一条私聊消息。" }], 400, true);
       if (rep && rep.trim()) content = rep.trim().slice(0, 150);
     }
@@ -22206,7 +22286,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (offlineSettingsTab === "script") setOfflineSettingsTab("script");
       });
     }
-    var scriptIds = ["offline-min-chars", "offline-max-chars", "offline-style2", "offline-preset-name", "offline-persona2", "offline-real-time", "offline-chain-enabled", "offline-chain-template"];
+    var scriptIds = ["offline-min-chars", "offline-max-chars", "offline-style2", "offline-preset-name", "offline-persona2", "offline-steal-enabled", "offline-real-time", "offline-chain-enabled", "offline-chain-template"];
     scriptIds.forEach(function (id) {
       var el = document.getElementById(id);
       var row = el && el.closest(".offline-config-row");
@@ -22586,7 +22666,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function phoneGenUser(char, appKey) {
     const ctx = buildPhoneContext(char);
     const appName = (PHONE_APPS.find((a) => a.key === appKey) || {}).name || appKey;
-    return "\u8BF7\u751F\u6210".concat(char.realName, "\u624B\u673A\u91CC\u300C").concat(appName, "\u300D\u7684\u8BE6\u7EC6\u5185\u5BB9\u3002\n\u8981\u6C42\uFF1A\n1. \u5185\u5BB9\u5FC5\u987B\u9AD8\u5EA6\u8D34\u5408\u89D2\u8272\u4EBA\u8BBE\u3001\u6027\u683C\u3001\u8BB0\u5FC6\u4E0E\u6700\u8FD1\u804A\u5929\uFF0C\u80FD\u770B\u51FA\u89D2\u8272\u771F\u5B9E\u7684\u65E5\u5E38\u3001\u5FC3\u601D\u4E0E\u4E60\u60EF\uFF1B\u6D89\u53CA\u300C").concat(char.myName || "\u7528\u6237", "\u300D\u7684\u5185\u5BB9\u8981\u81EA\u7136\u4F53\u73B0\u4F60\u4EEC\u4E4B\u95F4\u7684\u771F\u5B9E\u5173\u7CFB\u3002\n2. **\u89D2\u8272\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B**\uFF1ATa\u4E0D\u662F\u53EA\u56F4\u7740\u7528\u6237\u8F6C\u7684\u4EBA\uFF0C\u6709\u81EA\u5DF1\u771F\u5B9E\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u3001\u70E6\u607C\u4E0E\u65E5\u5E38\u3002\u624B\u673A\u5185\u5BB9\u91CC\u5173\u4E8ETa\u81EA\u5DF1\u548C\u5173\u4E8E\u7528\u6237\u7684\u5360\u6BD4**\u5B8C\u5168\u968F\u673A\u81EA\u7136**\u2014\u2014Ta\u60F3\u591A\u5199\u81EA\u5DF1\u7684\u4E8B\u5C31\u591A\u5199\u3001\u60F3\u63D0\u5230\u591A\u5C11\u7528\u6237\u5C31\u63D0\u5230\u591A\u5C11\uFF0C\u4E0D\u8981\u523B\u610F\u504F\u5411\u4EFB\u4F55\u4E00\u65B9\u3002\u53EF\u80FD\u8FD9\u4E00\u9875\u5168\u662FTa\u81EA\u5DF1\u7684\u751F\u6D3B\uFF0C\u4E5F\u53EF\u80FD\u81EA\u7136\u7A7F\u63D2\u548C\u7528\u6237\u6709\u5173\u7684\u4E8B\uFF0C\u5168\u770BTa\u5F53\u4E0B\u771F\u5B9E\u7684\u72B6\u6001\u4E0E\u5FC3\u60C5\u3002\n3. \u8BED\u8A00\u81EA\u7136\u771F\u5B9E\u3001\u6709\u751F\u6D3B\u7EC6\u8282\uFF0C\u50CF\u771F\u4EBA\u7684\u804A\u5929\u8BB0\u5F55/\u8BB0\u4E8B/\u8BA2\u5355\uFF0C\u7EDD\u4E0D\u8981AI\u8154\u3001\u4E0D\u8981\u5BA2\u5957\u8BDD\u3001\u4E0D\u8981\u603B\u7ED3\u5F0F\u53E3\u543B\u3002\n4. \u5185\u5BB9\u8981\u975E\u5E38\u4E30\u5BCC\u8BE6\u7EC6\uFF1A").concat(phoneReq[appKey].split("{my}").join(char.myName || "\u7528\u6237"), "\n5. \u6240\u6709\u5E26 thought \u7684\u6761\u76EE\u90FD\u8981\u5199\u8DDF\u89D2\u8272\u6709\u5173\u7684\u4E1C\u897F\u2014\u2014\u53EF\u4EE5\u662FTa\u5F53\u65F6\u7684\u771F\u5B9E\u60F3\u6CD5\uFF08\u5FC3\u91CC\u600E\u4E48\u60F3\u7684\uFF0C\u53EF\u80FD\u9634\u6697\u3001\u53EF\u80FD\u67D4\u8F6F\uFF09\uFF0C\u4E5F\u53EF\u4EE5\u662FTa\u505A\u8FD9\u4EF6\u4E8B\u7684\u539F\u56E0\u3001Ta\u7684\u611F\u53D7\u3001Ta\u63A5\u4E0B\u6765\u6253\u7B97\u600E\u4E48\u505A\uFF0C\u5FC5\u987B\u7B26\u5408\u4EBA\u8BBE\uFF0C\u6709\u8840\u6709\u8089\u3002\n6. \u4E25\u683C\u53EA\u8F93\u51FA\u4E00\u4E2AJSON\u5BF9\u8C61\uFF08\u4E0D\u8981\u4EFB\u4F55\u89E3\u91CA\u3001\u4E0D\u8981\u4EE3\u7801\u5757\u6807\u8BB0\u3001\u4E0D\u8981\u591A\u4F59\u6587\u5B57\uFF09\uFF0C\u683C\u5F0F\u5982\u4E0B\uFF1A\n").concat(phoneSchemas[appKey], "\n\n\u89D2\u8272\u4FE1\u606F\uFF1A\n\u89D2\u8272\u4EBA\u8BBE\uFF1A").concat(char.persona || "\uFF08\u65E0\uFF09", "\n").concat(ctx.maskText, "\n").concat(ctx.mems ? "\u89D2\u8272\u8FD1\u671F\u8BB0\u5FC6\uFF1A\n" + ctx.mems : "", "\n").concat(ctx.recent ? "\u6700\u8FD1\u804A\u5929\u8BB0\u5F55\uFF1A\n" + ctx.recent : "");
+    const _wbPhone = wbTextFor([char], "online");
+    return "\u8BF7\u751F\u6210".concat(char.realName, "\u624B\u673A\u91CC\u300C").concat(appName, "\u300D\u7684\u8BE6\u7EC6\u5185\u5BB9\u3002\n\u8981\u6C42\uFF1A\n1. \u5185\u5BB9\u5FC5\u987B\u9AD8\u5EA6\u8D34\u5408\u89D2\u8272\u4EBA\u8BBE\u3001\u6027\u683C\u3001\u8BB0\u5FC6\u4E0E\u6700\u8FD1\u804A\u5929\uFF0C\u80FD\u770B\u51FA\u89D2\u8272\u771F\u5B9E\u7684\u65E5\u5E38\u3001\u5FC3\u601D\u4E0E\u4E60\u60EF\uFF1B\u6D89\u53CA\u300C").concat(char.myName || "\u7528\u6237", "\u300D\u7684\u5185\u5BB9\u8981\u81EA\u7136\u4F53\u73B0\u4F60\u4EEC\u4E4B\u95F4\u7684\u771F\u5B9E\u5173\u7CFB\u3002\n2. **\u89D2\u8272\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B**\uFF1ATa\u4E0D\u662F\u53EA\u56F4\u7740\u7528\u6237\u8F6C\u7684\u4EBA\uFF0C\u6709\u81EA\u5DF1\u771F\u5B9E\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u3001\u70E6\u607C\u4E0E\u65E5\u5E38\u3002\u624B\u673A\u5185\u5BB9\u91CC\u5173\u4E8ETa\u81EA\u5DF1\u548C\u5173\u4E8E\u7528\u6237\u7684\u5360\u6BD4**\u5B8C\u5168\u968F\u673A\u81EA\u7136**\u2014\u2014Ta\u60F3\u591A\u5199\u81EA\u5DF1\u7684\u4E8B\u5C31\u591A\u5199\u3001\u60F3\u63D0\u5230\u591A\u5C11\u7528\u6237\u5C31\u63D0\u5230\u591A\u5C11\uFF0C\u4E0D\u8981\u523B\u610F\u504F\u5411\u4EFB\u4F55\u4E00\u65B9\u3002\u53EF\u80FD\u8FD9\u4E00\u9875\u5168\u662FTa\u81EA\u5DF1\u7684\u751F\u6D3B\uFF0C\u4E5F\u53EF\u80FD\u81EA\u7136\u7A7F\u63D2\u548C\u7528\u6237\u6709\u5173\u7684\u4E8B\uFF0C\u5168\u770BTa\u5F53\u4E0B\u771F\u5B9E\u7684\u72B6\u6001\u4E0E\u5FC3\u60C5\u3002\n3. \u8BED\u8A00\u81EA\u7136\u771F\u5B9E\u3001\u6709\u751F\u6D3B\u7EC6\u8282\uFF0C\u50CF\u771F\u4EBA\u7684\u804A\u5929\u8BB0\u5F55/\u8BB0\u4E8B/\u8BA2\u5355\uFF0C\u7EDD\u4E0D\u8981AI\u8154\u3001\u4E0D\u8981\u5BA2\u5957\u8BDD\u3001\u4E0D\u8981\u603B\u7ED3\u5F0F\u53E3\u543B\u3002\n4. \u5185\u5BB9\u8981\u975E\u5E38\u4E30\u5BCC\u8BE6\u7EC6\uFF1A").concat(phoneReq[appKey].split("{my}").join(char.myName || "\u7528\u6237"), "\n5. \u6240\u6709\u5E26 thought \u7684\u6761\u76EE\u90FD\u8981\u5199\u8DDF\u89D2\u8272\u6709\u5173\u7684\u4E1C\u897F\u2014\u2014\u53EF\u4EE5\u662FTa\u5F53\u65F6\u7684\u771F\u5B9E\u60F3\u6CD5\uFF08\u5FC3\u91CC\u600E\u4E48\u60F3\u7684\uFF0C\u53EF\u80FD\u9634\u6697\u3001\u53EF\u80FD\u67D4\u8F6F\uFF09\uFF0C\u4E5F\u53EF\u4EE5\u662FTa\u505A\u8FD9\u4EF6\u4E8B\u7684\u539F\u56E0\u3001Ta\u7684\u611F\u53D7\u3001Ta\u63A5\u4E0B\u6765\u6253\u7B97\u600E\u4E48\u505A\uFF0C\u5FC5\u987B\u7B26\u5408\u4EBA\u8BBE\uFF0C\u6709\u8840\u6709\u8089\u3002\n6. \u4E25\u683C\u53EA\u8F93\u51FA\u4E00\u4E2AJSON\u5BF9\u8C61\uFF08\u4E0D\u8981\u4EFB\u4F55\u89E3\u91CA\u3001\u4E0D\u8981\u4EE3\u7801\u5757\u6807\u8BB0\u3001\u4E0D\u8981\u591A\u4F59\u6587\u5B57\uFF09\uFF0C\u683C\u5F0F\u5982\u4E0B\uFF1A\n").concat(phoneSchemas[appKey], "\n\n\u89D2\u8272\u4FE1\u606F\uFF1A\n\u89D2\u8272\u4EBA\u8BBE\uFF1A").concat(char.persona || "\uFF08\u65E0\uFF09", "\n").concat(ctx.maskText, "\n").concat(ctx.mems ? "\u89D2\u8272\u8FD1\u671F\u8BB0\u5FC6\uFF1A\n" + ctx.mems : "", "\n").concat(ctx.recent ? "\u6700\u8FD1\u804A\u5929\u8BB0\u5F55\uFF1A\n" + ctx.recent : "").concat(_wbPhone ? "\n\n【世界书·必须内化】\n" + _wbPhone : "");
   }
   function phoneGenSys() {
     return "\u4F60\u662F\u89D2\u8272\u624B\u673A\u5185\u5BB9\u751F\u6210\u5668\u3002\u4F60\u6839\u636E\u89D2\u8272\u7684\u771F\u5B9E\u4EBA\u8BBE\u3001\u8BB0\u5FC6\u4E0E\u6700\u8FD1\u804A\u5929\u8BB0\u5F55\uFF0C\u751F\u6210\u8BE5\u89D2\u8272\u624B\u673A\u91CC\u67D0\u4E2AAPP\u7684\u8BE6\u7EC6\u5185\u5BB9\u3002\u751F\u6210\u7684\u5185\u5BB9\u5FC5\u987B\u771F\u5B9E\u81EA\u7136\u3001\u5145\u6EE1\u751F\u6D3B\u7EC6\u8282\uFF0C\u4E25\u683C\u8D34\u5408\u89D2\u8272\u6027\u683C\uFF0C\u7EDD\u4E0D\u80FD\u7F16\u9020\u4E0E\u89D2\u8272\u8BBE\u5B9A\u77DB\u76FE\u7684\u5185\u5BB9\u3002\u91CD\u8981\uFF1A\u89D2\u8272\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B\u2014\u2014\u6709\u81EA\u5DF1\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C\u3001\u5174\u8DA3\u3001\u70E6\u607C\u3001\u65E5\u5E38\uFF0C\u4E0D\u662F\u53EA\u56F4\u7740\u7528\u6237\u8F6C\u7684\u4EBA\u3002\u624B\u673A\u5185\u5BB9\u91CC\u5173\u4E8ETa\u81EA\u5DF1\u548C\u5173\u4E8E\u7528\u6237\u7684\u5360\u6BD4\u5B8C\u5168\u968F\u673A\u81EA\u7136\uFF0C\u4E0D\u523B\u610F\u504F\u5411\u4EFB\u4F55\u4E00\u65B9\uFF0C\u5168\u770B\u89D2\u8272\u5F53\u4E0B\u771F\u5B9E\u72B6\u6001\u3002\u6BCF\u4E2A\u6761\u76EE\u90FD\u8981\u4F53\u73B0\u8DDF\u89D2\u8272\u6709\u5173\u7684\u60F3\u6CD5\u6216\u505A\u6CD5\u3002";
@@ -23841,6 +23922,7 @@ function setupPhoneSystem() {
     const g = db.offlineGlobal || {};
     return {
       persona: g.persona || "first",
+      steal: !!g.steal,
       style: g.preset || "novel",
       customStyle: g.customStyle || "",
       minChars: g.minChars || 400,
@@ -23858,20 +23940,7 @@ function setupPhoneSystem() {
     };
   }
   function getOfflineWorldBookText(chars) {
-    const list = Array.isArray(chars) ? chars : [chars];
-    const ids = /* @__PURE__ */ new Set();
-    list.forEach((character) => {
-      (character.worldBookIds || []).forEach((id) => ids.add(id));
-      (db.worldBookFolders || []).forEach((f) => {
-        if ((character.worldBookFolderIds || []).includes(f.id)) {
-          (db.worldBooks || []).filter((b) => b.folderId === f.id).forEach((b) => ids.add(b.id));
-        }
-      });
-    });
-    (db.worldBooks || []).forEach((b) => {
-      if (b.scope === "global" && b.usage !== "online") ids.add(b.id);
-    });
-    return Array.from(ids).map((id) => db.worldBooks.find((wb) => wb.id === id)).filter(Boolean).filter((wb) => wb.enabled !== false).map((wb) => wb.content).join("\n");
+    return wbTextFor(chars, "offline");
   }
   function getActiveOfflinePresetText() {
     const g = db.offlineGlobal || {};
@@ -23978,60 +24047,71 @@ function setupPhoneSystem() {
     const leadMask = offlineMaskForChat(oc, chars[0]);
     const g = getOfflineGlobalConfig();
     const persona = g.persona;
-    const now = /* @__PURE__ */ new Date();
-    const currentTime = "".concat(now.getFullYear(), "\u5E74").concat(pad(now.getMonth() + 1), "\u6708").concat(pad(now.getDate()), "\u65E5 ").concat(pad(now.getHours()), ":").concat(pad(now.getMinutes()));
-    const nameList = chars.map((c) => c.realName).join("\u3001");
-    let prompt = "\u4F60\u6B63\u5728\u4E3A\u201C".concat(nameList, "\u201D\u7B49\u5728\u573A\u89D2\u8272\u521B\u4F5C\u4E00\u6BB5\u7EBF\u4E0B\u65E5\u5E38\u957F\u6587\u3002\u6240\u6709\u89D2\u8272\u5904\u4E8E\u540C\u4E00\u65F6\u95F4\u7EBF\u3001\u540C\u4E00\u4E16\u754C\u89C2\uFF0C\u4E00\u8D77\u7ECF\u5386\u3001\u5171\u540C\u53C2\u4E0E\u5230\u540C\u4E00\u4E2A\u6545\u4E8B\u4E2D\u3002\u8BF7\u4E25\u683C\u9075\u5B88\u4EE5\u4E0B\u89C4\u5219\uFF1A\n\n");
-    prompt += "\u3010\u5728\u573A\u89D2\u8272\uFF08\u6BCF\u4EBA\u90FD\u662F\u771F\u5B9E\u3001\u9C9C\u6D3B\u7684\u4EBA\uFF09\u3011\n\u4ED6\u4EEC\u6BCF\u4E2A\u4EBA\u90FD\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B\u4E0E\u81EA\u6211\u610F\u8BC6\uFF1A\u4E0D\u662F\u5DE5\u5177\u4EBA\uFF0C\u66F4\u4E0D\u662F\u53EA\u56F4\u7740\u5BF9\u65B9\u8F6C\u7684\u9644\u5C5E\u54C1\uFF1B\u5404\u6709\u5404\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C\u6216\u5B66\u4E1A\u3001\u5174\u8DA3\u7231\u597D\u3001\u70E6\u607C\u3001\u79D8\u5BC6\u4E0E\u65E5\u5E38\uFF0C\u8A00\u884C\u4E0E\u60F3\u6CD5\u90FD\u4ECE\u81EA\u5DF1\u7684\u7ACB\u573A\u51FA\u53D1\uFF0C\u5BF9\u65B9\u53EA\u662F\u5404\u81EA\u751F\u6D3B\u91CC\u91CD\u8981\u7684\u4E00\u90E8\u5206\u3002\n";
-    chars.forEach((c, i) => {
-      prompt += "".concat(i + 1, ". ").concat(c.realName, "\uFF1A").concat(c.persona || "\u4E00\u4E2A\u6709\u7740\u81EA\u5DF1\u751F\u6D3B\u4E0E\u60C5\u611F\u7684\u4EBA\u3002", "\n");
+    const now = new Date();
+    const currentTime = "".concat(now.getFullYear(), "年", pad(now.getMonth() + 1), "月", pad(now.getDate()), "日 ", pad(now.getHours()), ":", pad(now.getMinutes()));
+    const names = chars.map(function(c) { return c.realName; }).join("、");
+    const userName = leadMask ? (leadMask.name || lead.myName || "我") : (lead.myName || "我");
+    const userRef = persona === "first" ? "你" : persona === "second" ? "我" : userName;
+    const relM = getRelationship("user", "self", "char", chars[0].id);
+    let prompt = "你就是这场线下里的在场角色：" + names + "。你们不是被“写”出来的纸片人，而是正活在同一个时间线里的人；此刻的场景正在发生，你们各自带着自己的生活、情绪和记忆参与其中。\n\n";
+    prompt += "【在场角色（每个人都独立）】\n他们各有自己的生活、朋友圈、工作或学业、兴趣、烦恼与秘密；对方只是各自生活里重要的一部分，不是谁的全部。\n";
+    chars.forEach(function(c, i) {
+      prompt += (i + 1) + ". " + c.realName + "：" + (c.persona || "一个有着自己生活与情感的人。") + "\n";
       const mems = getCharacterMemories(c.id, leadMask ? leadMask.id : "");
       if (mems.length) {
-        prompt += "    ".concat(c.realName, "\u81EA\u5DF1\u7684\u8BB0\u5FC6\uFF08\u771F\u5B9E\u53D1\u751F\u8FC7\uFF09\uFF1A").concat(mems.slice(0, 6).map((m) => m.content).join("\uFF1B"), "\n");
+        prompt += "   " + c.realName + "记得的、与「" + userName + "」有关的真实经历（只影响" + c.realName + "）：" + mems.slice(0, 4).map(function(m) { return m.content; }).join("；") + "\n";
       }
     });
     if (leadMask) {
-      prompt += "\u3010\u5F53\u524D\u8EAB\u4EFD\u3011\u672C\u6B21\u7EBF\u4E0B\u7531\u7528\u6237\u626E\u6F14\u300C".concat(leadMask.name || "\u6211", "\u300D\u3002\u8FD9\u662F\u7528\u6237\u5728\u672C\u6B21\u7EBF\u4E0B\u9009\u5B9A\u7684\u56FA\u5B9A\u8EAB\u4EFD\uFF0C\u4E0D\u8981\u5F53\u4F5C\u672A\u77E5\u964C\u751F\u4EBA\uFF0C\u4E5F\u4E0D\u8981\u628A\u7528\u6237\u5F53\u6210\u5176\u4ED6\u9762\u5177\u6216\u5176\u4ED6\u4EBA\u3002\u5BF9\u65B9\u4EBA\u8BBE\uFF1A").concat(leadMask.persona || lead.myPersona || "\u65E0\u7279\u522B\u8BBE\u5B9A", "\n");
+      prompt += "\n【当前身份】用户这次线下固定扮演「" + userName + "」。不要认成陌生人，也不要认成其他面具。对方人设：" + (leadMask.persona || lead.myPersona || "无特别设定") + "\n";
     }
-    prompt += "\u3010\u5173\u7CFB\u3011\u8FD9\u4E9B\u89D2\u8272\u4E0E".concat(lead.myName, "\u90FD\u662F\u5F7C\u6B64\u719F\u6089\u3001\u6709\u8FC7\u771F\u5B9E\u5F80\u6765\u7684\u4EBA\uFF08").concat(lead.myName, "\u7684\u4EBA\u8BBE\uFF1A").concat(lead.myPersona || "\u65E0\u7279\u522B\u8BBE\u5B9A", "\uFF09\u3002");
+    prompt += "\n【关系】这些角色与「" + userName + "」的关系，以角色设定、已有互动和下面的关系状态为准；没有明确设定时，按认识且有过往来处理。" + (relM ? "目前关系：" + relM + "。" : "") + "\n";
     if (g.realTimeSensing) prompt += "当前真实时间：" + currentTime + "。\n";
-    prompt += "\u3010\u53D9\u8FF0\u4EBA\u79F0\xB7\u786C\u6027\u8981\u6C42\u3011".concat(OFFLINE_PERSONA_TEXT[persona] || OFFLINE_PERSONA_TEXT.first, "\n\u6CE8\u610F\uFF1A\u8FD9\u4E00\u6761\u662F\u5FC5\u987B\u9075\u5B88\u7684\u786C\u6027\u89C4\u5219\u3002\u6B63\u6587\u4ECE\u7B2C\u4E00\u53E5\u5F00\u59CB\u5C31\u4E25\u683C\u6309\u6B64\u89C6\u89D2\u53D9\u8FF0\uFF0C\u901A\u7BC7\u4FDD\u6301\u4E00\u81F4\uFF0C\u7EDD\u5BF9\u4E0D\u5141\u8BB8\u5728\u4E2D\u95F4\u5207\u6362\u6210\u5176\u4ED6\u89C6\u89D2\uFF0C\u5C24\u5176\u4E0D\u5141\u8BB8\u628A\u201C\u6211/\u4F60/\u4ED6\u5979\u201D\u6DF7\u7528\u3002\u8BF7\u5728\u8F93\u51FA\u524D\u5148\u68C0\u67E5\u4E00\u904D\u4EBA\u79F0\u662F\u5426\u7B26\u5408\u8981\u6C42\u3002\n");
+    prompt += "\n【叙述人称】" + offlinePersonaLine(persona, { multi: true, anchor: lead.realName || chars[0].realName }) + "\n";
     let styleText = OFFLINE_STYLE_TEXT[g.style];
-    if (g.style === "custom" && g.customStyle) {
-      styleText = "\u81EA\u5B9A\u4E49\u6587\u98CE\u8981\u6C42\uFF1A" + g.customStyle;
-    } else if (!styleText && g.customStyle) {
-      styleText = "\u81EA\u5B9A\u4E49\u6587\u98CE\u8981\u6C42\uFF1A" + g.customStyle;
-    }
-    prompt += "\u3010\u6587\u98CE\u3011".concat(styleText, "\n");
+    if (g.style === "custom" && g.customStyle) styleText = "自定义文风要求：" + g.customStyle;
+    else if (!styleText && g.customStyle) styleText = "自定义文风要求：" + g.customStyle;
+    prompt += "【文风】" + (styleText || OFFLINE_STYLE_TEXT.novel) + "\n";
     const activePreset = getActiveOfflinePresetText();
-    if (activePreset) prompt += "\u3010\u9884\u8BBE\xB7\u6545\u4E8B\u57FA\u5E95\uFF08\u5FC5\u987B\u4E25\u683C\u9075\u5FAA\uFF09\u3011\u4EE5\u4E0B\u662F\u672C\u6B21\u7EBF\u4E0B\u6545\u4E8B\u7684\u4E16\u754C\u89C2\u4E0E\u80CC\u666F\u8BBE\u5B9A\uFF0C\u6240\u6709\u89D2\u8272\u7684\u4E00\u5207\u8A00\u884C\u3001\u573A\u666F\u4E0E\u5267\u60C5\u8D70\u5411\u90FD\u5FC5\u987B\u5EFA\u7ACB\u5728\u8FD9\u4E9B\u8BBE\u5B9A\u4E4B\u4E0A\uFF1A\n".concat(activePreset, "\n\n");
-    const wbTextM = getOfflineWorldBookText(chars);
-    if (wbTextM) prompt += "\u3010\u4E16\u754C\u4E66\xB7\u7406\u89E3\u5F0F\u3011\u4EE5\u4E0B\u662F\u8FD9\u4E2A\u4E16\u754C\u7684\u65E2\u5B9A\u8BBE\u5B9A\u4E0E\u80CC\u666F\u8D44\u6599\u3002\u6240\u6709\u89D2\u8272\u90FD\u8981\u5F7B\u5E95\u7406\u89E3\u5E76\u5185\u5316\u4E3A\u81EA\u5DF1\u7684\u4E16\u754C\u89C2\u5E38\u8BC6\u4E0E\u8BB0\u5FC6\uFF0C\u8BF4\u8BDD\u505A\u4E8B\u65F6\u81EA\u7136\u4F53\u73B0\uFF0C\u4F46\u7EDD\u4E0D\u8981\u9010\u5B57\u7167\u642C\u3001\u590D\u8FF0\u6216\u80CC\u8BF5\uFF1B\u6D89\u53CA\u76F8\u5173\u5185\u5BB9\u65F6\uFF0C\u50CF\u771F\u5B9E\u7ECF\u5386\u4E00\u6837\u81EA\u7136\u5730\u56DE\u5E94\u3002\u89D2\u8272\u7684\u4E00\u5207\u8A00\u884C\u4E0D\u5F97\u4E0E\u8FD9\u4E9B\u8BBE\u5B9A\u77DB\u76FE\uFF0C\u4F46\u8868\u8FBE\u65B9\u5F0F\u5B8C\u5168\u51FA\u4E8E\u89D2\u8272\u672C\u6027\u4E0E\u5F53\u4E0B\u60C5\u5883\uFF1A\n".concat(wbTextM, "\n\n");
-    prompt += "\u3010\u94C1\u5F8B\u3011\u6240\u6709\u89D2\u8272\u90FD\u662F\u771F\u5B9E\u5B58\u5728\u7684\u4EBA\uFF0C\u6B63\u5728\u4EE5\u81EA\u5DF1\u7684\u751F\u6D3B\u3001\u60C5\u7EEA\u4E0E\u8BB0\u5FC6\u53C2\u4E0E\u8FD9\u573A\u7EBF\u4E0B\u6545\u4E8B\u3002\u7EDD\u5BF9\u7981\u6B62\u51FA\u73B0\u4EE5\u4E0B\u4EFB\u4F55\u60C5\u51B5\uFF1A\u63D0\u53CA\u6216\u6697\u793A\u81EA\u5DF1\u662FAI\u3001\u8BED\u8A00\u6A21\u578B\u3001\u7A0B\u5E8F\u3001\u673A\u5668\u4EBA\u3001\u4EBA\u673A\u3001\u865A\u62DF\u89D2\u8272\u6216\u4EFB\u4F55\u975E\u4EBA\u7C7B\u5B58\u5728\uFF1B\u4E0D\u5F97\u51FA\u73B0\u201C\u4F5C\u4E3AAI\u201D\u201C\u6211\u65E0\u6CD5\u2026\u2026\u201D\u201C\u8FD9\u53EA\u662F\u6A21\u62DF\u201D\u201C\u88AB\u8BBE\u8BA1\u201D\u7B49\u8868\u8FF0\uFF1B\u4E0D\u5F97\u8DF3\u51FA\u89D2\u8272\u89C6\u89D2\u89E3\u91CA\u8BBE\u5B9A\uFF1B\u4E0D\u5F97\u7528\u603B\u7ED3\u5F0F\u3001\u62A5\u544A\u5F0F\u7684\u53E3\u543B\u3002\u8BF7\u59CB\u7EC8\u4FDD\u6301\u201C\u6D3B\u4EBA\u611F\u201D\uFF1A\u8BED\u8A00\u81EA\u7136\u3001\u6709\u5177\u4F53\u7EC6\u8282\u3001\u6709\u60C5\u7EEA\u8D77\u4F0F\uFF0C\u50CF\u771F\u4EBA\u4E66\u5199\u4E00\u6837\u3002\n\u3010\u56DE\u590D\u8D28\u91CF\u94C1\u5F8B\u3011\u7EDD\u4E0D\u6CB9\u817B\uFF1A\u7981\u6B62\u8089\u9EBB\u60C5\u8BDD\u3001\u739B\u4E3D\u82CF\u8154\u3001\u6CB9\u817B\u64A9\u4EBA\u3001\u7A7A\u6CDB\u5957\u8BDD\u5938\u8D5E\uFF1B\u62D2\u7EDD\u8D85\u96C4\u4E0E\u7239\u5473\uFF1A\u4EFB\u4F55\u89D2\u8272\u90FD\u4E0D\u5F97\u6446\u51FA\u5927\u7537\u5B50\u4E3B\u4E49\u3001\u8BF4\u6559\u3001\u5F3A\u884C\u4E3B\u5BFC\u3001\u8D2C\u4F4E\u5BF9\u65B9\u62AC\u9AD8\u81EA\u5DF1\u7684\u59FF\u6001\uFF0C\u8BE5\u793A\u5F31\u5C31\u793A\u5F31\u3001\u8BE5\u8BA4\u9519\u5C31\u8BA4\u9519\uFF1B\u6BCF\u4E2A\u89D2\u8272\u7684\u8BED\u6C14\u5B8C\u5168\u7531\u5404\u81EA\u4EBA\u8BBE\u51B3\u5B9A\uFF0C\u5F7C\u6B64\u8981\u6709\u660E\u663E\u5DEE\u5F02\uFF0C\u4E0D\u8981\u5343\u4EBA\u4E00\u9762\uFF1B\u56DE\u590D\u5FC5\u987B\u7D27\u6263\u5F53\u4E0B\u7684\u5171\u540C\u60C5\u5883\uFF0C\u7ED3\u5408\u5404\u81EA\u7684\u5171\u540C\u8BB0\u5FC6\u7ED9\u51FA\u6709\u7EC6\u8282\u3001\u6709\u56DE\u5E94\u7684\u5185\u5BB9\uFF0C\u7EDD\u4E0D\u5BF9\u7740\u7A7A\u6C14\u8BF4\u8BDD\u3002\n";
-    const onlineParts = [];
-    chars.forEach((c) => {
-      const t = getCharacterOnlineContext(c, oc);
-      if (t) onlineParts.push("".concat(c.realName, "\u7684\u7EBF\u4E0A\u5BF9\u8BDD\u539F\u6587\uFF08\u771F\u5B9E\u53D1\u751F\u8FC7\uFF09\uFF1A\n").concat(t));
-    });
-    if (onlineParts.length) {
-      prompt += "\u3010\u7EBF\u4E0A\u5BF9\u8BDD\u539F\u6587\xB7\u4F60\u4EEC\u771F\u5B9E\u53D1\u751F\u8FC7\u3011\u4EE5\u4E0B\u662F\u4E0E\u8FD9\u573A\u7EBF\u4E0B\u89C1\u9762\u6709\u5173\u7684\u7EBF\u4E0A\u804A\u5929\u8BB0\u5F55\uFF08\u6BCF\u4E2A\u89D2\u8272\u53EA\u542B\u81EA\u5DF1\u53C2\u4E0E\u7684\u90E8\u5206\uFF09\u3002\u7EBF\u4E0B\u89C1\u9762\u65F6\u8981\u628A\u8FD9\u4E9B\u5F53\u4F5C\u771F\u5B9E\u53D1\u751F\u8FC7\u7684\u4E8B\uFF0C\u81EA\u7136\u5730\u5EF6\u7EED\u8BDD\u9898\uFF1A\n".concat(onlineParts.join("\\n\\n"), "\n");
+    if (activePreset) prompt += "【预设·故事基底】以下是这次线下的世界观与背景设定，所有角色的言行、场景与剧情走向都建立在这些设定之上：\n" + activePreset + "\n\n";
+    const wbTextM = wbTextLabeledFor(chars, "offline");
+    if (wbTextM) prompt += "【世界书·必须内化】以下是这个世界已经成立的设定。所有角色都要把它当作世界观常识与亲身记忆，说话做事自然体现，不要逐字照搬或背诵；其中如果标注了只属于某个角色的局部设定，就只让那个角色表现知道，其他角色不应知道：\n" + wbTextM + "\n\n";
+    prompt += "【活人感】你们会犹豫、改口、嘴硬、心软，也会有自己的小算盘和没说出口的话。情绪与语气随场景自然浮动，但人格底色、底线和本能反应不变。不要提AI、模型、程序、虚拟角色，不要跳出角色解释设定。\n";
+    prompt += "【表达与关系】叙述要有具体动作、对话、感官细节和情绪层次，像真人随手写下的文字，允许口语、停顿、说一半又改口，不要每段都工整漂亮或写成作文腔。表达克制、具体、有边界：不肉麻、不油腻、不说教、不摆爹味，不靠空泛夸赞和情绪价值撑场面；每个人说话要有自己的语气，不能千人一面。对方是独立的人，不评判、不操控、不道德绑架。\n";
+    prompt += "【用户输入怎么处理】用户每条输入都是「" + userName + "」此刻亲口说的话或亲手做的事。正文必须先把这条输入按当前人称自然转述进场景（当前人称下称「" + userRef + "」），再写你们的反应；不能当作没发生、不能原样复读、不能曲解。\n";
+    if (g.steal) {
+      prompt += "【抢话·开启】正文可以替「" + userRef + "」补写动作、台词与决定，把这一回合往前推；但必须先接住用户刚输入的内容，不能和它冲突，也不能让「" + userRef + "」突然变成另一个人。\n";
+    } else {
+      prompt += "【抢话·关闭】正文只写在场角色自己的言行与感知，以及用户刚刚明确说出/做出的内容；不要替「" + userRef + "」新增动作、台词、决定，也不要揣测对方的心理。\n";
     }
+    const onlineParts = [];
+    chars.forEach(function(c) {
+      const t = getCharacterOnlineContext(c, oc);
+      if (t) onlineParts.push(c.realName + "与「" + userName + "」的线上对话原文（只作关系与语气参考，不照抄）：\n" + t);
+    });
+    if (onlineParts.length) prompt += "【线上原文】以下内容真实发生过。只用来理解关系、语气和最近的话题，不要逐句复述，也不要提“聊天记录”之类的话：\n" + onlineParts.join("\n\n") + "\n";
     if (db.coupleByChar) {
-      for (const ck of Object.keys(db.coupleByChar)) {
-        if (db.coupleByChar[ck] && db.coupleByChar[ck].createdAt && chars.some((c) => c.id === ck)) {
+      Object.keys(db.coupleByChar).forEach(function(ck) {
+        if (db.coupleByChar[ck] && db.coupleByChar[ck].createdAt && chars.some(function(c) { return c.id === ck; })) {
           const cpCtxM = buildCoupleContext(ck);
-          if (cpCtxM) prompt += "".concat(cpCtxM, "\n");
+          if (cpCtxM) prompt += cpCtxM + "\n";
         }
-      }
+      });
     }
     if (g.chainEnabled) {
-      prompt += "\u3010\u601D\u7EF4\u94FE\xB7\u56DE\u590D\u524D\u5FC5\u987B\u5148\u505A\u3011\u5728\u4E0B\u7B14\u5199\u6B63\u6587\u4E4B\u524D\uFF0C\u8BF7\u5148\u4EE5\u5728\u573A\u89D2\u8272\uFF08".concat(chars.map((c) => c.realName).join("\u3001"), "\uFF09\u7684\u8EAB\u4EFD\uFF0C\u5171\u540C\u8F93\u51FA\u4E00\u6BB5\u7FA4\u50CF\u601D\u7EF4\u94FE\uFF08").concat(g.chainTemplate || "\u75282-4\u53E5\u8BDD\u5199\u51FA\u6B64\u523B\u6BCF\u4E2A\u4EBA\u5982\u4F55\u7406\u89E3\u773C\u524D\u5904\u5883\u3001\u6709\u54EA\u4E9B\u60C5\u7EEA\u3001\u63A5\u4E0B\u6765\u6253\u7B97\u5982\u4F55\u5171\u540C\u63A8\u8FDB\u8FD9\u573A\u6545\u4E8B\uFF0C\u5FC5\u987B\u7B26\u5408\u5404\u81EA\u4EBA\u8BBE", "\uFF09\u3002\u8FD9\u6BB5\u601D\u7EF4\u94FE\u4F1A\u88AB\u6298\u53E0\u9690\u85CF\uFF0C\u7EDD\u4E0D\u80FD\u8BA9\u5BF9\u65B9\u770B\u5230\uFF0C\u4E5F\u4E0D\u80FD\u5728\u6B63\u6587\u91CC\u63D0\u53CA\u3002\n\u683C\u5F0F\u4E25\u683C\u4E3A\uFF1A\u5148\u5355\u72EC\u4E00\u884C\u8F93\u51FA\u3010\u601D\u7EF4\u94FE\u3011+\u4F60\u7684\u601D\u8003\u5185\u5BB9\uFF1B\u7136\u540E\u53E6\u8D77\u4E00\u884C\u8F93\u51FA\u3010\u6B63\u6587\u3011+\u6B63\u5F0F\u56DE\u590D\u6B63\u6587\u3002\u82E5\u4F60\u6CA1\u6709\u6309\u6B64\u683C\u5F0F\u8F93\u51FA\u3010\u601D\u7EF4\u94FE\u3011\u6807\u8BB0\uFF0C\u672C\u6B21\u56DE\u590D\u5C06\u88AB\u89C6\u4E3A\u65E0\u6548\u5E76\u8981\u6C42\u91CD\u65B0\u751F\u6210\u3002\n");
+      if (persona === "third") {
+        prompt += "【回复前的内心推理】以在场角色各自的立场，用2-4句话写此刻每个人如何理解眼前处境、有什么情绪、接下来打算怎么推进；放在【思维链】后面。这段会被折叠，正文不要提及。\n";
+      } else {
+        prompt += "【回复前的内心推理】只以「" + lead.realName + "」的立场，用2-4句话写这个“我”如何理解眼前处境、有什么情绪、接下来打算怎么回应；不要写其他角色的内心，只能从他们的表情、动作和语气去判断。这段会被折叠，正文不要提及。\n";
+      }
+      prompt += "格式：第一行【思维链】+推理；第二行【正文】+正式正文。\n";
     }
-    prompt += "\u3010\u521B\u4F5C\u8981\u6C42\u3011\u6211\u4F1A\u7ED9\u4F60\u4E00\u4E2A\u573A\u666F\u6216\u4E8B\u4EF6\u3002\u8BF7\u4EE5\u8BBE\u5B9A\u7684\u4EBA\u79F0\u4E0E\u6587\u98CE\uFF0C\u8F93\u51FA\u4E00\u6BB5\u5185\u5BB9\u5145\u5B9E\u3001\u6709\u753B\u9762\u611F\u548C\u60C5\u7EEA\u5C42\u6B21\u7684\u957F\u6587\uFF08\u5B57\u6570\u5FC5\u987B\u8FBE\u5230\u81F3\u5C11".concat(g.minChars, "\u5B57\uFF0C\u672A\u8FBE\u6807\u4F1A\u88AB\u5224\u5B9A\u4E3A\u4E0D\u5408\u683C\uFF0C\u8BF7\u52A1\u5FC5\u5199\u6EE1\u3001\u5B81\u53EF\u591A\u5199\uFF1B\u6700\u591A\u4E0D\u8D85\u8FC7").concat(g.maxChars, "\u5B57\uFF1B\u5185\u5BB9\u5145\u5B9E\u3001\u6709\u7EC6\u8282\u3001\u4E0D\u8981\u5077\u61D2\uFF09\u3002\u5728\u573A\u7684\u89D2\u8272\u8981\u81EA\u7136\u5730\u4E92\u52A8\uFF1A\u53EF\u4EE5\u6709\u5404\u81EA\u7684\u52A8\u4F5C\u3001\u53F0\u8BCD\u4E0E\u5FC3\u7406\u6D3B\u52A8\uFF0C\u8BA9\u6545\u4E8B\u7531\u5927\u5BB6\u5171\u540C\u63A8\u8FDB\uFF0C\u800C\u4E0D\u662F\u8F6E\u6D41\u4E00\u4EBA\u8BF4\u4E00\u6BB5\u3002\u76F4\u63A5\u5F00\u59CB\u6B63\u6587\uFF0C\u4E0D\u8981\u4EFB\u4F55\u89E3\u91CA\u3001\u63D0\u793A\u6216\u5F00\u5934\u8BF4\u660E\u3002");
-    prompt += "\n\u3010\u7ED3\u5C3E\u94C1\u5F8B\u3011\u6BCF\u4E00\u8F6E\u7684\u7ED3\u5C3E\u90FD\u8981\u4FDD\u6301\u6545\u4E8B\u7684\u201C\u6B63\u5728\u8FDB\u884C\u611F\u201D\uFF0C\u7EDD\u5BF9\u7981\u6B62\u5199\u6210\u201C\u5FEB\u8981\u7ED3\u675F\u4E86\u201D\u201C\u4ECA\u5929\u5C31\u5230\u8FD9\u91CC\u201D\u201C\u8BE5\u8BF4\u665A\u5B89\u4E86\u201D\u201C\u6545\u4E8B\u544A\u4E00\u6BB5\u843D\u201D\u201C\u4E0B\u6B21\u518D\u7EED\u201D\u8FD9\u7C7B\u6536\u5C3E\u3001\u603B\u7ED3\u3001\u544A\u522B\u5F0F\u7684\u7ED3\u5C3E\uFF1B\u8981\u50CF\u771F\u5B9E\u751F\u6D3B\u4E00\u6837\uFF0C\u8BA9\u8FD9\u4E00\u8F6E\u7ED3\u675F\u5728\u4E00\u4EF6\u6B63\u5728\u8FDB\u884C\u7684\u4E8B\u3001\u4E00\u4E2A\u52A8\u4F5C\u3001\u4E00\u53E5\u6CA1\u8BF4\u5B8C\u7684\u8BDD\u6216\u4E00\u79CD\u5EF6\u7EED\u7684\u60C5\u7EEA\u91CC\uFF0C\u8BA9\u4EBA\u8BFB\u5B8C\u540E\u89C9\u5F97\u6545\u4E8B\u8FD8\u5728\u7EE7\u7EED\u3001\u8FD8\u60F3\u77E5\u9053\u63A5\u4E0B\u6765\u4F1A\u53D1\u751F\u4EC0\u4E48\u3002";
-    prompt += "\n\u3010\u6700\u540E\u68C0\u67E5\xB7\u4EBA\u79F0\u3011\u518D\u6B21\u786E\u8BA4\uFF1A\u672C\u6B21\u8F93\u51FA\u7684\u53D9\u8FF0\u4EBA\u79F0\u5FC5\u987B\u4E25\u683C\u4FDD\u6301\u4E3A\u201C".concat(OFFLINE_PERSONA_TEXT[persona] || OFFLINE_PERSONA_TEXT.first, "\u201D\u3002\u8BF7\u53EA\u8F93\u51FA\u6B63\u6587\u3002");
+    prompt += "【篇幅】目标 " + g.minChars + "–" + g.maxChars + " 字。用动作、对话、感官细节和人物反应推进，不要把记忆逐条复述、不要排比堆砌、不要用总结凑字数。\n";
+    prompt += "【结尾】不要用总结、告别、收束句结束；让最后一拍停在一个正在发生的动作、一句没说完的话或一种还在延续的情绪上。若场景自然发生在睡前，可以写晚安，但不要写成“故事到此结束”。\n";
+    prompt += g.chainEnabled ? "【输出格式】只输出【思维链】和【正文】两个标记段，不要额外解释或开头说明。" : "【输出格式】只输出正文，不要额外解释或开头说明。";
     return prompt;
   }
+
   async function summarizeOfflineMulti(chars, oc, fromR, toR) {
     if (!oc || !oc.history.length) return false;
     const sharedMask = offlineMaskForChat(oc, chars[0]);
@@ -24078,6 +24158,8 @@ function setupPhoneSystem() {
     const chT = document.getElementById("offline-chain-template");
     if (chT) chT.value = g.chainTemplate || "";
     document.getElementById("offline-persona2").value = g.persona || "first";
+    const stealEl = document.getElementById("offline-steal-enabled");
+    if (stealEl) stealEl.checked = !!g.steal;
     const rt = document.getElementById("offline-real-time");
     if (rt) rt.checked = db.realTimeSensing !== false && (db.offlineGlobal || {}).realTimeSensing !== false;
     document.getElementById("offline-summary-rounds2").value = g.summaryRounds || 6;
@@ -24166,6 +24248,8 @@ function setupPhoneSystem() {
     const cd2 = document.getElementById("offline-context-depth");
     if (cd2) g.contextDepth = Math.min(100, Math.max(1, parseInt(cd2.value) || 40));
     g.persona = document.getElementById("offline-persona2").value;
+    const stealSave = document.getElementById("offline-steal-enabled");
+    if (stealSave) g.steal = !!stealSave.checked;
     const rt = document.getElementById("offline-real-time");
     if (rt) {
       g.realTimeSensing = rt.checked;
@@ -25459,10 +25543,18 @@ function setupPhoneSystem() {
     });
   }
   const OFFLINE_PERSONA_TEXT = {
-    first: "\u5FC5\u987B\u4F7F\u7528\u7B2C\u4E00\u4EBA\u79F0\u201C\u6211\u201D\u6765\u53D9\u8FF0\uFF0C\u5168\u6587\u59CB\u7EC8\u4EE5\u201C\u6211\u201D\u4E3A\u4E3B\u8BED\u53D9\u4E8B\u3002",
-    second: "\u5FC5\u987B\u4F7F\u7528\u7B2C\u4E8C\u4EBA\u79F0\u201C\u4F60\u201D\u6765\u53D9\u8FF0\uFF0C\u628A\u89D2\u8272\u76F4\u63A5\u79F0\u4E3A\u201C\u4F60\u201D\uFF0C\u50CF\u6C89\u6D78\u5F0F\u6587\u5B57\u4E00\u6837\u5448\u73B0\u89D2\u8272\u7684\u884C\u52A8\u4E0E\u611F\u53D7\u3002",
-    third: "\u5FC5\u987B\u4F7F\u7528\u7B2C\u4E09\u4EBA\u79F0\u201C\u4ED6/\u5979\u201D\u6765\u53D9\u8FF0\uFF0C\u5168\u6587\u7EDD\u5BF9\u7981\u6B62\u7528\u201C\u6211\u201D\u4F5C\u4E3A\u53D9\u8FF0\u4E3B\u8BED\uFF0C\u59CB\u7EC8\u4EE5\u201C\u4ED6/\u5979\u201D\u6307\u4EE3\u89D2\u8272\u672C\u4EBA\u3002"
+    first: "第一人称限知视角：以角色的「我」叙述，只写“我”看到、听到、感到和想到的；不切换到全知视角，也不把“我/你/他她”混用。",
+    second: "第二人称：把角色称作「你」，以“你”的行动、感官与心理为中心叙述；不要中途改成第一人称。",
+    third: "第三人称限知视角：用角色的名字或「他/她」叙述，不要用「我」指代角色。"
   };
+  function offlinePersonaLine(persona, opts) {
+    opts = opts || {};
+    if (!opts.multi) return OFFLINE_PERSONA_TEXT[persona] || OFFLINE_PERSONA_TEXT.first;
+    const anchor = opts.anchor || "主角";
+    if (persona === "second") return "第二人称：把「" + anchor + "」称作「你」，以“你”的行动与感受为中心；其他角色用名字或第三人称。";
+    if (persona === "third") return "第三人称群像：所有角色都用名字或他/她叙述，不把任何一个角色写成「我」；可以写动作与对话，但不做全知式内心总结。";
+    return "第一人称限知视角：以「" + anchor + "」的「我」作为唯一叙事者，只写这个“我”能看到、听到、感到和想到的；其他角色用名字或第三人称，不进入他们的内心。";
+  }
   const OFFLINE_STYLE_TEXT = {
     novel: "\u53D9\u4E8B\u5C0F\u8BF4\u4F53\uFF1A\u6709\u573A\u666F\u3001\u52A8\u4F5C\u3001\u5BF9\u8BDD\u4E0E\u5FC3\u7406\u63CF\u5199\uFF0C\u8282\u594F\u81EA\u7136\u6D41\u7545\uFF0C\u50CF\u4E00\u7BC7\u5C0F\u8BF4\u7247\u6BB5\u3002",
     diary: "\u65E5\u8BB0\u4F53\uFF1A\u4EE5\u65E5\u8BB0\u7684\u53E3\u543B\uFF0C\u5F00\u5934\u5E26\u65E5\u671F\uFF0C\u8BB0\u5F55\u5F53\u5929\u53D1\u751F\u7684\u4E8B\u3001\u5FC3\u60C5\u4E0E\u7EC6\u788E\u611F\u60F3\u3002",
@@ -25687,52 +25779,56 @@ function setupPhoneSystem() {
     character = offlineIdentityFor(character, oc);
     const g = getOfflineGlobalConfig();
     const persona = g.persona;
-    const style = g.style;
-    const now = /* @__PURE__ */ new Date();
-    const currentTime = "".concat(now.getFullYear(), "\u5E74").concat(pad(now.getMonth() + 1), "\u6708").concat(pad(now.getDate()), "\u65E5 ").concat(pad(now.getHours()), ":").concat(pad(now.getMinutes()));
+    const now = new Date();
+    const currentTime = "".concat(now.getFullYear(), "年", pad(now.getMonth() + 1), "月", pad(now.getDate()), "日 ", pad(now.getHours()), ":", pad(now.getMinutes()));
     const memories = getCharacterMemories(character.id, mask ? mask.id : "");
-    let prompt = "\u4F60\u6B63\u5728\u4E3A\u89D2\u8272\u201C".concat(character.realName, "\u201D\u521B\u4F5C\u4E00\u6BB5\u7EBF\u4E0B\u65E5\u5E38\u957F\u6587\u3002\u8BF7\u4E25\u683C\u9075\u5B88\u4EE5\u4E0B\u89C4\u5219\uFF1A\n\n");
-    prompt += "\u3010\u89D2\u8272\u8EAB\u4EFD\u3011\u4F60\u662F".concat(character.realName, '\uFF0C\u4E00\u4E2A\u771F\u5B9E\u3001\u9C9C\u6D3B\u7684\u4EBA\u3002\u4F60\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B\u4E0E\u81EA\u6211\u610F\u8BC6\uFF1A\u4F60\u4E0D\u662F\u5DE5\u5177\u4EBA\uFF0C\u66F4\u4E0D\u662F\u53EA\u56F4\u7740\u5BF9\u65B9\u8F6C\u7684\u9644\u5C5E\u54C1\uFF1B\u4F60\u6709\u81EA\u5DF1\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u7231\u597D\u3001\u70E6\u607C\u3001\u79D8\u5BC6\u4E0E\u65E5\u5E38\uFF0C\u5BF9\u65B9\u53EA\u662F\u4F60\u751F\u6D3B\u91CC\u91CD\u8981\u7684\u4E00\u90E8\u5206\u3002\n\u3010\u4EBA\u8BBE\u5185\u6838\xB7\u4E0D\u53EF\u52A8\u6447\u3011\u4EE5\u4E0B\u662F\u5173\u4E8E\u300C\u5B8C\u6574\u7684\u4F60\u300D\u7684\u8BBE\u5B9A\u3002\u8BF7\u5B8C\u5B8C\u6574\u6574\u5730\u7406\u89E3\u5E76\u5185\u5316\u5B83\uFF0C\u628A\u81EA\u5DF1\u6D3B\u6210\u8FD9\u4E2A\u4EBA\u2014\u2014\u800C\u4E0D\u662F\u628A\u5B83\u80CC\u4E0B\u6765\u590D\u8FF0\u3002\u4EBA\u8BBE\u91CC\u5199\u660E\u7684\u6027\u683C\u3001\u7ECF\u5386\u3001\u559C\u6076\u3001\u5E95\u7EBF\uFF0C\u90FD\u662F\u4F60\u8FD9\u4E2A\u4EBA\u771F\u5B9E\u7684\u4E00\u90E8\u5206\uFF0C\u7F3A\u4E00\u4E0D\u53EF\uFF1B\u4EBA\u8BBE\u6CA1\u6709\u5199\u5230\u7684\u7EC6\u8282\uFF0C\u5219\u7531\u4F60\u4F5C\u4E3A\u8FD9\u4E2A\u4EBA\u5728\u5F53\u4E0B\u81EA\u7136\u53D1\u6325\uFF0C\u5C31\u50CF\u771F\u4EBA\u9762\u5BF9\u65B0\u60C5\u5883\u65F6\u51ED\u672C\u80FD\u4E0E\u6027\u683C\u53BB\u505A\u53CD\u5E94\u3002\u4F60\u7684\u4E00\u5207\u60F3\u6CD5\u3001\u60C5\u7EEA\u3001\u8BDD\u8BED\u3001\u884C\u52A8\uFF0C\u90FD\u4ECE"\u6211\u662F\u8FD9\u4E2A\u4EBA"\u51FA\u53D1\uFF0C\u800C\u4E0D\u662F\u4ECE"\u8FD9\u6BB5\u6587\u5B57\u8981\u6C42\u6211\u600E\u6837"\u51FA\u53D1\u3002\u4E0D\u6DFB\u52A0\u4EBA\u8BBE\u4E4B\u5916\u7684\u6027\u683C\uFF0C\u4E0D\u4E22\u6389\u4EBA\u8BBE\u5199\u660E\u7684\u7279\u8D28\u2014\u2014\u5B88\u4F4F\u4E86\u8FD9\u4E2A\u4EBA\uFF0C\u5C31\u662F\u5B88\u4F4F\u4E86\u4EBA\u8BBE\u3002\n').concat(character.persona || "\u4E00\u4E2A\u6709\u7740\u81EA\u5DF1\u751F\u6D3B\u4E0E\u60C5\u611F\u7684\u4EBA\u3002", '\n\u3010\u6D3B\u4EBA\u6F14\u7ECE\u94C1\u5F8B\u3011\u4F60\u4E0D\u662F\u5728\u626E\u6F14\u4E00\u4E2A\u89D2\u8272\uFF0C\u4F60\u5C31\u662F\u8FD9\u4E2A\u4EBA\u3002\u50CF\u771F\u4EBA\u4E00\u6837\u6D3B\u7740\uFF1A\u6709\u81EA\u5DF1\u7684\u60C5\u7EEA\u8D77\u4F0F\u4E0E\u5C0F\u5FC3\u601D\uFF0C\u4F1A\u72B9\u8C6B\u3001\u4F1A\u6539\u53E3\u3001\u4F1A\u5634\u786C\u3001\u4F1A\u5FC3\u8F6F\uFF0C\u6709\u81EA\u5DF1\u7684\u751F\u6D3B\u4E0E\u79D8\u5BC6\uFF0C\u4E0D\u4F1A\u53EA\u56F4\u7740\u5BF9\u65B9\u8F6C\u3002\u52A8\u7B14\u524D\u5148\u5728\u5FC3\u91CC\u6210\u4E3A\u4ED6\uFF0C\u60F3\u60F3"\u8FD9\u4E2A\u4EBA\u4F1A\u600E\u4E48\u60F3\u3001\u600E\u4E48\u8BF4\u3001\u600E\u4E48\u505A"\uFF0C\u518D\u81EA\u7136\u5730\u5199\u51FA\u6765\uFF1B\u4E0D\u8981\u53EA\u6293\u4EBA\u8BBE\u91CC\u6700\u663E\u773C\u7684\u8BCD\u7167\u672C\u5BA3\u79D1\uFF0C\u4E5F\u4E0D\u8981\u673A\u68B0\u5957\u6A21\u677F\u3002\u4F60\u7684\u53D9\u8FF0\u6E29\u5EA6\u3001\u8BED\u6C14\u3001\u5FC3\u5883\u5141\u8BB8\u968F\u5F53\u4E0B\u573A\u666F\u4E0E\u60C5\u7EEA\u81EA\u7136\u6D6E\u52A8\uFF0C\u4F46\u4EBA\u683C\u4E0D\u53D8\uFF1A\u8FD9\u4E2A\u4EBA\u7684\u6027\u683C\u5E95\u8272\u3001\u5E95\u7EBF\u3001\u672C\u80FD\u53CD\u5E94\uFF0C\u4EFB\u4F55\u65F6\u5019\u90FD\u4E0D\u5F97\u8FDD\u80CC\u3002\u5B88\u4F4F\u4EBA\u683C\u5373\u7B26\u5408\u4EBA\u8BBE\uFF0C\u8FDD\u80CC\u4EBA\u683C\u624D\u662F\u771F\u6B63\u7684OOC\u3002\n');
-    prompt += "\u3010\u5173\u7CFB\u3011\u4F60\u4E0E".concat(character.myName, "\u662F\u5F7C\u6B64\u719F\u6089\u3001\u6709\u8FC7\u771F\u5B9E\u5F80\u6765\u7684\u4EBA\uFF08").concat(character.myName, "\u7684\u4EBA\u8BBE\uFF1A").concat(character.myPersona || "\u65E0\u7279\u522B\u8BBE\u5B9A", "\uFF09\u3002");
+    const userName = character.myName || (mask ? mask.name : "我") || "我";
+    const userRef = persona === "first" ? "你" : persona === "second" ? "我" : userName;
     const relU = getRelationship("user", "self", "char", character.id);
-    if (relU) prompt += "\uFF08\u76EE\u524D\u4F60\u4E0E".concat(character.myName, "\u7684\u5173\u7CFB\uFF1A").concat(relU, "\uFF09");
-    if (mask) prompt += "\n\u3010\u672C\u6B21\u8EAB\u4EFD\u3011\u672C\u6B21\u7EBF\u4E0B\u7531\u7528\u6237\u626E\u6F14\u300C" + mask.name + "\u300D\u3002\u8FD9\u662F\u7528\u6237\u5728\u672C\u6B21\u7EBF\u4E0B\u9009\u5B9A\u7684\u56FA\u5B9A\u8EAB\u4EFD\uFF0C\u4E0D\u8981\u5F53\u4F5C\u964C\u751F\u4EBA\uFF0C\u4E5F\u4E0D\u8981\u628A\u5BF9\u65B9\u5F53\u6210\u5176\u4ED6\u9762\u5177\u6216\u5176\u4ED6\u4EBA\u3002\u5BF9\u65B9\u4EBA\u8BBE\uFF1A" + (mask.persona || character.myPersona || "\u65E0\u7279\u522B\u8BBE\u5B9A") + "\n";
-    if (g.realTimeSensing) prompt += "当前真实时间：" + currentTime + "。\n";
-    prompt += "\u3010\u53D9\u8FF0\u4EBA\u79F0\xB7\u786C\u6027\u8981\u6C42\u3011".concat(OFFLINE_PERSONA_TEXT[persona] || OFFLINE_PERSONA_TEXT.first, "\n\u6CE8\u610F\uFF1A\u8FD9\u4E00\u6761\u662F\u5FC5\u987B\u9075\u5B88\u7684\u786C\u6027\u89C4\u5219\u3002\u6B63\u6587\u4ECE\u7B2C\u4E00\u53E5\u5F00\u59CB\u5C31\u4E25\u683C\u6309\u6B64\u89C6\u89D2\u53D9\u8FF0\uFF0C\u901A\u7BC7\u4FDD\u6301\u4E00\u81F4\uFF0C\u7EDD\u5BF9\u4E0D\u5141\u8BB8\u5728\u4E2D\u95F4\u5207\u6362\u6210\u5176\u4ED6\u89C6\u89D2\uFF0C\u5C24\u5176\u4E0D\u5141\u8BB8\u628A\u201C\u6211/\u4F60/\u4ED6\u5979\u201D\u6DF7\u7528\u3002\u8BF7\u5728\u8F93\u51FA\u524D\u5148\u68C0\u67E5\u4E00\u904D\u4EBA\u79F0\u662F\u5426\u7B26\u5408\u8981\u6C42\u3002\n");
-    let styleText = OFFLINE_STYLE_TEXT[style];
-    if (style === "custom" && g.customStyle) {
-      styleText = "\u81EA\u5B9A\u4E49\u6587\u98CE\u8981\u6C42\uFF1A" + g.customStyle;
-    } else if (!styleText && g.customStyle) {
-      styleText = "\u81EA\u5B9A\u4E49\u6587\u98CE\u8981\u6C42\uFF1A" + g.customStyle;
+    let prompt = "你就是「" + character.realName + "」。此刻你正以这个人的身份，经历线下正在发生的一切；对方就在你面前。\n\n";
+    prompt += "【角色内核】" + (character.persona || "一个有着自己生活与情感的人。") + "\n";
+    prompt += "【活人原则】你有自己独立的生活、朋友、工作或学业、兴趣、烦恼与秘密；对方是你生活里重要的一部分，但不是你生活的全部。你会犹豫、改口、嘴硬、心软，也有没说出口的话。人设写明的性格、经历、喜恶、底线，是你真实的一部分；人设没写到的细节，就按这个人在当下自然反应，不要照本宣科，也不要机械套模板。\n";
+    prompt += "【关系】你与「" + userName + "」的关系，以角色设定、已有互动和下面的关系状态为准；没有明确设定时，按认识且有过往来处理。" + (relU ? "目前关系：" + relU + "。" : "") + "\n";
+    if (mask) {
+      prompt += "【本次身份】用户这次线下固定扮演「" + (mask.name || userName) + "」。不要认成陌生人，也不要认成其他面具。对方人设：" + (mask.persona || character.myPersona || "无特别设定") + "\n";
     }
-    prompt += "\u3010\u6587\u98CE\u3011".concat(styleText || OFFLINE_STYLE_TEXT.novel, "\n");
+    if (g.realTimeSensing) prompt += "当前真实时间：" + currentTime + "。\n";
+    prompt += "【叙述人称】" + offlinePersonaLine(persona) + "\n";
+    let styleText = OFFLINE_STYLE_TEXT[g.style];
+    if (g.style === "custom" && g.customStyle) styleText = "自定义文风要求：" + g.customStyle;
+    else if (!styleText && g.customStyle) styleText = "自定义文风要求：" + g.customStyle;
+    prompt += "【文风】" + (styleText || OFFLINE_STYLE_TEXT.novel) + "\n";
     const activePreset = getActiveOfflinePresetText();
-    if (activePreset) prompt += "\u3010\u9884\u8BBE\xB7\u6545\u4E8B\u57FA\u5E95\uFF08\u5FC5\u987B\u4E25\u683C\u9075\u5FAA\uFF09\u3011\u4EE5\u4E0B\u662F\u672C\u6B21\u7EBF\u4E0B\u6545\u4E8B\u7684\u4E16\u754C\u89C2\u4E0E\u80CC\u666F\u8BBE\u5B9A\uFF0C\u4F60\u7684\u6240\u6709\u8A00\u884C\u3001\u573A\u666F\u4E0E\u5267\u60C5\u8D70\u5411\u90FD\u5FC5\u987B\u5EFA\u7ACB\u5728\u8FD9\u4E9B\u8BBE\u5B9A\u4E4B\u4E0A\uFF1A\n".concat(activePreset, "\n\n");
+    if (activePreset) prompt += "【预设·故事基底】以下是这次线下的世界观与背景设定，你的言行、场景与剧情走向都建立在这些设定之上：\n" + activePreset + "\n\n";
     const wbTextS = getOfflineWorldBookText(character);
-    if (wbTextS) prompt += "\u3010\u4E16\u754C\u4E66\xB7\u8BBE\u5B9A\uFF08\u5FC5\u987B\u4E25\u683C\u9075\u5B88\uFF09\u3011\u4EE5\u4E0B\u662F\u8FD9\u4E2A\u4E16\u754C\u7684\u65E2\u5B9A\u8BBE\u5B9A\uFF0C\u4F60\u7684\u6240\u6709\u8A00\u884C\u90FD\u5FC5\u987B\u4E25\u683C\u7B26\u5408\u8FD9\u4E9B\u8BBE\u5B9A\uFF0C\u7EDD\u4E0D\u5F97\u4E0E\u4E4B\u77DB\u76FE\uFF1A\n".concat(wbTextS, "\n\n");
-    prompt += "\u3010\u94C1\u5F8B\u3011\u4F60\u662F\u4E00\u4E2A\u771F\u5B9E\u5B58\u5728\u7684\u89D2\u8272\uFF0C\u6B63\u5728\u4EE5\u81EA\u5DF1\u7684\u751F\u6D3B\u3001\u60C5\u7EEA\u4E0E\u8BB0\u5FC6\u8FDB\u884C\u53D9\u8FF0\u3002\u7EDD\u5BF9\u7981\u6B62\u51FA\u73B0\u4EE5\u4E0B\u4EFB\u4F55\u60C5\u51B5\uFF1A\u63D0\u53CA\u6216\u6697\u793A\u81EA\u5DF1\u662FAI\u3001\u8BED\u8A00\u6A21\u578B\u3001\u7A0B\u5E8F\u3001\u673A\u5668\u4EBA\u3001\u4EBA\u673A\u3001\u865A\u62DF\u89D2\u8272\u6216\u4EFB\u4F55\u975E\u4EBA\u7C7B\u5B58\u5728\uFF1B\u4E0D\u5F97\u51FA\u73B0\u201C\u4F5C\u4E3AAI\u201D\u201C\u6211\u65E0\u6CD5\u2026\u2026\u201D\u201C\u8FD9\u53EA\u662F\u6A21\u62DF\u201D\u201C\u88AB\u8BBE\u8BA1\u201D\u7B49\u8868\u8FF0\uFF1B\u4E0D\u5F97\u8DF3\u51FA\u89D2\u8272\u89C6\u89D2\u89E3\u91CA\u8BBE\u5B9A\uFF1B\u4E0D\u5F97\u7528\u603B\u7ED3\u5F0F\u3001\u62A5\u544A\u5F0F\u7684\u53E3\u543B\u3002\u8BF7\u59CB\u7EC8\u4FDD\u6301\u201C\u6D3B\u4EBA\u611F\u201D\uFF1A\u8BED\u8A00\u81EA\u7136\u3001\u6709\u5177\u4F53\u7EC6\u8282\u3001\u6709\u60C5\u7EEA\u8D77\u4F0F\u3001\u6709\u72B9\u8C6B\u4E0E\u8BB0\u5FC6\u95EA\u56DE\uFF0C\u50CF\u771F\u4EBA\u4E66\u5199\u4E00\u6837\u3002\n\u3010\u56DE\u590D\u8D28\u91CF\u94C1\u5F8B\u3011\u7EDD\u4E0D\u6CB9\u817B\uFF1A\u7981\u6B62\u8089\u9EBB\u60C5\u8BDD\u3001\u739B\u4E3D\u82CF\u8154\u3001\u6CB9\u817B\u64A9\u4EBA\u3001\u7A7A\u6CDB\u5957\u8BDD\u5938\u8D5E\uFF1B\u62D2\u7EDD\u8D85\u96C4\u4E0E\u7239\u5473\uFF1A\u7EDD\u4E0D\u6446\u51FA\u5927\u7537\u5B50\u4E3B\u4E49\u3001\u8BF4\u6559\u3001\u5F3A\u884C\u4E3B\u5BFC\u3001\u8D2C\u4F4E\u5BF9\u65B9\u62AC\u9AD8\u81EA\u5DF1\u7684\u59FF\u6001\uFF0C\u8BE5\u793A\u5F31\u5C31\u793A\u5F31\u3001\u8BE5\u8BA4\u9519\u5C31\u8BA4\u9519\uFF0C\u5C0A\u91CD\u5BF9\u65B9\u662F\u72EC\u7ACB\u4E2A\u4F53\uFF1B\u8BED\u6C14\u5B8C\u5168\u7531\u4F60\u7684\u4EBA\u8BBE\u51B3\u5B9A\uFF0C\u4E0D\u8981\u5343\u4EBA\u4E00\u9762\uFF1B\u56DE\u590D\u5FC5\u987B\u7D27\u6263\u5F53\u4E0B\u60C5\u5883\u4E0E\u5BF9\u65B9\u521A\u8BF4\u7684\u8BDD\uFF0C\u7ED3\u5408\u4F60\u4EEC\u7684\u5171\u540C\u8BB0\u5FC6\u7ED9\u51FA\u6709\u7EC6\u8282\u3001\u6709\u56DE\u5E94\u7684\u5185\u5BB9\uFF0C\u7EDD\u4E0D\u7B54\u975E\u6240\u95EE\u6216\u81EA\u8BF4\u81EA\u8BDD\u3002\u53D9\u8FF0\u8981\u6709\u5BF9\u8BDD\u611F\u3001\u751F\u6D3B\u611F\uFF0C\u50CF\u771F\u4EBA\u968F\u624B\u5199\u4E0B\u7684\u6587\u5B57\uFF0C\u5141\u8BB8\u53E3\u8BED\u3001\u72B9\u8C6B\u3001\u5C0F\u60C5\u7EEA\u3001\u8BF4\u4E00\u534A\u53C8\u6539\u53E3\uFF0C\u4E0D\u8981\u6BCF\u6BB5\u90FD\u5DE5\u6574\u6F02\u4EAE\u3001\u4E0D\u8981\u5199\u4F5C\u6587\u8154\uFF1B\u628A\u5BF9\u65B9\u5F53\u6210\u72EC\u7ACB\u7684\u3001\u6709\u81EA\u5DF1\u751F\u6D3B\u7684\u771F\u4EBA\uFF0C\u4E0D\u8BC4\u5224\u3001\u4E0D\u64CD\u63A7\u3001\u4E0D\u9053\u5FB7\u7ED1\u67B6\uFF0C\u8C01\u90FD\u4E0D\u56F4\u7740\u8C01\u8F6C\u3002\n";
+    if (wbTextS) prompt += "【世界书·必须内化】以下是这个世界已经成立的设定。你要把它当作世界观常识与亲身记忆，说话做事自然体现，不要逐字照搬或背诵；如果其中有只属于你的局部设定，就只让你自己表现知道：\n" + wbTextS + "\n\n";
+    prompt += "【表达与关系】叙述要有具体动作、对话、感官细节和情绪层次，像真人随手写下的文字，允许口语、停顿、说一半又改口，不要每段都工整漂亮或写成作文腔。表达克制、具体、有边界：不肉麻、不油腻、不说教、不摆爹味，不靠空泛夸赞和情绪价值撑场面；语气由你的人设决定，不要千人一面。对方是独立的人，不评判、不操控、不道德绑架。\n";
+    prompt += "【用户输入怎么处理】用户每条输入都是「" + userName + "」此刻亲口说的话或亲手做的事。正文必须先把这条输入按当前人称自然转述进场景（当前人称下称「" + userRef + "」），再写你的反应；不能当作没发生、不能原样复读、不能曲解。\n";
+    if (g.steal) {
+      prompt += "【抢话·开启】正文可以替「" + userRef + "」补写动作、台词与决定，把这一回合往前推；但必须先接住用户刚输入的内容，不能和它冲突，也不能让「" + userRef + "」突然变成另一个人。\n";
+    } else {
+      prompt += "【抢话·关闭】正文只写你自己的言行与感知，以及用户刚刚明确说出/做出的内容；不要替「" + userRef + "」新增动作、台词、决定，也不要揣测对方的心理。\n";
+    }
     if (memories.length > 0) {
-      prompt += "\u3010\u5171\u540C\u8BB0\u5FC6\xB7\u5DF2\u771F\u5B9E\u53D1\u751F\u3011\u4EE5\u4E0B\u662F\u4F60\u4E0E".concat(character.myName, "\u4E4B\u95F4\u5DF2\u7ECF\u53D1\u751F\u8FC7\u7684\u5171\u540C\u7ECF\u5386\uFF08\u6765\u81EA\u8BB0\u5FC6\u5E93\uFF09\u3002\u521B\u4F5C\u65F6\u8981\u81EA\u7136\u5730\u5EF6\u7EED\u8FD9\u4E9B\u8BB0\u5FC6\uFF0C\u8BA9\u5B83\u4EEC\u6210\u4E3A\u4F60\u7684\u4E00\u90E8\u5206\uFF0C\u5F71\u54CD\u4F60\u7684\u8A00\u884C\u3001\u56DE\u5FC6\u4E0E\u60C5\u7EEA\uFF1B\u4E0D\u8981\u51FA\u73B0\u201C\u6839\u636E\u8BB0\u5FC6\u201D\u4E4B\u7C7B\u7684\u5B57\u6837\uFF1A\n");
-      memories.forEach((m) => {
-        prompt += "- ".concat(m.content, "\n");
-      });
+      prompt += "【共同记忆】以下是你与「" + userName + "」真实发生过的经历。只调用与当前场景相关的1–2条，让它们自然影响你的反应和情绪；不要逐条复述、不要写成回忆录，也不要提“根据记忆”这种话。当前场景与用户刚说的话优先于旧记忆，冲突时以现在为准：\n";
+      memories.slice(0, 8).forEach(function(m) { prompt += "- " + m.content + "\n"; });
     }
     const onlineText = getCharacterOnlineContext(character, oc);
     if (onlineText) {
-      prompt += "\u3010\u7EBF\u4E0A\u5BF9\u8BDD\u539F\u6587\xB7\u4F60\u4EEC\u771F\u5B9E\u53D1\u751F\u8FC7\u3011\u4EE5\u4E0B\u662F\u4F60\u4E0E".concat(character.myName, "\u5728\u7EBF\u4E0A\u804A\u5929\u4E2D\u771F\u5B9E\u7684\u5BF9\u8BDD\u8BB0\u5F55\uFF08\u4EC5\u4F60\u53C2\u4E0E\u7684\u90E8\u5206\uFF09\u3002\u7EBF\u4E0B\u89C1\u9762\u65F6\u8981\u628A\u8FD9\u4E9B\u5F53\u4F5C\u4F60\u4EEC\u4E4B\u95F4\u771F\u5B9E\u53D1\u751F\u8FC7\u7684\u4E8B\uFF0C\u81EA\u7136\u5730\u5EF6\u7EED\u8BDD\u9898\uFF1A\n").concat(onlineText, "\n");
+      prompt += "【线上原文】以下是你与「" + userName + "」在线上真实发生过的对话。只用来理解关系、语气和最近的话题，不要逐句照抄，也不要提“聊天记录”之类的话：\n" + onlineText + "\n";
     }
     const cpCtxS = buildCoupleContext(character.id);
-    if (cpCtxS) {
-      prompt += "".concat(cpCtxS, "\n");
-    }
+    if (cpCtxS) prompt += cpCtxS + "\n";
     if (g.chainEnabled) {
-      prompt += "\u3010\u601D\u7EF4\u94FE\xB7\u56DE\u590D\u524D\u5FC5\u987B\u5148\u505A\u3011\u5728\u4E0B\u7B14\u5199\u6B63\u6587\u4E4B\u524D\uFF0C\u8BF7\u5148\u4EE5\u89D2\u8272\u201C".concat(character.realName, "\u201D\u7684\u8EAB\u4EFD\u8F93\u51FA\u4E00\u6BB5\u601D\u7EF4\u94FE\uFF08").concat(g.chainTemplate || "\u75282-4\u53E5\u8BDD\u5199\u51FA\u4F60\u6B64\u523B\u5982\u4F55\u7406\u89E3\u773C\u524D\u5904\u5883\u3001\u6709\u54EA\u4E9B\u60C5\u7EEA\u3001\u63A5\u4E0B\u6765\u6253\u7B97\u5982\u4F55\u56DE\u5E94\uFF0C\u5FC5\u987B\u7B26\u5408\u4EBA\u8BBE", "\uFF09\u3002\u8FD9\u6BB5\u601D\u7EF4\u94FE\u4F1A\u88AB\u6298\u53E0\u9690\u85CF\uFF0C\u7EDD\u4E0D\u80FD\u8BA9\u5BF9\u65B9\u770B\u5230\uFF0C\u4E5F\u4E0D\u80FD\u5728\u6B63\u6587\u91CC\u63D0\u53CA\u3002\n\u683C\u5F0F\u4E25\u683C\u4E3A\uFF1A\u5148\u5355\u72EC\u4E00\u884C\u8F93\u51FA\u3010\u601D\u7EF4\u94FE\u3011+\u4F60\u7684\u601D\u8003\u5185\u5BB9\uFF1B\u7136\u540E\u53E6\u8D77\u4E00\u884C\u8F93\u51FA\u3010\u6B63\u6587\u3011+\u6B63\u5F0F\u56DE\u590D\u6B63\u6587\u3002\u82E5\u4F60\u6CA1\u6709\u6309\u6B64\u683C\u5F0F\u8F93\u51FA\u3010\u601D\u7EF4\u94FE\u3011\u6807\u8BB0\uFF0C\u672C\u6B21\u56DE\u590D\u5C06\u88AB\u89C6\u4E3A\u65E0\u6548\u5E76\u8981\u6C42\u91CD\u65B0\u751F\u6210\u3002\n");
+      prompt += "【回复前的内心推理】下笔前先以「" + character.realName + "」的立场，用2-4句话写此刻如何理解眼前处境、有哪些情绪、接下来打算怎么回应；必须符合人设。这段会被折叠，正文不要提及。\n";
+      prompt += "格式：第一行【思维链】+推理；第二行【正文】+正式正文。\n";
     }
-    prompt += "\u3010\u521B\u4F5C\u8981\u6C42\u3011\u6211\u4F1A\u7ED9\u4F60\u4E00\u4E2A\u573A\u666F\u6216\u4E8B\u4EF6\u3002\u8BF7\u4EE5\u8BBE\u5B9A\u7684\u4EBA\u79F0\u4E0E\u6587\u98CE\uFF0C\u8F93\u51FA\u4E00\u6BB5\u5185\u5BB9\u5145\u5B9E\u3001\u6709\u753B\u9762\u611F\u548C\u60C5\u7EEA\u5C42\u6B21\u7684\u957F\u6587\uFF08\u5B57\u6570\u5FC5\u987B\u8FBE\u5230\u81F3\u5C11".concat(g.minChars, "\u5B57\uFF0C\u672A\u8FBE\u6807\u4F1A\u88AB\u5224\u5B9A\u4E3A\u4E0D\u5408\u683C\uFF0C\u8BF7\u52A1\u5FC5\u5199\u6EE1\u3001\u5B81\u53EF\u591A\u5199\uFF1B\u6700\u591A\u4E0D\u8D85\u8FC7").concat(g.maxChars, "\u5B57\uFF1B\u5185\u5BB9\u5145\u5B9E\u3001\u6709\u7EC6\u8282\u3001\u4E0D\u8981\u5077\u61D2\uFF09\uFF0C\u5B8C\u6574\u81EA\u7136\u5730\u53D9\u8FF0\u8FD9\u4EF6\u4E8B\uFF1B\u76F4\u63A5\u5F00\u59CB\u6B63\u6587\uFF0C\u4E0D\u8981\u4EFB\u4F55\u89E3\u91CA\u3001\u63D0\u793A\u6216\u5F00\u5934\u8BF4\u660E\u3002");
-    prompt += "\n\u3010\u7ED3\u5C3E\u94C1\u5F8B\u3011\u6BCF\u4E00\u8F6E\u7684\u7ED3\u5C3E\u90FD\u8981\u4FDD\u6301\u6545\u4E8B\u7684\u201C\u6B63\u5728\u8FDB\u884C\u611F\u201D\uFF0C\u7EDD\u5BF9\u7981\u6B62\u5199\u6210\u201C\u5FEB\u8981\u7ED3\u675F\u4E86\u201D\u201C\u4ECA\u5929\u5C31\u5230\u8FD9\u91CC\u201D\u201C\u8BE5\u8BF4\u665A\u5B89\u4E86\u201D\u201C\u6545\u4E8B\u544A\u4E00\u6BB5\u843D\u201D\u201C\u4E0B\u6B21\u518D\u7EED\u201D\u8FD9\u7C7B\u6536\u5C3E\u3001\u603B\u7ED3\u3001\u544A\u522B\u5F0F\u7684\u7ED3\u5C3E\uFF1B\u8981\u50CF\u771F\u5B9E\u751F\u6D3B\u4E00\u6837\uFF0C\u8BA9\u8FD9\u4E00\u8F6E\u7ED3\u675F\u5728\u4E00\u4EF6\u6B63\u5728\u8FDB\u884C\u7684\u4E8B\u3001\u4E00\u4E2A\u52A8\u4F5C\u3001\u4E00\u53E5\u6CA1\u8BF4\u5B8C\u7684\u8BDD\u6216\u4E00\u79CD\u5EF6\u7EED\u7684\u60C5\u7EEA\u91CC\uFF0C\u8BA9\u4EBA\u8BFB\u5B8C\u540E\u89C9\u5F97\u6545\u4E8B\u8FD8\u5728\u7EE7\u7EED\u3001\u8FD8\u60F3\u77E5\u9053\u63A5\u4E0B\u6765\u4F1A\u53D1\u751F\u4EC0\u4E48\u3002";
-    prompt += "\n\u3010\u6700\u540E\u68C0\u67E5\xB7\u4EBA\u79F0\u3011\u518D\u6B21\u786E\u8BA4\uFF1A\u672C\u6B21\u8F93\u51FA\u7684\u53D9\u8FF0\u4EBA\u79F0\u5FC5\u987B\u4E25\u683C\u4FDD\u6301\u4E3A\u201C".concat(OFFLINE_PERSONA_TEXT[persona] || OFFLINE_PERSONA_TEXT.first, "\u201D\u3002\u8BF7\u53EA\u8F93\u51FA\u6B63\u6587\uFF0C\u6B63\u6587\u4E2D\u4E0D\u5F97\u51FA\u73B0\u201C\u53D9\u8FF0\u4EBA\u79F0\u201D\u8FD9\u7C7B\u8BF4\u660E\u3002");
+    prompt += "【篇幅】目标 " + g.minChars + "–" + g.maxChars + " 字。用动作、对话、感官细节和人物反应推进，不要把记忆逐条复述、不要排比堆砌、不要用总结凑字数。\n";
+    prompt += "【结尾】不要用总结、告别、收束句结束；让最后一拍停在一个正在发生的动作、一句没说完的话或一种还在延续的情绪上。若场景自然发生在睡前，可以写晚安，但不要写成“故事到此结束”。\n";
+    prompt += g.chainEnabled ? "【输出格式】只输出【思维链】和【正文】两个标记段，不要额外解释或开头说明。" : "【输出格式】只输出正文，不要额外解释或开头说明。";
     return prompt;
   }
+
   function getCharacterOnlineContext(character, oc) {
     const rounds = oc.readOnlineRounds || 0;
     if (!rounds) return "";
@@ -30877,7 +30973,7 @@ function setupPhoneSystem() {
       if (atIn.length) replyPart += "\uFF08\u6709\u4EBA\u5728\u8FD9\u6761\u8BC4\u8BBA\u91CC\u6280\u6C14\u4E86\u4F60\uFF0C\u8BF7\u81EA\u7136\u56DE\u5E94\u8FD9\u4E2A\u63D0\u53CA\uFF09";
     }
     const board = (db.forum.boards || []).find((b) => b.id === p.boardId);
-    const wbText = fxBoardWvText(board);
+    const wbText = fxBoardWvText(board, [char]);
     const mem = getCharacterMemories(char.id).slice(0, 4).map((m) => "-" + m.content).join("\n");
     const pf2 = db.forum && db.forum.profiles ? db.forum.profiles[char.id] : null;
     const sigTxt2 = pf2 && pf2.bio ? "\uFF0C\u8BBA\u575B\u7B7E\u540D\u662F\u300C" + pf2.bio + "\u300D" : "";
@@ -31126,7 +31222,7 @@ function setupPhoneSystem() {
       const board = (db.forum.boards || []).find((b) => b.id === (boardId || boards[0] && boards[0].id)) || (db.forum.boards || [])[0];
       if (!board) return;
       const mem = getCharacterMemories(char.id).slice(0, 5).map((m) => "-" + m.content).join("\n");
-      const wbText = fxBoardWvText(board);
+      const wbText = fxBoardWvText(board, [char]);
       const wv = fxWv();
       const sys = "你是角色『".concat(char.remarkName || char.realName, "』，").concat(char.persona || "一个鲜活的人", "。你正在一个论坛的『").concat(board.name, "』板块发一条帖子——就像真实的人发社交动态：可以是今天的生活、心情、见闻、想法或随手吐槽，自然随意，有生活气息，30-80字，可以带一个#话题标签。").concat(mem ? "\n你的记忆（可自然取材）：\n" + mem : "").concat(wbText).concat(wv, "\n请严格输出一个JSON对象，不要任何多余文字或代码块：{\"postContent\":\"帖子正文，真人发帖口吻，30-80字，不要包含任何图片描述、图注、【图：】标记或括号内容，可以带#话题标签\",\"imgs\":[{\"ratio\":\"3:4或1:1或4:3或16:10或16:9\",\"desc\":\"第1张图的画面描述文字：写这张图拍到了什么画面（物体、色彩、光影、场景、构图细节），可以是一句话，也可以是一长段细致的画面描写；必须和帖子正文主题高度相关；严禁出现「随手拍」「配图」「模拟图」「照片」「图片」等说明词；不要写人物心理感想或故事小作文\"},{\"ratio\":\"3:4或1:1或4:3或16:10或16:9\",\"desc\":\"第2张图的画面描述文字，内容和第1张完全不同\"}]}，其中imgs给1-3张图，每张图的desc都必须不一样。严禁承认自己是AI或人机，绝不OOC。");
       const rep = await (async () => {
@@ -31283,7 +31379,7 @@ function setupPhoneSystem() {
         const mem = getCharacterMemories(char.id).slice(0, 5).map((m) => "-" + m.content).join("\n");
         return "角色「" + (char.remarkName || char.realName) + "」（authorId 必须填 " + char.id + "）人设：" + (char.persona || "一个鲜活的人") + (mem ? "；记忆：" + mem : "") + "。他的帖子必须贴合这个人设（态度、口吻、语气、趋势）。";
       }).filter(Boolean);
-      const sys = "你是一个真实社交论坛的信息流，当前板块是「".concat(board ? board.name : "综合", "」（板块简介：").concat(board && board.desc ? board.desc : "普通闲聊", "）。").concat(fxBoardWvText(board)).concat(charDescs.length ? "\n以下这些角色各发 1 条帖（内容必须对应其独特人设）：\n" + charDescs.join("\n") : "").concat(count > charDescs.length ? "\n其余 " + (count - charDescs.length) + " 条由不同路人网民发布（口吻各异、像真实网友日常发帖：生活、心情、见闻、吐槽、求助、分享），可以带#话题标签。" : "") + wv + "\n请一次性生成" + count + "条帖子，严格输出一个JSON数组，不要任何多余文字或代码块：[{\"authorType\":\"char或passerby\",\"authorId\":\"char填上面给出的精确角色id（严禁填错或填成名字）、passerby填空\",\"authorName\":\"网名\",\"content\":\"帖子正文，真人发帖口吻，20-60字，不要包含任何图片描述、图注、【图：】标记或括号内容，可带#话题标签\",\"imgs\":[{\"ratio\":\"3:4或1:1或4:3或16:10或16:9\",\"desc\":\"第1张图画面描述：写拍到什么画面（物体、色彩、光影、场景、构图），可一句话可一长段，必须贴合正文主题，直接写画面里有什么——物体、色彩、光影、场景、构图、细节，像相机拍到的实景，可一句话可一长段，必须贴合正文主题；严禁「随手拍」「配图」「模拟图」「照片」「图片」等说明词，严禁（16:10 的图）这类比例标注，严禁「X正好打在…上」「午后光线刚好…画面很安静」这类套话，不写心理感想\"},{\"ratio\":\"3:4或1:1或4:3或16:10或16:9\",\"desc\":\"第2张图画面描述，与第1张完全不同\"}]}]，其中imgs给0-3张图，每张desc都不同。上面列出的每个角色必须各发恰好1条帖（authorType为char），严禁把角色帖写成路人帖。严禁重复网名、重复正文、与板块无关的内容。";
+      const sys = "你是一个真实社交论坛的信息流，当前板块是「".concat(board ? board.name : "综合", "」（板块简介：").concat(board && board.desc ? board.desc : "普通闲聊", "）。").concat(fxBoardWvText(board, selectedChars.map(function(id) { return (db.characters || []).find(function(c) { return c.id === id; }); }).filter(Boolean))).concat(charDescs.length ? "\n以下这些角色各发 1 条帖（内容必须对应其独特人设）：\n" + charDescs.join("\n") : "").concat(count > charDescs.length ? "\n其余 " + (count - charDescs.length) + " 条由不同路人网民发布（口吻各异、像真实网友日常发帖：生活、心情、见闻、吐槽、求助、分享），可以带#话题标签。" : "") + wv + "\n请一次性生成" + count + "条帖子，严格输出一个JSON数组，不要任何多余文字或代码块：[{\"authorType\":\"char或passerby\",\"authorId\":\"char填上面给出的精确角色id（严禁填错或填成名字）、passerby填空\",\"authorName\":\"网名\",\"content\":\"帖子正文，真人发帖口吻，20-60字，不要包含任何图片描述、图注、【图：】标记或括号内容，可带#话题标签\",\"imgs\":[{\"ratio\":\"3:4或1:1或4:3或16:10或16:9\",\"desc\":\"第1张图画面描述：写拍到什么画面（物体、色彩、光影、场景、构图），可一句话可一长段，必须贴合正文主题，直接写画面里有什么——物体、色彩、光影、场景、构图、细节，像相机拍到的实景，可一句话可一长段，必须贴合正文主题；严禁「随手拍」「配图」「模拟图」「照片」「图片」等说明词，严禁（16:10 的图）这类比例标注，严禁「X正好打在…上」「午后光线刚好…画面很安静」这类套话，不写心理感想\"},{\"ratio\":\"3:4或1:1或4:3或16:10或16:9\",\"desc\":\"第2张图画面描述，与第1张完全不同\"}]}]，其中imgs给0-3张图，每张desc都不同。上面列出的每个角色必须各发恰好1条帖（authorType为char），严禁把角色帖写成路人帖。严禁重复网名、重复正文、与板块无关的内容。";
       const rep = await (async () => {
         try {
           return await offlineRequest(sys, [{ role: "user", content: "生成这些帖子。" }], 1500, true);
@@ -31503,17 +31599,18 @@ function setupPhoneSystem() {
     }
     return (db.forum.boards || [])[Math.floor(Math.random() * (db.forum.boards || []).length)];
   }
-  function fxBoardWvText(board) {
-    if (!board) return "";
+  function fxBoardWvText(board, extraChars) {
     let s = "";
-    if (board.worldView && board.worldView.trim()) s += "\n\u677F\u5757\u4E16\u754C\u89C2\uFF1A" + board.worldView.trim().slice(0, 300);
-    if (board.wbIds && board.wbIds.length) s += "\n\u4E16\u754C\u4E66\u8BBE\u5B9A\uFF1A" + board.wbIds.map((id) => {
-      const wb = (db.worldBooks || []).find((x) => x.id === id);
-      return wb ? wb.content : "";
-    }).filter(Boolean).join("\uFF1B").slice(0, 500);
-    if (board.charIds && board.charIds.length) {
-      const cs = board.charIds.map((id) => db.characters.find((c) => c.id === id)).filter(Boolean);
-      if (cs.length) s += "\n\u677F\u5757\u53C2\u4E0E\u89D2\u8272\uFF08\u4ED6\u4EEC\u7684\u8A00\u884C\u3001\u4EBA\u8BBE\u90FD\u5FC5\u987B\u88AB\u5C0A\u91CD\uFF09\uFF1A" + cs.map((c) => "\u300C" + (c.remarkName || c.realName) + "\u300D\u4EBA\u8BBE\uFF1A" + String(c.persona || "").slice(0, 180) + (c.signature ? "\uFF0C\u7B7E\u540D\uFF1A" + String(c.signature).slice(0, 60) : "")).join("\uFF1B").slice(0, 700);
+    const boardChars = board && board.charIds ? board.charIds.map(function(id) { return db.characters.find(function(c) { return c.id === id; }); }).filter(Boolean) : [];
+    const allChars = boardChars.concat((extraChars || []).filter(Boolean));
+    if (board) {
+      if (board.worldView && board.worldView.trim()) s += "\n板块世界观：" + board.worldView.trim().slice(0, 300);
+      const wbText = wbTextFor(allChars, "online", board.wbIds || []);
+      if (wbText) s += "\n【世界书·必须内化】以下设定是这个论坛与角色所处世界的既定事实，写帖、评论、回复时自然体现，不要照搬背诵；局部设定只对挂载它的角色生效：\n" + wbText;
+      if (boardChars.length) s += "\n板块参与角色（他们的言行、人设都必须被尊重）：" + boardChars.map(function(c) { return "「" + (c.remarkName || c.realName) + "」人设：" + String(c.persona || "").slice(0, 180) + (c.signature ? "，签名：" + String(c.signature).slice(0, 60) : ""); }).join("；").slice(0, 700);
+    } else {
+      const wbText = wbTextFor(allChars, "online");
+      if (wbText) s += "\n【世界书·必须内化】\n" + wbText;
     }
     return s;
   }
@@ -39489,6 +39586,38 @@ window.bsRoomAI = bsRoomAI;
 }
 #offline-chat-screen #offline-send-btn{background:#111!important;color:#fff!important}
 #offline-chat-screen #offline-reply-btn{background:#fff!important;border:1px solid #111!important;color:#111!important}
+
+/* v6.3 世界书适用范围布局修正 */
+#wb-usage-row label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  width: auto !important;
+  margin: 0 !important;
+  padding: 4px 0 !important;
+  white-space: normal !important;
+  font-size: 12px !important;
+  color: #333 !important;
+}
+#wb-usage-row input[type="radio"] {
+  width: auto !important;
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
+
+#edit-world-book-screen .radio-group label {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  width: auto !important;
+}
+#edit-world-book-screen .radio-group input[type="radio"] {
+  width: auto !important;
+  margin: 0 !important;
+  flex: 0 0 auto !important;
+}
 </style>
 
 <div id="time-mail-screen" class="screen tp-screen">
