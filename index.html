@@ -9841,7 +9841,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                 </div>
                 <div class="form-group"><label for="setting-summary-rounds">每几轮自动总结一次</label><input type="number" id="setting-summary-rounds" value="6" min="2"></div>
                 <div class="form-group"><label for="setting-summary-prompt">自定义总结提示词（留空用默认）</label><textarea id="setting-summary-prompt" placeholder="例如：请只总结重要的承诺、约定和情绪变化"></textarea></div>
-                <div class="form-group" style="font-size:12px;color:#9aa0a6;background:#f8f9fa;border-radius:8px;padding:8px 10px;">当前已聊 <b id="setting-sum-total" style="color:#333;">0</b> 轮 · <b id="setting-sum-msgs" style="color:#333;">0</b> 条 · 已总结到第 <b id="setting-sum-cursor" style="color:#333;">0</b> 轮</div>
+                <div class="form-group" style="font-size:12px;color:#9aa0a6;background:#f8f9fa;border-radius:8px;padding:8px 10px;">当前已聊 <b id="setting-sum-total" style="color:#333;">0</b> 轮 · <b id="setting-sum-msgs" style="color:#333;">0</b> 条 · 已总结到第 <input type="number" id="setting-sum-cursor" min="0" value="0" style="width:52px;height:26px;border:0;border-bottom:1px solid #111;background:transparent;color:#111;font:700 12px/1 inherit;text-align:center;padding:0 2px;outline:none;"> 轮</div>
                 <div class="form-group"><label>总结轮数区间（下次自动从断点继续）</label><div style="display:flex;align-items:center;gap:8px;"><input type="number" id="setting-summary-from" min="1" value="1" style="flex:1;min-width:0;"><span style="color:#9aa0a6;font-size:12px;">到</span><input type="number" id="setting-summary-to" min="1" style="flex:1;min-width:0;"></div></div>
                 <button type="button" class="btn btn-secondary" id="setting-summary-now-btn">立即总结并存入记忆库</button>
                 <button type="button" class="btn btn-secondary" id="setting-summary-reset-btn" style="margin-top:8px;width:100%;">重置自动总结断点</button>
@@ -9976,7 +9976,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                     </div>
                     <label for="setting-group-summary-rounds">每几轮总结一次</label>
                     <input type="number" id="setting-group-summary-rounds" min="2" max="50" value="6">
-                    <div style="font-size:12px;color:#9aa0a6;background:#f8f9fa;border-radius:8px;padding:8px 10px;margin:8px 0;">当前已聊 <b id="setting-group-sum-total" style="color:#333;">0</b> 轮 · <b id="setting-group-sum-msgs" style="color:#333;">0</b> 条 · 已总结到第 <b id="setting-group-sum-cursor" style="color:#333;">0</b> 轮</div>
+                    <div style="font-size:12px;color:#9aa0a6;background:#f8f9fa;border-radius:8px;padding:8px 10px;margin:8px 0;">当前已聊 <b id="setting-group-sum-total" style="color:#333;">0</b> 轮 · <b id="setting-group-sum-msgs" style="color:#333;">0</b> 条 · 已总结到第 <input type="number" id="setting-group-sum-cursor" min="0" value="0" style="width:52px;height:26px;border:0;border-bottom:1px solid #111;background:transparent;color:#111;font:700 12px/1 inherit;text-align:center;padding:0 2px;outline:none;"> 轮</div>
                     <div style="display:flex;align-items:center;gap:8px;margin:6px 0;"><span style="font-size:12px;color:#666;">总结轮数区间（下次自动从断点继续）</span><input type="number" id="setting-group-summary-from" min="1" value="1" style="flex:1;min-width:0;"><span style="color:#9aa0a6;font-size:12px;">到</span><input type="number" id="setting-group-summary-to" min="1" style="flex:1;min-width:0;"></div>
                     <label for="setting-group-summary-prompt">自定义总结提示词（留空用默认）</label>
                     <textarea id="setting-group-summary-prompt" rows="3" placeholder="例如：请只总结群聊中重要的事件、承诺与关系变化"></textarea>
@@ -10369,7 +10369,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane is-on" data-offline-pane="meet">
                 <div class="o404-clock-row">
                     <div class="o404-clock" id="o404-time">20:14</div>
-                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.1</span></div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.2</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR MOMENT</span>
@@ -10402,7 +10402,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:16</div>
-                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.1</span></div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.2</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR CAST</span>
@@ -10414,7 +10414,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="story">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:18</div>
-                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.1</span></div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.2</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR STORY</span>
@@ -11204,7 +11204,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.1";
+  const APP_VERSION = "v6.3.2";
   let db = {
     characters: [],
     groups: [],
@@ -11333,8 +11333,10 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       let ok = false, err = "";
       const ts = Date.now();
       try {
-        localStorage.setItem("gemini-chat-app-db", json);
-        localStorage.setItem("__mxg_ls_ts", String(ts));
+        if (key === "麻辣香锅鸡") {
+          localStorage.setItem("gemini-chat-app-db", json);
+          localStorage.setItem("__mxg_ls_ts", String(ts));
+        }
         ok = true;
       } catch (e2) {
         err = "local:" + (e2 && e2.name);
@@ -11444,8 +11446,22 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       __saveTimer = setTimeout(__flushSave, 0);
     });
   };
+  const saveWorldBookBackup = async () => {
+    try {
+      return await dataStorage.saveData("mxl-worldbooks-backup", {
+        ts: Date.now(),
+        worldBooks: db.worldBooks || [],
+        worldBookFolders: db.worldBookFolders || [],
+        worldBookSettings: db.worldBookSettings || {}
+      });
+    } catch (e) {
+      console.error("世界书 IDB 备份失败", e);
+      return false;
+    }
+  };
   window.addEventListener("pagehide", () => {
     __flushSave();
+    try { saveWorldBookBackup(); } catch (e) {}
   });
   const loadData = async () => {
     let oldData = null;
@@ -11461,11 +11477,16 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       if (latestMeta) dbTs = Number(latestMeta.timestamp) || 0;
     } catch (e0) {}
     const lsTs = Number((function () { try { return localStorage.getItem("__mxg_ls_ts") || "0"; } catch (e1) { return "0"; } })()) || 0;
+    let effectiveTs = dbTs;
+    const looksLikeDb = function (x) {
+      return !!x && (Array.isArray(x.characters) || Array.isArray(x.worldBooks) || Array.isArray(x.worldBookFolders) || Array.isArray(x.groups));
+    };
     if (oldData && lsTs > dbTs + 1500) {
       try {
         const newer = JSON.parse(oldData);
-        if (newer && newer.characters && newer.characters.length) {
+        if (looksLikeDb(newer)) {
           data = newer;
+          effectiveTs = Math.max(effectiveTs, lsTs);
           await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", newer);
           console.log("已用较新的本地镜像恢复数据");
         }
@@ -11514,6 +11535,16 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     if (!db.offlineGlobal) db.offlineGlobal = { stylePresets: [], preset: "novel", customStyle: "", persona: "first", steal: false, minChars: 400, maxChars: 1200, realTimeSensing: true, summaryEnabled: true, summaryRounds: 6, summaryCount: 4, summaryPrompt: "", rememberOnline: true, readOnlineRounds: 0, useCustomBubbleCss: false, customBubbleCss: "", chainEnabled: true, chainTemplate: "", activePresetId: "" };
     if (!db.phoneData) db.phoneData = {};
     if (!db.offlinePresets) db.offlinePresets = [];
+    try {
+      const wbBackup = await dataStorage.getData("mxl-worldbooks-backup");
+      if (wbBackup && Number(wbBackup.ts) > effectiveTs && (Array.isArray(wbBackup.worldBooks) || Array.isArray(wbBackup.worldBookFolders))) {
+        if (Array.isArray(wbBackup.worldBooks)) db.worldBooks = wbBackup.worldBooks;
+        if (Array.isArray(wbBackup.worldBookFolders)) db.worldBookFolders = wbBackup.worldBookFolders;
+        if (wbBackup.worldBookSettings && typeof wbBackup.worldBookSettings === "object") db.worldBookSettings = wbBackup.worldBookSettings;
+        await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", db);
+        console.log("已从 IDB 世界书备份恢复");
+      }
+    } catch (wbErr) { console.warn("世界书备份恢复失败", wbErr); }
     if (!db.worldBooks) db.worldBooks = [];
     if (!db.worldBookFolders) db.worldBookFolders = [];
     if (!db.relationships) db.relationships = [];
@@ -13141,7 +13172,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.1</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.2</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -13175,7 +13206,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.1<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.2<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -18529,6 +18560,11 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       if (sFromEl) {
         sFromEl.min = 1;
         sFromEl.value = Math.max(1, sCursor + 1);
+        sFromEl.oninput = function () {
+          const cur = Math.max(0, (parseInt(sFromEl.value, 10) || 1) - 1);
+          const curEl = document.getElementById("setting-sum-cursor");
+          if (curEl) curEl.value = cur;
+        };
       }
       if (sToEl) {
         sToEl.min = 1;
@@ -18539,7 +18575,13 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       const sMsgEl = document.getElementById("setting-sum-msgs");
       if (sMsgEl) sMsgEl.textContent = (e.history || []).length;
       const sCurEl = document.getElementById("setting-sum-cursor");
-      if (sCurEl) sCurEl.textContent = sCursor;
+      if (sCurEl) {
+        sCurEl.value = sCursor;
+        sCurEl.oninput = function () {
+          const cur = Math.max(0, parseInt(sCurEl.value, 10) || 0);
+          if (sFromEl) sFromEl.value = cur + 1;
+        };
+      }
       if (e.lastSummaryError) setSummaryStatus("setting-summary-status", "上次总结失败：" + e.lastSummaryError, true);
       else setSummaryStatus("setting-summary-status", sCursor ? "自动总结断点：第 " + sCursor + " 轮 · 下次从第 " + (sCursor + 1) + " 轮开始" : "尚未总结 · 下次从第 1 轮开始", false);
       const sResetBtn = document.getElementById("setting-summary-reset-btn");
@@ -18645,8 +18687,12 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       e.summaryEnabled = oc2.summaryEnabled;
       e.summaryRounds = oc2.summaryRounds;
       e.summaryPrompt = oc2.summaryPrompt;
+      const sCursorSaveEl = document.getElementById("setting-sum-cursor");
       const sFromSaveEl = document.getElementById("setting-summary-from");
-      if (sFromSaveEl) {
+      const scv = parseInt(sCursorSaveEl ? sCursorSaveEl.value : "", 10);
+      if (Number.isFinite(scv) && scv >= 0) {
+        applySummaryCursor(e, scv, resolveMaskForChat(e));
+      } else if (sFromSaveEl) {
         const sv = parseInt(sFromSaveEl.value, 10);
         if (Number.isFinite(sv) && sv >= 1) applySummaryCursor(e, sv - 1, resolveMaskForChat(e));
       }
@@ -18673,7 +18719,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       await saveData();
       const sCursorSaved = summaryCursorOf(e);
       const sCurElSave = document.getElementById("setting-sum-cursor");
-      if (sCurElSave) sCurElSave.textContent = sCursorSaved;
+      if (sCurElSave) sCurElSave.value = sCursorSaved;
       if (!e.lastSummaryError) setSummaryStatus("setting-summary-status", sCursorSaved ? "自动总结断点：第 " + sCursorSaved + " 轮 · 下次从第 " + (sCursorSaved + 1) + " 轮开始" : "尚未总结 · 下次从第 1 轮开始", false);
       showToast("设置已保存！自动总结断点：第 " + sCursorSaved + " 轮");
       chatRoomTitle.textContent = e.remarkName;
@@ -19503,6 +19549,11 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     if (gFromEl) {
       gFromEl.min = 1;
       gFromEl.value = Math.max(1, gCursor + 1);
+      gFromEl.oninput = function () {
+        const cur = Math.max(0, (parseInt(gFromEl.value, 10) || 1) - 1);
+        const curEl = document.getElementById("setting-group-sum-cursor");
+        if (curEl) curEl.value = cur;
+      };
     }
     if (gToEl) {
       gToEl.min = 1;
@@ -19513,7 +19564,13 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     const gMsgEl = document.getElementById("setting-group-sum-msgs");
     if (gMsgEl) gMsgEl.textContent = (group.history || []).length;
     const gCurEl = document.getElementById("setting-group-sum-cursor");
-    if (gCurEl) gCurEl.textContent = gCursor;
+    if (gCurEl) {
+      gCurEl.value = gCursor;
+      gCurEl.oninput = function () {
+        const cur = Math.max(0, parseInt(gCurEl.value, 10) || 0);
+        if (gFromEl) gFromEl.value = cur + 1;
+      };
+    }
     if (group.lastSummaryError) setSummaryStatus("setting-group-summary-status", "上次总结失败：" + group.lastSummaryError, true);
     else setSummaryStatus("setting-group-summary-status", gCursor ? "自动总结断点：第 " + gCursor + " 轮 · 下次从第 " + (gCursor + 1) + " 轮开始" : "尚未总结 · 下次从第 1 轮开始", false);
     const gResetBtn = document.getElementById("setting-group-summary-reset-btn");
@@ -19624,8 +19681,12 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     group.offlineCfg.summaryEnabled = document.getElementById("setting-group-summary-enabled").checked;
     group.offlineCfg.summaryRounds = parseInt(document.getElementById("setting-group-summary-rounds").value) || 6;
     group.offlineCfg.summaryPrompt = document.getElementById("setting-group-summary-prompt").value;
+    const gCursorSaveEl = document.getElementById("setting-group-sum-cursor");
     const gFromSaveEl = document.getElementById("setting-group-summary-from");
-    if (gFromSaveEl) {
+    const gcsv = parseInt(gCursorSaveEl ? gCursorSaveEl.value : "", 10);
+    if (Number.isFinite(gcsv) && gcsv >= 0) {
+      applySummaryCursor(group, gcsv, resolveMaskForChat(group));
+    } else if (gFromSaveEl) {
       const gsv = parseInt(gFromSaveEl.value, 10);
       if (Number.isFinite(gsv) && gsv >= 1) applySummaryCursor(group, gsv - 1, resolveMaskForChat(group));
     }
@@ -19633,7 +19694,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     await saveData();
     const gCursorSaved = summaryCursorOf(group);
     const gCurElSave = document.getElementById("setting-group-sum-cursor");
-    if (gCurElSave) gCurElSave.textContent = gCursorSaved;
+    if (gCurElSave) gCurElSave.value = gCursorSaved;
     if (!group.lastSummaryError) setSummaryStatus("setting-group-summary-status", gCursorSaved ? "自动总结断点：第 " + gCursorSaved + " 轮 · 下次从第 " + (gCursorSaved + 1) + " 轮开始" : "尚未总结 · 下次从第 1 轮开始", false);
     showToast("群聊设置已保存！自动总结断点：第 " + gCursorSaved + " 轮");
     chatRoomTitle.textContent = group.name;
@@ -31294,8 +31355,10 @@ function setupPhoneSystem() {
     try { _wb2api.generateGroupSystemPrompt = generateGroupSystemPrompt; } catch (e6) {}
     try { _wb2api.generateOfflineSystemPrompt = generateOfflineSystemPrompt; } catch (e7) {}
     try { _wb2api.generateOfflineMultiSystemPrompt = generateOfflineMultiSystemPrompt; } catch (e8) {}
+    _wb2api.saveWorldBooks = saveWorldBookBackup;
     window.__wb2Api = _wb2api;
     window.__mxlSaveData = saveData;
+    window.__mxlSaveWorldBooks = saveWorldBookBackup;
   } catch (e) {}
   window.editWorldBookFolder = editWorldBookFolder;
   window.deleteWorldBookItem = deleteWorldBookItem;
@@ -42567,11 +42630,17 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 function wb2Esc(v) { if (WB2API.escapeHtml) return WB2API.escapeHtml(v); return String(v == null ? "" : v).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c]; }); }
 function wb2Save() {
+  var mainP = null, backupP = null;
   try {
-    if (WB2API.saveData) return WB2API.saveData(null, { force: true });
-    if (window.__mxlSaveData) return window.__mxlSaveData(null, { force: true });
+    if (WB2API.saveData) mainP = WB2API.saveData(null, { force: true });
+    else if (window.__mxlSaveData) mainP = window.__mxlSaveData(null, { force: true });
+    if (WB2API.saveWorldBooks) backupP = WB2API.saveWorldBooks();
+    else if (window.__mxlSaveWorldBooks) backupP = window.__mxlSaveWorldBooks();
   } catch (e) { console.error("世界书保存失败", e); }
-  return null;
+  if (!mainP && !backupP) return Promise.resolve(false);
+  return Promise.all([mainP, backupP]).then(function(res){
+    return mainP ? res[0] !== false : true;
+  }).catch(function(e){ console.error("世界书持久化失败", e); return false; });
 }
 function wb2Prompt(msg, def) { return WB2API.uiPrompt ? WB2API.uiPrompt(msg, def) : Promise.resolve(prompt(msg, def)); }
 function wb2Confirm(msg, okText, danger) { return WB2API.uiConfirm ? WB2API.uiConfirm(msg, okText, danger) : Promise.resolve(confirm(msg)); }
@@ -42768,9 +42837,11 @@ function wb2NewBook() {
     if (!db.worldBookFolders) db.worldBookFolders = [];
     var id = "wbf_" + Date.now();
     db.worldBookFolders.push({ id: id, name: String(name).trim() });
-    wb2Save();
-    wb2OpenBook(id);
-    wb2Toast("世界书已创建");
+    Promise.resolve(wb2Save()).then(function(ok){
+      if (!ok) { wb2Toast("世界书创建失败：本地 IDB 未写入，请重试"); return; }
+      wb2OpenBook(id);
+      wb2Toast("世界书已创建并保存到本地");
+    });
   });
 }
 function wb2RenameBook() {
@@ -42788,9 +42859,11 @@ function wb2RenameBook() {
       var f = (db.worldBookFolders || []).find(function(x){ return x.id === id; });
       if (f) f.name = String(name).trim();
     }
-    wb2Save();
-    wb2RenderBook();
-    wb2Toast("已重命名");
+    Promise.resolve(wb2Save()).then(function(ok){
+      if (!ok) { wb2Toast("重命名保存失败：本地 IDB 未写入，请重试"); return; }
+      wb2RenderBook();
+      wb2Toast("已重命名并保存到本地");
+    });
   });
 }
 function wb2DeleteBook() {
@@ -43003,7 +43076,7 @@ function wb2CommitEntry(silent) {
   }
   wb2State.edit = e;
   wb2State.bookId = e.folderId || WB2_UNFILED;
-  wb2Save();
+  wb2State.lastSavePromise = wb2Save();
   return true;
 }
 function wb2LeaveEditorGuard() {
@@ -43028,9 +43101,13 @@ function wb2FlushDraft() {
 }
 function wb2SaveEntry() {
   if (!wb2CommitEntry(false)) return;
-  wb2State.edit = null;
-  wb2GoBook();
-  wb2Toast("条目已保存");
+  var saveP = wb2State.lastSavePromise || wb2Save();
+  Promise.resolve(saveP).then(function(ok){
+    if (!ok) { wb2Toast("条目保存失败：本地 IDB 写入未完成，请重试"); return; }
+    wb2State.edit = null;
+    wb2GoBook();
+    wb2Toast("条目已保存到本地 IDB");
+  });
 }
 function wb2GoHome() {
   try {
@@ -43080,9 +43157,11 @@ function wb2DeleteEntry() {
     if (tb) tb.addEventListener("change", function(){
       if (!db.worldBookSettings) db.worldBookSettings = {};
       db.worldBookSettings.totalBudget = Math.max(0, parseInt(tb.value, 10) || 0);
-      wb2Save();
-      wb2RenderLibrary();
-      wb2Toast("世界书总预算已保存");
+      Promise.resolve(wb2Save()).then(function(ok){
+        if (!ok) { wb2Toast("总预算保存失败：本地 IDB 未写入"); return; }
+        wb2RenderLibrary();
+        wb2Toast("世界书总预算已保存到本地");
+      });
     });
     wb2TickClocks();
     setInterval(wb2TickClocks, 30000);
