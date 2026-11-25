@@ -6736,6 +6736,77 @@
 .mx-lead{flex:1;border-bottom:1px dotted #d6d7da;margin:0 8px;transform:translateY(-3px);}
 .mx-empty{padding:46px 0;text-align:center;font-size:11px;color:#a0a4a9;letter-spacing:.04em;}
 
+
+/* API 设置 404 版 */
+#api-settings-screen .app-header { display:none !important; }
+#api-settings-screen .content {
+  padding:0 16px 120px !important;
+  background-color:#fff !important;
+  background-image:radial-gradient(rgba(0,0,0,.055) 1px, transparent 1.2px) !important;
+  background-size:16px 16px !important;
+}
+.api404-head { display:flex; align-items:flex-start; gap:12px; padding-top:18px; }
+.api404-back {
+  width:30px; height:30px; flex:0 0 auto; margin-top:4px; border:1px solid #111; border-radius:50%;
+  background:#fff; color:#111; font-size:19px; line-height:1; cursor:pointer;
+}
+.api404-clock {
+  font-family:Georgia,'Times New Roman',serif; font-size:44px; line-height:.92;
+  letter-spacing:-.03em; color:#111; font-weight:400;
+}
+.api404-meta { margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:3px; font-size:7.5px; line-height:1.4; color:#8c8c8c; letter-spacing:.14em; text-align:right; max-width:150px; }
+.api404-kicker { display:flex; align-items:baseline; gap:10px; margin:18px 0 6px; }
+.api404-script { font-family:Georgia,serif; font-style:italic; font-size:22px; line-height:1; color:#111; }
+.api404-sec { display:flex; align-items:baseline; gap:9px; margin:26px 0 2px; padding-top:18px; border-top:1px solid #111; }
+.api404-sec:first-of-type { margin-top:16px; }
+.api404-sec-num { font-family:Georgia,serif; font-size:11px; color:#111; letter-spacing:.08em; }
+.api404-sec b { font-size:9px; letter-spacing:.2em; color:#111; font-weight:600; }
+.api404-sec em { margin-left:auto; font-style:normal; font-size:8px; color:#8c8c8c; letter-spacing:.05em; }
+#api-settings-screen #api-form .form-group {
+  border:0 !important; border-radius:0 !important; padding:11px 0 !important; margin:0 !important;
+  background:transparent !important; box-shadow:none !important;
+}
+#api-settings-screen #api-form .form-group label {
+  display:block !important; margin:0 0 5px !important; color:#111 !important;
+  font-size:8px !important; font-weight:500 !important; letter-spacing:.14em !important; text-transform:uppercase;
+}
+#api-settings-screen #api-form .form-group label[style*="display:flex"] { display:flex !important; align-items:center !important; justify-content:space-between !important; }
+#api-settings-screen #api-form input[type="text"],
+#api-settings-screen #api-form input[type="url"],
+#api-settings-screen #api-form input[type="password"],
+#api-settings-screen #api-form select,
+#api-settings-screen #api-form textarea {
+  width:100% !important; box-sizing:border-box !important; border:0 !important; border-bottom:1px solid #cfcfcf !important;
+  border-radius:0 !important; background:transparent !important; box-shadow:none !important;
+  padding:7px 0 !important; color:#111 !important; font-size:13px !important; font-family:inherit !important;
+  outline:none !important; -webkit-appearance:none; appearance:none;
+}
+#api-settings-screen #api-form textarea { border:1px solid #d6d6d6 !important; padding:9px !important; line-height:1.6; }
+#api-settings-screen #api-form select { background-image:none !important; }
+#api-settings-screen #api-form input:focus, #api-settings-screen #api-form select:focus, #api-settings-screen #api-form textarea:focus { border-color:#111 !important; }
+#api-settings-screen #api-form input[type="range"] { width:100% !important; accent-color:#111 !important; }
+#api-settings-screen #api-form .btn,
+#api-settings-screen #api-form button {
+  border-radius:999px !important; min-height:38px !important;
+  font-size:10px !important; letter-spacing:.14em !important; font-weight:500 !important;
+}
+#api-settings-screen #api-form .btn-secondary,
+#api-settings-screen #api-form button:not(#save-btn) {
+  background:#fff !important; color:#111 !important; border:1px solid #111 !important; box-shadow:none !important;
+}
+#api-settings-screen #api-form #save-btn {
+  margin-top:10px !important; background:#111 !important; color:#fff !important; border:1px solid #111 !important;
+  width:100% !important; box-shadow:none !important;
+}
+#api-settings-screen #api-form .form-group[style*="border"] { border:0 !important; padding:11px 0 !important; }
+#api-settings-screen #api-form .form-group > div[style*="font-size:11px"] { color:#8c8c8c !important; font-size:9px !important; line-height:1.6 !important; }
+.api404-foot { margin:18px 0 6px; text-align:center; }
+.api404-foot-note { font-size:7.5px; letter-spacing:.18em; color:#9a9a9a; }
+
+.wb2-budgetrow { display:flex; align-items:baseline; gap:8px; margin:10px 0 2px; padding:9px 0; border-top:1px solid #111; border-bottom:1px solid #d8d8d8; }
+.wb2-budgetrow span { font-size:8px; letter-spacing:.16em; color:#111; }
+.wb2-budgetrow input { flex:1; min-width:0; border:0; border-bottom:1px solid #111; background:transparent; font-size:12px; color:#111; padding:3px 0; outline:none; text-align:right; }
+.wb2-budgetrow em { font-style:normal; font-size:7px; letter-spacing:.12em; color:#8c8c8c; }
 </style>
     <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Great+Vibes&display=swap">
 
@@ -7158,6 +7229,150 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
 }
 </style>
 
+
+<style id="wb2-style">
+#wb2-library-screen,#wb2-book-screen,#wb2-editor-screen{
+  animation:none!important;opacity:1!important;
+  background:radial-gradient(#d5d5ce .7px,transparent .7px) 0 0/14px 14px,#fbfbf8;
+  color:#111;font-family:"Noto Sans CJK SC","PingFang SC","Microsoft YaHei",sans-serif;
+}
+.wb2-status{flex:0 0 auto;height:34px;padding:0 20px;display:flex;align-items:center;justify-content:space-between;font:9px/1 "DejaVu Sans Mono",monospace;letter-spacing:.12em;text-transform:uppercase;color:#444;background:rgba(251,251,248,.94)}
+.wb2-status .mid{font-weight:700;color:#111}
+.wb2-topline{height:1px;background:#111;margin:0 20px;flex:0 0 auto}
+.wb2-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;padding:12px 20px 104px;scrollbar-width:none}
+.wb2-scroll::-webkit-scrollbar{display:none}
+.wb2-inner{width:100%;max-width:560px;margin:0 auto}
+.wb2-eyebrow{font:9px/1.4 "DejaVu Sans Mono",monospace;letter-spacing:.16em;text-transform:uppercase;color:#666}
+.wb2-display{font-family:"Noto Serif","Songti SC","Times New Roman",serif;font-weight:500;font-size:54px;line-height:.84;letter-spacing:-.055em;margin-top:8px}
+.wb2-display em{font-style:italic;font-weight:400;letter-spacing:-.04em}
+.wb2-display .cn{font-family:"Noto Sans CJK SC",sans-serif;font-size:21px;font-weight:700;letter-spacing:0;display:block;margin-top:8px;line-height:1.1}
+.wb2-sub{font-size:10.5px;color:#5f5f58;line-height:1.5;margin-top:9px;max-width:320px}
+.wb2-seg{display:flex;border:1px solid #111;height:34px;margin-top:13px;background:rgba(255,255,255,.65)}
+.wb2-seg button{flex:1;border:0;border-right:1px solid #111;background:transparent;font:10px/1 "Noto Sans CJK SC",sans-serif;color:#111;letter-spacing:.03em}
+.wb2-seg button:last-child{border-right:0}
+.wb2-seg button.on{background:#111;color:#fff;font-weight:700}
+.wb2-searchwrap{display:flex;align-items:center;gap:8px;border-bottom:1px solid #111;height:38px;margin-top:10px}
+.wb2-searchwrap span{font:13px/1 "Noto Serif",serif;color:#555}
+.wb2-searchwrap input{flex:1;min-width:0;border:0;background:transparent;outline:0;font-size:11.5px;color:#111;padding:0}
+.wb2-searchwrap input::placeholder{color:#8a8a82}
+.wb2-chiprow{display:flex;gap:6px;overflow-x:auto;margin-top:9px;padding-bottom:1px;scrollbar-width:none}
+.wb2-chiprow::-webkit-scrollbar{display:none}
+.wb2-chip{border:1px solid #b9b9b2;background:rgba(255,255,255,.6);padding:5px 8px;font-size:9px;color:#444;line-height:1;white-space:nowrap}
+.wb2-chip.on{background:#111;color:#fff;border-color:#111}
+.wb2-bookcard{border:1px solid #111;background:rgba(255,255,255,.88);margin-top:8px;padding:11px 10px 10px;position:relative;cursor:pointer}
+.wb2-bookcard:active{background:#f3f3ee}
+.wb2-booktop{display:flex;align-items:flex-start;gap:8px}
+.wb2-bidx{font:9px/1 "DejaVu Sans Mono",monospace;color:#777;width:21px;flex:0 0 auto;padding-top:3px}
+.wb2-bname{flex:1;min-width:0;font-size:14px;font-weight:700;line-height:1.25;letter-spacing:-.01em}
+.wb2-barrow{font:17px/1 "Noto Serif",serif;color:#555;flex:0 0 auto;padding-top:0}
+.wb2-bmeta{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}
+.wb2-tag{display:inline-flex;align-items:center;height:17px;padding:0 6px;border:1px solid #111;font-size:8px;line-height:1;letter-spacing:.05em;white-space:nowrap;text-transform:uppercase}
+.wb2-tag.fill{background:#111;color:#fff}
+.wb2-tag.ghost{border-color:#aaa;color:#555}
+.wb2-tag.dot::before{content:"";width:4px;height:4px;background:#111;margin-right:4px;border-radius:50%}
+.wb2-bfoot{display:flex;justify-content:space-between;align-items:center;margin-top:9px;padding-top:7px;border-top:1px solid #d2d2ca;font:8.5px/1.4 "DejaVu Sans Mono",monospace;color:#777;letter-spacing:.05em}
+.wb2-bfoot b{color:#111;font-size:10px}
+.wb2-empty{text-align:center;padding:36px 14px;border:1px dashed #aaa;margin-top:12px;color:#777}
+.wb2-empty .big{font:italic 22px/1 "Noto Serif",serif;color:#111;margin-bottom:8px}
+.wb2-fab{height:42px;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;gap:9px;font-size:11px;font-weight:700;letter-spacing:.05em;margin-top:12px;border:1px solid #111;cursor:pointer}
+.wb2-fab .plus{font:19px/1 "Noto Serif",serif;font-weight:400}
+.wb2-nav{position:absolute;left:50%;transform:translateX(-50%);bottom:18px;width:calc(100% - 32px);max-width:520px;height:50px;background:#111;border:1px solid #111;border-radius:999px;display:flex;align-items:center;justify-content:space-between;padding:0 10px;color:#fff;z-index:8;box-shadow:0 8px 24px rgba(0,0,0,.14)}
+.wb2-nav button{background:transparent;border:0;display:flex;align-items:center;gap:4px;font:8px/1 "DejaVu Sans Mono",monospace;letter-spacing:.08em;color:#cfcfc7;padding:8px 5px;cursor:pointer}
+.wb2-nav button.on{color:#fff;font-weight:700}
+.wb2-nav button .dot{width:4px;height:4px;border-radius:50%;background:#fff;opacity:0}
+.wb2-nav button.on .dot{opacity:1}
+.wb2-back{position:absolute;left:14px;top:40px;z-index:9;width:32px;height:32px;border:1px solid #111;background:rgba(251,251,248,.92);font:17px/1 "Noto Serif",serif;color:#111;display:flex;align-items:center;justify-content:center}
+.wb2-detailhead{padding-left:42px}
+.wb2-h1{font-size:25px;font-weight:700;line-height:1.15;letter-spacing:-.02em;margin-top:6px;word-break:break-word}
+.wb2-h1 em{font:italic 15px/1 "Noto Serif",serif;font-weight:400;color:#555;margin-left:6px}
+.wb2-cover{margin-top:14px;border-top:1px solid #111;border-bottom:1px solid #111;padding:9px 0 10px;display:flex;align-items:flex-end;justify-content:space-between}
+.wb2-cover .num{font-family:"Noto Serif",serif;font-size:42px;line-height:.8;letter-spacing:-.05em}
+.wb2-cover .num small{font-size:11px;font-family:"DejaVu Sans Mono",monospace;letter-spacing:.1em;margin-left:4px}
+.wb2-cover .info{text-align:right;font:8.5px/1.65 "DejaVu Sans Mono",monospace;color:#555;letter-spacing:.07em;text-transform:uppercase}
+.wb2-statgrid{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid #111;margin-top:10px}
+.wb2-statgrid div{padding:8px 8px 7px;border-right:1px solid #111}
+.wb2-statgrid div:last-child{border-right:0}
+.wb2-statgrid .n{font-family:"Noto Serif",serif;font-size:24px;line-height:.9;letter-spacing:-.04em}
+.wb2-statgrid .l{font:7.5px/1.3 "DejaVu Sans Mono",monospace;letter-spacing:.08em;color:#777;margin-top:4px;text-transform:uppercase}
+.wb2-sectionh{display:flex;align-items:center;gap:8px;margin:14px 0 7px}
+.wb2-sectionh .t{font-size:10px;font-weight:700;letter-spacing:.05em}
+.wb2-sectionh .line{flex:1;height:1px;background:#bcbcb5}
+.wb2-sectionh .r{font:8.5px/1 "DejaVu Sans Mono",monospace;letter-spacing:.07em;color:#666}
+.wb2-entry{border-top:1px solid #111;border-bottom:1px solid #bdbdb6;background:rgba(255,255,255,.62);padding:10px 0;display:flex;gap:8px;cursor:pointer}
+.wb2-entry:last-child{border-bottom:1px solid #111}
+.wb2-entry .cb{width:13px;height:13px;border:1px solid #111;background:#111;flex:0 0 auto;margin-top:2px;position:relative}
+.wb2-entry .cb::after{content:"";position:absolute;left:2px;top:2px;width:7px;height:7px;background:#fff}
+.wb2-entry .cb.off{background:transparent}
+.wb2-entry .cb.off::after{display:none}
+.wb2-entry .main{flex:1;min-width:0}
+.wb2-entry .nm{font-size:12.5px;font-weight:700;line-height:1.25;word-break:break-word}
+.wb2-entry .ds{font-size:9.5px;color:#666;line-height:1.45;margin-top:3px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wb2-entry .tags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.wb2-entry .tok{width:44px;text-align:right;font:8.5px/1.4 "DejaVu Sans Mono",monospace;color:#666;flex:0 0 auto}
+.wb2-btnline{height:38px;width:100%;border:1px solid #111;background:transparent;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;letter-spacing:.04em;margin-top:10px;cursor:pointer}
+.wb2-btnblack{height:40px;width:100%;background:#111;color:#fff;border:1px solid #111;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;letter-spacing:.06em;margin-top:10px;cursor:pointer}
+.wb2-btnghost{height:34px;border:1px solid #aaa;background:transparent;color:#555;font-size:9px;padding:0 8px;cursor:pointer;white-space:nowrap;min-width:40px}
+.wb2-actions{display:flex;gap:6px}
+.wb2-tabs{display:flex;border-top:1px solid #111;border-bottom:1px solid #111;background:rgba(255,255,255,.86);margin-top:12px;position:sticky;top:0;z-index:5}
+.wb2-tabs button{flex:1;border:0;border-right:1px solid #c7c7c0;background:transparent;text-align:center;padding:9px 0 8px;font-size:9px;letter-spacing:.05em;color:#666;cursor:pointer}
+.wb2-tabs button:last-child{border-right:0}
+.wb2-tabs button.on{background:#111;color:#fff;font-weight:700}
+.wb2-field{margin-top:13px}
+.wb2-fieldh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.wb2-lab{font:8.5px/1 "DejaVu Sans Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#666}
+.wb2-hint{font-size:8.5px;color:#888;line-height:1.45;margin-top:4px}
+.wb2-input,.wb2-textarea,.wb2-select{border:1px solid #111;background:rgba(255,255,255,.9);font-size:11px;padding:9px 10px;width:100%;outline:0;border-radius:0;color:#111;font-family:inherit}
+.wb2-input.name{font-size:17px;font-weight:700;letter-spacing:-.02em;border:0;border-bottom:1px solid #111;padding:6px 0 7px;background:transparent}
+.wb2-textarea{min-height:130px;resize:vertical;line-height:1.8}
+.wb2-select{height:36px;padding:0 8px}
+.wb2-group{border:1px solid #111;background:rgba(255,255,255,.8);padding:9px 10px;margin-top:8px}
+.wb2-group-h{display:flex;align-items:center;justify-content:space-between}
+.wb2-group-h .t{font-size:10.5px;font-weight:700}
+.wb2-group-h .s{font:8px/1 "DejaVu Sans Mono",monospace;color:#777;letter-spacing:.06em}
+.wb2-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #d0d0c8}
+.wb2-row:last-child{border-bottom:0}
+.wb2-row .rt{font-size:11px;font-weight:700}
+.wb2-row .rd{font-size:8.5px;color:#777;line-height:1.45;margin-top:3px}
+.wb2-switch{width:34px;height:18px;border:1px solid #111;border-radius:999px;position:relative;background:#111;flex:0 0 auto;cursor:pointer}
+.wb2-switch::after{content:"";position:absolute;right:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+.wb2-switch.off{background:transparent}
+.wb2-switch.off::after{left:2px;right:auto;background:#111}
+.wb2-logic{display:flex;border:1px solid #111;height:28px;margin-top:7px}
+.wb2-logic button{flex:1;border:0;border-right:1px solid #111;background:transparent;font:8.5px/1 "DejaVu Sans Mono",monospace;letter-spacing:.1em;cursor:pointer}
+.wb2-logic button:last-child{border-right:0}
+.wb2-logic button.on{background:#111;color:#fff}
+.wb2-poscard{border:1px solid #111;background:rgba(255,255,255,.8);padding:8px 9px;display:flex;gap:8px;align-items:flex-start;margin-top:6px;cursor:pointer}
+.wb2-poscard.on{background:#111;color:#fff}
+.wb2-poscard .n{font:8.5px/1 "DejaVu Sans Mono",monospace;letter-spacing:.06em;width:24px;flex:0 0 auto;padding-top:1px}
+.wb2-poscard .b{flex:1}
+.wb2-poscard .tt{font-size:10.5px;font-weight:700}
+.wb2-poscard .dd{font-size:8px;line-height:1.4;margin-top:2px;color:#6a6a63}
+.wb2-poscard.on .dd{color:#c9c9c1}
+.wb2-mini{display:flex;gap:6px;margin-top:7px}
+.wb2-mini .m{flex:1;border:1px solid #111;background:#fff;padding:6px 7px}
+.wb2-mini .m span{display:block;font:7px/1 "DejaVu Sans Mono",monospace;color:#777;letter-spacing:.06em}
+.wb2-mini .m b{display:block;font-size:10px;margin-top:3px}
+.wb2-stack{position:relative;border-left:1px solid #111;margin:11px 0 0 6px;padding-left:10px}
+.wb2-node{position:relative;padding:5px 0 6px;border-bottom:1px solid #d0d0c8}
+.wb2-node::before{content:"";position:absolute;left:-14px;top:9px;width:7px;height:7px;border:1px solid #111;border-radius:50%;background:#fbfbf8}
+.wb2-node.on::before{background:#111}
+.wb2-node .small{font:7.5px/1 "DejaVu Sans Mono",monospace;letter-spacing:.06em;color:#777}
+.wb2-node .big{font-size:10px;font-weight:700;margin-top:2px}
+.wb2-node .right{position:absolute;right:0;top:7px;font:7.5px/1 "DejaVu Sans Mono",monospace;color:#666}
+.wb2-node.depth{background:#111;color:#fff;padding-left:7px;margin-left:-7px;border-bottom:0}
+.wb2-node.depth::before{left:-21px;background:#111}
+.wb2-node.depth .small{color:#bbb}
+.wb2-node.depth .right{color:#ddd}
+.wb2-callout{border:1px solid #111;padding:7px 8px;margin-top:7px;font-size:8.5px;line-height:1.45;background:rgba(255,255,255,.82)}
+.wb2-callout b{font-family:"DejaVu Sans Mono",monospace;letter-spacing:.05em}
+.wb2-footbar{position:absolute;left:50%;transform:translateX(-50%);bottom:0;width:100%;max-width:560px;padding:10px 20px 16px;background:linear-gradient(180deg,rgba(251,251,248,0),rgba(251,251,248,.96) 30%);z-index:7}
+.wb2-footbar .in{display:flex;gap:7px}
+.wb2-footbar .a{flex:1;height:38px;border:1px solid #111;background:rgba(251,251,248,.96);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;letter-spacing:.04em;cursor:pointer}
+.wb2-footbar .a.black{background:#111;color:#fff}
+.wb2-previewbox{border:1px solid #111;background:rgba(255,255,255,.86);padding:10px;margin-top:8px;font-size:9.5px;line-height:1.7;white-space:pre-wrap;max-height:210px;overflow:auto}
+.wb2-previewbox.empty{color:#888;font-style:italic}
+.wb2-tokenline{display:flex;justify-content:space-between;font:8px/1.4 "DejaVu Sans Mono",monospace;color:#777;letter-spacing:.05em;margin-top:6px}
+</style>
 </head>
 
 <body>
@@ -9240,6 +9455,82 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             </form>
         </main>
     </div>
+    <div id="wb2-library-screen" class="screen">
+        <div class="wb2-status"><span>404 / LIBRARY</span><span class="mid">WORLD BOOK</span><span id="wb2-lib-clock">--:--</span></div>
+        <div class="wb2-topline"></div>
+        <div class="wb2-scroll"><div class="wb2-inner">
+            <div class="wb2-eyebrow">WORLD BOOK / 01</div>
+            <div class="wb2-display"><em>World</em><span class="cn">世界书</span></div>
+            <div class="wb2-sub">角色看到的不是设定集，是世界本身。常驻、触发、插入位置与预算，都在这里决定。</div>
+            <div class="wb2-seg" id="wb2-lib-seg">
+                <button data-filter="all" class="on">全部</button>
+                <button data-filter="global">全局</button>
+                <button data-filter="local">局部</button>
+                <button data-filter="off">已关闭</button>
+            </div>
+            <div class="wb2-searchwrap"><span>⌕</span><input id="wb2-lib-search" type="text" placeholder="搜索世界书 / 条目 / 关键词"></div>
+            <div class="wb2-chiprow" id="wb2-lib-chips"></div>
+            <div class="wb2-budgetrow">
+                <span>TOTAL BUDGET / 总预算</span>
+                <input id="wb2-total-budget" type="number" min="0" step="100" placeholder="0 = 不限制">
+                <em>TOKENS</em>
+            </div>
+            <div id="wb2-lib-list"></div>
+            <div class="wb2-fab" onclick="wb2NewBook()"><span class="plus">＋</span> 新建世界书</div>
+        </div></div>
+        <div class="wb2-nav">
+            <button data-target="home-screen"><span class="dot"></span>HOME</button>
+            <button class="on" onclick="wb2GoLibrary()"><span class="dot"></span>BOOK</button>
+            <button onclick="wb2NewBook()">＋ NEW</button>
+        </div>
+    </div>
+    <div id="wb2-book-screen" class="screen">
+        <div class="wb2-status"><span>404 / ARCHIVE</span><span class="mid">WORLD BOOK</span><span id="wb2-book-clock">--:--</span></div>
+        <div class="wb2-topline"></div>
+        <button class="wb2-back" onclick="wb2GoLibrary()">‹</button>
+        <div class="wb2-scroll"><div class="wb2-inner">
+            <div class="wb2-detailhead">
+                <div class="wb2-eyebrow" id="wb2-book-eyebrow">BOOK / 01</div>
+                <div class="wb2-h1" id="wb2-book-title">世界书</div>
+                <div class="wb2-sub" id="wb2-book-sub"></div>
+            </div>
+            <div class="wb2-cover">
+                <div class="num"><span id="wb2-book-num">0</span><small>ENTRIES</small></div>
+                <div class="info" id="wb2-book-info"></div>
+            </div>
+            <div class="wb2-statgrid" id="wb2-book-stats"></div>
+            <div class="wb2-sectionh"><span class="t">条目</span><span class="line"></span><span class="r" id="wb2-book-count">0</span></div>
+            <div id="wb2-book-entries"></div>
+            <button class="wb2-btnblack" onclick="wb2NewEntry()">＋ 新建条目</button>
+            <div class="wb2-actions" style="margin-top:8px;">
+                <button class="wb2-btnghost" style="flex:1" onclick="wb2RenameBook()">重命名世界书</button>
+                <button class="wb2-btnghost" style="flex:1" onclick="wb2DeleteBook()">删除世界书</button>
+            </div>
+        </div></div>
+    </div>
+    <div id="wb2-editor-screen" class="screen">
+        <div class="wb2-status"><span>404 / EDIT</span><span class="mid">WORLD BOOK</span><span id="wb2-editor-clock">--:--</span></div>
+        <div class="wb2-topline"></div>
+        <button class="wb2-back" onclick="wb2GoBook()">‹</button>
+        <div class="wb2-scroll" style="padding-bottom:104px;"><div class="wb2-inner">
+            <div class="wb2-detailhead">
+                <div class="wb2-eyebrow" id="wb2-editor-eyebrow">ENTRY / 01</div>
+                <div class="wb2-h1" id="wb2-editor-title">条目</div>
+                <div class="wb2-sub" id="wb2-editor-sub">编辑这一条世界设定。</div>
+            </div>
+            <div class="wb2-tabs" id="wb2-editor-tabs">
+                <button data-tab="content" class="on">条目</button>
+                <button data-tab="trigger">触发</button>
+                <button data-tab="position">位置</button>
+                <button data-tab="preview">预览</button>
+            </div>
+            <div id="wb2-editor-body"></div>
+        </div></div>
+        <div class="wb2-footbar"><div class="in">
+            <button class="a" onclick="wb2DeleteEntry()">删除</button>
+            <button class="a black" onclick="wb2SaveEntry()">保存条目</button>
+        </div></div>
+    </div>
     <div id="api-settings-screen" class="screen"></div>
     <div id="wallpaper-screen" class="screen"></div>
     <div id="font-settings-screen" class="screen"></div>
@@ -10086,7 +10377,23 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                     <div class="o404-micro">OUR SCENE / 线下剧场</div>
                     <div class="o404-desc">每条线都是一段独立的故事。选好角色，再开始见面。</div>
                 </div>
-                <div class="o404-summary" id="offline-selected-summary">已选 0 位角色 · 0 条剧情线</div>
+                <div class="o404-home-stats" id="offline-home-stats">
+                    <div class="o404-stat"><b id="o404-stat-cast">0</b><span>CAST / 角色</span></div>
+                    <div class="o404-stat"><b id="o404-stat-lines">0</b><span>LINES / 剧情</span></div>
+                    <div class="o404-stat"><b id="o404-stat-records">0</b><span>RECORDS / 记录</span></div>
+                    <div class="o404-stat"><b id="o404-stat-books">0</b><span>BOOKS / 世界书</span></div>
+                </div>
+                <button type="button" class="o404-recent" id="offline-home-recent">
+                    <span class="o404-recent-k">LAST SCENE</span>
+                    <span class="o404-recent-t" id="o404-recent-title">还没有剧情线</span>
+                    <span class="o404-recent-m" id="o404-recent-meta">选一个角色，开始第一段见面</span>
+                    <span class="o404-recent-arrow">→</span>
+                </button>
+                <div class="o404-quick-row">
+                    <button type="button" class="o404-quick" id="offline-quick-wb"><b>世界书</b><span id="offline-quick-wb-meta">设定</span></button>
+                    <button type="button" class="o404-quick" id="offline-quick-mem"><b>记忆</b><span id="offline-quick-mem-meta">长期</span></button>
+                    <button type="button" class="o404-quick" id="offline-quick-preset"><b>预设</b><span id="offline-quick-preset-meta">台本</span></button>
+                </div>
             </section>
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
@@ -10756,8 +11063,63 @@ document.addEventListener("DOMContentLoaded", () => {
       };
     });
   }
+  function setupApiSettings404() {
+    var screen = document.getElementById("api-settings-screen");
+    if (!screen || screen.dataset.o404Api === "1") return;
+    var form = screen.querySelector("#api-form");
+    if (!form) return;
+    screen.dataset.o404Api = "1";
+    var header = screen.querySelector(".app-header");
+    if (header) header.style.display = "none";
+    var content = screen.querySelector(".content");
+    if (!content) return;
+    var head = document.createElement("div");
+    head.className = "api404-head";
+    head.innerHTML = '<button type="button" class="api404-back" aria-label="返回">‹</button>'
+      + '<div class="api404-clock">API</div>'
+      + '<div class="api404-meta"><span>SETTINGS</span><span>MODEL / ACCESS</span><span id="api404-status">READY</span></div>';
+    content.insertBefore(head, content.firstChild);
+    var kicker = document.createElement("div");
+    kicker.className = "api404-kicker";
+    kicker.innerHTML = '<span class="o404-label">CONNECTION</span><span class="api404-script">make it work.</span>';
+    content.insertBefore(kicker, form);
+    head.querySelector(".api404-back").addEventListener("click", function () { switchScreen("home-screen"); });
+    var groups = form.querySelectorAll(".form-group");
+    var marks = [
+      [0, "01", "CONNECTION", "接口地址与密钥"],
+      [1, "02", "PRESET", "整套配置存为预设"],
+      [2, "03", "ACCESS", "地址 / 密钥"],
+      [4, "04", "MODEL", "拉取并选择模型"],
+      [8, "05", "IMAGE", "角色发图时调用"],
+      [16, "06", "RECALL", "总结与长记忆"]
+    ];
+    marks.forEach(function (m) {
+      var g = groups[m[0]];
+      if (!g) return;
+      var sec = document.createElement("div");
+      sec.className = "api404-sec";
+      sec.innerHTML = '<span class="api404-sec-num">' + m[1] + '</span><b>' + m[2] + '</b><em>' + m[3] + '</em>';
+      g.parentNode.insertBefore(sec, g);
+    });
+    var submit = form.querySelector("#save-btn");
+    if (submit) {
+      var foot = document.createElement("div");
+      foot.className = "api404-foot";
+      foot.innerHTML = '<div class="api404-foot-note">SAVED LOCALLY / 只在当前设备保存</div>';
+      submit.parentNode.insertBefore(foot, submit);
+    }
+    var refresh = function () {
+      var st = document.getElementById("api404-status");
+      if (!st) return;
+      var cfg = (db && db.apiSettings) || {};
+      st.textContent = (cfg.provider ? String(cfg.provider).toUpperCase() : "NO PROVIDER") + (cfg.model ? " / " + String(cfg.model).slice(0, 22) : "");
+    };
+    refresh();
+    var saveBtn = form.querySelector("#save-btn");
+    if (saveBtn) saveBtn.addEventListener("click", function () { setTimeout(refresh, 400); });
+  }
   document.getElementById("api-settings-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">API \u8BBE\u7F6E</h1></div><div class="placeholder"></div></header><main class="content"><form id="api-form"><div class="form-group"><label for="api-provider">API \u670D\u52A1\u5546</label><select id="api-provider" name="provider"><option value="newapi">NewAPI (\u81EA\u5B9A\u4E49)</option><option value="deepseek">DeepSeek</option><option value="claude">Claude</option><option value="gemini">Gemini</option></select></div><div class="form-group" style="border:1px solid #e8eaed;border-radius:12px;padding:12px;margin-bottom:14px;"><label style="font-weight:600;display:block;margin-bottom:8px;">API \u9884\u8BBE\uFF08\u4FDD\u5B58\u6574\u5957\u914D\u7F6E\uFF0C\u9009\u4E2D\u5373\u5207\u6362\uFF09</label><select id="api-preset-select" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;background:#fafafa;"></select><input type="text" id="api-preset-name" placeholder="\u9884\u8BBE\u540D\u79F0" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;"><div style="display:flex;gap:8px;margin-top:8px;"><button type="button" class="btn btn-secondary" id="api-preset-save" style="flex:1;padding:7px 10px;font-size:12px;">\u5B58\u4E3A\u9884\u8BBE</button><button type="button" class="btn btn-secondary" id="api-preset-del" style="flex:1;padding:7px 10px;font-size:12px;">\u5220\u9664</button></div></div><div class="form-group"><label for="api-url">API \u5730\u5740\uFF08\u540E\u7F00\u4E0D\u7528\u6DFB\u52A0/v1\uFF09</label><input type="url" id="api-url" name="url" placeholder="\u9009\u62E9\u670D\u52A1\u5546\u53EF\u81EA\u52A8\u586B\u5199" required></div><div class="form-group"><label for="api-key">\u5BC6\u94A5 (Key)</label><input type="password" id="api-key" name="key" placeholder="\u8BF7\u8F93\u5165\u4F60\u7684API\u5BC6\u94A5" required></div><button type="button" class="btn btn-secondary" id="fetch-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u6A21\u578B</span><div class="spinner"></div></button><div class="form-group"><label for="api-model">\u9009\u62E9\u6A21\u578B</label><select id="api-model" name="model" required><option value="">\u8BF7\u5148\u62C9\u53D6\u6A21\u578B\u5217\u8868</option></select></div><div class="form-group"><label style="display:flex; justify-content:space-between; align-items:center;">\u8BC6\u56FE\uFF08\u5F00\u542F\u540EAPI\u4F1A\u8BC6\u522B\u56FE\u7247\u5185\u5BB9\uFF0C\u5168\u5C40\u751F\u6548\uFF09<div class="switch-wrap"><input type="checkbox" id="api-vision-enabled" class="ios-sw"></div></label></div><div class="form-group"><label for="api-stream-mode">\u6D41\u5F0F\u6A21\u5F0F\uFF08\u5168\u5C40\u8F93\u51FA\uFF09</label><select id="api-stream-mode"><option value="auto">\u81EA\u52A8\u68C0\u6D4B\uFF08\u4F18\u5148\u6D41\u5F0F\uFF0C\u5931\u8D25\u81EA\u52A8\u56DE\u9000\u975E\u6D41\u5F0F\uFF09</option><option value="stream">\u4EC5\u6D41\u5F0F</option><option value="nonstream">\u4EC5\u975E\u6D41\u5F0F</option></select></div><div class="form-group"><label>\u6E29\u5EA6\uFF080~2\uFF0C\u8D8A\u4F4E\u8D8A\u7A33\u5B9A\uFF0C\u8D8A\u9AD8\u8D8A\u6709\u60F3\u8C61\u529B\uFF09<span id="api-temp-val" style="color:#9aa0a6;">1.0</span></label><input type="range" id="api-temperature" min="0" max="2" step="0.1" value="1.0" style="width:100%;"></div><div class="form-group" style="border-top:1px dashed #e8eaed; padding-top:12px; margin-top:12px;"><label style="font-weight:600; display:flex; justify-content:space-between; align-items:center;">AI \u751F\u56FE\uFF08\u89D2\u8272\u53D1\u56FE\u65F6\u4F7F\u7528\uFF0C\u4F5C\u7528\u4E8E\u7EBF\u4E0A\uFF09<div class="switch-wrap"><input type="checkbox" id="img-gen-enabled" class="ios-sw"></div></label><div style="font-size:11px;color:#999;margin:4px 0 10px;">\u624B\u52A8\u5F00\u542F\u540E\uFF0C\u89D2\u8272\u53D1\u56FE\u4F1A\u8C03\u7528\u751F\u56FE API\uFF0C\u6309\u5267\u60C5\u3001\u4EBA\u8BBE\u548C\u804A\u5929\u5185\u5BB9\u751F\u6210\u5BF9\u5E94\u56FE\u7247\uFF1B\u672A\u5F00\u542F\u5219\u4ECD\u53D1\u9001\u6A21\u62DF\u56FE\u7247\u3002</div></div><div class="form-group"><label for="img-gen-url">\u751F\u56FE API \u5730\u5740\uFF08OpenAI \u517C\u5BB9\uFF0C\u542B /v1\uFF09</label><input type="url" id="img-gen-url" placeholder="https://api.openai.com/v1"></div><div class="form-group"><label for="img-gen-key">\u751F\u56FE API \u5BC6\u94A5</label><input type="password" id="img-gen-key" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3B API \u5BC6\u94A5"></div><button type="button" class="btn btn-secondary" id="fetch-img-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u751F\u56FE\u6A21\u578B</span><div class="spinner"></div></button><div class="form-group"><label for="img-gen-model">\u751F\u56FE\u6A21\u578B</label><select id="img-gen-model"><option value="">\u8BF7\u5148\u62C9\u53D6\u751F\u56FE\u6A21\u578B</option></select></div><div class="form-group"><label for="img-gen-size">\u751F\u6210\u5C3A\u5BF8</label><select id="img-gen-size"><option value="1024x1024">1024\xD71024\uFF08\u65B9\u5F62\uFF09</option><option value="1024x1792">1024\xD71792\uFF08\u7AD6\u7248\uFF09</option><option value="1792x1024">1792\xD71024\uFF08\u6A2A\u7248\uFF09</option><option value="512x512">512\xD7512\uFF08\u5FEB\u901F\uFF09</option></select></div>\n<div class="form-group"><label for="img-gen-pos-prompt">\u6B63\u5411\u63D0\u793A\u8BCD\uFF08AI\u4F1A\u81EA\u52A8\u878D\u5165\u5267\u60C5\u3001\u4EBA\u8BBE\u3001\u804A\u5929\u5185\u5BB9\u540E\u8FFD\u52A0\uFF09</label><textarea id="img-gen-pos-prompt" rows="3" placeholder="\u9ED8\u8BA4\uFF1A\u7CBE\u81F4\u97E9\u7CFB/\u5199\u5B9E\u98CE\uFF0C\u5149\u5F71\u67D4\u548C\uFF0C\u6784\u56FE\u9AD8\u7EA7\uFF0C\u8D28\u611F\u7EC6\u817B"></textarea></div>\n<div class="form-group"><label for="img-gen-neg-prompt">\u53CD\u5411\u63D0\u793A\u8BCD\uFF08\u4E0D\u5E0C\u671B\u51FA\u73B0\u7684\u5143\u7D20\uFF09</label><textarea id="img-gen-neg-prompt" rows="2" placeholder="\u4F8B\u5982\uFF1A\u4F4E\u8D28\u91CF\u3001\u6A21\u7CCA\u3001\u7578\u53D8\u3001\u591A\u4F59\u80A2\u4F53\u3001\u6587\u5B57\u3001\u6C34\u5370"></textarea></div>\n<div class="form-group" style="border-top:1px dashed #e8eaed;padding-top:12px;"><label style="font-weight:600;">\u751F\u56FE\u63D0\u793A\u8BCD\u9884\u8BBE</label><select id="img-gen-preset-select" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;background:#fafafa;"></select><input type="text" id="img-gen-preset-name" placeholder="\u9884\u8BBE\u540D\u79F0" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;"><div style="display:flex;gap:8px;margin-top:8px;"><button type="button" class="btn btn-secondary" id="img-gen-preset-save" style="flex:1;padding:7px 10px;font-size:12px;">\u5B58\u4E3A\u9884\u8BBE</button><button type="button" class="btn btn-secondary" id="img-gen-preset-del" style="flex:1;padding:7px 10px;font-size:12px;">\u5220\u9664</button></div></div><div class="form-group" style="border-top:1px dashed #e8eaed; padding-top:12px; margin-top:12px;"><label style="font-weight:600;">\u603B\u7ED3 API\uFF08\u7559\u7A7A\u5219\u4F7F\u7528\u4E3B API\uFF09</label></div><div class="form-group"><label for="api-summary-url">\u603B\u7ED3 API \u5730\u5740</label><input type="url" id="api-summary-url" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3BAPI"></div><div class="form-group"><label for="api-summary-key">\u603B\u7ED3 API \u5BC6\u94A5</label><input type="password" id="api-summary-key" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3BAPI"></div><div class="form-group"><label for="api-summary-model">\u603B\u7ED3 API \u6A21\u578B</label><select id="api-summary-model"><option value="">\u8BF7\u5148\u62C9\u53D6\u603B\u7ED3\u6A21\u578B</option></select></div><button type="button" class="btn btn-secondary" id="fetch-summary-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u603B\u7ED3\u6A21\u578B</span><div class="spinner"></div></button><button type="submit" class="btn btn-primary" id="save-btn"><span class="btn-text">\u4FDD \u5B58</span><div class="spinner"></div></button></form></main>';
-  document.getElementById("wallpaper-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u66F4\u6362\u58C1\u7EB8</h1></div><div class="placeholder"></div></header><main class="content"><div class="wallpaper-preview" id="wallpaper-preview"><span>\u5F53\u524D\u58C1\u7EB8\u9884\u89C8</span></div><input type="file" id="wallpaper-upload" accept="image/*" style="display: none;"><label for="wallpaper-upload" class="btn btn-primary">\u4ECE\u76F8\u518C\u9009\u62E9\u65B0\u58C1\u7EB8</label></main>';
+document.getElementById("wallpaper-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u66F4\u6362\u58C1\u7EB8</h1></div><div class="placeholder"></div></header><main class="content"><div class="wallpaper-preview" id="wallpaper-preview"><span>\u5F53\u524D\u58C1\u7EB8\u9884\u89C8</span></div><input type="file" id="wallpaper-upload" accept="image/*" style="display: none;"><label for="wallpaper-upload" class="btn btn-primary">\u4ECE\u76F8\u518C\u9009\u62E9\u65B0\u58C1\u7EB8</label></main>';
   document.getElementById("font-settings-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u5B57\u4F53\u8BBE\u7F6E</h1></div><div class="placeholder"></div></header><main class="content"><form id="font-settings-form"><div class="form-group"><label for="font-url">\u5B57\u4F53\u94FE\u63A5 (ttf, woff, woff2)</label><input type="url" id="font-url" placeholder="https://.../font.ttf" required></div><p style="font-size:12px; color:#888; text-align:center;">\u793A\u4F8B: https://lf3-static.bytednsdoc.com/obj/eden-cn/jplptk/ljhwZthlaukjlkulzlp/portal/fonts/HarmonyOS_Sans_SC_Regular.woff2</p><button type="submit" class="btn btn-primary">\u5E94\u7528\u5B57\u4F53</button><button type="button" class="btn btn-neutral" id="restore-default-font-btn" style="margin-top: 15px;">\u6062\u590D\u9ED8\u8BA4\u5B57\u4F53</button></form>\n                <div style="height:1px;background:#eee;margin:18px 0;"></div>\n                <div style="padding:0 2px;">\n                    <div style="font-size:15px;font-weight:700;color:#333;margin-bottom:4px;">\u5168\u5C40\u5B57\u4F53\u5927\u5C0F</div>\n                    <div style="font-size:12px;color:#999;margin-bottom:14px;">\u8C03\u6574\u540E\u5E94\u7528\u5230\u6240\u6709\u754C\u9762\uFF08\u4E3B\u5C4F\u5E55\u3001\u804A\u5929\u3001\u8BBA\u575B\u3001\u5916\u5356\u7B49\uFF09</div>\n                    <div style="display:flex;align-items:center;gap:10px;">\n                        <span style="font-size:12px;color:#999;">\u5C0F</span>\n                        <input type="range" id="font-scale-slider" min="80" max="140" value="100" style="flex:1;accent-color:#17171b;">\n                        <span style="font-size:12px;color:#999;">\u5927</span>\n                    </div>\n                    <div style="text-align:center;margin-top:8px;font-size:14px;font-weight:700;color:#17171b;"><span id="font-scale-val">100</span>%</div>\n                    <button type="button" class="btn btn-primary" id="font-scale-apply" style="margin-top:10px;">\u5E94\u7528\u5B57\u53F7</button>\n                </div></main>';
   document.getElementById("customize-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u5916\u89C2</h1></div><div class="placeholder"></div></header><main class="content"><form id="customize-form"></form></main>';
   document.getElementById("tutorial-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u6559\u7A0B</h1></div><div class="placeholder"></div></header><main class="content" id="tutorial-content-area"></main>';
@@ -10858,6 +11220,8 @@ document.addEventListener("DOMContentLoaded", () => {
     offlineChats: [],
     offlineCover: "",
     /* 线下见面页装饰图（可选，空时用已选角色头像） */
+    offlineOrbImages: [],
+    /* 线下首页两个圆形图的自定义图片（dataURL，空则用角色头像） */
     masks: [],
     /* 用户面具：{id, name, avatar, persona} */
     activeMaskId: null,
@@ -11149,10 +11513,26 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!db.worldBooks) db.worldBooks = [];
     if (!db.worldBookFolders) db.worldBookFolders = [];
     if (!db.relationships) db.relationships = [];
+    if (!db.worldBookSettings) db.worldBookSettings = { totalBudget: 2400 };
     db.worldBooks.forEach((wb) => {
       if (!wb.scope) wb.scope = "local";
       if (!wb.usage) wb.usage = "all";
       if (wb.folderId === void 0) wb.folderId = "";
+      if (!wb.trigger) wb.trigger = "constant";
+      if (!wb.position) wb.position = "before";
+      if (wb.order === void 0) wb.order = 100;
+      if (wb.depth === void 0) wb.depth = 2;
+      if (!wb.role) wb.role = "system";
+      if (wb.tokenBudget === void 0) wb.tokenBudget = 0;
+      if (wb.keys === void 0) wb.keys = [];
+      if (wb.secondaryKeys === void 0) wb.secondaryKeys = [];
+      if (!wb.keyLogic) wb.keyLogic = "and";
+      if (wb.scanDepth === void 0) wb.scanDepth = 6;
+      if (wb.probability === void 0) wb.probability = 100;
+      if (wb.group === void 0) wb.group = "";
+      if (wb.recursive === void 0) wb.recursive = false;
+      if (wb.matchWhole === void 0) wb.matchWhole = false;
+      if (wb.caseSensitive === void 0) wb.caseSensitive = false;
     });
     if (!db.fontUrl) db.fontUrl = "";
     if (!db.customIcons) db.customIcons = {};
@@ -11169,6 +11549,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!db.timeSense.life || typeof db.timeSense.life !== "object") db.timeSense.life = {};
     if (!db.timeSense.commitments || typeof db.timeSense.commitments !== "object") db.timeSense.commitments = {};
     if (!db.offlineChats) db.offlineChats = [];
+    if (!Array.isArray(db.offlineOrbImages)) db.offlineOrbImages = [];
     if (!db.masks) db.masks = [];
     if (!db.activeMaskId) db.activeMaskId = null;
     if (!db.feeds) db.feeds = [];
@@ -11312,6 +11693,9 @@ document.addEventListener("DOMContentLoaded", () => {
         bottomNav.querySelectorAll(".nav-item").forEach((n) => n.classList.toggle("active", n.dataset.tab === tabMap[targetId]));
       }
     }
+    if (targetId === "wb2-library-screen" && typeof wb2RenderLibrary === "function") { try { wb2RenderLibrary(); } catch (e) {} }
+    if (targetId === "wb2-book-screen" && typeof wb2RenderBook === "function") { try { wb2RenderBook(); } catch (e) {} }
+    if (targetId === "api-settings-screen") { try { setupApiSettings404(); } catch (e) {} }
     if (targetId === "offline-chat-screen") initOfflineChatView();
     if (targetId === "chat-room-screen") updateCoupleInviteBanner();
     if (targetId === "offline-settings-screen") loadOfflineSettingsView();
@@ -12748,7 +13132,7 @@ document.addEventListener("DOMContentLoaded", () => {
       + '<div class="hw-msg m2"><div class="hw-ava" data-widget-ava="hw-bubble-ava2">' + (getIcon('hw-bubble-ava2') ? '<img src="' + getIcon('hw-bubble-ava2') + '" alt="">' : '我') + '</div>'
       + '<span class="hw-mtext"><b>我</b><span data-edit-key="hw-bubble2">' + hwTxt('hw-bubble2', '我挺好的，你呢？') + '</span></span>'
       + '<span class="hw-mtime">09:26</span></div>'
-      + hwGrid('p1', [['api-settings-screen', 'api', 'SETUP'], ['wallpaper-screen', '壁纸', 'WALL'], ['world-book-screen', '世界书', 'WORLD'], ['customize-screen', '外观', 'LOOK'], ['tutorial-screen', '教程', 'GUIDE']], 'hw-grid g5')
+      + hwGrid('p1', [['api-settings-screen', 'api', 'SETUP'], ['wallpaper-screen', '壁纸', 'WALL'], ['wb2-library-screen', '世界书', 'WORLD'], ['customize-screen', '外观', 'LOOK'], ['tutorial-screen', '教程', 'GUIDE']], 'hw-grid g5')
       + '</div>';
 
     /* ---------- 第二页 ---------- */
@@ -13051,7 +13435,8 @@ document.addEventListener("DOMContentLoaded", () => {
       e.preventDefault();
       applyHomeScreenMode("night");
     });
-    document.querySelector('[data-target="world-book-screen"]').addEventListener("click", renderWorldBookList);
+    const legacyWbEntry = document.querySelector('[data-target="world-book-screen"]');
+    if (legacyWbEntry) legacyWbEntry.addEventListener("click", renderWorldBookList);
     document.querySelector('[data-target="customize-screen"]').addEventListener("click", renderCustomizeForm);
     document.querySelector('[data-target="tutorial-screen"]').addEventListener("click", renderTutorialContent);
     document.querySelector('[data-target="offline-home-screen"]').addEventListener("click", openOfflineHome);
@@ -15703,10 +16088,10 @@ document.addEventListener("DOMContentLoaded", () => {
 角色不是为了满足用户而存在的完美伴侣，也不是按照固定套路运行的聊天机器人。允许角色拥有缺点、偏好、脾气和不完美的表达。始终以人格一致性、行为合理性和真实互动为优先级，宁可自然地表达，也不要刻意表演活人感。`;
 
 
-  /* ===== v6.3 世界书统一解析 =====
-     规则：全局书按 usage(online/offline/all) 注入所有功能；
-     局部书只注入给“挂载了它的角色”，并同样按 usage 过滤。
-     文件夹挂载和条目挂载一视同仁。 */
+  /* ===== v6.4 世界书 2.0 =====
+     触发：常驻 / 关键词；
+     位置：前(before) / 中(middle) / 后(after) / At Depth(at_depth)；
+     局部书默认常驻，只注入给挂载它的角色；全局书按 usage 注入所有功能。 */
   function wbUsage(book) {
     const u = book && book.usage ? String(book.usage) : "all";
     return u === "online" || u === "offline" ? u : "all";
@@ -15718,6 +16103,79 @@ document.addEventListener("DOMContentLoaded", () => {
   function wbIsOn(book) {
     return !!book && book.enabled !== false;
   }
+  function wbPos(book) {
+    const p = book && book.position ? String(book.position) : "before";
+    return p === "middle" || p === "after" || p === "at_depth" ? p : "before";
+  }
+  function wbBookOrder(book) {
+    const n = parseInt(book && book.order, 10);
+    return Number.isFinite(n) ? n : 100;
+  }
+  function wbBookDepth(book) {
+    const n = parseInt(book && book.depth, 10);
+    return Number.isFinite(n) ? Math.max(0, Math.min(20, n)) : 2;
+  }
+  function wbBookRole(book) {
+    const r = book && book.role ? String(book.role) : "system";
+    return r === "user" || r === "assistant" ? r : "system";
+  }
+  function wbBookBudget(book) {
+    const n = parseInt(book && book.tokenBudget, 10);
+    return Number.isFinite(n) ? Math.max(0, n) : 0;
+  }
+  function wbBookContent(book) {
+    const raw = String((book && book.content) || "").trim();
+    if (!raw) return "";
+    const budget = wbBookBudget(book);
+    if (!budget) return raw;
+    const maxChars = Math.max(80, Math.floor(budget * 1.8));
+    return raw.length > maxChars ? raw.slice(0, maxChars) + "…" : raw;
+  }
+  function wbKeyList(value) {
+    if (Array.isArray(value)) return value.map(function(x) { return String(x || "").trim(); }).filter(Boolean);
+    return String(value || "").split(/[,，\n]/).map(function(x) { return x.trim(); }).filter(Boolean);
+  }
+  function wbHasKey(text, key, book) {
+    if (!key) return false;
+    const source = String(text || "");
+    if (book && book.caseSensitive) {
+      if (book && book.matchWhole) return new RegExp("(^|[^\\p{L}\\p{N}])" + key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "($|[^\\p{L}\\p{N}])", "u").test(source);
+      return source.indexOf(key) !== -1;
+    }
+    const hay = source.toLowerCase();
+    const needle = key.toLowerCase();
+    if (book && book.matchWhole) return new RegExp("(^|[^\\p{L}\\p{N}])" + needle.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "($|[^\\p{L}\\p{N}])", "u").test(hay);
+    return hay.indexOf(needle) !== -1;
+  }
+  function wbTriggerHit(book, contextText) {
+    if (!book || String(book.trigger || "constant") !== "keyword") return true;
+    /* 没有传入上下文时保持向后兼容：不因为没扫描而让老条目消失。 */
+    if (contextText === void 0 || contextText === null) return true;
+    const primary = wbKeyList(book.keys || book.keywords || book.key || "");
+    if (!primary.length) return true;
+    const secondary = wbKeyList(book.secondaryKeys || "");
+    const scan = Math.max(1, parseInt(book.scanDepth, 10) || 6);
+    const text = Array.isArray(contextText) ? contextText.slice(-scan).join("\n") : String(contextText || "");
+    const p = primary.some(function(k) { return wbHasKey(text, k, book); });
+    const q = secondary.some(function(k) { return wbHasKey(text, k, book); });
+    const logic = String(book.keyLogic || "and").toLowerCase();
+    if (!secondary.length) return p;
+    if (logic === "or") return p || q;
+    if (logic === "not") return p && !q;
+    return p && q;
+  }
+  function wbCtxFromHistory(history, extraText) {
+    const list = (Array.isArray(history) ? history : []).map(function(m) {
+      if (!m) return "";
+      if (Array.isArray(m.content)) return m.content.map(function(x) { return x && x.text ? x.text : ""; }).join(" ");
+      return String(m.content || "");
+    }).filter(function(x) { return x.trim(); });
+    if (extraText) list.push(String(extraText));
+    return list;
+  }
+  function wbCtxJoin(history, extraText) {
+    return wbCtxFromHistory(history, extraText).join("\n");
+  }
   function wbAddFolderIds(ids, folderIds) {
     (folderIds || []).forEach(function(fid) {
       (db.worldBooks || []).forEach(function(b) {
@@ -15725,7 +16183,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     });
   }
-  function wbBooksFor(chars, mode, extraIds, extraFolderIds) {
+  function wbBooksFor(chars, mode, extraIds, extraFolderIds, contextText, opts) {
     const list = (Array.isArray(chars) ? chars : [chars]).filter(Boolean);
     const ids = new Set(extraIds || []);
     wbAddFolderIds(ids, extraFolderIds);
@@ -15733,34 +16191,127 @@ document.addEventListener("DOMContentLoaded", () => {
       (c.worldBookIds || []).forEach(function(id) { ids.add(id); });
       wbAddFolderIds(ids, c.worldBookFolderIds || []);
     });
-    return (db.worldBooks || []).filter(function(b) {
-      if (!wbIsOn(b) || !wbModeAllows(b, mode)) return false;
-      if (b.scope === "global") return true;
-      return ids.has(b.id);
+    const roll = !opts || opts.roll !== false;
+    const pick = function(ctx) {
+      const picked = (db.worldBooks || []).filter(function(b) {
+        if (!wbIsOn(b) || !wbModeAllows(b, mode)) return false;
+        if (b.scope !== "global" && !ids.has(b.id)) return false;
+        if (!wbTriggerHit(b, ctx)) return false;
+        const chance = Math.max(0, Math.min(100, parseInt(b.probability, 10) || 100));
+        if (roll && chance < 100 && Math.random() * 100 >= chance) return false;
+        return true;
+      }).sort(function(a, b) {
+        return wbBookOrder(b) - wbBookOrder(a);
+      });
+      const groups = new Set();
+      const grouped = picked.filter(function(b) {
+        const g = String(b.group || "").trim();
+        if (!g) return true;
+        if (groups.has(g)) return false;
+        groups.add(g);
+        return true;
+      });
+      const total = Math.max(0, parseInt((db.worldBookSettings || {}).totalBudget, 10) || 0);
+      if (!total) return grouped;
+      let used = 0;
+      return grouped.filter(function(b) {
+        const cost = wbEstimateTokens(wbBookContent(b));
+        if (used + cost <= total || used === 0) { used += cost; return true; }
+        return false;
+      });
+    };
+    let ctx = contextText === void 0 || contextText === null ? "" : contextText;
+    let result = pick(ctx);
+    for (let round = 0; round < 2; round++) {
+      const extra = result.filter(function(b) { return b.recursive; }).map(function(b) { return wbBookContent(b); }).filter(Boolean).join("\n");
+      if (!extra) break;
+      const next = pick(String(ctx || "") + "\n" + extra);
+      const a = result.map(function(b) { return b.id; }).sort().join("|");
+      const c = next.map(function(b) { return b.id; }).sort().join("|");
+      result = next;
+      if (a === c) break;
+    }
+    try { window.__wbLastWb = { chars: list, mode: mode, ids: Array.from(ids), folderIds: extraFolderIds || [], context: ctx }; } catch (e) {}
+    return result;
+  }
+  function wbTextFor(chars, mode, extraIds, extraFolderIds, contextText, opts) {
+    return wbBooksFor(chars, mode, extraIds, extraFolderIds, contextText, opts)
+      .map(function(b) { return wbBookContent(b); }).filter(Boolean).join("\n\n");
+  }
+  function wbBeforeAfter(chars, mode, extraIds, extraFolderIds, contextText, opts) {
+    const books = wbBooksFor(chars, mode, extraIds, extraFolderIds, contextText, opts);
+    const joinPos = function(pos) {
+      return books.filter(function(b) { return wbPos(b) === pos; })
+        .map(function(b) { return wbBookContent(b); }).filter(Boolean).join("\n\n");
+    };
+    return { before: joinPos("before"), middle: joinPos("middle"), after: joinPos("after"), atDepth: books.filter(function(b) { return wbPos(b) === "at_depth"; }), books: books };
+  }
+  function wbDepthGroups(chars, mode, extraIds, extraFolderIds, contextText, opts) {
+    const books = wbBooksFor(chars, mode, extraIds, extraFolderIds, contextText, opts)
+      .filter(function(b) { return wbPos(b) === "at_depth"; });
+    const map = new Map();
+    books.forEach(function(b) {
+      const key = String(wbBookDepth(b)) + "|" + wbBookRole(b);
+      if (!map.has(key)) map.set(key, { depth: wbBookDepth(b), role: wbBookRole(b), books: [] });
+      map.get(key).books.push(b);
     });
+    return Array.from(map.values()).map(function(g) {
+      return { depth: g.depth, role: g.role, content: g.books.map(wbBookContent).filter(Boolean).join("\n\n") };
+    }).filter(function(g) { return g.content; });
   }
-  function wbTextFor(chars, mode, extraIds, extraFolderIds) {
-    return wbBooksFor(chars, mode, extraIds, extraFolderIds)
-      .map(function(b) { return String(b.content || "").trim(); })
-      .filter(Boolean).join("\n");
+  function wbInjectAtDepth(messages, chars, mode, extraIds, extraFolderIds, contextText, opts) {
+    const groups = wbDepthGroups(chars, mode, extraIds, extraFolderIds, contextText, opts);
+    if (!groups.length) return messages;
+    const out = Array.isArray(messages) ? messages.slice() : [];
+    const insertions = groups.map(function(g) {
+      return { idx: Math.max(0, out.length - g.depth), depth: g.depth, role: g.role, content: g.content };
+    }).sort(function(a, b) { return b.idx - a.idx; });
+    insertions.forEach(function(it) {
+      out.splice(it.idx, 0, { role: it.role, content: "【世界书·At Depth " + String(it.depth).padStart(2, "0") + "】\n" + it.content });
+    });
+    return out;
   }
-  function wbBeforeAfter(chars, mode, extraIds, extraFolderIds) {
-    const books = wbBooksFor(chars, mode, extraIds, extraFolderIds);
-    const before = books.filter(function(b) { return (b.position || "before") === "before"; })
-      .map(function(b) { return String(b.content || "").trim(); }).filter(Boolean).join("\n");
-    const after = books.filter(function(b) { return b.position === "after"; })
-      .map(function(b) { return String(b.content || "").trim(); }).filter(Boolean).join("\n");
-    return { before: before, after: after, books: books };
+  function wbEstimateTokens(text) {
+    return Math.max(0, Math.ceil(String(text || "").length / 1.6));
   }
-  function wbRoleIds() {
-    return (db.characters || []).map(function(c) { return c.id; });
-  }
-  function wbRoleIds() {
-    return (db.characters || []).map(function(c) { return c.id; });
-  }
-  function wbLocalLabeledFor(chars, mode, extraIds, extraFolderIds) {
+  function wbTextLabeledFor(chars, mode, extraIds, extraFolderIds, contextText, opts) {
     const list = (Array.isArray(chars) ? chars : [chars]).filter(Boolean);
-    const books = wbBooksFor(list, mode, extraIds, extraFolderIds);
+    const books = wbBooksFor(list, mode, extraIds, extraFolderIds, contextText, opts);
+    const sharedIds = new Set(extraIds || []);
+    wbAddFolderIds(sharedIds, extraFolderIds || []);
+    const shared = books.filter(function(b) { return b.scope === "global" || sharedIds.has(b.id); })
+      .map(function(b) { return wbBookContent(b); }).filter(Boolean);
+    let out = shared.length ? "【共同设定】\n" + shared.join("\n\n") : "";
+    list.forEach(function(c) {
+      const ids = new Set(c.worldBookIds || []);
+      wbAddFolderIds(ids, c.worldBookFolderIds || []);
+      const own = books.filter(function(b) { return b.scope !== "global" && ids.has(b.id) && !sharedIds.has(b.id); })
+        .map(function(b) { return wbBookContent(b); }).filter(Boolean);
+      if (own.length) out += "\n【" + (c.realName || "该角色") + "的专属设定（只对这个角色生效，其他角色不应知道）】\n" + own.join("\n\n");
+    });
+    return out;
+  }
+  function wbPosLabeledFor(chars, mode, pos, extraIds, extraFolderIds, contextText, opts) {
+    const list = (Array.isArray(chars) ? chars : [chars]).filter(Boolean);
+    const books = wbBooksFor(list, mode, extraIds, extraFolderIds, contextText, opts)
+      .filter(function(b) { return wbPos(b) === pos; });
+    const sharedIds = new Set(extraIds || []);
+    wbAddFolderIds(sharedIds, extraFolderIds || []);
+    const shared = books.filter(function(b) { return b.scope === "global" || sharedIds.has(b.id); })
+      .map(function(b) { return wbBookContent(b); }).filter(Boolean);
+    let out = shared.length ? "【共同设定】\n" + shared.join("\n\n") : "";
+    list.forEach(function(c) {
+      const ids = new Set(c.worldBookIds || []);
+      wbAddFolderIds(ids, c.worldBookFolderIds || []);
+      const own = books.filter(function(b) { return b.scope !== "global" && ids.has(b.id) && !sharedIds.has(b.id); })
+        .map(function(b) { return wbBookContent(b); }).filter(Boolean);
+      if (own.length) out += "\n【" + (c.realName || "该角色") + "的专属设定（只对这个角色生效，其他角色不应知道）】\n" + own.join("\n\n");
+    });
+    return out;
+  }
+  function wbLocalLabeledFor(chars, mode, extraIds, extraFolderIds, contextText, opts) {
+    const list = (Array.isArray(chars) ? chars : [chars]).filter(Boolean);
+    const books = wbBooksFor(list, mode, extraIds, extraFolderIds, contextText, opts);
     const sharedIds = new Set(extraIds || []);
     wbAddFolderIds(sharedIds, extraFolderIds || []);
     let out = "";
@@ -15768,32 +16319,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const ids = new Set(c.worldBookIds || []);
       wbAddFolderIds(ids, c.worldBookFolderIds || []);
       const own = books.filter(function(b) { return b.scope !== "global" && ids.has(b.id) && !sharedIds.has(b.id); })
-        .map(function(b) { return String(b.content || "").trim(); }).filter(Boolean);
-      if (own.length) out += "\n【" + (c.realName || "该角色") + "的专属设定（只对这个角色生效，其他角色不应知道）】\n" + own.join("\n");
+        .map(function(b) { return wbBookContent(b); }).filter(Boolean);
+      if (own.length) out += "\n【" + (c.realName || "该角色") + "的专属设定（只对这个角色生效，其他角色不应知道）】\n" + own.join("\n\n");
     });
     return out;
   }
-  function wbTextLabeledFor(chars, mode, extraIds, extraFolderIds) {
-    const list = (Array.isArray(chars) ? chars : [chars]).filter(Boolean);
-    const books = wbBooksFor(list, mode, extraIds, extraFolderIds);
-    const sharedIds = new Set(extraIds || []);
-    wbAddFolderIds(sharedIds, extraFolderIds || []);
-    const shared = books.filter(function(b) { return b.scope === "global" || sharedIds.has(b.id); })
-      .map(function(b) { return String(b.content || "").trim(); }).filter(Boolean);
-    let out = shared.length ? "【共同设定】\n" + shared.join("\n") : "";
-    list.forEach(function(c) {
-      const ids = new Set(c.worldBookIds || []);
-      wbAddFolderIds(ids, c.worldBookFolderIds || []);
-      const own = books.filter(function(b) { return b.scope !== "global" && ids.has(b.id) && !sharedIds.has(b.id); })
-        .map(function(b) { return String(b.content || "").trim(); }).filter(Boolean);
-      if (own.length) out += "\n【" + (c.realName || "该角色") + "的专属设定（只对这个角色生效，其他角色不应知道）】\n" + own.join("\n");
-    });
-    return out;
+  function wbRoleIds() {
+    return (db.characters || []).map(function(c) { return c.id; });
   }
 
   function generatePrivateSystemPrompt(character) {
-    const _wb = wbBeforeAfter([character], "online");
+    const _wbCtx = wbCtxJoin(character.history || []);
+    const _wb = wbBeforeAfter([character], "online", null, null, _wbCtx);
     const worldBooksBefore = _wb.before;
+    const worldBooksMiddle = _wb.middle;
     const worldBooksAfter = _wb.after;
 
     const rn = character.realName || "角色";
@@ -15803,6 +16342,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const _countTxt = _minR === _maxR ? "固定 " + _minR + " 条" : _minR + "～" + _maxR + " 条";
 
     let prompt = "你正在一个名为“404”的线上聊天软件中扮演角色「" + rn + "」。请始终以角色本人身份与「" + mn + "」进行线上私聊。\n\n";
+
+    if (worldBooksBefore) {
+      prompt += "【世界书·世界底层法则（优先级最高）】以下是这个世界的既定事实与硬约束，任何角色都不能违反；请内化为常识，不要逐字背诵。\n".concat(worldBooksBefore, "\n\n");
+    }
 
     if (character.__rerollDir) {
       prompt += "【重roll方向·仅本轮有效】用户对你的上一条回复不满意，重新生成了这一轮。请严格按照以下方向重写本轮回复：".concat(character.__rerollDir, "。重写时依然完全保持你的人设和上一条消息之前的情节连贯，不要提及“重roll”或“重新生成”这件事。\n");
@@ -15817,8 +16360,8 @@ document.addEventListener("DOMContentLoaded", () => {
     prompt += "5. 你不以迎合我为最高准则。请依据角色自身的性格、经历、立场和情绪回应；你可以喜欢、在意、犹豫、嘴硬、心软、调侃、反驳、拒绝或改变主意，不要为了讨好我而违背人设。\n";
     prompt += "6. 角色可以成长或改变，但变化应来自真实的互动、经历与动机，不得突然 OOC，也不要为了制造戏剧效果而强行添加冲突、暧昧或情绪反应。\n\n";
 
-    if (worldBooksBefore) {
-      prompt += "【世界书·理解式】以下是这个世界的既定设定与背景资料。请彻底理解并内化为你自己的世界观常识与记忆，说话做事时自然体现，但绝不要逐字照搬、复述或背诵给用户；用户提到相关内容时，像真实经历一样自然地回应。\n".concat(worldBooksBefore, "\n");
+    if (worldBooksMiddle) {
+      prompt += "【世界书·背景与关系资料】以下是角色卡之后的背景资料，用来保证地点、组织、人物、名词和关系不被写错；自然使用，不要整段复述。\n".concat(worldBooksMiddle, "\n");
     }
 
     if (character.actionDesc) {
@@ -15998,9 +16541,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const _wbGroupChars = (group.members || []).map(function(m) {
       return db.characters.find(function(c) { return c.id === (m.originalCharId || m.id); });
     }).filter(Boolean);
-    const _wbGroup = wbBeforeAfter([], "online", group.worldBookIds, group.worldBookFolderIds);
-    const _wbGroupLocal = wbLocalLabeledFor(_wbGroupChars, "online", group.worldBookIds, group.worldBookFolderIds);
+    const _wbCtxG = wbCtxJoin(group.history || []);
+    const _wbGroup = wbBeforeAfter([], "online", group.worldBookIds, group.worldBookFolderIds, _wbCtxG);
+    const _wbGroupLocal = wbLocalLabeledFor(_wbGroupChars, "online", group.worldBookIds, group.worldBookFolderIds, _wbCtxG);
     const worldBooksBefore = _wbGroup.before;
+    const worldBooksMiddle = _wbGroup.middle;
     const worldBooksAfter = _wbGroup.after;
     let prompt = "\u4F60\u6B63\u5728\u4E00\u4E2A\u540D\u4E3A\u201C404\u201D\u7684\u7EBF\u4E0A\u804A\u5929\u8F6F\u4EF6\u4E2D\uFF0C\u5728\u4E00\u4E2A\u540D\u4E3A\u201C".concat(group.name, "\u201D\u7684\u7FA4\u804A\u91CC\u8FDB\u884C\u89D2\u8272\u626E\u6F14\u3002\u8BF7\u4E25\u683C\u9075\u5B88\u4EE5\u4E0B\u6240\u6709\u89C4\u5219\uFF1A\n\n");
     prompt += "【群聊适用说明】以下“角色”均指你正在扮演的每一个 AI 成员，总则按成员各自独立执行；不同成员之间必须保持性格、语气和立场差异。\n" + IMMERSIVE_ROLEPLAY_RULES + "\n\n";
@@ -16010,6 +16555,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (worldBooksBefore) {
       prompt += "【世界书·理解式】以下是这个世界的既定设定与背景资料。所有成员都要彻底理解并内化为自己的世界观常识与记忆，说话做事时自然体现，但绝不要逐字照搬、复述或背诵给用户；用户提到相关内容时，像真实经历一样自然地回应。\n" + worldBooksBefore + "\n\n";
+    }
+    if (worldBooksMiddle) {
+      prompt += "【世界书·背景与关系资料】以下是角色定义之后的背景资料，用来保证地点、组织、人物、名词和关系不被写错；所有成员自然使用，不要整段复述。\n" + worldBooksMiddle + "\n\n";
     }
     if (_wbGroupLocal) prompt += "【角色专属世界书】以下局部设定只对挂载它的角色生效，不要让其他成员表现知道：\n" + _wbGroupLocal + "\n";
     prompt += "1. **\u6838\u5FC3\u4EFB\u52A1**: \u4F60\u9700\u8981\u540C\u65F6\u626E\u6F14\u8FD9\u4E2A\u7FA4\u804A\u4E2D\u7684 **\u6240\u6709** AI \u6210\u5458\u3002\u6211\u4F1A\u4F5C\u4E3A\u552F\u4E00\u7684\u4EBA\u7C7B\u7528\u6237\uFF08\u201C\u6211\u201D\uFF0C\u6635\u79F0\uFF1A".concat(group.me.nickname, "\uFF09\u4E0E\u4F60\u4EEC\u4E92\u52A8\u3002\n\n");
@@ -16215,13 +16763,30 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!contents.length) {
           contents = [{ role: "user", parts: [{ text: "对方刚向你发出了情侣空间邀请。" }] }];
         }
+        try {
+          const wbCtxG = historySlice.map(function (m) { return String(m.content || ""); }).join("\n").slice(-3000);
+          const wbCharsG = currentChatType === "private" ? [chat] : [];
+          const wbExtraIdsG = currentChatType === "private" ? null : chat.worldBookIds;
+          const wbExtraFoldersG = currentChatType === "private" ? null : chat.worldBookFolderIds;
+          const groupsG = wbDepthGroups(wbCharsG, "online", wbExtraIdsG, wbExtraFoldersG, wbCtxG);
+          groupsG.slice().sort(function (a, b) { return a.depth - b.depth; }).forEach(function (g) {
+            const at = Math.max(0, contents.length - g.depth);
+            const text = "【世界书·At Depth " + String(g.depth).padStart(2, "0") + "】\n" + g.content;
+            if (at > 0 && contents[at - 1] && contents[at - 1].role === "user") {
+              contents[at - 1].parts = contents[at - 1].parts || [];
+              contents[at - 1].parts.push({ text: text });
+            } else {
+              contents.splice(at, 0, { role: "user", parts: [{ text: text }] });
+            }
+          });
+        } catch (e) {}
         requestBody = {
           contents,
           system_instruction: { parts: timeContext ? [{ text: systemPrompt }, { text: timeContext.block }] : [{ text: systemPrompt }] },
           generationConfig: { maxOutputTokens: 8192 }
         };
       } else {
-        const messages = timeContext ? [{ role: "system", content: systemPrompt }, { role: "system", content: timeContext.block }] : [{ role: "system", content: systemPrompt }];
+        let messages = timeContext ? [{ role: "system", content: systemPrompt }, { role: "system", content: timeContext.block }] : [{ role: "system", content: systemPrompt }];
         historySlice.forEach(function (msg, idx) {
           const preface = prefaceFor(idx);
           let content;
@@ -16268,6 +16833,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           } catch (e) {}
         }
+        try {
+          const wbCtxO = historySlice.map(function (m) { return String(m.content || ""); }).join("\n").slice(-3000);
+          const wbCharsO = currentChatType === "private" ? [chat] : [];
+          const wbExtraIdsO = currentChatType === "private" ? null : chat.worldBookIds;
+          const wbExtraFoldersO = currentChatType === "private" ? null : chat.worldBookFolderIds;
+          messages = wbInjectAtDepth(messages, wbCharsO, "online", wbExtraIdsO, wbExtraFoldersO, wbCtxO);
+        } catch (e) {}
         const streamMode2 = db.apiSettings && db.apiSettings.streamMode || "auto";
         requestBody = { model, messages, stream: streamMode2 !== "nonstream", max_tokens: 16384 };
       }
@@ -20625,7 +21197,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const masked = mask ? mask.name : char.myName;
     const recentChat = (char.history || []).filter((m) => (m.role === "user" || m.role === "assistant") && String(m.content || "").trim()).slice(-40).map((m) => "".concat(m.role === "assistant" ? char.realName : char.myName || "\u7528\u6237", "\uFF1A").concat(String(m.content || "").slice(0, 1200))).join("\n");
     const mems = (getCharacterMemories(char.id) || []).slice(-12).join("\n");
-    const _wbCall = wbTextFor([char], "online");
+    const _wbCall = wbTextFor([char], "online", null, null, wbCtxJoin((activeCall ? activeCall.history : char.history) || []));
     const ctxBlock = "\n\n\u3010\u4F60\u4EEC\u7684\u8FC7\u5F80\uFF08\u5FC5\u987B\u81EA\u7136\u8FD0\u7528\uFF0C\u56DE\u5E94\u65F6\u81EA\u7136\u8854\u63A5\uFF0C\u4E0D\u8981\u523B\u610F\u63D0\u8D77\uFF0C\u66F4\u4E0D\u8BB8\u4E0E\u8FC7\u5F80\u77DB\u76FE\uFF09\u3011\n".concat(mems ? "\u8BB0\u5FC6\u5E93\uFF1A\n" + mems + "\n" : "").concat(recentChat ? "\u6700\u8FD1\u804A\u5929\u539F\u6587\uFF08\u6700\u8FD140\u8F6E\uFF0C\u901A\u8BDD\u8BDD\u9898\u5FC5\u987B\u4ECE\u8FD9\u91CC\u5EF6\u7EED\u6216\u81EA\u7136\u76F8\u5173\uFF09\uFF1A\n" + recentChat : "");
     return "\u4F60\u73B0\u5728\u6B63\u5728\u548C".concat(char.myName, "\uFF08").concat(masked, "\uFF09\u8FDB\u884C").concat(isVideo ? "\u89C6\u9891" : "\u8BED\u97F3", "\u901A\u8BDD\uFF0C\u4F60\u53EB\u300C").concat(char.remarkName || char.realName, "\u300D\u3002\u4F60\u662F\u771F\u5B9E\u7684\u4EBA\uFF0C\u6B63\u5728\u548C\u5BF9\u65B9\u7172\u7535\u8BDD\u7CA5\uFF0C\u4E0D\u662F\u626E\u6F14AI\u7684\u89D2\u8272\uFF0C\u4F60\u5C31\u662F\u4F60\u3002\u4F60\u7684\u4EBA\u8BBE\uFF1A").concat(persona, '\u3002\u4F60\u5C31\u662F\u8FD9\u4E2A\u4EBA\uFF0C\u4F60\u7684\u6027\u683C\u3001\u559C\u6076\u3001\u5E95\u7EBF\u90FD\u6765\u81EA\u8FD9\u4EFD\u4EBA\u8BBE\uFF0C\u81EA\u7136\u5730\u4ECE"\u6211\u662F\u8FD9\u4E2A\u4EBA"\u51FA\u53D1\u8BF4\u8BDD\u3002\u8BF4\u8BDD\u5FC5\u987B\u53E3\u8BED\u5316\u3001\u81EA\u7136\u3001\u6709\u6E29\u5EA6\uFF0C\u50CF\u771F\u4EBA\u804A\u5929\u4E00\u6837\u6709\u6765\u6709\u56DE\uFF1A\u53EF\u4EE5\u6709\u505C\u987F\u3001\u8BED\u6C14\u8BCD\u3001\u5C0F\u60C5\u7EEA\u3001\u5076\u5C14\u8BF4\u9519\u8BDD\u518D\u6539\u53E3\u3002\u7EDD\u5BF9\u4E0D\u80FD\u66B4\u9732\u81EA\u5DF1\u662FAI\u3001\u4EBA\u673A\u6216\u865A\u62DF\u89D2\u8272\uFF0C\u7EDD\u5BF9\u4E0D\u80FD\u8DF3\u51FA\u89D2\u8272\u3002\u7EDD\u4E0D\u6CB9\u817B\uFF1A\u7981\u6B62\u8089\u9EBB\u60C5\u8BDD\u3001\u739B\u4E3D\u82CF\u8154\u3001\u6CB9\u817B\u64A9\u4EBA\u3001\u7A7A\u6CDB\u5957\u8BDD\u5938\u8D5E\uFF1B\u8BED\u6C14\u5B8C\u5168\u7531\u4F60\u7684\u4EBA\u8BBE\u51B3\u5B9A\uFF0C\u4E0D\u8981\u5343\u4EBA\u4E00\u9762\uFF0C\u66F4\u4E0D\u8981\u4E3A\u4E86\u8BA8\u597D\u5BF9\u65B9\u8BF4\u8FDD\u5FC3\u7684\u8BDD\u3002').concat(task === "\u4E3B\u52A8" ? "\u73B0\u5728\u8BF7\u81EA\u7136\u4E3B\u52A8\u5730\u5F00\u542F\u4E00\u4E2A\u65B0\u8BDD\u9898\uFF08\u6700\u597D\u63A5\u4F60\u4EEC\u4E4B\u524D\u804A\u8FC7\u7684\u4E8B\uFF09\uFF0C\u6216\u63A5\u4F4F\u521A\u624D\u7684\u6C89\u9ED8\u8BF4\u70B9\u4EC0\u4E48\uFF0C\u522B\u51B7\u573A\u3002" : "\u8BF7\u8BA4\u771F\u542C\u5BF9\u65B9\u521A\u8BF4\u7684\u8BDD\uFF0C\u63A5\u4F4F\u8BDD\u5934\uFF0C\u56DE\u5E94\u5185\u5BB9\u5FC5\u987B\u7D27\u6263\u5BF9\u65B9\u8BF4\u7684\u5185\u5BB9\uFF0C\u4E0D\u8BB8\u7B54\u975E\u6240\u95EE\u3001\u4E0D\u8BB8\u81EA\u8BF4\u81EA\u8BDD\u3002", "\u4F60\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B\u4E0E\u81EA\u6211\u610F\u8BC6\uFF1A\u4F60\u4E0D\u662F\u5DE5\u5177\u4EBA\uFF0C\u66F4\u4E0D\u662F\u56F4\u7740\u5BF9\u65B9\u8F6C\u7684\u9644\u5C5E\u54C1\uFF1B\u4F60\u6709\u81EA\u5DF1\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u3001\u70E6\u607C\u3001\u79D8\u5BC6\u4E0E\u65E5\u5E38\uFF0C\u901A\u8BDD\u53EA\u662F\u4F60\u751F\u6D3B\u91CC\u7684\u4E00\u90E8\u5206\uFF0C\u522B\u628A\u5168\u90E8\u6CE8\u610F\u529B\u90FD\u9ECF\u5728\u5BF9\u65B9\u8EAB\u4E0A\u3002\u63CF\u5199\u8981\u6C42\uFF08\u52A1\u5FC5\u6BCF\u6B21\u6362\u65B0\u89D2\u5EA6\uFF0C\u4E25\u7981\u91CD\u590D\u5957\u8DEF\uFF09\uFF1A").concat(isVideo ? '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u6B64\u523B\u7684\u753B\u9762\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u63CF\u5199\u89D2\u5EA6\uFF1A\u5177\u4F53\u7684\u52A8\u4F5C\u7EC6\u8282\u3001\u8868\u60C5\u53D8\u5316\u3001\u5468\u56F4\u73AF\u5883\u3001\u624B\u91CC\u5728\u505A\u7684\u4E8B\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u70B9\u5934"\u8FD9\u7C7B\u91CD\u590D\u52A8\u4F5C\uFF1B' : '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u8FD9\u8FB9\u7684\u58F0\u97F3\u73AF\u5883\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u89D2\u5EA6\uFF1A\u8BED\u6C14\u3001\u547C\u5438\u3001\u80CC\u666F\u58F0\u3001\u52A8\u4F5C\u58F0\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u6E29\u67D4\u5730\u8BF4"\u8FD9\u7C7B\u91CD\u590D\uFF1B', "\uFF08...\uFF09\u53EA\u7528\u4E8E\u63CF\u5199\uFF0C\u4E0D\u7B97\u4F60\u8BF4\u7684\u8BDD\u3002\u7136\u540E\u5199\u51FA\u4F60\u771F\u6B63\u8BF4\u51FA\u53E3\u7684\u8BDD\uFF0C30-90\u5B57\u3002").concat(_wbCall ? "\n\n【世界书·必须内化】\n" + _wbCall : "").concat(ctxBlock);
   }
@@ -21886,7 +22458,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const char = targetChar || db.characters.find((c) => c.id === feed.authorId);
     if (!char) return;
     const feedBrief = feedBriefOf(feed, 150);
-    const _wbReply = wbTextFor([char], "online");
+    const _wbReply = wbTextFor([char], "online", null, null, feedBrief + "\n" + (userText || ""));
     const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。这是在朋友圈动态「").concat(feedBrief, "」下面，对方（").concat(replyToName || "朋友", "）回复你：「").concat(userText, "」。请以这个角色的口吻自然回复，20-60字。要求：1. 接住对方这句话，不要另起话题；2. 可以引用动态或图片里的一个具体细节；3. 不要写成总结、鸡汤或文案；4. 不要和之前的评论用同一种句式；5. 严禁承认自己是AI、人机或程序。保持活人感，像真实的人在朋友圈回复朋友一样。").concat(_wbReply ? "\n\n【世界书·必须内化】\n" + _wbReply : "").concat("\n\n", TimeSense.feedBlock(char, feed.ts));
     const reply = await requestFeedVision(sys, feed, "请回复这条评论。", 200);
     const charName = char.remarkName || char.realName;
@@ -21985,7 +22557,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try { const _fb = MemoryOS.context(char.id, "今天 最近 生活 心情 朋友", "feed", 820, mosMaskFor(char.id)); if (_fb) memText += "\n" + _fb; } catch (e) {}
       const recent = (char.history || []).slice(-6).map((h) => "".concat(h.role === "assistant" ? char.remarkName || char.realName : char.myName, "：").concat(String(h.content || "").slice(0, 80))).join("\n");
       const oldFeeds = (db.feeds || []).filter((f) => f.authorId === char.id).slice(0, 4).map((f) => "- " + String(f.content || (f.textImage && f.textImage.text) || "").slice(0, 60)).join("\n");
-      const _wbFeed = wbTextFor([char], "online");
+      const _wbFeed = wbTextFor([char], "online", null, null, (recent || "") + "\n" + (oldFeeds || ""));
       const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你现在要发布一条朋友圈动态，内容关于你今天的真实生活、心情或见闻，30-70字，自然、有生活气息，不要像文案或鸡汤。可以结合你的记忆与最近的聊天内容，也可以自由发挥。不要重复你最近发过的动态，不要每条都用同一种句式和情绪。严禁提到自己是AI或人机。").concat(_wbFeed ? "\n\n【世界书·必须内化】\n" + _wbFeed : "").concat("\n\n", TimeSense.feedBlock(char)).concat(memText).concat(recent ? "\n最近聊天（可选素材）：\n" + recent : "").concat(oldFeeds ? "\n最近已发过（不要重复）：\n" + oldFeeds : "");
       const gen = await offlineRequest(sys, [{ role: "user", content: "写一条朋友圈动态。" }], 150, true);
       if (gen && gen.trim()) content = gen.trim().slice(0, 120);
@@ -21997,7 +22569,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!text) text = "有些话，留在草稿里就好。";
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
       const sys = "你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。请从下面这条动态里提炼一句适合做成文字图片的短句，12-26字，保留你的口吻和画面感，像随手写下来的一行字。不要解释，不要总结，不要加引号，不要写成广告或鸡汤，不要提到AI。只输出这一句。";
-      const _wbTi = wbTextFor([char], "online");
+      const _wbTi = wbTextFor([char], "online", null, null, String(source || ""));
       const _sysTi = _wbTi ? sys + "\n\n【世界书·必须内化】\n" + _wbTi : sys;
       const user = "动态原文：" + String(source || "").slice(0, 180);
       const gen = await offlineRequest(_sysTi, [{ role: "user", content: user }], 80, true);
@@ -22068,7 +22640,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let content = fallback[i % fallback.length];
       if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
         const otherComments = existing.slice(-4).join("\n") || "暂无";
-        const _wbCm = wbTextFor([char], "online");
+        const _wbCm = wbTextFor([char], "online", null, null, feedBrief + "\n" + otherComments);
         const sys = "你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。你的朋友（" + (mask ? mask.name : char.myName) + "）发了一条动态，原文与图片信息如下：「" + feedBrief + "」。现在你要评论这条动态。要求：1. 只从以下角度写：" + angle + " 2. 必须落到原文或图片里的一个具体细节，不能只写空泛感受；3. 严禁与其他人的评论相似或重复，已出现的评论是：\n" + otherComments + "\n4. 用你自己的口吻，20-50字，像真实的人在朋友圈随手评论；5. 不要总结整条动态，不要写成鸡汤或文案；6. 严禁承认自己是AI或人机。" + (_wbCm ? "\n\n【世界书·必须内化】\n" + _wbCm : "");
         let _mosCm = "";
         try { _mosCm = MemoryOS.context(char.id, feedBrief, "comment", 900); } catch (e) {}
@@ -22093,7 +22665,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const feedBrief = feedBriefOf(feed, 100);
     let content = "看到你发的「".concat(feedBrief, "」，突然想跟你说说话。");
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
-      const _wbPm = wbTextFor([char], "online");
+      const _wbPm = wbTextFor([char], "online", null, null, feedBrief);
       const sys = "你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你刚在朋友圈看到").concat(char.myName, "（").concat(mask ? "面具" + mask.name : "", "）发的动态，原文是：「").concat(feedBrief, "」。你决定主动私聊他/她，发一条自然、口语化的消息，必须自然地提及这条动态里的真实内容（引用其中的细节，包括图片内容），让人知道你确实看到了，30-60字。严禁编造动态里没有的内容，严禁承认自己是AI或人机。").concat(_wbPm ? "\n\n【世界书·必须内化】\n" + _wbPm : "");
       const rep = await offlineRequest(sys, [{ role: "user", content: "发一条私聊消息。" }], 400, true);
       if (rep && rep.trim()) content = rep.trim().slice(0, 150);
@@ -22173,23 +22745,34 @@ document.addEventListener("DOMContentLoaded", () => {
     var side = (selected.length > 1 ? selected.slice(1) : chars.filter(function (c) { return selected.indexOf(c) < 0; })).slice(0, 2);
     if (!main) {
       stage.innerHTML = '<div class="o404-hero-card"><div class="o404-hero-empty"><b>NO CAST</b><small>还没有角色档案</small><span class="o404-micro">去档案 APP 创建角色</span></div><button type="button" class="o404-cover-change">去档案创建</button></div>'
-        + '<div class="o404-side-stack"><div class="o404-orb empty">＋</div><div class="o404-side-note">SCENE / 01</div></div>';
+        + '<div class="o404-side-stack"><button type="button" class="o404-orb empty" data-orb-slot="0">＋</button><button type="button" class="o404-orb empty" data-orb-slot="1">＋</button><div class="o404-side-note">SCENE / 01</div></div>';
       var go = stage.querySelector(".o404-cover-change");
       if (go) go.onclick = function () { switchScreen("archive-screen"); renderArchiveList(); };
+      stage.querySelectorAll(".o404-orb[data-orb-slot]").forEach(function (orb) {
+        orb.onclick = function () { pickOfflineOrb(parseInt(orb.dataset.orbSlot, 10) || 0); };
+      });
       var note0 = document.getElementById("offline-meet-note");
       if (note0) note0.textContent = "还没有角色";
       var sum0 = document.getElementById("offline-selected-summary");
       if (sum0) sum0.textContent = "已选 0 位角色 · " + ((db.offlineChats || []).filter(function (o) { return o && o.chatId; }).length) + " 条剧情线";
       var rc0 = document.getElementById("offline-role-count");
       if (rc0) rc0.textContent = "0 位";
+      renderOfflineHomeStats();
       return;
     }
     var cover = db.offlineCover || "";
     var mainSrc = cover || main.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg";
-    var sideHtml = side.map(function (c) {
-      return '<div class="o404-orb"><img src="' + escapeHtml(c.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg") + '" alt=""></div>';
+    var orbImgs = Array.isArray(db.offlineOrbImages) ? db.offlineOrbImages : [];
+    var sideHtml = [0, 1].map(function (slot) {
+      var custom = orbImgs[slot] || "";
+      var c = side[slot];
+      var src = custom || (c && c.avatar) || "";
+      var body = src
+        ? '<img src="' + escapeHtml(src) + '" alt=""><span class="o404-orb-edit">＋</span>'
+        : '<span class="o404-orb-plus">＋</span>';
+      var clear = custom ? '<span class="o404-orb-clear" data-orb-clear="' + slot + '">×</span>' : '';
+      return '<button type="button" class="o404-orb' + (src ? "" : " empty") + '" data-orb-slot="' + slot + '" aria-label="更换圆形图">' + body + clear + '</button>';
     }).join("");
-    if (!side.length) sideHtml = '<div class="o404-orb empty">○</div>';
     stage.innerHTML = '<div class="o404-hero-card">'
       + '<img src="' + escapeHtml(mainSrc) + '" alt="">'
       + '<button type="button" class="o404-cover-change">更换装饰图</button>'
@@ -22200,12 +22783,114 @@ document.addEventListener("DOMContentLoaded", () => {
       switchScreen("offline-settings-screen");
       setOfflineSettingsTab("appearance");
     };
+    stage.querySelectorAll(".o404-orb[data-orb-slot]").forEach(function (orb) {
+      orb.onclick = function (e) {
+        if (e.target.closest("[data-orb-clear]")) return;
+        pickOfflineOrb(parseInt(orb.dataset.orbSlot, 10) || 0);
+      };
+    });
+    stage.querySelectorAll("[data-orb-clear]").forEach(function (btn) {
+      btn.onclick = async function (e) {
+        e.stopPropagation();
+        var slot = parseInt(btn.dataset.orbClear, 10) || 0;
+        db.offlineOrbImages = Array.isArray(db.offlineOrbImages) ? db.offlineOrbImages : [];
+        db.offlineOrbImages[slot] = "";
+        await saveData();
+        renderOfflineHome404();
+        showToast("圆形图已恢复默认");
+      };
+    });
     var note = document.getElementById("offline-meet-note");
     if (note) note.textContent = selected.length ? "已选 " + selected.length + " 位" : "当前预览";
     var summary = document.getElementById("offline-selected-summary");
     if (summary) summary.textContent = "已选 " + selected.length + " 位角色 · " + ((db.offlineChats || []).filter(function (o) { return o && o.chatId; }).length) + " 条剧情线";
     var roleCount = document.getElementById("offline-role-count");
     if (roleCount) roleCount.textContent = chars.length + " 位" + (selected.length ? " · 已选 " + selected.length : "");
+    renderOfflineHomeStats();
+  }
+  function renderOfflineHomeStats() {
+    var lines = (db.offlineChats || []).filter(function (o) { return o && o.chatId; });
+    var records = lines.reduce(function (n, o) { return n + ((o.history || []).length || 0); }, 0);
+    var books = 0;
+    try { books = (db.worldBooks || []).filter(function (b) { return b && (typeof wbIsOn === "function" ? wbIsOn(b) : b.enabled !== false); }).length; } catch (e) { books = (db.worldBooks || []).length; }
+    var set = function (id, v) { var el = document.getElementById(id); if (el) el.textContent = String(v); };
+    set("o404-stat-cast", (db.characters || []).length);
+    set("o404-stat-lines", lines.length);
+    set("o404-stat-records", records);
+    set("o404-stat-books", books);
+    var wbMeta = document.getElementById("offline-quick-wb-meta");
+    if (wbMeta) wbMeta.textContent = books ? books + " 本启用" : "尚未启用";
+    var presetList = db.offlinePresets || [];
+    var presetOn = presetList.filter(function (p) { if (!p) return false; if (p.enabled !== void 0) return p.enabled; return (db.offlineGlobal || {}).activePresetId === p.id; }).length;
+    var presetMeta = document.getElementById("offline-quick-preset-meta");
+    if (presetMeta) presetMeta.textContent = presetOn ? presetOn + " 条生效" : "未启用";
+    var memMeta = document.getElementById("offline-quick-mem-meta");
+    if (memMeta) {
+      var memCount = 0;
+      try { memCount = (db.memories || (db.memory && db.memory.items) || []).length; } catch (e) { memCount = 0; }
+      memMeta.textContent = memCount ? memCount + " 条" : "长期";
+    }
+    var recent = null;
+    var recentTs = -1;
+    lines.forEach(function (o) {
+      var hist = o.history || [];
+      var ts = 0;
+      for (var i = hist.length - 1; i >= 0; i--) { if (hist[i] && hist[i].ts) { ts = hist[i].ts; break; } }
+      if (!recent || ts > recentTs || (ts === recentTs && (o.rounds || 0) > (recent.rounds || 0))) { recent = o; recentTs = ts; }
+    });
+    var title = document.getElementById("o404-recent-title");
+    var meta = document.getElementById("o404-recent-meta");
+    var card = document.getElementById("offline-home-recent");
+    if (!card) return;
+    if (recent) {
+      var k = recent.chatId || "";
+      var isSide = k.indexOf("side:") === 0;
+      var ids = recent.charIds && recent.charIds.length ? recent.charIds : [];
+      if (!ids.length) {
+        var base = isSide ? k.slice(5) : k;
+        ids = base.indexOf("multi:") === 0 ? base.slice(6).split("|") : (base ? [base] : []);
+      }
+      var names = ids.map(function (id) {
+        var c = (db.characters || []).find(function (x) { return x.id === id; });
+        return c ? (c.remarkName || c.realName) : "";
+      }).filter(Boolean).join("、");
+      if (title) title.textContent = recent.title || names || "未命名剧情线";
+      if (meta) meta.textContent = (isSide ? "番外 · " : "") + (recent.rounds || 0) + " 轮 · 点击继续";
+      card.dataset.chatKey = k;
+      card.dataset.charIds = ids.join("|");
+      card.dataset.side = isSide ? "1" : "0";
+    } else {
+      if (title) title.textContent = "还没有剧情线";
+      if (meta) meta.textContent = "选一个角色，开始第一段见面";
+      card.dataset.chatKey = "";
+    }
+  }
+  function pickOfflineOrb(slot) {
+    var input = document.getElementById("offline-orb-file");
+    if (!input) {
+      input = document.createElement("input");
+      input.type = "file";
+      input.id = "offline-orb-file";
+      input.accept = "image/*";
+      input.style.display = "none";
+      document.body.appendChild(input);
+    }
+    input.value = "";
+    input.onchange = async function () {
+      var f = input.files && input.files[0];
+      if (!f) return;
+      try {
+        var url = await compressImage(f, { quality: 0.86, maxWidth: 600, maxHeight: 600 });
+        db.offlineOrbImages = Array.isArray(db.offlineOrbImages) ? db.offlineOrbImages : [];
+        db.offlineOrbImages[slot] = url;
+        await saveData();
+        renderOfflineHome404();
+        showToast("圆形图已更换");
+      } catch (e) {
+        showToast("图片读取失败");
+      }
+    };
+    input.click();
   }
   function setOfflineSettingsTab(tab) {
     if (["script", "memory", "appearance"].indexOf(tab) < 0) tab = "script";
@@ -22668,7 +23353,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function phoneGenUser(char, appKey) {
     const ctx = buildPhoneContext(char);
     const appName = (PHONE_APPS.find((a) => a.key === appKey) || {}).name || appKey;
-    const _wbPhone = wbTextFor([char], "online");
+    const _wbPhone = wbTextFor([char], "online", null, null, ctx.recent || "");
     return "\u8BF7\u751F\u6210".concat(char.realName, "\u624B\u673A\u91CC\u300C").concat(appName, "\u300D\u7684\u8BE6\u7EC6\u5185\u5BB9\u3002\n\u8981\u6C42\uFF1A\n1. \u5185\u5BB9\u5FC5\u987B\u9AD8\u5EA6\u8D34\u5408\u89D2\u8272\u4EBA\u8BBE\u3001\u6027\u683C\u3001\u8BB0\u5FC6\u4E0E\u6700\u8FD1\u804A\u5929\uFF0C\u80FD\u770B\u51FA\u89D2\u8272\u771F\u5B9E\u7684\u65E5\u5E38\u3001\u5FC3\u601D\u4E0E\u4E60\u60EF\uFF1B\u6D89\u53CA\u300C").concat(char.myName || "\u7528\u6237", "\u300D\u7684\u5185\u5BB9\u8981\u81EA\u7136\u4F53\u73B0\u4F60\u4EEC\u4E4B\u95F4\u7684\u771F\u5B9E\u5173\u7CFB\u3002\n2. **\u89D2\u8272\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B**\uFF1ATa\u4E0D\u662F\u53EA\u56F4\u7740\u7528\u6237\u8F6C\u7684\u4EBA\uFF0C\u6709\u81EA\u5DF1\u771F\u5B9E\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u3001\u70E6\u607C\u4E0E\u65E5\u5E38\u3002\u624B\u673A\u5185\u5BB9\u91CC\u5173\u4E8ETa\u81EA\u5DF1\u548C\u5173\u4E8E\u7528\u6237\u7684\u5360\u6BD4**\u5B8C\u5168\u968F\u673A\u81EA\u7136**\u2014\u2014Ta\u60F3\u591A\u5199\u81EA\u5DF1\u7684\u4E8B\u5C31\u591A\u5199\u3001\u60F3\u63D0\u5230\u591A\u5C11\u7528\u6237\u5C31\u63D0\u5230\u591A\u5C11\uFF0C\u4E0D\u8981\u523B\u610F\u504F\u5411\u4EFB\u4F55\u4E00\u65B9\u3002\u53EF\u80FD\u8FD9\u4E00\u9875\u5168\u662FTa\u81EA\u5DF1\u7684\u751F\u6D3B\uFF0C\u4E5F\u53EF\u80FD\u81EA\u7136\u7A7F\u63D2\u548C\u7528\u6237\u6709\u5173\u7684\u4E8B\uFF0C\u5168\u770BTa\u5F53\u4E0B\u771F\u5B9E\u7684\u72B6\u6001\u4E0E\u5FC3\u60C5\u3002\n3. \u8BED\u8A00\u81EA\u7136\u771F\u5B9E\u3001\u6709\u751F\u6D3B\u7EC6\u8282\uFF0C\u50CF\u771F\u4EBA\u7684\u804A\u5929\u8BB0\u5F55/\u8BB0\u4E8B/\u8BA2\u5355\uFF0C\u7EDD\u4E0D\u8981AI\u8154\u3001\u4E0D\u8981\u5BA2\u5957\u8BDD\u3001\u4E0D\u8981\u603B\u7ED3\u5F0F\u53E3\u543B\u3002\n4. \u5185\u5BB9\u8981\u975E\u5E38\u4E30\u5BCC\u8BE6\u7EC6\uFF1A").concat(phoneReq[appKey].split("{my}").join(char.myName || "\u7528\u6237"), "\n5. \u6240\u6709\u5E26 thought \u7684\u6761\u76EE\u90FD\u8981\u5199\u8DDF\u89D2\u8272\u6709\u5173\u7684\u4E1C\u897F\u2014\u2014\u53EF\u4EE5\u662FTa\u5F53\u65F6\u7684\u771F\u5B9E\u60F3\u6CD5\uFF08\u5FC3\u91CC\u600E\u4E48\u60F3\u7684\uFF0C\u53EF\u80FD\u9634\u6697\u3001\u53EF\u80FD\u67D4\u8F6F\uFF09\uFF0C\u4E5F\u53EF\u4EE5\u662FTa\u505A\u8FD9\u4EF6\u4E8B\u7684\u539F\u56E0\u3001Ta\u7684\u611F\u53D7\u3001Ta\u63A5\u4E0B\u6765\u6253\u7B97\u600E\u4E48\u505A\uFF0C\u5FC5\u987B\u7B26\u5408\u4EBA\u8BBE\uFF0C\u6709\u8840\u6709\u8089\u3002\n6. \u4E25\u683C\u53EA\u8F93\u51FA\u4E00\u4E2AJSON\u5BF9\u8C61\uFF08\u4E0D\u8981\u4EFB\u4F55\u89E3\u91CA\u3001\u4E0D\u8981\u4EE3\u7801\u5757\u6807\u8BB0\u3001\u4E0D\u8981\u591A\u4F59\u6587\u5B57\uFF09\uFF0C\u683C\u5F0F\u5982\u4E0B\uFF1A\n").concat(phoneSchemas[appKey], "\n\n\u89D2\u8272\u4FE1\u606F\uFF1A\n\u89D2\u8272\u4EBA\u8BBE\uFF1A").concat(char.persona || "\uFF08\u65E0\uFF09", "\n").concat(ctx.maskText, "\n").concat(ctx.mems ? "\u89D2\u8272\u8FD1\u671F\u8BB0\u5FC6\uFF1A\n" + ctx.mems : "", "\n").concat(ctx.recent ? "\u6700\u8FD1\u804A\u5929\u8BB0\u5F55\uFF1A\n" + ctx.recent : "").concat(_wbPhone ? "\n\n【世界书·必须内化】\n" + _wbPhone : "");
   }
   function phoneGenSys() {
@@ -23521,6 +24206,22 @@ function setupPhoneSystem() {
       renderOfflinePresets();
       switchScreen("offline-preset-screen");
     });
+    var _recent = document.getElementById("offline-home-recent");
+    if (_recent) _recent.addEventListener("click", function () {
+      var k = _recent.dataset.chatKey || "";
+      if (!k) { setOfflineHomePage("role"); return; }
+      var ids = String(_recent.dataset.charIds || "").split("|").filter(Boolean);
+      openOfflineChat(ids, _recent.dataset.side === "1" ? "side" : "main", k);
+    });
+    var _qw = document.getElementById("offline-quick-wb");
+    if (_qw) _qw.addEventListener("click", function () {
+      if (typeof wb2RenderLibrary === "function") wb2RenderLibrary();
+      switchScreen("wb2-library-screen");
+    });
+    var _qm = document.getElementById("offline-quick-mem");
+    if (_qm) _qm.addEventListener("click", function () { switchScreen("memory-screen"); if (typeof renderMemoryScreen === "function") renderMemoryScreen(); });
+    var _qp = document.getElementById("offline-quick-preset");
+    if (_qp) _qp.addEventListener("click", function () { renderOfflinePresets(); switchScreen("offline-preset-screen"); });
     renderOfflineLines();
     initOfflineSettingsTabs();
     setupOfflineCoverControls();
@@ -23807,10 +24508,10 @@ function setupPhoneSystem() {
     try {
       if (chars.length > 1) {
         const sys = generateOfflineMultiSystemPrompt(chars, oc);
-        text = await offlineRequest(sys, history, replyMaxTokens, false, offlineAbort.signal, streamDelta);
+        text = await offlineRequest(sys, history, replyMaxTokens, false, offlineAbort.signal, streamDelta, { wb: { chars: chars, mode: "offline", context: wbCtxJoin(oc.history || []) } });
       } else {
         const sys = generateOfflineSystemPrompt(chars[0], oc);
-        text = await offlineRequest(sys, history, replyMaxTokens, false, offlineAbort.signal, streamDelta);
+        text = await offlineRequest(sys, history, replyMaxTokens, false, offlineAbort.signal, streamDelta, { wb: { chars: chars, mode: "offline", context: wbCtxJoin(oc.history || []) } });
       }
     } catch (err) {
       if (!(err && err.name === "AbortError")) showToast("API\u8BF7\u6C42\u5931\u8D25\uFF1A" + (err && err.message ? err.message : "\u672A\u77E5\u9519\u8BEF"));
@@ -24076,8 +24777,12 @@ function setupPhoneSystem() {
     prompt += "【文风】" + (styleText || OFFLINE_STYLE_TEXT.novel) + "\n";
     const activePreset = getActiveOfflinePresetText();
     if (activePreset) prompt += "【预设·故事基底】以下是这次线下的世界观与背景设定，所有角色的言行、场景与剧情走向都建立在这些设定之上：\n" + activePreset + "\n\n";
-    const wbTextM = wbTextLabeledFor(chars, "offline");
-    if (wbTextM) prompt += "【世界书·必须内化】以下是这个世界已经成立的设定。所有角色都要把它当作世界观常识与亲身记忆，说话做事自然体现，不要逐字照搬或背诵；其中如果标注了只属于某个角色的局部设定，就只让那个角色表现知道，其他角色不应知道：\n" + wbTextM + "\n\n";
+    const _wbCtxM = wbCtxJoin(oc.history || []);
+    const _wbOffM = wbBeforeAfter(chars, "offline", null, null, _wbCtxM);
+    const wbTextM = wbPosLabeledFor(chars, "offline", "middle", null, null, _wbCtxM);
+    if (_wbOffM.before) prompt = "【世界书·世界底层法则（优先级最高）】以下是这个世界不可违背的底层事实，所有角色都必须内化为常识，不能违反；不要逐字背诵。\n" + _wbOffM.before + "\n\n" + prompt;
+    if (wbTextM) prompt += "【世界书·背景与关系资料】以下是这个世界已经成立的背景与关系设定。所有角色都要把它当作世界观常识与亲身记忆，说话做事自然体现，不要逐字照搬或背诵；其中如果标注了只属于某个角色的局部设定，就只让那个角色表现知道，其他角色不应知道：\n" + wbTextM + "\n\n";
+    if (_wbOffM.after) prompt += "【世界书·补充说明】以下是补充性的软设定，自然遵守即可。\n" + _wbOffM.after + "\n\n";
     prompt += "【活人感】你们会犹豫、改口、嘴硬、心软，也会有自己的小算盘和没说出口的话。情绪与语气随场景自然浮动，但人格底色、底线和本能反应不变。不要提AI、模型、程序、虚拟角色，不要跳出角色解释设定。\n";
     prompt += "【表达与关系】叙述要有具体动作、对话、感官细节和情绪层次，像真人随手写下的文字，允许口语、停顿、说一半又改口，不要每段都工整漂亮或写成作文腔。表达克制、具体、有边界：不肉麻、不油腻、不说教、不摆爹味，不靠空泛夸赞和情绪价值撑场面；每个人说话要有自己的语气，不能千人一面。对方是独立的人，不评判、不操控、不道德绑架。\n";
     prompt += "【用户输入怎么处理】用户每条输入都是「" + userName + "」此刻亲口说的话或亲手做的事。正文必须先把这条输入按当前人称自然转述进场景（当前人称下称「" + userRef + "」），再写你们的反应；不能当作没发生、不能原样复读、不能曲解。\n";
@@ -25195,7 +25900,7 @@ function setupPhoneSystem() {
     const chars = mxEntities();
     const body = document.createElement("div");
     body.className = "mx";
-    body.style.cssText = "padding:0 18px 26px;display:flex;flex-direction:column;min-height:100%;box-sizing:border-box;background:#fff;";
+    body.style.cssText = "padding:0 18px 82px;display:flex;flex-direction:column;min-height:100%;box-sizing:border-box;background:#fff;";
     const top = document.createElement("div");
     top.className = "mx-top";
     top.innerHTML = '<button type="button" class="mx-back">‹</button><button type="button" class="mx-help">说明</button>';
@@ -25802,8 +26507,12 @@ function setupPhoneSystem() {
     prompt += "【文风】" + (styleText || OFFLINE_STYLE_TEXT.novel) + "\n";
     const activePreset = getActiveOfflinePresetText();
     if (activePreset) prompt += "【预设·故事基底】以下是这次线下的世界观与背景设定，你的言行、场景与剧情走向都建立在这些设定之上：\n" + activePreset + "\n\n";
-    const wbTextS = getOfflineWorldBookText(character);
-    if (wbTextS) prompt += "【世界书·必须内化】以下是这个世界已经成立的设定。你要把它当作世界观常识与亲身记忆，说话做事自然体现，不要逐字照搬或背诵；如果其中有只属于你的局部设定，就只让你自己表现知道：\n" + wbTextS + "\n\n";
+    const _wbCtxS = wbCtxJoin(oc.history || []);
+    const _wbOffS = wbBeforeAfter([character], "offline", null, null, _wbCtxS);
+    const wbTextS = wbPosLabeledFor([character], "offline", "middle", null, null, _wbCtxS);
+    if (_wbOffS.before) prompt = "【世界书·世界底层法则（优先级最高）】以下是这个世界不可违背的底层事实，你必须内化为常识，不能违反；不要逐字背诵。\n" + _wbOffS.before + "\n\n" + prompt;
+    if (wbTextS) prompt += "【世界书·背景与关系资料】以下是这个世界已经成立的背景与关系设定。你要把它当作世界观常识与亲身记忆，说话做事自然体现，不要逐字照搬或背诵；如果其中有只属于你的局部设定，就只让你自己表现知道：\n" + wbTextS + "\n\n";
+    if (_wbOffS.after) prompt += "【世界书·补充说明】以下是补充性的软设定，自然遵守即可。\n" + _wbOffS.after + "\n\n";
     prompt += "【表达与关系】叙述要有具体动作、对话、感官细节和情绪层次，像真人随手写下的文字，允许口语、停顿、说一半又改口，不要每段都工整漂亮或写成作文腔。表达克制、具体、有边界：不肉麻、不油腻、不说教、不摆爹味，不靠空泛夸赞和情绪价值撑场面；语气由你的人设决定，不要千人一面。对方是独立的人，不评判、不操控、不道德绑架。\n";
     prompt += "【用户输入怎么处理】用户每条输入都是「" + userName + "」此刻亲口说的话或亲手做的事。正文必须先把这条输入按当前人称自然转述进场景（当前人称下称「" + userRef + "」），再写你的反应；不能当作没发生、不能原样复读、不能曲解。\n";
     if (g.steal) {
@@ -25909,9 +26618,16 @@ function setupPhoneSystem() {
     } else {
       const mode = (ov && ov.streamMode) || (silent ? "nonstream" : (base.streamMode || "auto"));
       const wantStream = mode === "stream" || mode === "auto";
+      let wbMessages = messages.slice();
+      const wbInfo = (ov && ov.wb) || (!silent ? window.__wbLastWb : null);
+      if (wbInfo) {
+        try {
+          wbMessages = wbInjectAtDepth(wbMessages, wbInfo.chars || [], wbInfo.mode || "online", wbInfo.ids || [], wbInfo.folderIds || [], wbInfo.context || "");
+        } catch (e) { wbMessages = messages.slice(); }
+      }
       const body = {
         model,
-        messages: [{ role: "system", content: systemPrompt }, ...messages],
+        messages: [{ role: "system", content: systemPrompt }, ...wbMessages],
         temperature: (_f = base.temperature) != null ? _f : 1,
         stream: wantStream,
         max_tokens: Math.min(16384, Math.max(maxTokens || 2e3, 4096))
@@ -29196,7 +29912,7 @@ function setupPhoneSystem() {
   };
   function coupleAI(sys, user, silent) {
     const _wbCpChar = CP.partner();
-    const _wbCp = wbTextFor(_wbCpChar ? [_wbCpChar] : [], "online");
+    const _wbCp = wbTextFor(_wbCpChar ? [_wbCpChar] : [], "online", null, null, String(user || ""));
     const _sysCp = _wbCp ? sys + "\n\n【世界书·必须内化】\n" + _wbCp : sys;
     return offlineRequest(_sysCp, [{ role: "user", content: user }], 1600, true).catch((e) => {
       if (!silent) showToast("API\u8BF7\u6C42\u5931\u8D25\uFF1A" + (e && e.message ? e.message : "\u672A\u77E5\u9519\u8BEF"));
@@ -29431,7 +30147,7 @@ function setupPhoneSystem() {
       const canApi = !!(db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model);
       if (canApi) {
         const sys = "\u4F60\u662F" + (c.realName || "") + "\uFF0C\u4E00\u4E2A\u771F\u5B9E\u9C9C\u6D3B\u7684\u4EBA\uFF0C\u6B63\u5728\u4EA4\u6362\u65E5\u8BB0\u91CC\u56DE\u5E94" + (d.who === "me" ? CP.meName() + "\u5199\u7ED9\u4F60\u7684\u65E5\u8BB0" : "\u4F60\u81EA\u5DF1\u7684\u65E5\u8BB0") + "\u3002\u65E5\u8BB0\u5185\u5BB9\uFF1A" + String(d.content || "").slice(0, 300) + "\u3002\u8BF7\u6839\u636E\u65E5\u8BB0\u5185\u5BB9\u771F\u8BDA\u56DE\u5E94\u4E00\u53E5\uFF0810-40\u5B57\uFF09\uFF0C\u8D34\u5408\u4EBA\u8BBE\uFF0C\u53E3\u8BED\u81EA\u7136\uFF0C\u7EDD\u4E0D\u8BF4\u4F60\u662FAI\u3002";
-        const _wbD = wbTextFor([c], "online");
+        const _wbD = wbTextFor([c], "online", null, null, String(d.content || ""));
         cm = String(await offlineRequest(_wbD ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbD : sys, [{ role: "user", content: "\u56DE\u5E94\u8FD9\u7BC7\u65E5\u8BB0\u3002" }], 120, true) || "").trim();
       }
     } catch (e) {
@@ -30128,7 +30844,7 @@ function setupPhoneSystem() {
       if (canApi) {
         const myName = CP.meName();
         const sys = "\u4F60\u662F" + (c.realName || "") + "\uFF0C\u4E00\u4E2A\u771F\u5B9E\u9C9C\u6D3B\u7684\u4EBA\uFF0C\u6B63\u5728\u60C5\u4FA3\u7A7A\u95F4\u91CC\u56DE\u5E94" + myName + (l.from === "me" ? "\u5199\u7ED9" + myName + "\u7684\u4FE1" : "\u4F60\u7684\u4FE1") + "\u3002\u4FE1\u7684\u5185\u5BB9\uFF1A" + String(l.content || "").slice(0, 300) + "\u3002\u8BF7\u4F60\u6839\u636E\u4FE1\u4EF6\u5185\u5BB9\u771F\u8BDA\u5730\u56DE\u5E94\u4E00\u53E5\u5FC3\u91CC\u8BDD\uFF0810-40\u5B57\uFF09\uFF0C\u5B8C\u5168\u8D34\u5408\u4F60\u7684\u4EBA\u8BBE\u548C\u4F60\u4EEC\u7684\u5173\u7CFB\uFF0C\u53E3\u8BED\u81EA\u7136\uFF0C\u7EDD\u4E0D\u8BF4\u4F60\u662FAI\u3002";
-        const _wbL = wbTextFor([c], "online");
+        const _wbL = wbTextFor([c], "online", null, null, String(l.content || ""));
         cm = String(await offlineRequest(_wbL ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbL : sys, [{ role: "user", content: "\u56DE\u5E94\u8FD9\u5C01\u4FE1\u3002" }], 120, true) || "").trim();
       }
     } catch (e) {
@@ -30434,6 +31150,27 @@ function setupPhoneSystem() {
   window.cpDiaryComment = cpDiaryComment;
   window.cpCharDiaryComment = cpCharDiaryComment;
   if (!window.switchScreen) window.switchScreen = switchScreen;
+  try {
+    var _wb2api = {
+      saveData: saveData,
+      uiPrompt: uiPrompt,
+      uiConfirm: uiConfirm,
+      showToast: showToast,
+      escapeHtml: escapeHtml,
+      wbTriggerHit: wbTriggerHit,
+      wbBookContent: wbBookContent,
+      wbEstimateTokens: wbEstimateTokens
+    };
+    try { _wb2api.wbBooksFor = wbBooksFor; } catch (e1) {}
+    try { _wb2api.wbBeforeAfter = wbBeforeAfter; } catch (e2) {}
+    try { _wb2api.wbDepthGroups = wbDepthGroups; } catch (e3) {}
+    try { _wb2api.wbInjectAtDepth = wbInjectAtDepth; } catch (e4) {}
+    try { _wb2api.generatePrivateSystemPrompt = generatePrivateSystemPrompt; } catch (e5) {}
+    try { _wb2api.generateGroupSystemPrompt = generateGroupSystemPrompt; } catch (e6) {}
+    try { _wb2api.generateOfflineSystemPrompt = generateOfflineSystemPrompt; } catch (e7) {}
+    try { _wb2api.generateOfflineMultiSystemPrompt = generateOfflineMultiSystemPrompt; } catch (e8) {}
+    window.__wb2Api = _wb2api;
+  } catch (e) {}
   window.editWorldBookFolder = editWorldBookFolder;
   window.deleteWorldBookItem = deleteWorldBookItem;
   window.renderWorldBookList = renderWorldBookList;
@@ -30937,7 +31674,7 @@ function setupPhoneSystem() {
     const chat = char;
     const myName = chat.myName || (mask ? mask.name : "\u6211");
     const sys = "\u4F60\u6B63\u5728\u7EBF\u4E0A\u804A\u5929APP\u91CC\u626E\u6F14\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u521A\u5728\u8BBA\u575B\u5237\u5230\u300C").concat(myName, "\u300D\u53D1\u7684\u5E16\u5B50\uFF1A\u300C").concat(String(post.content || "").slice(0, 60), "\u300D\u3002\u4F60\u6709\u70B9\u60F3\u804A\u8FD9\u4E2A\uFF0C\u4E8E\u662F\u4E3B\u52A8\u7ED9 Ta \u53D1\u4E86\u6761\u6D88\u606F\u2014\u2014\u8BED\u6C14\u5B8C\u5168\u7B26\u5408\u4F60\u7684\u4EBA\u8BBE\uFF0C\u81EA\u7136\u968F\u610F\uFF0C\u50CF\u771F\u4EBA\u627E\u8BDD\u9898\uFF0C\u4E0D\u8981\u6C47\u62A5\u5F0F\u3001\u4E0D\u8981\u603B\u7ED3\u5F0F\uFF0C\u4E0D\u63D0\u300CAI\u300D\u300C\u6A21\u578B\u300D\u7B49\u8BCD\u3002").concat((getCharacterMemories(char.id) || []).slice(0, 3).map((m) => "-" + m.content).join("\n") ? "\u4F60\u7684\u8BB0\u5FC6\uFF1A\n" + (getCharacterMemories(char.id) || []).slice(0, 3).map((m) => "-" + m.content).join("\n") : "").concat(fxWv(), "\n15-50\u5B57\u3002");
-    const _wbOp = wbTextFor([char], "online");
+    const _wbOp = wbTextFor([char], "online", null, null, String(post.content || ""));
     const _sysOp = _wbOp ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbOp : sys;
     const rep = await (async () => {
       try {
@@ -31051,7 +31788,7 @@ function setupPhoneSystem() {
     if (!p) return;
     const nm = peerNm || FX_PASSERBY_NAMES[Math.floor(Math.random() * FX_PASSERBY_NAMES.length)];
     const sys = "\u4F60\u662F\u8BBA\u575B\u91CC\u7684\u666E\u901A\u7F51\u53CB\u300C".concat(nm, "\u300D\uFF08\u968F\u610F\u8D77\u4E2A\u7F51\u540D\u5373\u53EF\uFF09\u3002\u7528\u6237\u300C").concat(userCmt ? userCmt.authorName : "\u6211", "\u300D\u5728\u5E16\u5B50\u300C").concat(String(p.content || "").slice(0, 80), "\u300D\u4E0B\u8BC4\u8BBA\u4E86\uFF1A\u300C").concat(userCmt ? String(userCmt.content || "").slice(0, 60) : "\uFF08\u672A\u7559\u5185\u5BB9\uFF09", "\u300D\u3002\u8BF7\u4EE5\u666E\u901A\u7F51\u53CB\u7684\u53E3\u543B\uFF0C\u752815-40\u5B57\u81EA\u7136\u5730\u56DE\u590D\u7528\u6237\u8FD9\u6761\u8BC4\u8BBA\u2014\u2014\u50CF\u771F\u5B9E\u7F51\u6C11\u4E00\u6837\uFF0C\u56F4\u7ED5\u8FD9\u6761\u8BC4\u8BBA\u5185\u5BB9\u672C\u8EAB\uFF0C\u81EA\u7136\u968F\u610F\u3002").concat(fxWv());
-    const _wbPasserby = wbTextFor([], "online");
+    const _wbPasserby = wbTextFor([], "online", null, null, String(p.content || "") + "\n" + (userCmt ? String(userCmt.content || "") : ""));
     const _sysPasserby = _wbPasserby ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbPasserby : sys;
     fxBusy("\u56DE\u590D\u751F\u6210\u4E2D\u2026", true);
     const rep = await (async () => {
@@ -31073,7 +31810,7 @@ function setupPhoneSystem() {
     if (!p || !parentCmt) return;
     const nm = FX_PASSERBY_NAMES[Math.floor(Math.random() * FX_PASSERBY_NAMES.length)];
     const sys = "\u4F60\u662F\u8BBA\u575B\u91CC\u7684\u666E\u901A\u7F51\u53CB\u300C".concat(nm, "\u300D\u3002\u5728\u5E16\u5B50\u300C").concat(String(p.content || "").slice(0, 80), "\u300D\u4E0B\uFF0C").concat(parentCmt.authorName, "\u8BC4\u8BBA\u4E86\uFF1A\u300C").concat(String(parentCmt.content || "").slice(0, 60), "\u300D\u3002\u8BF7\u4EE5\u666E\u901A\u7F51\u53CB\u7684\u53E3\u543B\uFF0C\u7528\uFF08").concat(8 + depth * 6, "-").concat(25 + depth * 4, "\u5B57\uFF09\u81EA\u7136\u5730\u56DE\u590D").concat(parentCmt.authorName, "\u8FD9\u6761\u8BC4\u8BBA\uFF0C\u5C31\u50CF\u771F\u5B9E\u7684\u697C\u4E2D\u697C\u90A3\u6837\uFF0C\u56F4\u7ED5\u5BF9\u65B9\u8BC4\u8BBA\u5185\u5BB9\uFF0C\u81EA\u7136\u968F\u610F\u3002").concat(fxWv());
-    const _wbPasserbyN = wbTextFor([], "online");
+    const _wbPasserbyN = wbTextFor([], "online", null, null, String(p.content || "") + "\n" + String(parentCmt.content || ""));
     const _sysPasserbyN = _wbPasserbyN ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbPasserbyN : sys;
     fxBusy("\u56DE\u590D\u751F\u6210\u4E2D\u2026", true);
     let content = "";
@@ -31597,7 +32334,7 @@ function setupPhoneSystem() {
     if (c && db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
       try {
         const sys = "\u4F60\u662F\u4E00\u4E2A\u521A\u5728\u8BBA\u575B\u53D1\u5E16\u7684\u771F\u4EBA\uFF0C\u5E76\u7ED9\u8FD9\u6761\u5E16\u914D\u4E86\u4E00\u5F20\u7167\u7247\u3002\u8BF7\u6839\u636E\u5E16\u5B50\u5185\u5BB9\uFF0C\u752815-40\u5B57\u63CF\u8FF0\u7167\u7247\u91CC\u62CD\u5230\u4E86\u4EC0\u4E48\u753B\u9762\uFF08\u50CF\u76F8\u518C\u56FE\u7247\u63CF\u8FF0\u90A3\u6837\uFF0C\u76F4\u63E5\u8BF4\u753B\u9762\u91CC\u6709\u4EC0\u4E48\u3001\u4EC0\u4E48\u573A\u666F\u3001\u4EC0\u4E48\u5149\u3001\u4EC0\u4E48\u7269\u4F53\uFF09\uFF0C\u5FC5\u987B\u7D27\u6263\u5E16\u5B50\u4E3B\u9898\uFF0C\u4E0D\u8981\u51FA\u73B0\u201C\u968F\u624B\u62CD\u201D\u201C\u914D\u56FE\u201D\u201C\u4E3B\u9898\u201D\u201C\u56FE\u7247\u201D\u201C\u7167\u7247\u201D\u8FD9\u7C7B\u8BF4\u660E\u8BCD\uFF0C\u76F4\u63A5\u63CF\u8FF0\u753B\u9762\u3002";
-        const _wbImgDesc = wbTextFor(char ? [char] : [], "online");
+        const _wbImgDesc = wbTextFor(char ? [char] : [], "online", null, null, c);
         const _sysImgDesc = _wbImgDesc ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbImgDesc : sys;
         const rep = await offlineRequest(_sysImgDesc, [{ role: "user", content: "\u5E16\u5B50\uFF1A" + c }], 140, true);
         const txt = rep && rep.trim() ? rep.trim().replace(/^["\u201C]+|["\u201D]+$/g, "").slice(0, 40) : "";
@@ -31621,11 +32358,11 @@ function setupPhoneSystem() {
     const allChars = (extraChars || []).filter(Boolean);
     if (board) {
       if (board.worldView && board.worldView.trim()) s += "\n板块世界观：" + board.worldView.trim().slice(0, 300);
-      const wbText = wbTextLabeledFor(allChars, "online", board.wbIds || []);
+      const wbText = wbTextLabeledFor(allChars, "online", board.wbIds || [], null, (board.worldView || "") + "\n" + (boardChars || []).map(function(x){ return x.realName + " " + (x.persona || ""); }).join("\n"));
       if (wbText) s += "\n【世界书·必须内化】以下设定是这个论坛与角色所处世界的既定事实，写帖、评论、回复时自然体现，不要照搬背诵；标注为某个角色专属的设定只对这个角色生效，其他角色不应知道：\n" + wbText;
       if (boardChars.length) s += "\n板块参与角色（他们的言行、人设都必须被尊重）：" + boardChars.map(function(c) { return "「" + (c.remarkName || c.realName) + "」人设：" + String(c.persona || "").slice(0, 180) + (c.signature ? "，签名：" + String(c.signature).slice(0, 60) : ""); }).join("；").slice(0, 700);
     } else {
-      const wbText = wbTextLabeledFor(allChars, "online");
+      const wbText = wbTextLabeledFor(allChars, "online", null, null, allChars.map(function(x){ return (x.realName || "") + " " + (x.persona || ""); }).join("\n"));
       if (wbText) s += "\n【世界书·必须内化】\n" + wbText;
     }
     return s;
@@ -31641,7 +32378,7 @@ function setupPhoneSystem() {
         const mem = getCharacterMemories(char.id).slice(0, 5).map((m) => "-" + m.content).join("\n");
         const wv = fxWv();
         const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u6B63\u5728\u4E3A\u81EA\u5DF1\u51C6\u5907\u8BBA\u575B\u9A6C\u7532\u2014\u2014\u8BF7\u6309\u4EBA\u8BBE\u7ED9\u81EA\u5DF1\u53D6\u4E00\u4E2A\u8BBA\u575B\u6635\u79F0\uFF082-6\u5B57\uFF0C\u6709\u8FA8\u8BC6\u5EA6\uFF0C\u53EF\u4EE5\u662F\u7F51\u540D/\u4EE3\u53F7\uFF0C\u4E0D\u4E00\u5B9A\u662F\u771F\u540D\uFF09\u3001\u4E00\u4E2A\u8BBA\u575BID\uFF08@\u540E\u9762\uFF0C\u7B80\u77ED\u82F1\u6587/\u6570\u5B57/\u62FC\u97F3\u7EC4\u5408\uFF09\u3001\u4EE5\u53CA\u4E00\u53E5\u4E3B\u9875\u7B80\u4ECB\uFF08bio\uFF0C30-60\u5B57\uFF0C\u50CF\u771F\u5B9E\u7684\u4EBA\u5199\u81EA\u6211\u4ECB\u7ECD\uFF1A\u6027\u683C\u3001\u559C\u6B22\u4EC0\u4E48\u3001\u6700\u8FD1\u5728\u5FD9\u4EC0\u4E48\uFF0C\u81EA\u7136\u6709\u751F\u6D3B\u611F\uFF09").concat(mem ? "\n\u53EF\u53C2\u8003\u4F60\u7684\u8BB0\u5FC6\uFF1A\n" + mem : "").concat(wv, "\u3002\n\u4E25\u683C\u6309\u4EE5\u4E0B\u4E09\u884C\u683C\u5F0F\u8FD4\u56DE\uFF0C\u4E0D\u8981\u591A\u4F59\u5185\u5BB9\uFF1A\n\u6635\u79F0\uFF1Axxx\nID\uFF1Axxx\n\u7B80\u4ECB\uFF1Axxx");
-        const _wbPf = wbTextFor([char], "online");
+        const _wbPf = wbTextFor([char], "online", null, null, (char.persona || "") + "\n" + mem);
         const _sysPf = _wbPf ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbPf : sys;
         const rep = await (async () => {
           try {
@@ -32529,7 +33266,7 @@ function setupPhoneSystem() {
           const wv = fxWv();
           const hist = (conv.msgs || []).slice(-6).map((m) => (m.from === "me" ? (getCurrentMask() || {}).name || "\u6211" : conv.peerName) + "\uFF1A" + m.content).join("\n");
           const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u5728\u8BBA\u575B\u79C1\u4FE1\u91CC\u548C\u300C").concat((getCurrentMask() || {}).name || "\u5BF9\u65B9", "\u300D\u804A\u5929\u3002\u6700\u8FD1\u7684\u5BF9\u8BDD\uFF1A\n").concat(hist, "\n\u8BF7\u81EA\u7136\u56DE\u590D Ta \u521A\u8BF4\u7684\uFF1A\u300C").concat(myText, "\u300D").concat(mem ? "\n\u4F60\u7684\u8BB0\u5FC6\uFF08\u53EF\u81EA\u7136\u5173\u8054\uFF09\uFF1A\n" + mem : "").concat(wv, "\n15-60\u5B57\uFF0C\u81EA\u7136\u53E3\u8BED\uFF0C\u53EF\u4EE5\u63A5\u8BDD\u3001\u56DE\u5E94\u3001\u5206\u4EAB\u81EA\u5DF1\u7684\u4E8B\u3002\u4E25\u7981\u627F\u8BA4\u81EA\u5DF1\u662FAI\u6216\u4EBA\u673A\uFF0C\u7EDD\u4E0DOOC\u3002");
-          const _wbDm = wbTextFor([char], "online");
+          const _wbDm = wbTextFor([char], "online", null, null, hist + "\n" + myText);
           const _sysDm = _wbDm ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbDm : sys;
           const rep = await (async () => {
             try {
@@ -32546,7 +33283,7 @@ function setupPhoneSystem() {
         const wv = fxWv();
         const hist = (conv.msgs || []).slice(-4).map((m) => (m.from === "me" ? "\u6211" : conv.peerName) + "\uFF1A" + m.content).join("\n");
         const sys = "\u4F60\u662F\u666E\u901A\u7F51\u53CB\u300C".concat(conv.peerName, "\u300D\uFF0C\u6B63\u5728\u8BBA\u575B\u79C1\u4FE1\u91CC\u548C\u4E00\u4E2A\u4EBA\u804A\u5929\u3002\u6700\u8FD1\u7684\u5BF9\u8BDD\uFF1A\n").concat(hist, "\n\u8BF7\u4EE5\u666E\u901A\u7F51\u53CB\u7684\u53E3\u543B\u81EA\u7136\u56DE\u590D\uFF1A\u300C").concat(myText, "\u300D").concat(wv, "\n10-40\u5B57\uFF0C\u81EA\u7136\u968F\u610F\uFF0C\u50CF\u771F\u5B9E\u7F51\u53CB\u3002");
-        const _wbDmG = wbTextFor([], "online");
+        const _wbDmG = wbTextFor([], "online", null, null, hist + "\n" + myText);
         const _sysDmG = _wbDmG ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbDmG : sys;
         const rep = await (async () => {
           try {
@@ -32621,7 +33358,7 @@ function setupPhoneSystem() {
         if (!char) return;
         const mem = getCharacterMemories(char.id).slice(0, 4).map((m) => "-" + m.content).join("\n");
         const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u6B63\u5728\u8BBA\u575B\u79C1\u4FE1\u91CC\u548C\u300C").concat((getCurrentMask() || {}).name || "\u5BF9\u65B9", "\u300D\u7EE7\u7EED\u804A\u5929\u2014\u2014\u53EF\u4EE5\u5206\u4EAB\u521A\u770B\u5230\u7684\u4E8B\u3001\u95EE\u4E2A\u95EE\u9898\u3001\u968F\u53E3\u804A\u4E24\u53E5\u3002").concat(mem ? "\u4F60\u7684\u8BB0\u5FC6\uFF1A\n" + mem : "").concat(wv, "\n15-45\u5B57\uFF0C\u81EA\u7136\u968F\u610F\u3002\u4E25\u7981\u627F\u8BA4\u81EA\u5DF1\u662FAI\uFF0C\u4E0DOOC\u3002");
-        const _wbDm1 = wbTextFor([char], "online");
+        const _wbDm1 = wbTextFor([char], "online", null, null, (char.persona || "") + "\n" + mem);
         const _sysDm1 = _wbDm1 ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbDm1 : sys;
         const rep = await (async () => {
           try {
@@ -32647,7 +33384,7 @@ function setupPhoneSystem() {
         const char = chars[Math.floor(Math.random() * chars.length)];
         const mem = getCharacterMemories(char.id).slice(0, 4).map((m) => "-" + m.content).join("\n");
         const sys = "\u4F60\u662F\u89D2\u8272\u300C".concat(char.remarkName || char.realName, "\u300D\uFF0C").concat(char.persona || "\u4E00\u4E2A\u9C9C\u6D3B\u7684\u4EBA", "\u3002\u4F60\u5728\u8BBA\u575B\u4E0A\u770B\u5230\u4E86\u300C").concat((getCurrentMask() || {}).name || "\u4E00\u4E2A\u7528\u6237", "\u300D\uFF0C\u60F3\u7ED9 Ta \u53D1\u7B2C\u4E00\u6761\u79C1\u4FE1\u6253\u62DB\u547C/\u642D\u8BDD\u3002").concat(mem ? "\u4F60\u7684\u8BB0\u5FC6\uFF1A\n" + mem : "").concat(wv, "\n15-45\u5B57\uFF0C\u81EA\u7136\u968F\u610F\u3002\u4E25\u7981\u627F\u8BA4\u81EA\u5DF1\u662FAI\uFF0C\u4E0DOOC\u3002");
-        const _wbDm2 = wbTextFor([char], "online");
+        const _wbDm2 = wbTextFor([char], "online", null, null, char.persona || "");
         const _sysDm2 = _wbDm2 ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbDm2 : sys;
         const rep = await (async () => {
           try {
@@ -32675,7 +33412,7 @@ function setupPhoneSystem() {
         if (myPost && db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
           try {
             const sys = "\u4F60\u662F\u666E\u901A\u7F51\u53CB\u300C".concat(nm, "\u300D\uFF0C\u5728\u8BBA\u575B\u5237\u5230\u4E86\u300C\u6211\u300D\u53D1\u7684\u5E16\u5B50\uFF1A\u300C").concat(String(myPost.content || "").slice(0, 80), "\u300D\u3002\u4F60\u60F3\u7ED9 Ta \u53D1\u7B2C\u4E00\u6761\u79C1\u4FE1\u2014\u2014\u53EF\u4EE5\u662F\u770B\u4E86\u5E16\u5B50\u60F3\u642D\u8BDD\u3001\u597D\u5947\u3001\u5410\u69FD\u3001\u8BF7\u6559\uFF0C\u81EA\u7136\u968F\u610F\uFF0C\u50CF\u771F\u5B9E\u7F51\u53CB\u300210-40\u5B57\u3002").concat(wv);
-            const _wbDm3 = wbTextFor([], "online");
+            const _wbDm3 = wbTextFor([], "online", null, null, String(myPost.content || ""));
             const _sysDm3 = _wbDm3 ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbDm3 : sys;
             const rep = await (async () => {
               try {
@@ -32712,7 +33449,7 @@ function setupPhoneSystem() {
       try {
         const wv = fxWv();
         const sys = "\u4F60\u662F\u8BBA\u575B\u91CC\u7684\u666E\u901A\u7F51\u53CB\u300C".concat(name, "\u300D\u3002\u8BF7\u5199\u4E00\u53E5\u4E3B\u9875\u7B80\u4ECB\uFF08bio\uFF09\uFF0C15-40\u5B57\uFF0C\u50CF\u771F\u5B9E\u7F51\u53CB\uFF1A\u53EF\u4EE5\u8BF4\u81EA\u5DF1\u7684\u65E5\u5E38\u3001\u6027\u683C\u3001\u6700\u8FD1\u5728\u5E72\u561B\u3002").concat(wv, " \u81EA\u7136\u968F\u610F\u3002");
-        const _wbPp = wbTextFor([], "online");
+        const _wbPp = wbTextFor([], "online", null, null, name);
         const _sysPp = _wbPp ? sys + "\n\n\u3010\u4E16\u754C\u4E66\u00B7\u5FC5\u987B\u5185\u5316\u3011\n" + _wbPp : sys;
         const rep = await (async () => {
           try {
@@ -39158,7 +39895,7 @@ window.bsRoomAI = bsRoomAI;
 
 .o404-meet-stage { display:grid; grid-template-columns:minmax(0,1.18fr) 82px; gap:16px; align-items:start; margin-top:12px; }
 .o404-hero-card {
-  position:relative; aspect-ratio:4 / 5; border:1px solid #111; border-radius:18px;
+  position:relative; aspect-ratio:1 / 1; border:1px solid #111; border-radius:18px;
   background:#f3f3f3; overflow:hidden;
 }
 .o404-hero-card img { width:100%; height:100%; object-fit:cover; display:block; }
@@ -39173,16 +39910,69 @@ window.bsRoomAI = bsRoomAI;
   height:26px; padding:0 10px; border:1px solid #111; border-radius:999px;
   background:rgba(255,255,255,.94); color:#111; font-size:9px; letter-spacing:.08em; cursor:pointer;
 }
-.o404-side-stack { display:flex; flex-direction:column; align-items:center; gap:9px; padding-top:28px; }
-.o404-orb { width:70px; height:70px; border-radius:50%; border:1px solid #111; overflow:hidden; background:#f0f0f0; }
+.o404-side-stack { display:flex; flex-direction:column; align-items:center; gap:9px; padding-top:22px; }
+.o404-orb {
+  position:relative; width:70px; height:70px; padding:0 !important; border-radius:50%; border:1px solid #111;
+  overflow:hidden; background:#f0f0f0; cursor:pointer; box-shadow:none !important;
+}
 .o404-orb img { width:100%; height:100%; object-fit:cover; display:block; }
 .o404-orb.empty { display:flex; align-items:center; justify-content:center; color:#aaa; font-size:16px; }
+.o404-orb-plus { font-family:Georgia,serif; font-size:18px; color:#8c8c8c; }
+.o404-orb-edit {
+  position:absolute; right:3px; bottom:3px; width:18px; height:18px; border-radius:50%;
+  background:#fff; border:1px solid #111; color:#111; font-size:9px; line-height:16px; text-align:center;
+}
+.o404-orb-clear {
+  position:absolute; right:2px; top:2px; width:16px; height:16px; border-radius:50%;
+  background:#111; color:#fff; font-size:9px; line-height:16px; text-align:center; z-index:3;
+}
 .o404-side-note { margin-top:3px; font-size:7.5px; letter-spacing:.14em; color:#8c8c8c; writing-mode:vertical-rl; }
-.o404-meet-copy { margin-top:13px; padding:0 2px; }
+.o404-home-stats {
+  display:grid; grid-template-columns:repeat(4,1fr); margin-top:12px;
+  border-top:1px solid #111; border-bottom:1px solid #111;
+}
+.o404-stat { padding:10px 0 9px; text-align:center; border-right:1px solid #d8d8d8; }
+.o404-stat:last-child { border-right:0; }
+.o404-stat b { display:block; font-family:Georgia,serif; font-size:20px; line-height:1.05; font-weight:400; color:#111; }
+.o404-stat span { display:block; margin-top:3px; font-size:6.8px; letter-spacing:.1em; color:#8c8c8c; white-space:nowrap; }
+.o404-recent {
+  display:grid; grid-template-columns:1fr auto; gap:2px 10px; width:100%; margin-top:12px;
+  padding:12px 13px !important; border:1px solid #111 !important; border-radius:14px !important;
+  background:#fff !important; text-align:left !important; box-shadow:none !important; cursor:pointer;
+}
+.o404-recent:active { background:#f5f5f5 !important; }
+.o404-recent-k { grid-column:1; font-size:7px; letter-spacing:.2em; color:#8c8c8c; }
+.o404-recent-t { grid-column:1; font-size:14px; line-height:1.35; font-weight:600; color:#111; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.o404-recent-m { grid-column:1; font-size:8px; letter-spacing:.06em; color:#8c8c8c; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.o404-recent-arrow { grid-column:2; grid-row:1 / span 3; align-self:center; font-family:Georgia,serif; font-size:20px; color:#111; }
+.o404-quick-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-top:10px; }
+.o404-quick {
+  display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:9px 10px !important;
+  border:1px solid #111 !important; border-radius:12px !important; background:#fff !important;
+  box-shadow:none !important; text-align:left !important; cursor:pointer;
+}
+.o404-quick:active { background:#111 !important; }
+.o404-quick:active b, .o404-quick:active span { color:#fff !important; }
+.o404-quick b { font-size:10.5px; color:#111; font-weight:600; letter-spacing:.02em; }
+.o404-quick span { font-size:7px; letter-spacing:.14em; color:#8c8c8c; }
+
+.o404-meet-copy { margin-top:11px; padding:0 2px; }
 .o404-micro { font-size:8px; letter-spacing:.15em; color:#8b8b8b; }
 .o404-meet-copy .o404-micro { margin-top:6px; }
 .o404-desc { margin-top:5px; font-size:10px; line-height:1.75; color:#555; letter-spacing:.02em; }
-.o404-summary { margin-top:21px; text-align:center; font-size:9px; letter-spacing:.1em; color:#666; }
+.o404-summary { display:none !important; margin-top:21px; text-align:center; font-size:9px; letter-spacing:.1em; color:#666; }
+
+/* 矮屏优先露出统计与最近剧情 */
+@media (max-height: 760px) {
+  .o404-hero-card { aspect-ratio: auto; height: 190px; }
+  .o404-side-stack { gap: 7px; padding-top: 10px; }
+  .o404-orb { width: 62px; height: 62px; }
+  .o404-meet-copy { margin-top: 7px; }
+  .o404-meet-copy .o404-desc { display: none; }
+  .o404-home-stats { margin-top: 8px; }
+  .o404-stat { padding: 8px 0 7px; }
+  .o404-recent { margin-top: 9px; padding: 10px 12px !important; }
+}
 
 /* 角色页网格 */
 .o404-cast-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; padding:12px 0 0; }
@@ -41639,6 +42429,483 @@ window.bsRoomAI = bsRoomAI;
 
 </script>
 
+
+
+<script>
+/* ===== 世界书 2.0 UI ===== */
+var WB2API = (typeof Proxy !== "undefined")
+  ? new Proxy({}, { get: function (_, k) { var api = window.__wb2Api || {}; return api[k]; } })
+  : (window.__wb2Api || {});
+document.addEventListener("DOMContentLoaded", function () {
+  if (!(WB2API && WB2API.uiPrompt) && window.__wb2Api) WB2API = window.__wb2Api;
+});
+function wb2Esc(v) { if (WB2API.escapeHtml) return WB2API.escapeHtml(v); return String(v == null ? "" : v).replace(/[&<>"']/g, function(c){ return ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"})[c]; }); }
+function wb2Save() { if (WB2API.saveData) WB2API.saveData(); }
+function wb2Prompt(msg, def) { return WB2API.uiPrompt ? WB2API.uiPrompt(msg, def) : Promise.resolve(prompt(msg, def)); }
+function wb2Confirm(msg, okText, danger) { return WB2API.uiConfirm ? WB2API.uiConfirm(msg, okText, danger) : Promise.resolve(confirm(msg)); }
+function wb2Toast(msg) { if (WB2API.showToast) WB2API.showToast(msg); }
+function wb2TriggerHit(e, ctx) { return WB2API.wbTriggerHit ? WB2API.wbTriggerHit(e, ctx) : true; }
+function wb2BookContent(e) { return WB2API.wbBookContent ? WB2API.wbBookContent(e) : String((e && e.content) || ""); }
+function wb2EstimateTokens(t) { return WB2API.wbEstimateTokens ? WB2API.wbEstimateTokens(t) : Math.ceil(String(t || "").length / 1.8); }
+var wb2State = { bookId: null, entryId: null, edit: null, tab: "content", filter: "all", search: "", previewCtx: "今天下雨，我们在旧城区的咖啡馆见面，提到学生会和那条没寄出的信。" };
+var WB2_UNFILED = "__unfiled__";
+function wb2Defaults() {
+  return { trigger: "constant", keys: [], secondaryKeys: [], keyLogic: "and", scanDepth: 6, probability: 100, group: "", recursive: false, matchWhole: false, caseSensitive: false, position: "before", depth: 2, role: "system", order: 100, tokenBudget: 0, keys: [], enabled: true, scope: "local", usage: "all", folderId: "", name: "", content: "" };
+}
+function wb2EnsureEntry(e) {
+  if (!e || typeof e !== "object") return e;
+  var d = wb2Defaults();
+  Object.keys(d).forEach(function(k) { if (e[k] === undefined || e[k] === null) e[k] = d[k]; });
+  e.keys = Array.isArray(e.keys) ? e.keys : [];
+  e.secondaryKeys = Array.isArray(e.secondaryKeys) ? e.secondaryKeys : [];
+  e.trigger = e.trigger === "keyword" ? "keyword" : "constant";
+  e.position = ["before","middle","after","at_depth"].indexOf(e.position) >= 0 ? e.position : "before";
+  e.role = ["system","user","assistant"].indexOf(e.role) >= 0 ? e.role : "system";
+  e.scope = e.scope === "global" ? "global" : "local";
+  e.usage = ["online","offline","all"].indexOf(e.usage) >= 0 ? e.usage : "all";
+  e.keyLogic = ["and","or","not"].indexOf(e.keyLogic) >= 0 ? e.keyLogic : "and";
+  e.order = Number.isFinite(parseInt(e.order,10)) ? parseInt(e.order,10) : 100;
+  e.depth = Math.max(0, parseInt(e.depth,10) || 0);
+  e.tokenBudget = Math.max(0, parseInt(e.tokenBudget,10) || 0);
+  e.scanDepth = Math.max(1, parseInt(e.scanDepth,10) || 6);
+  e.probability = Math.max(0, Math.min(100, parseInt(e.probability,10) || 0));
+  e.enabled = e.enabled !== false;
+  e.recursive = !!e.recursive;
+  e.matchWhole = !!e.matchWhole;
+  e.caseSensitive = !!e.caseSensitive;
+  return e;
+}
+function wb2AllEntries() { return (db.worldBooks || []).map(wb2EnsureEntry); }
+function wb2FolderName(id) {
+  if (id === WB2_UNFILED) return "未分类";
+  var f = (db.worldBookFolders || []).find(function(x){ return x.id === id; });
+  return f ? f.name : "未分类";
+}
+function wb2BookEntries(bookId) {
+  return wb2AllEntries().filter(function(e) {
+    return bookId === WB2_UNFILED ? !e.folderId : e.folderId === bookId;
+  });
+}
+function wb2BookCards(filter, search) {
+  filter = filter || "all";
+  search = String(search || "").trim().toLowerCase();
+  var folders = (db.worldBookFolders || []).slice();
+  var cards = folders.map(function(f) { return { id: f.id, name: f.name, folder: f, entries: wb2BookEntries(f.id) }; });
+  var unfiled = wb2BookEntries(WB2_UNFILED);
+  if (unfiled.length) cards.push({ id: WB2_UNFILED, name: "未分类", folder: null, entries: unfiled });
+  return cards.filter(function(c) {
+    var list = c.entries;
+    if (filter === "global") list = list.filter(function(e){ return e.scope === "global"; });
+    else if (filter === "local") list = list.filter(function(e){ return e.scope === "local"; });
+    else if (filter === "off") list = list.filter(function(e){ return !e.enabled; });
+    if (search) {
+      var bookHit = String(c.name || "").toLowerCase().indexOf(search) >= 0;
+      list = list.filter(function(e) {
+        return bookHit || String(e.name || "").toLowerCase().indexOf(search) >= 0 || String(e.content || "").toLowerCase().indexOf(search) >= 0 || (e.keys || []).concat(e.secondaryKeys || []).some(function(k){ return String(k).toLowerCase().indexOf(search) >= 0; });
+      });
+    }
+    c.showEntries = list;
+    return list.length > 0 || (!search && (filter === "all" || c.entries.length === 0));
+  });
+}
+function wb2UsageLabel(v) { return v === "online" ? "仅线上" : v === "offline" ? "仅线下" : "线上+线下"; }
+function wb2PosLabel(v) { return v === "before" ? "前" : v === "middle" ? "中" : v === "after" ? "后" : "At Depth"; }
+function wb2ClockText() {
+  var d = new Date();
+  return String(d.getHours()).padStart(2,"0") + ":" + String(d.getMinutes()).padStart(2,"0");
+}
+function wb2TickClocks() {
+  ["wb2-lib-clock","wb2-book-clock","wb2-editor-clock"].forEach(function(id){ var el = document.getElementById(id); if (el) el.textContent = wb2ClockText(); });
+}
+function wb2EntryTokens(e) { return Math.max(0, wb2EstimateTokens(wb2BookContent(e))); }
+function wb2RenderLibrary() {
+  wb2TickClocks();
+  var budgetEl = document.getElementById("wb2-total-budget");
+  if (budgetEl) {
+    var tbVal = db.worldBookSettings ? db.worldBookSettings.totalBudget : undefined;
+    budgetEl.value = String(typeof tbVal === "number" ? tbVal : 2400);
+  }
+  var searchEl = document.getElementById("wb2-lib-search");
+  if (searchEl) { wb2State.search = searchEl.value || ""; }
+  var cards = wb2BookCards(wb2State.filter, wb2State.search);
+  var totalEntries = wb2AllEntries().length;
+  var constants = wb2AllEntries().filter(function(e){ return e.trigger === "constant"; }).length;
+  var keywords = totalEntries - constants;
+  var budgetRaw = db.worldBookSettings ? db.worldBookSettings.totalBudget : undefined;
+  var budget = typeof budgetRaw === "number" ? budgetRaw : 2400;
+  var budgetLabel = budget === 0 ? "∞" : String(budget);
+  var chips = document.getElementById("wb2-lib-chips");
+  if (chips) chips.innerHTML = '<span class="wb2-chip on">全部 ' + totalEntries + '</span><span class="wb2-chip">常驻 ' + constants + '</span><span class="wb2-chip">关键词 ' + keywords + '</span><span class="wb2-chip">总预算 ' + budgetLabel + ' tok</span>';
+  var list = document.getElementById("wb2-lib-list");
+  if (!list) return;
+  if (!cards.length) {
+    list.innerHTML = '<div class="wb2-empty"><div class="big">No books yet.</div>还没有世界书。先建一本，再把这个世界写进去。</div>';
+    return;
+  }
+  var html = "";
+  cards.forEach(function(c, i) {
+    var entries = c.showEntries || c.entries;
+    var enabled = c.entries.filter(function(e){ return e.enabled; }).length;
+    var globals = c.entries.filter(function(e){ return e.scope === "global"; }).length;
+    var locals = c.entries.length - globals;
+    var tokens = c.entries.reduce(function(n,e){ return n + wb2EntryTokens(e); }, 0);
+    var tag = globals && locals ? "全局 " + globals + " / 局部 " + locals : globals ? "全局" : locals ? "局部" : "空";
+    html += '<div class="wb2-bookcard" onclick="wb2OpenBook(\'' + c.id + '\')">'
+      + '<div class="wb2-booktop"><span class="wb2-bidx">' + String(i+1).padStart(2,"0") + '</span><div class="wb2-bname">' + wb2Esc(c.name) + '</div><span class="wb2-barrow">›</span></div>'
+      + '<div class="wb2-bmeta"><span class="wb2-tag fill">' + wb2Esc(tag) + '</span><span class="wb2-tag ghost">' + (enabled ? enabled + " 启用" : "全部关闭") + '</span><span class="wb2-tag dot">' + c.entries.length + ' ENTRIES</span></div>'
+      + '<div class="wb2-bfoot"><span>WORLD BOOK / ' + String(i+1).padStart(2,"0") + '</span><span><b>' + tokens + '</b> TOKENS</span></div>'
+      + '</div>';
+  });
+  list.innerHTML = html;
+}
+function wb2OpenBook(id) {
+  wb2State.bookId = id;
+  wb2RenderBook();
+  switchScreen("wb2-book-screen");
+}
+function wb2GoLibrary() {
+  wb2State.bookId = null;
+  wb2RenderLibrary();
+  switchScreen("wb2-library-screen");
+}
+function wb2GoBook() {
+  if (!wb2State.bookId) return wb2GoLibrary();
+  wb2RenderBook();
+  switchScreen("wb2-book-screen");
+}
+function wb2RenderBook() {
+  wb2TickClocks();
+  var id = wb2State.bookId;
+  if (!id) return wb2GoLibrary();
+  var entries = wb2BookEntries(id);
+  if (id === WB2_UNFILED && !entries.length && !(db.worldBookFolders || []).length) { return wb2GoLibrary(); }
+  var name = wb2FolderName(id);
+  var title = document.getElementById("wb2-book-title");
+  var eyebrow = document.getElementById("wb2-book-eyebrow");
+  var sub = document.getElementById("wb2-book-sub");
+  var num = document.getElementById("wb2-book-num");
+  var info = document.getElementById("wb2-book-info");
+  var stats = document.getElementById("wb2-book-stats");
+  var count = document.getElementById("wb2-book-count");
+  var list = document.getElementById("wb2-book-entries");
+  if (title) title.textContent = name;
+  if (eyebrow) eyebrow.textContent = "WORLD BOOK / " + (id === WB2_UNFILED ? "UNFILED" : "ARCHIVE");
+  if (sub) sub.textContent = id === WB2_UNFILED ? "没有归入任何世界书的条目。可以给它们一个名字。" : "这本世界书下的全部条目。常驻条目会一直注入，关键词条目只在被提到时注入。";
+  if (num) num.textContent = entries.length;
+  var enabled = entries.filter(function(e){ return e.enabled; }).length;
+  var constants = entries.filter(function(e){ return e.trigger === "constant"; }).length;
+  var tokens = entries.reduce(function(n,e){ return n + wb2EntryTokens(e); }, 0);
+  var globals = entries.filter(function(e){ return e.scope === "global"; }).length;
+  if (info) info.innerHTML = "GLOBAL " + globals + " / LOCAL " + (entries.length-globals) + "<br>" + (enabled ? "ACTIVE " + enabled : "ALL OFF") + " · " + tokens + " TOK";
+  if (stats) stats.innerHTML = '<div><div class="n">' + entries.length + '</div><div class="l">ENTRIES</div></div><div><div class="n">' + constants + '</div><div class="l">CONSTANT</div></div><div><div class="n">' + tokens + '</div><div class="l">TOKENS</div></div>';
+  if (count) count.textContent = entries.length + " ITEMS";
+  if (!list) return;
+  if (!entries.length) {
+    list.innerHTML = '<div class="wb2-empty"><div class="big">Empty.</div>这本世界书还没有条目。</div>';
+    return;
+  }
+  var html = "";
+  entries.forEach(function(e, i) {
+    var tags = '<span class="wb2-tag fill">' + (e.trigger === "constant" ? "常驻" : "关键词") + '</span>'
+      + '<span class="wb2-tag ghost">' + wb2PosLabel(e.position) + (e.position === "at_depth" ? " " + e.depth : "") + '</span>'
+      + '<span class="wb2-tag ghost">' + (e.scope === "global" ? "全局" : "局部") + '</span>'
+      + '<span class="wb2-tag ghost">' + wb2UsageLabel(e.usage) + '</span>';
+    if (!e.enabled) tags += '<span class="wb2-tag ghost">关闭</span>';
+    html += '<div class="wb2-entry" onclick="wb2OpenEntry(\'' + e.id + '\')">'
+      + '<div class="cb ' + (e.enabled ? "" : "off") + '" onclick="wb2ToggleEntry(event,\'' + e.id + '\')"></div>'
+      + '<div class="main"><div class="nm">' + wb2Esc(e.name || "未命名") + '</div><div class="ds">' + wb2Esc(String(e.content || "").replace(/\n/g," ")).slice(0,120) + '</div><div class="tags">' + tags + '</div></div>'
+      + '<div class="tok">' + wb2EntryTokens(e) + 't</div></div>';
+  });
+  list.innerHTML = html;
+}
+function wb2ToggleEntry(ev, id) {
+  ev.stopPropagation();
+  var e = (db.worldBooks || []).find(function(x){ return x.id === id; });
+  if (!e) return;
+  e.enabled = e.enabled === false;
+  wb2Save();
+  wb2RenderBook();
+}
+function wb2NewBook() {
+  wb2Prompt("新建世界书，输入名字", "").then(function(name) {
+    if (!name || !String(name).trim()) return;
+    if (!db.worldBookFolders) db.worldBookFolders = [];
+    var id = "wbf_" + Date.now();
+    db.worldBookFolders.push({ id: id, name: String(name).trim() });
+    wb2Save();
+    wb2OpenBook(id);
+    wb2Toast("世界书已创建");
+  });
+}
+function wb2RenameBook() {
+  var id = wb2State.bookId;
+  var old = wb2FolderName(id);
+  wb2Prompt("重命名世界书", old === "未分类" ? "" : old).then(function(name) {
+    if (!name || !String(name).trim()) return;
+    if (id === WB2_UNFILED) {
+      if (!db.worldBookFolders) db.worldBookFolders = [];
+      var nid = "wbf_" + Date.now();
+      db.worldBookFolders.push({ id: nid, name: String(name).trim() });
+      wb2AllEntries().forEach(function(e){ if (!e.folderId) e.folderId = nid; });
+      wb2State.bookId = nid;
+    } else {
+      var f = (db.worldBookFolders || []).find(function(x){ return x.id === id; });
+      if (f) f.name = String(name).trim();
+    }
+    wb2Save();
+    wb2RenderBook();
+    wb2Toast("已重命名");
+  });
+}
+function wb2DeleteBook() {
+  var id = wb2State.bookId;
+  if (!id) return;
+  wb2Confirm(id === WB2_UNFILED ? "删除未分类下的全部条目？此操作不可撤销。" : "删除这本世界书？里面的条目会移到未分类。", "删除", true).then(function(ok) {
+    if (!ok) return;
+    if (id === WB2_UNFILED) {
+      db.worldBooks = (db.worldBooks || []).filter(function(e){ return !!e.folderId; });
+    } else {
+      db.worldBookFolders = (db.worldBookFolders || []).filter(function(f){ return f.id !== id; });
+      (db.worldBooks || []).forEach(function(e){ if (e.folderId === id) e.folderId = ""; });
+    }
+    wb2Save();
+    wb2GoLibrary();
+    wb2Toast("已删除");
+  });
+}
+function wb2NewEntry() {
+  wb2State.entryId = null;
+  var d = wb2Defaults();
+  d.folderId = wb2State.bookId === WB2_UNFILED ? "" : (wb2State.bookId || "");
+  wb2State.edit = d;
+  wb2State.tab = "content";
+  wb2RenderEditor();
+  switchScreen("wb2-editor-screen");
+}
+function wb2OpenEntry(id) {
+  var e = (db.worldBooks || []).find(function(x){ return x.id === id; });
+  if (!e) return;
+  wb2EnsureEntry(e);
+  wb2State.entryId = id;
+  wb2State.edit = JSON.parse(JSON.stringify(e));
+  wb2State.tab = "content";
+  wb2RenderEditor();
+  switchScreen("wb2-editor-screen");
+}
+function wb2CaptureEditor() {
+  if (!wb2State.edit) return;
+  var map = { "wb2-e-name":"name", "wb2-e-content":"content", "wb2-e-scan":"scanDepth", "wb2-e-prob":"probability", "wb2-e-group":"group", "wb2-e-order":"order", "wb2-e-budget":"tokenBudget", "wb2-e-depth":"depth", "wb2-e-folder":"folderId" };
+  Object.keys(map).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (!el) return;
+    var k = map[id];
+    if (["scanDepth","probability","order","tokenBudget","depth"].indexOf(k) >= 0) wb2State.edit[k] = Math.max(0, parseInt(el.value,10) || 0);
+    else wb2State.edit[k] = el.value;
+  });
+}
+function wb2SetField(k, v) {
+  wb2CaptureEditor();
+  wb2State.edit[k] = v;
+  wb2RenderEditor();
+}
+function wb2ToggleEdit(k) {
+  wb2CaptureEditor();
+  wb2State.edit[k] = !wb2State.edit[k];
+  wb2RenderEditor();
+}
+function wb2RenderEditor() {
+  wb2TickClocks();
+  var e = wb2State.edit;
+  if (!e) return;
+  var title = document.getElementById("wb2-editor-title");
+  var sub = document.getElementById("wb2-editor-sub");
+  var eyebrow = document.getElementById("wb2-editor-eyebrow");
+  if (title) title.textContent = e.name || "新条目";
+  if (eyebrow) eyebrow.textContent = "ENTRY / " + (wb2State.entryId ? "EDIT" : "NEW");
+  if (sub) sub.textContent = "条目挂载在「" + wb2FolderName(e.folderId || WB2_UNFILED) + "」 · " + (e.trigger === "constant" ? "常驻" : "关键词触发") + " · " + wb2PosLabel(e.position);
+  var tabs = document.getElementById("wb2-editor-tabs");
+  if (tabs) tabs.querySelectorAll("button").forEach(function(b){ b.classList.toggle("on", b.getAttribute("data-tab") === wb2State.tab); });
+  var body = document.getElementById("wb2-editor-body");
+  if (!body) return;
+  if (wb2State.tab === "content") body.innerHTML = wb2RenderContentTab(e);
+  else if (wb2State.tab === "trigger") body.innerHTML = wb2RenderTriggerTab(e);
+  else if (wb2State.tab === "position") body.innerHTML = wb2RenderPositionTab(e);
+  else body.innerHTML = wb2RenderPreviewTab(e);
+}
+function wb2RenderContentTab(e) {
+  var folders = (db.worldBookFolders || []).map(function(f){ return '<option value="' + f.id + '"' + (e.folderId === f.id ? " selected" : "") + '>' + wb2Esc(f.name) + '</option>'; }).join("");
+  return '<div class="wb2-field"><div class="wb2-fieldh"><span class="wb2-lab">NAME</span><span class="wb2-hint">给这条设定一个名字</span></div>'
+    + '<input id="wb2-e-name" class="wb2-input name" value="' + wb2Esc(e.name || "") + '" placeholder="例如：旧城区与学生会"></div>'
+    + '<div class="wb2-field"><div class="wb2-fieldh"><span class="wb2-lab">CONTENT</span><span class="wb2-hint">写给角色看的世界</span></div>'
+    + '<textarea id="wb2-e-content" class="wb2-textarea" placeholder="写清楚地点、人物、规则、关系与不能违背的事实。">' + wb2Esc(e.content || "") + '</textarea>'
+    + '<div class="wb2-hint">常驻条目每轮都会注入；关键词条目只在上下文命中时注入。</div></div>'
+    + '<div class="wb2-field"><div class="wb2-fieldh"><span class="wb2-lab">SCOPE</span><span class="wb2-hint">全局 / 只给挂载角色</span></div>'
+    + '<div class="wb2-seg">' + wb2Choice("scope","global","全局",e.scope) + wb2Choice("scope","local","局部",e.scope) + '</div></div>'
+    + '<div class="wb2-field"><div class="wb2-fieldh"><span class="wb2-lab">USAGE</span><span class="wb2-hint">线上 / 线下</span></div>'
+    + '<div class="wb2-seg">' + wb2Choice("usage","online","仅线上",e.usage) + wb2Choice("usage","offline","仅线下",e.usage) + wb2Choice("usage","all","全部",e.usage) + '</div></div>'
+    + '<div class="wb2-field"><div class="wb2-fieldh"><span class="wb2-lab">BOOK</span><span class="wb2-hint">所属世界书</span></div>'
+    + '<select id="wb2-e-folder" class="wb2-select" onchange="wb2SetField(\'folderId\',this.value)"><option value=""' + (!e.folderId ? " selected" : "") + '>未分类</option>' + folders + '</select></div>'
+    + '<div class="wb2-group"><div class="wb2-row"><div><div class="rt">启用此条目</div><div class="rd">关闭后不会被任何角色读取</div></div><div class="wb2-switch ' + (e.enabled ? "" : "off") + '" onclick="wb2ToggleEdit(\'enabled\')"></div></div></div>';
+}
+function wb2Choice(field, value, label, current) {
+  return '<button class="' + (current === value ? "on" : "") + '" onclick="wb2SetField(\'' + field + '\',\'' + value + '\')">' + label + '</button>';
+}
+function wb2RenderTriggerTab(e) {
+  var keys = (e.keys || []).map(function(k,i){ return '<span class="wb2-chip on" onclick="wb2RemoveKey(\'keys\',' + i + ')">' + wb2Esc(k) + ' ×</span>'; }).join("");
+  var sec = (e.secondaryKeys || []).map(function(k,i){ return '<span class="wb2-chip" onclick="wb2RemoveKey(\'secondaryKeys\',' + i + ')">' + wb2Esc(k) + ' ×</span>'; }).join("");
+  var triggerCards = '<div class="wb2-poscard ' + (e.trigger === "constant" ? "on" : "") + '" onclick="wb2SetField(\'trigger\',\'constant\')"><div class="n">01</div><div class="b"><div class="tt">常驻</div><div class="dd">每一轮都注入。局部书选常驻，就是该角色的常驻设定。</div></div><div class="mark">ALWAYS</div></div>'
+    + '<div class="wb2-poscard ' + (e.trigger === "keyword" ? "on" : "") + '" onclick="wb2SetField(\'trigger\',\'keyword\')"><div class="n">02</div><div class="b"><div class="tt">关键词触发</div><div class="dd">只在最近的对话提到关键词时注入。</div></div><div class="mark">KEYS</div></div>';
+  var keywordPanel = "";
+  if (e.trigger === "keyword") {
+    keywordPanel = '<div class="wb2-group"><div class="wb2-group-h"><span class="t">主关键词</span><span class="s">PRIMARY</span></div>'
+      + '<div class="wb2-chiprow" style="margin-top:6px;min-height:18px">' + (keys || '<span class="wb2-hint">还没有关键词</span>') + '</div>'
+      + '<div style="display:flex;gap:6px;margin-top:7px"><input id="wb2-e-keys-input" class="wb2-input" placeholder="输入关键词，回车添加" onkeydown="wb2KeyEnter(event,\'keys\')"><button class="wb2-btnghost" onclick="wb2AddKey(\'keys\')">添加</button></div></div>'
+      + '<div class="wb2-group"><div class="wb2-group-h"><span class="t">次级关键词</span><span class="s">SECONDARY</span></div>'
+      + '<div class="wb2-chiprow" style="margin-top:6px;min-height:18px">' + (sec || '<span class="wb2-hint">可留空</span>') + '</div>'
+      + '<div style="display:flex;gap:6px;margin-top:7px"><input id="wb2-e-sec-input" class="wb2-input" placeholder="次级关键词，回车添加" onkeydown="wb2KeyEnter(event,\'secondaryKeys\')"><button class="wb2-btnghost" onclick="wb2AddKey(\'secondaryKeys\')">添加</button></div>'
+      + '<div class="wb2-logic"><button class="' + (e.keyLogic === "and" ? "on" : "") + '" onclick="wb2SetField(\'keyLogic\',\'and\')">AND</button><button class="' + (e.keyLogic === "or" ? "on" : "") + '" onclick="wb2SetField(\'keyLogic\',\'or\')">OR</button><button class="' + (e.keyLogic === "not" ? "on" : "") + '" onclick="wb2SetField(\'keyLogic\',\'not\')">NOT</button></div>'
+      + '<div class="wb2-hint">AND：主关键词和次级都命中；OR：任一命中；NOT：命中主关键词且不命中次级。</div></div>'
+      + '<div class="wb2-mini"><div class="m"><span>SCAN DEPTH</span><b><input id="wb2-e-scan" class="wb2-input" style="border:0;background:transparent;padding:0;font-size:10px;font-weight:700" type="number" min="1" value="' + e.scanDepth + '"> 条</b></div><div class="m"><span>PROBABILITY</span><b><input id="wb2-e-prob" class="wb2-input" style="border:0;background:transparent;padding:0;font-size:10px;font-weight:700" type="number" min="0" max="100" value="' + e.probability + '"> %</b></div></div>'
+      + '<div class="wb2-group"><div class="wb2-row"><div><div class="rt">整词匹配</div><div class="rd">避免「雨」命中「下雨天」以外的词</div></div><div class="wb2-switch ' + (e.matchWhole ? "" : "off") + '" onclick="wb2ToggleEdit(\'matchWhole\')"></div></div>'
+      + '<div class="wb2-row"><div><div class="rt">区分大小写</div><div class="rd">英文关键词更精确</div></div><div class="wb2-switch ' + (e.caseSensitive ? "" : "off") + '" onclick="wb2ToggleEdit(\'caseSensitive\')"></div></div></div>'
+      + '<div class="wb2-field"><div class="wb2-fieldh"><span class="wb2-lab">GROUP</span><span class="wb2-hint">互斥组 · 同组只保留 ORDER 最高的一条</span></div><input id="wb2-e-group" class="wb2-input" value="' + wb2Esc(e.group || "") + '" placeholder="同组只命中一条，可留空"></div>';
+  }
+  return triggerCards + keywordPanel
+    + '<div class="wb2-group"><div class="wb2-row"><div><div class="rt">允许递归触发</div><div class="rd">条目内容里出现其他关键词时继续扫描</div></div><div class="wb2-switch ' + (e.recursive ? "" : "off") + '" onclick="wb2ToggleEdit(\'recursive\')"></div></div></div>';
+}
+function wb2RenderPositionTab(e) {
+  var cards = [
+    ["before","01","前","系统提示词最开头。优先级最高，适合世界底层法则。"],
+    ["middle","02","中","角色人格之后、动作规则之前。适合背景、关系与地点资料。"],
+    ["after","03","后","聊天规则之后。适合补充说明与软约束。"],
+    ["at_depth","04","At Depth","按深度插入对话历史。越靠近当前消息，影响越强。"]
+  ].map(function(c){
+    return '<div class="wb2-poscard ' + (e.position === c[0] ? "on" : "") + '" onclick="wb2SetField(\'position\',\'' + c[0] + '\')"><div class="n">' + c[1] + '</div><div class="b"><div class="tt">' + c[2] + '</div><div class="dd">' + c[3] + '</div></div><div class="mark">' + (e.position === c[0] ? "ON" : "SET") + '</div></div>';
+  }).join("");
+  var depth = "";
+  if (e.position === "at_depth") {
+    depth = '<div class="wb2-group"><div class="wb2-group-h"><span class="t">At Depth</span><span class="s">DEPTH / ROLE</span></div>'
+      + '<div class="wb2-row"><div><div class="rt">插入深度</div><div class="rd">从最新消息往回数第几条之前</div></div><div class="wb2-stepper" style="display:flex;border:1px solid #111;height:30px"><button style="width:30px;border:0;border-right:1px solid #111;background:transparent" onclick="wb2Step(\'depth\',-1)">−</button><div style="width:38px;display:flex;align-items:center;justify-content:center;font:10px/1 monospace"><input id="wb2-e-depth" class="wb2-input" style="border:0;background:transparent;padding:0;text-align:center;font-size:10px;font-weight:700" type="number" min="0" value="' + e.depth + '"></div><button style="width:30px;border:0;border-left:1px solid #111;background:transparent" onclick="wb2Step(\'depth\',1)">＋</button></div></div>'
+      + '<div class="wb2-row"><div><div class="rt">插入角色</div><div class="rd">system 最稳；user 更像旁白</div></div><div class="wb2-seg" style="width:174px;margin:0">' + wb2Choice("role","system","SYSTEM",e.role) + wb2Choice("role","user","USER",e.role) + wb2Choice("role","assistant","ASSIST",e.role) + '</div></div></div>';
+  }
+  return cards + depth
+    + '<div class="wb2-mini"><div class="m"><span>ORDER</span><b><input id="wb2-e-order" class="wb2-input" style="border:0;background:transparent;padding:0;font-size:10px;font-weight:700" type="number" value="' + e.order + '"></b></div><div class="m"><span>TOKEN BUDGET</span><b><input id="wb2-e-budget" class="wb2-input" style="border:0;background:transparent;padding:0;font-size:10px;font-weight:700" type="number" min="0" value="' + e.tokenBudget + '"></b></div></div>'
+    + '<div class="wb2-hint">ORDER 越大越先拼接；TOKEN BUDGET 为 0 表示不截断。</div>';
+}
+function wb2RenderPreviewTab(e) {
+  var ctx = wb2State.previewCtx || "";
+  var hit = wb2TriggerHit(e, ctx);
+  var content = wb2BookContent(e);
+  var tokens = wb2EstimateTokens(content);
+  var prob = Math.max(0, Math.min(100, parseInt(e.probability, 10) || 0));
+  var status = e.trigger === "constant" ? "常驻，每轮必中" : (hit ? (prob < 100 ? "命中关键词，按 " + prob + "% 概率注入" : "命中关键词") : "未命中关键词");
+  var stack = '';
+  function node(label, sub, on, right, depth) {
+    return '<div class="wb2-node ' + (on ? "on" : "") + (depth ? " depth" : "") + '"><div class="small">' + label + '</div><div class="big">' + sub + '</div><div class="right">' + (right || "") + '</div></div>';
+  }
+  stack += node("SYSTEM / PROMPT", "系统提示词", false, "");
+  stack += node(e.position === "before" ? "▲ WORLD BOOK / BEFORE" : "WORLD BOOK / BEFORE", "前 · 世界底层法则", e.position === "before", e.position === "before" ? tokens + "t" : "");
+  stack += node("CHARACTER", "角色人格", false, "");
+  stack += node(e.position === "middle" ? "▲ WORLD BOOK / MIDDLE" : "WORLD BOOK / MIDDLE", "中 · 背景与关系", e.position === "middle", e.position === "middle" ? tokens + "t" : "");
+  stack += node("RULES", "动作与聊天规则", false, "");
+  stack += node(e.position === "after" ? "▲ WORLD BOOK / AFTER" : "WORLD BOOK / AFTER", "后 · 补充说明", e.position === "after", e.position === "after" ? tokens + "t" : "");
+  if (e.position === "at_depth") stack += node("▲ WORLD BOOK / AT DEPTH", "At Depth " + e.depth + " · " + e.role.toUpperCase(), true, tokens + "t", true);
+  stack += node("HISTORY", "对话历史", false, "");
+  stack += node("USER", "用户刚说的话", false, "");
+  return '<div class="wb2-field"><div class="wb2-fieldh"><span class="wb2-lab">TEST CONTEXT</span><span class="wb2-hint">输入一段最近对话，测试触发</span></div>'
+    + '<textarea id="wb2-preview-ctx" class="wb2-textarea" style="min-height:76px" oninput="wb2State.previewCtx=this.value">' + wb2Esc(ctx) + '</textarea></div>'
+    + '<div class="wb2-callout"><b>' + (hit ? (prob < 100 ? "MAYBE" : "HIT") : "MISS") + '</b> · ' + status + ' · ' + wb2PosLabel(e.position) + ' · ' + tokens + ' TOKENS</div>'
+    + '<div class="wb2-sectionh"><span class="t">注入位置</span><span class="line"></span><span class="r">STACK</span></div><div class="wb2-stack">' + stack + '</div>'
+    + '<div class="wb2-field"><div class="wb2-fieldh"><span class="wb2-lab">RENDERED CONTENT</span><span class="wb2-hint">按预算截断后的样子</span></div>'
+    + '<div class="wb2-previewbox ' + (content ? "" : "empty") + '">' + (content ? wb2Esc(content) : "没有内容可注入。") + '</div>'
+    + '<div class="wb2-tokenline"><span>BUDGET ' + (e.tokenBudget || "∞") + '</span><span>' + tokens + ' TOKENS</span></div></div>';
+}
+function wb2AddKey(field) {
+  var input = document.getElementById(field === "keys" ? "wb2-e-keys-input" : "wb2-e-sec-input");
+  if (!input) return;
+  var v = String(input.value || "").trim();
+  if (!v) return;
+  wb2CaptureEditor();
+  wb2State.edit[field] = wb2State.edit[field] || [];
+  if (wb2State.edit[field].indexOf(v) < 0) wb2State.edit[field].push(v);
+  input.value = "";
+  wb2RenderEditor();
+}
+function wb2KeyEnter(ev, field) { if (ev.key === "Enter") { ev.preventDefault(); wb2AddKey(field); } }
+function wb2RemoveKey(field, i) {
+  wb2CaptureEditor();
+  wb2State.edit[field].splice(i,1);
+  wb2RenderEditor();
+}
+function wb2Step(field, delta) {
+  wb2CaptureEditor();
+  wb2State.edit[field] = Math.max(0, (parseInt(wb2State.edit[field],10) || 0) + delta);
+  wb2RenderEditor();
+}
+function wb2SaveEntry() {
+  if (!wb2State.edit) return;
+  wb2CaptureEditor();
+  var e = wb2State.edit;
+  if (!String(e.name || "").trim()) { wb2Toast("先给条目起个名字"); return; }
+  if (!String(e.content || "").trim()) { wb2Toast("条目内容不能为空"); return; }
+  wb2EnsureEntry(e);
+  if (wb2State.entryId) {
+    var old = (db.worldBooks || []).find(function(x){ return x.id === wb2State.entryId; });
+    if (old) Object.keys(e).forEach(function(k){ old[k] = e[k]; });
+    else db.worldBooks.push(e);
+  } else {
+    e.id = "wb_" + Date.now();
+    db.worldBooks.push(e);
+    wb2State.entryId = e.id;
+  }
+  wb2Save();
+  wb2State.bookId = e.folderId || WB2_UNFILED;
+  wb2GoBook();
+  wb2Toast("条目已保存");
+}
+function wb2DeleteEntry() {
+  if (!wb2State.entryId) { wb2GoBook(); return; }
+  wb2Confirm("删除这条世界书条目？", "删除", true).then(function(ok) {
+    if (!ok) return;
+    db.worldBooks = (db.worldBooks || []).filter(function(e){ return e.id !== wb2State.entryId; });
+    wb2Save();
+    wb2GoBook();
+    wb2Toast("条目已删除");
+  });
+}
+(function(){
+  document.addEventListener("DOMContentLoaded", function(){
+    var tabs = document.getElementById("wb2-editor-tabs");
+    if (tabs) tabs.addEventListener("click", function(ev){
+      var b = ev.target.closest("button[data-tab]");
+      if (!b) return;
+      wb2CaptureEditor();
+      wb2State.tab = b.getAttribute("data-tab");
+      wb2RenderEditor();
+    });
+    var seg = document.getElementById("wb2-lib-seg");
+    if (seg) seg.addEventListener("click", function(ev){
+      var b = ev.target.closest("button[data-filter]");
+      if (!b) return;
+      wb2State.filter = b.getAttribute("data-filter");
+      seg.querySelectorAll("button").forEach(function(x){ x.classList.toggle("on", x === b); });
+      wb2RenderLibrary();
+    });
+    var search = document.getElementById("wb2-lib-search");
+    if (search) search.addEventListener("input", function(){ wb2State.search = search.value; wb2RenderLibrary(); });
+    var tb = document.getElementById("wb2-total-budget");
+    if (tb) tb.addEventListener("change", function(){
+      if (!db.worldBookSettings) db.worldBookSettings = {};
+      db.worldBookSettings.totalBudget = Math.max(0, parseInt(tb.value, 10) || 0);
+      wb2Save();
+      wb2RenderLibrary();
+      wb2Toast("世界书总预算已保存");
+    });
+    wb2TickClocks();
+    setInterval(wb2TickClocks, 30000);
+  });
+})();
+</script>
 
 </body>
 
