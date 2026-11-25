@@ -10703,7 +10703,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.5.0";
+  const APP_VERSION = "v5.5.1";
   let db = {
     characters: [],
     groups: [],
@@ -12597,7 +12597,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.0</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.1</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12631,7 +12631,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.0<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.1<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -15967,7 +15967,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         await maybeGroupMemorySummary(chat);
       }
-      try { MemoryOS.ingestTurn(chat, currentChatType); } catch (e) {}
+      try { MemoryOS.maybeExtract(chat, currentChatType); } catch (e) {}
     } catch (error) {
       console.error("AI\u56DE\u590D\u5931\u8D25:", error);
       const rawMsg = String((error && error.message) || error || "");
@@ -19014,12 +19014,53 @@ document.addEventListener("DOMContentLoaded", () => {
           return true;
         });
     }
-    function ingestTurn(chat, chatType) {
+    function extractRounds(chat, chatType) {
+      let r = 6;
+      if (chatType === "group") {
+        const cfg = (chat && chat.offlineCfg) || {};
+        r = cfg.summaryRounds || 6;
+      } else if (chat) {
+        const oc = (typeof getOfflineChat === "function") ? getOfflineChat(chat.id) : null;
+        r = chat.summaryRounds !== void 0 ? chat.summaryRounds : ((oc && oc.summaryRounds) || 6);
+      }
+      r = parseInt(r, 10) || 6;
+      return Math.min(50, Math.max(2, r));
+    }
+    function summaryOff(chat, chatType) {
+      if (chatType === "group") {
+        const cfg = (chat && chat.offlineCfg) || {};
+        return cfg.summaryEnabled === false;
+      }
+      if (!chat) return true;
+      if (chat.summaryEnabled === false) return true;
+      const oc = (typeof getOfflineChat === "function") ? getOfflineChat(chat.id) : null;
+      if (chat.summaryEnabled === void 0 && oc && oc.summaryEnabled === false) return true;
+      return false;
+    }
+    /* 按聊天设置里的“多少轮自动总结一次”节流：不是每轮都抽记忆 */
+    function maybeExtract(chat, chatType) {
+      if (!chat) return false;
+      if (summaryOff(chat, chatType)) return false;
+      const n = extractRounds(chat, chatType);
+      chat.mosExtractRound = (chat.mosExtractRound || 0) + 1;
+      if (chat.mosExtractRound < n) return false;
+      chat.mosExtractRound = 0;
+      ingestTurn(chat, chatType, n);
+      return true;
+    }
+    function ingestTurn(chat, chatType, windowRounds) {
       if (!chat) return;
       const mid = maskOf(chat.id);
       if (!mid) return;
       const hist = (typeof chatHistoryView === "function" ? chatHistoryView(chat) : (chat.history || []));
-      const tail = hist.slice(-8);
+      const _wr = Math.max(2, Math.min(12, parseInt(windowRounds, 10) || 3));
+      const _rounds = [];
+      hist.forEach(function (m) {
+        if (!m) return;
+        if (m.role === "user" || !_rounds.length) _rounds.push([]);
+        _rounds[_rounds.length - 1].push(m);
+      });
+      const tail = _rounds.slice(-_wr).reduce(function (a, b) { return a.concat(b); }, []);
       let lastUser = null, aiTexts = [];
       tail.forEach(function (m) {
         if (!m) return;
@@ -19219,6 +19260,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return {
       migrate: migrate, normalize: normalize, classify: classify, add: add, ingestTurn: ingestTurn,
       retrieve: retrieve, context: context, all: all, search: search, stats: stats,
+      maybeExtract: maybeExtract, extractRounds: extractRounds,
       lifeState: lifeState, openLoops: openLoops, setLoop: setLoop,
       remove: remove, update: update, purge: purge, onMaskSwitch: onMaskSwitch,
       sim: sim, fmtFull: fmtFull, fmt: fmt, TYPE_LABEL: TYPE_LABEL, TYPE_ORDER: TYPE_ORDER, SRC_LABEL: SRC_LABEL
@@ -36734,7 +36776,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.5.0 ================= */
+/* ================= 404 桌面复刻 v5.5.1 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
