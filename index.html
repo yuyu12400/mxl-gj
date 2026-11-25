@@ -518,6 +518,7 @@
             margin-top: 50px;
         }
 
+        #app-modal { z-index: 10095 !important; }
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -10754,7 +10755,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.5.5";
+  const APP_VERSION = "v5.5.6";
   let db = {
     characters: [],
     groups: [],
@@ -12648,7 +12649,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.5</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.6</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12682,7 +12683,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.5<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.6<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -23354,9 +23355,12 @@ function setupPhoneSystem() {
   }
   async function summarizeGroupChat(group, fromR, toR) {
     const cfg = group.offlineCfg || {};
-    const rounds = splitHistoryRounds(group.history, (m) => m.role === "user");
+    const gMid = (typeof resolveMaskForChat === "function" ? resolveMaskForChat(group) : ((getCurrentMask() || {}).id || ""));
+    const gHist = (group.history || []).filter(function (m) { return msgMaskKey(group, m) === gMid; });
+    const rounds = splitHistoryRounds(gHist, (m) => m.role === "user");
     const totalRounds = rounds.length;
-    let f = fromR || (group.summaryCursor || 0) + 1;
+    if (!group.summaryCursorByMask || typeof group.summaryCursorByMask !== "object") group.summaryCursorByMask = {};
+    let f = fromR || ((group.summaryCursorByMask[gMid] || 0) + 1);
     let t = toR || totalRounds;
     if (f < 1) f = 1;
     if (t > totalRounds) t = totalRounds;
@@ -23426,16 +23430,20 @@ function setupPhoneSystem() {
   async function summarizeOnlineChat(character, fromR, toR) {
     const oc = getOfflineChat(character.id);
     const midNow = resolveMaskForChat(character);
-    const rounds = splitHistoryRounds(character.history, (m) => m.role === "user");
+    const maskNow = (db.masks || []).find(function (m) { return m.id === midNow; });
+    const myNameForMask = (maskNow && maskNow.name) || character.myName || "我";
+    const maskHist = (character.history || []).filter(function (m) { return msgMaskKey(character, m) === midNow; });
+    const rounds = splitHistoryRounds(maskHist, (m) => m.role === "user");
     const totalRounds = rounds.length;
-    let f = fromR || (character.summaryCursor || 0) + 1;
+    if (!character.summaryCursorByMask || typeof character.summaryCursorByMask !== "object") character.summaryCursorByMask = {};
+    let f = fromR || ((character.summaryCursorByMask[midNow] || 0) + 1);
     let t = toR || totalRounds;
     if (f < 1) f = 1;
     if (t > totalRounds) t = totalRounds;
     if (f > t || !totalRounds) return false;
     const msgs = rounds.slice(f - 1, t).reduce((a, b) => a.concat(b), []);
     if (msgs.length < 2) return false;
-    const recent = msgs.map((m) => "".concat(m.role === "assistant" ? character.realName : character.myName, "\uFF1A").concat(String(m.content || "").slice(0, 200))).join("\n");
+    const recent = msgs.map((m) => "".concat(m.role === "assistant" ? character.realName : myNameForMask, "\uFF1A").concat(String(m.content || "").slice(0, 200))).join("\n");
     const sys = "\u4F60\u662F\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u4F9D\u636E\u63D0\u4F9B\u7684\u5BF9\u8BDD\u539F\u6587\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5267\u60C5\u3002";
     const spOnline = character.summaryPrompt !== void 0 ? character.summaryPrompt : oc ? oc.summaryPrompt : "";
     let prompt;
@@ -23459,6 +23467,7 @@ function setupPhoneSystem() {
     if (factList.length) pushMemory(character.id, "online", factList.join("\uFF1B"), "fact", midNow);
     if (impressList.length) pushMemory(character.id, "online", impressList.join("\uFF1B"), "impression", midNow);
     trimMemories(character.id);
+    character.summaryCursorByMask[midNow] = t;
     character.summaryCursor = t;
     await saveData();
     return true;
@@ -23672,32 +23681,71 @@ function setupPhoneSystem() {
     });
     container.appendChild(grid);
   }
-  function mxTimeline(container, rows) {
-    if (!rows.length) { container.appendChild(mxEmpty("还没有记忆。聊过约定、偏好、重要事件后，会出现在这条时间线上。")); return; }
+  function mxTimeline(container, rows, chars) {
+    const active = window.__memChar || "*";
+    const usedIds = {};
+    rows.forEach(function (r) { usedIds[r.c.id] = 1; });
+    const bar = document.createElement("div");
+    bar.style.cssText = "display:flex;flex-wrap:wrap;align-items:center;gap:0;padding:12px 0 2px;font-size:10.5px;letter-spacing:.06em;";
+    const defs = [["*", "全部角色"]].concat(chars.filter(function (c) { return usedIds[c.id]; }).map(function (c) { return [c.id, mxCharName(c)]; }));
+    defs.forEach(function (d, i) {
+      const on = active === d[0];
+      if (i) { const sep = document.createElement("span"); sep.textContent = "⋰"; sep.style.cssText = "color:#d2d3d6;font-size:9px;padding:0 7px;"; bar.appendChild(sep); }
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = d[1];
+      btn.style.cssText = "background:none;border:0;padding:0 0 2px;cursor:pointer;font-size:10.5px;color:" + (on ? "#0a0a0b" : "#a0a4a9") + ";font-weight:" + (on ? "650" : "400") + ";border-bottom:" + (on ? "1px solid #0a0a0b" : "1px solid transparent") + ";";
+      btn.addEventListener("click", function () { window.__memChar = d[0]; renderMemoryScreen(); });
+      bar.appendChild(btn);
+    });
+    container.appendChild(bar);
+    const list = active === "*" ? rows : rows.filter(function (r) { return r.c.id === active; });
+    if (!list.length) { container.appendChild(mxEmpty("这个角色还没有记忆。")); return; }
     container.appendChild(mxSection("01", "纪年", "CHRONICLE"));
-    let curDay = "", block = null;
-    rows.slice(0, 90).forEach(function (r) {
+    const wrap = document.createElement("div");
+    wrap.style.cssText = "position:relative;";
+    wrap.innerHTML = '<span style="position:absolute;left:2px;top:0;bottom:14px;width:1px;background:#d8d9dc;"></span>';
+    container.appendChild(wrap);
+    const dayChars = {};
+    list.forEach(function (r) {
+      const _d = new Date(r.m.event_time || r.m.created_at);
+      const _k = _d.getFullYear() + "-" + (_d.getMonth() + 1) + "-" + _d.getDate();
+      (dayChars[_k] = dayChars[_k] || {})[r.c.id] = 1;
+    });
+    let curDay = "", dayBox = null;
+    list.slice(0, 90).forEach(function (r) {
       const ts = r.m.event_time || r.m.created_at;
       const d = new Date(ts);
       const key = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
       if (key !== curDay) {
         curDay = key;
-        block = document.createElement("div");
-        block.style.cssText = "display:flex;gap:12px;padding:14px 0 2px;border-top:1px solid #e4e5e7;position:relative;padding-left:16px;";
-        block.innerHTML = '<span style="position:absolute;left:0;top:20px;width:6px;height:6px;border-radius:50%;background:#0a0a0b;"></span>' + '<div style="flex:0 0 42px;text-align:left;">'
-          + '<div class="mx-label" style="font-size:8px;">' + ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"][d.getMonth()] + '</div>'
+        dayBox = document.createElement("div");
+        dayBox.style.cssText = "display:flex;gap:12px;padding:14px 0 2px;border-top:1px solid #e4e5e7;position:relative;padding-left:16px;";
+        dayBox.innerHTML = '<span style="position:absolute;left:0;top:20px;width:6px;height:6px;border-radius:50%;background:#0a0a0b;"></span>'
+          + '<div style="flex:0 0 42px;text-align:left;">'
+          + '<div class="mx-label" style="font-size:8px;">' + ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][d.getMonth()] + '</div>'
           + '<div class="mx-serif" style="font-size:22px;line-height:1.1;letter-spacing:-1px;margin-top:2px;">' + d.getDate() + '</div>'
-          + '</div><div style="flex:1;min-width:0;"></div>';
-        container.appendChild(block);
+          + '</div><div class="tl-right" style="flex:1;min-width:0;"></div>';
+        wrap.appendChild(dayBox);
       }
-      const right = block.lastChild;
+      const right = dayBox.querySelector(".tl-right");
+      const multiCharDay = Object.keys(dayChars[key] || {}).length > 1;
+      if (active === "*" && multiCharDay) {
+        const lastChar = right.dataset.curChar || "";
+        if (lastChar !== r.c.id) {
+          right.dataset.curChar = r.c.id;
+          const ch = document.createElement("div");
+          ch.style.cssText = "display:flex;align-items:center;gap:8px;margin:8px 0 6px;";
+          ch.innerHTML = '<span class="mx-serif" style="font-size:11.5px;letter-spacing:.04em;">' + escapeHtml(mxCharName(r.c)) + '</span><span style="flex:1;height:1px;background:#0a0a0b;opacity:.16;"></span>';
+          right.appendChild(ch);
+        }
+      }
+      const undone = r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled";
       const row = document.createElement("div");
       row.style.cssText = "padding:2px 0 12px;cursor:pointer;";
-      const undone = r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled";
       row.innerHTML = '<div style="font-size:12.5px;line-height:1.76;color:' + (undone ? "#8d9298" : "#1c1f24") + ';">' + escapeHtml(r.m.content) + '</div>'
-        + '<div class="m" style="display:flex;align-items:center;gap:8px;margin-top:5px;font-size:8.5px;color:#a0a4a9;letter-spacing:.04em;">'
-        + '<span>' + escapeHtml(mxMaskName(r.m.mask_id)) + ' · ' + escapeHtml(mxCharName(r.c)) + '</span>'
-        + mxTypeTag(r.m)
+        + '<div style="display:flex;align-items:center;gap:8px;margin-top:5px;font-size:8.5px;color:#a0a4a9;letter-spacing:.04em;">'
+        + '<span>' + escapeHtml(mxMaskName(r.m.mask_id)) + ' · ' + escapeHtml(mxCharName(r.c)) + '</span>' + mxTypeTag(r.m)
         + (undone ? '<span style="margin-left:auto;color:#6c7076;">→</span>' : "")
         + '</div>';
       row.addEventListener("click", function () { openMemSheet(r.m); });
@@ -23705,7 +23753,7 @@ function setupPhoneSystem() {
     });
     const sum = document.createElement("div");
     sum.style.cssText = "display:flex;align-items:center;padding:14px 0 0;border-top:1px solid #e4e5e7;margin-top:14px;font-size:9px;letter-spacing:.08em;color:#a0a4a9;";
-    sum.innerHTML = '<span>共 ' + rows.length + ' 条 · 时间倒序</span>'
+    sum.innerHTML = '<span>共 ' + list.length + ' 条 · 时间倒序</span>'
       + '<button type="button" style="margin-left:auto;background:#0a0a0b;color:#fff;border:0;padding:7px 12px;font-size:9.5px;letter-spacing:.14em;cursor:pointer;">搜索记忆</button>';
     sum.querySelector("button").addEventListener("click", function () { window.__memTab = "search"; renderMemoryScreen(); });
     container.appendChild(sum);
@@ -23863,6 +23911,36 @@ function setupPhoneSystem() {
     draw();
   }
   function mxArchive(container, rows) {
+    const maskIds = {};
+    (db.masks || []).forEach(function (m) { maskIds[m.id] = 1; });
+    const stale = (db.memories || []).filter(function (m) { return m && m.character_id && !maskIds[m.mask_id]; });
+    if (stale.length) {
+      container.appendChild(mxSection("00", "归属体检", stale.length + " 条待修"));
+      const bx = document.createElement("div");
+      bx.style.cssText = "border:1px solid #0a0a0b;padding:11px;";
+      bx.innerHTML = '<div style="font-size:10.5px;line-height:1.7;color:#4a4d52;">有 ' + stale.length + ' 条记忆挂的面具已经不存在了，它们在「全部面具」里能看到，但任何单个面具下都不会出现。</div>'
+        + '<div style="display:flex;gap:8px;margin-top:9px;">'
+        + '<button type="button" data-fix="1" style="border:1px solid #0a0a0b;background:#0a0a0b;color:#fff;padding:6px 11px;font-size:10px;letter-spacing:.1em;cursor:pointer;">按对话身份归位</button>'
+        + '<button type="button" data-fix="0" style="border:1px solid #0a0a0b;background:#fff;padding:6px 11px;font-size:10px;letter-spacing:.1em;cursor:pointer;">先看清单</button></div>';
+      bx.addEventListener("click", async function (e) {
+        const b = e.target.closest("[data-fix]");
+        if (!b) return;
+        if (b.dataset.fix === "0") {
+          showToast(stale.slice(0, 5).map(function (m) { return mxCharName((db.characters || []).find(function (c) { return c.id === m.character_id; })) + "：" + String(m.content || "").slice(0, 12); }).join(" / ") + (stale.length > 5 ? " …" : ""));
+          return;
+        }
+        if (!await uiConfirm("把 " + stale.length + " 条挂在不存在的面具上的记忆，按各自对话身份重新归位？", "归位", false)) return;
+        let n = 0;
+        stale.forEach(function (m) {
+          const mid = resolveMaskForChat(m.character_id);
+          if (mid && mid !== m.mask_id) { m.mask_id = mid; m.updated_at = Date.now(); n++; }
+        });
+        await saveData();
+        showToast("已归位 " + n + " 条");
+        renderMemoryScreen();
+      });
+      container.appendChild(bx);
+    }
     const arch = rows.filter(function (r) { return r.m.status === "archived"; });
     container.appendChild(mxSection("01", "归档", arch.length + " 条"));
     if (!arch.length) container.appendChild(mxEmpty("还没有被归档的记忆。长时间没被想起来的会自动淡出，收在这里。"));
@@ -23939,7 +24017,7 @@ function setupPhoneSystem() {
     body.appendChild(mxMaskChips(function () { renderMemoryScreen(); }));
 
     if (tab === "overview") mxOverview(body, rows, chars);
-    else if (tab === "timeline") mxTimeline(body, rows);
+    else if (tab === "timeline") mxTimeline(body, rows, chars);
     else if (tab === "loops") mxLoops(body, rows);
     else if (tab === "graph") mxGraph(body, rows);
     else if (tab === "search") mxSearch(body, rows);
@@ -24094,7 +24172,9 @@ function setupPhoneSystem() {
     if (inputEl && inputEl.parentElement) inputEl.parentElement.style.display = "none";
     const c = db.characters.find(function (x) { return x.id === charId; }) || (db.groups || []).find(function (x) { return x.id === charId; });
     const scope = window.__memScope || "*";
-    const list = MemoryOS.search({ character_id: charId, q: keyword || "", mask_all: scope === "*" });
+    const searchOpts = { character_id: charId, q: keyword || "" };
+    if (scope === "*") searchOpts.mask_all = true; else searchOpts.mask_id = scope;
+    const list = MemoryOS.search(searchOpts);
     const f = window.__memTypeFilter || "all";
     const page = document.createElement("div");
     page.className = "mx";
@@ -24131,6 +24211,28 @@ function setupPhoneSystem() {
     const rule = document.createElement("div");
     rule.style.cssText = "height:1px;background:#e4e5e7;margin-top:10px;";
     page.appendChild(rule);
+    function addClearBlock() {
+      const scopeMask = (scope === "*") ? (((getCurrentMask() || {}).id) || "") : scope;
+      const cnt = MemoryOS.all(charId, scopeMask).length;
+      const box = document.createElement("div");
+      box.style.cssText = "margin-top:28px;padding-top:12px;border-top:1px solid #0a0a0b;";
+      box.innerHTML = '<div style="display:flex;align-items:center;gap:10px;">'
+        + '<span style="font-size:9px;letter-spacing:.14em;color:#a0a4a9;">清空</span>'
+        + '<span style="font-size:11.5px;color:#1c1f24;flex:1;">「' + escapeHtml(mxMaskName(scopeMask)) + '」下 ' + escapeHtml(mxCharName(c)) + ' 的 ' + cnt + ' 条记忆</span>'
+        + '<button type="button" style="border:1px solid #b4544f;color:#b4544f;background:#fff;padding:5px 11px;font-size:10px;letter-spacing:.06em;cursor:pointer;">清除</button>'
+        + '</div>'
+        + '<div style="font-size:9px;color:#a0a4a9;margin-top:6px;line-height:1.6;">只清这一个角色 + 这一个面具的组合，别的面具和其他角色都不受影响；清掉后不可恢复。</div>';
+      box.querySelector("button").addEventListener("click", async function () {
+        if (!cnt) { showToast("这个面具下没有记忆"); return; }
+        if (!await uiConfirm("清除「" + mxMaskName(scopeMask) + "」下 " + mxCharName(c) + " 的全部 " + cnt + " 条记忆？此操作不可恢复。", "清除", true)) return;
+        MemoryOS.purge(charId, scopeMask);
+        await saveData();
+        showToast("已清除 " + cnt + " 条");
+        renderMemoryDetail(charId, keyword || "");
+        try { renderMemoryScreen(); } catch (e) {}
+      });
+      page.appendChild(box);
+    }
 
     let items = list;
     if (f === "hot") items = items.filter(function (m) { return (m.importance || 0) >= 0.8; });
@@ -24138,6 +24240,7 @@ function setupPhoneSystem() {
 
     if (!items.length) {
       page.appendChild(mxEmpty(keyword ? "没有匹配的记忆" : "这一范围下还没有记忆。"));
+      addClearBlock();
       container.appendChild(page);
       return;
     }
@@ -24158,6 +24261,7 @@ function setupPhoneSystem() {
       seq++;
       group.appendChild(mxEntry({ m: m, c: c }, { seq: (seq < 10 ? "0" + seq : String(seq)), fadeUndone: true }));
     });
+    addClearBlock();
     container.appendChild(page);
   }
 
@@ -37313,7 +37417,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.5.5 ================= */
+/* ================= 404 桌面复刻 v5.5.6 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
