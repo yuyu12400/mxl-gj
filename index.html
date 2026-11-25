@@ -10755,7 +10755,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.5.7";
+  const APP_VERSION = "v5.5.8";
   let db = {
     characters: [],
     groups: [],
@@ -12649,7 +12649,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.7</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.8</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12683,7 +12683,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.7<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.8<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -15402,14 +15402,23 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       if (/^[#>]/.test(l) || !l) return;
-      const item = l.replace(/^[-•*]\s*/, "").replace(/^「|」$/g, "").trim();
-      if (item.length < 3) return;
-      if (mode === "fact") facts.push(item);
-      else if (mode === "impress") impressions.push(item);
-      else if (!sawHeader) facts.push(item);
+      /* 兼容自定义总结提示词：去掉序号、项目符号、「」包裹；长段落按句切分成独立条目 */
+      let item = l.replace(/^[-•*·]\s*/, "").replace(/^[0-9０-９]+[.、)）]\s*/, "").replace(/^[一二三四五六七八九十]+、\s*/, "").replace(/^「|」$/g, "").trim();
+      if (!item || item.length < 3) return;
+      if (/^[^：:]{1,10}[：:]$/.test(item)) return;
+      if (/^[【\[].{0,20}[】\]]$/.test(item)) return;
+      if (/^[\-=*—·_]{3,}$/.test(item)) return;
+      const parts = item.length > 140 ? item.split(/(?<=[。！？!?；;])/).map(function (x) { return x.trim(); }).filter(function (x) { return x.length >= 6; }) : [item];
+      parts.forEach(function (one) {
+        if (one.length < 3) return;
+        if (mode === "fact") facts.push(one);
+        else if (mode === "impress") impressions.push(one);
+        else if (!sawHeader) facts.push(one);
+      });
     });
     return { facts, impressions };
   }
+  window.parseSummaryBlocks = parseSummaryBlocks;
   function pushMemory(charId, source, content, type, maskId, batch, roundRange) {
     if (!content) return;
     try {
@@ -15562,7 +15571,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return "";
     })();
     const _mosCtx = (function () {
-      try { return MemoryOS.context(character.id, _mosQuery, "online", 1200); } catch (e) { return ""; }
+      try { return MemoryOS.context(character.id, _mosQuery, "online", 2400); } catch (e) { return ""; }
     })();
     if (_mosCtx) {
       prompt += _mosCtx + "\n";
@@ -18962,6 +18971,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (typeof m.relationship_impact !== "number") m.relationship_impact = 0;
       if (!m.version) m.version = 1;
       if (typeof m.source_batch !== "string") m.source_batch = "";
+      if (!Array.isArray(m.source_batches)) m.source_batches = m.source_batch ? [m.source_batch] : [];
       if (!Array.isArray(m.round_range)) m.round_range = null;
       if (!Array.isArray(m.status_history)) m.status_history = [];
       if (!Array.isArray(m.versions)) m.versions = [];
@@ -19153,7 +19163,11 @@ document.addEventListener("DOMContentLoaded", () => {
             dup.status_history = (dup.status_history || []).concat([{ from: dup.status, to: opts.status, at: now(), note: "同事件更新" }]).slice(-8);
             dup.status = opts.status;
           }
-          if (batch && !dup.source_batch) dup.source_batch = batch;
+          if (batch) {
+            dup.source_batches = (dup.source_batches || []).concat([batch]);
+            dup.source_batches = dup.source_batches.slice(-20);
+            dup.source_batch = batch;
+          }
         }
         closeLoops(cid, mid, text, dup.id);
         saveData();
@@ -19180,6 +19194,7 @@ document.addEventListener("DOMContentLoaded", () => {
         emotional_context: opts.emotional_context || "",
         relationship_impact: opts.relationship_impact || 0,
         source_batch: batch,
+        source_batches: batch ? [batch] : [],
         round_range: Array.isArray(opts.round_range) ? opts.round_range.slice() : null,
         status_history: [{ from: "", to: opts.status || (cls.type === "loop" ? "pending" : "active"), at: now(), note: opts.source_batch ? "任务写入" : "手动/对话写入" }]
       });
@@ -19373,6 +19388,33 @@ document.addEventListener("DOMContentLoaded", () => {
       return scored.filter(function (s) { return s.score >= min; }).slice(0, opts.limit || 10);
     }
 
+    /* ---------- 最近 N 次总结：按“总结次数”取，而不是按聊天轮数 ---------- */
+    function lastSummaryBatches(charId, mid, n) {
+      const key = mid || maskOf(charId);
+      const rows = mems().filter(function (m) {
+        if (m.character_id !== charId || m.mask_id !== key || m.status === "archived") return false;
+        if (typeof m.source_batch === "string" && m.source_batch.indexOf("summary:") === 0) return true;
+        return (m.source_batches || []).some(function (b) { return String(b).indexOf("summary:") === 0; });
+      });
+      const groups = {};
+      rows.forEach(function (m) {
+        const list = (m.source_batches || []).filter(function (b) { return String(b).indexOf("summary:") === 0; });
+        if (!list.length) list.push(m.source_batch);
+        list.forEach(function (raw) {
+        const b = String(raw).split("#")[0];
+        if (!groups[b]) groups[b] = { batch: b, end: 0, at: m.created_at || 0, items: [] };
+        const end = Array.isArray(m.round_range) ? (m.round_range[1] || 0) : 0;
+        groups[b].end = Math.max(groups[b].end, end);
+        groups[b].at = Math.max(groups[b].at, m.created_at || 0);
+        groups[b].items.push(m);
+        });
+      });
+      return Object.keys(groups).map(function (k) { return groups[k]; })
+        .sort(function (a, b) { return (a.end - b.end) || (a.at - b.at); })
+        .slice(-(n || 5))
+        .map(function (g) { g.items.sort(function (a, b) { return (a.created_at || 0) - (b.created_at || 0); }); return g; });
+    }
+
     /* ---------- ContextBuilder：结构化注入（有预算，不全量灌） ---------- */
     function context(charId, query, scene, budget) {
       const mid = maskOf(charId);
@@ -19406,9 +19448,16 @@ document.addEventListener("DOMContentLoaded", () => {
       const rel = firstBy(["relationship"], 2, ctxMem);
       const life = firstBy(["life"], 2, ctxMem).filter(function (m) { return !m.expiration_at || m.expiration_at > now(); });
       const social = firstBy(["social"], 2, ctxMem);
+      /* 没有总结批次时（新角色/未开启线上总结）退化为最近若干条记忆 */
+      const fallbackRecent = function () {
+        return all.filter(function (m) { return m.status !== "archived" && m.memory_type !== "life" && m.memory_type !== "relationship"; })
+          .sort(function (a, b) { return (b.created_at || 0) - (a.created_at || 0); }).slice(0, 8)
+          .sort(function (a, b) { return (a.created_at || 0) - (b.created_at || 0); });
+      };
       const lines = [];
       lines.push("【记忆·身份】你现在以「" + (mask && mask.name || "我") + "」这个身份在和" + (c ? "「" + (c.remarkName || c.realName) + "」" : "对方") + "相处；以下是你们在这个面具下真实积累的记忆，只属于这一段关系。");
       let used = lines[0].length;
+      const recentBatches = lastSummaryBatches(charId, mid, 5);
       const seen = {};
       function pushSection(title, arr, perChar, quota) {
         if (!arr || !arr.length) return;
@@ -19440,9 +19489,20 @@ document.addEventListener("DOMContentLoaded", () => {
         used += head.length + q;
         arr.slice(0, body.length).forEach(function (m) { m.last_accessed_at = now(); if (m.id) seen[m.id] = 1; });
       }
+      const batchItems = [];
+      const batchSeen = {};
+      const pushBatch = function (m) { if (!m || batchSeen[m.id]) return; batchSeen[m.id] = 1; batchItems.push(m); };
+      recentBatches.forEach(function (g) { pushBatch(g.items[0]); });
+      recentBatches.forEach(function (g) { g.items.slice(1).forEach(pushBatch); });
       pushSection("【当前仍未完成的事】（若当前话题自然相关，可以自然提起；不要生硬追问）",
         loopList.map(function (m) { return { id: m.id, content: "(" + (m.status === "in_progress" ? "进行中" : "待办") + ") " + m.content }; }),
         96, 260);
+      if (batchItems.length) {
+        pushSection("【最近几次的对话总结】（最近 5 次总结，按时间从早到晚；用来维持连续感，不必逐条复述）",
+          batchItems.slice(0, 14), 150, 900);
+      } else {
+        pushSection("【最近的记忆】", fallbackRecent(), 150, 600);
+      }
       pushSection("【和当前话题直接相关】", relevant, 108, 330);
       pushSection("【对 TA 的长期认知】", longTerm.map(function (m) { return { id: m.id, content: m.content + (m.confidence >= 0.75 ? "" : "（未完全确认）") }; }), 100, 300);
       pushSection("【你们的关系】", rel, 96, 150);
@@ -19450,7 +19510,7 @@ document.addEventListener("DOMContentLoaded", () => {
       pushSection("【社交与其他】", social, 86, 120);
       lines.push("【记忆使用规则】记忆只是你理解当下的背景，不是台词素材。不要复述、不要罗列、不要为了证明记得而主动提起无关旧事；只有当前话题自然相关时才带出来。已被取消、被替代或已经完成的事，不要再当成待办；TA 没确认的猜测不要当作事实说。");
       let out = lines.join("\n");
-      if (out.length > cap) out = out.slice(0, cap);
+      if (out.length > cap) { out = out.slice(0, cap); out = out.slice(0, Math.max(out.lastIndexOf("\n"), 0)); }
       return out;
     }
 
@@ -23648,6 +23708,16 @@ function setupPhoneSystem() {
       await saveData();
     }
   }
+  const DEFAULT_ONLINE_SUMMARY_PROMPT = [
+    "请对本次聊天进行详细总结，提取重要事件、人物信息、关系变化、情绪态度、关键决定、未完成事项及生活细节。",
+    "每条记忆应包含必要的背景、经过、关键表达、结果与后续影响，保留人物认知和事件发展的变化过程，并与已有记忆建立关联。",
+    "将重要内容整理为独立、完整、便于检索的记忆条目，确保未来能够准确理解这段聊天发生了什么，以及它对人物和关系产生了什么影响。",
+    "严格按照当前面具与角色进行记忆归属。",
+    "",
+    "输出要求：每行一条独立记忆，不要编号、不要小标题、不要解释、不要合并成长段，最多 8 条；只写这段对话里真实发生的内容，用第三人称，每条 30–90 字。",
+    "",
+    "聊天记录："
+  ].join("\n");
   async function summarizeOnlineChat(character, fromR, toR) {
     const oc = getOfflineChat(character.id);
     const midNow = resolveMaskForChat(character);
@@ -23668,10 +23738,11 @@ function setupPhoneSystem() {
     const roundRange = [f, t];
     const recent = msgs.map((m) => "".concat(m.role === "assistant" ? character.realName : myNameForMask, "\uFF1A").concat(String(m.content || "").slice(0, 200))).join("\n");
     const sys = "\u4F60\u662F\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u4F9D\u636E\u63D0\u4F9B\u7684\u5BF9\u8BDD\u539F\u6587\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5267\u60C5\u3002";
-    const spOnline = character.summaryPrompt !== void 0 ? character.summaryPrompt : oc ? oc.summaryPrompt : "";
+    let spOnline = character.summaryPrompt !== void 0 ? character.summaryPrompt : oc ? oc.summaryPrompt : "";
+    if (!spOnline || !spOnline.trim()) spOnline = DEFAULT_ONLINE_SUMMARY_PROMPT;
     let prompt;
     if (spOnline && spOnline.trim()) {
-      prompt = "".concat(spOnline.trim(), "\n\n\u804A\u5929\u8BB0\u5F55\uFF1A\n").concat(recent);
+      prompt = "你现在以「" + myNameForMask + "」的身份和「" + (character.remarkName || character.realName) + "」聊天。\n" + spOnline.trim().replace(/\n\n聊天记录：$/, "") + "\n\n聊天记录：\n" + recent;
     } else {
       prompt = "\u4F60\u662F\u5BF9\u8BDD\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u57FA\u4E8E\u4E0B\u9762\u63D0\u4F9B\u7684\u5BF9\u8BDD\u5185\u5BB9\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5BF9\u8BDD\u91CC\u6CA1\u6709\u53D1\u751F\u7684\u4E8B\u4EF6\uFF0C\u4E0D\u80FD\u8111\u8865\u5267\u60C5\u3002\u8BF7\u628A\u8FD9\u6BB5\u300C".concat(character.realName, "\u4E0E").concat(character.myName, "\u300D\u7684\u5BF9\u8BDD**\u4F5C\u4E3A\u4E00\u4E2A\u6574\u4F53\uFF0C\u53EA\u63D0\u70BC\u4E00\u6761\u603B\u7EB2\u5F0F\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E\u548C\u4E00\u6761\u6574\u4F53\u60C5\u7EEA\u5370\u8C61**\u3002\u8FD9\u6761\u6C38\u4E45\u4E8B\u5B9E\u5FC5\u987B\u6DB5\u76D6\u8BE5\u533A\u95F4\u5185\u6700\u91CD\u8981\u7684\u5267\u60C5\u8FDB\u5C55\uFF08\u5173\u952E\u4E8B\u4EF6\u3001\u7EA6\u5B9A\u3001\u627F\u8BFA\u3001\u79D8\u5BC6\u3001\u5173\u7CFB\u53D8\u5316\u3001\u4F0F\u7B14\u3001\u5173\u952E\u7269\u54C1\uFF09\uFF0C\u5185\u5BB9\u53EF\u4EE5\u7A0D\u957F\uFF0C\u4F46\u5FC5\u987B\u5177\u4F53\u5E26\u7EC6\u8282\u3001\u6309\u65F6\u95F4\u987A\u5E8F\u4E32\u8D77\u6574\u6BB5\u5267\u60C5\uFF0C\u4E0D\u8981\u9057\u6F0F\u5173\u952E\u8F6C\u6298\u3002\u4E25\u683C\u6309\u4EE5\u4E0B\u683C\u5F0F\u8F93\u51FA\uFF08\u4E0D\u8981\u4EFB\u4F55\u591A\u4F59\u89E3\u91CA\u3001\u4E0D\u8981\u5F00\u573A\u767D\u3001\u4E0D\u8981\u5E8F\u53F7\uFF09\uFF1A\n\npermanent_facts:\n- \uFF08\u6574\u6BB5\u5BF9\u8BDD\u5408\u6210\u7684\u4E00\u6761\u603B\u7EB2\u5F0F\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E\uFF09\n\nimpression_mood:\n- \uFF08\u6574\u6BB5\u5BF9\u8BDD\u5408\u6210\u7684\u89D2\u8272\u6574\u4F53\u60C5\u7EEA\u5370\u8C61\uFF09\n\n\u7EA6\u675F\uFF1Apermanent_facts \u4E0E impression_mood \u5404\u81EA\u53EA\u80FD\u8F93\u51FA 1 \u6761\uFF0C\u6574\u6BB5\u5185\u5BB9\u5408\u5E76\u6210\u4E00\u6761\uFF08\u5185\u5BB9\u957F\u53EF\u7528\u5206\u53F7\u8FDE\u63A5\uFF09\uFF0C\u7981\u6B62\u62C6\u6210\u591A\u6761\uFF1B\u53EA\u603B\u7ED3\u771F\u5B9E\u53D1\u751F\u7684\u5185\u5BB9\uFF1B\u4E0D\u91CD\u590D\u5386\u53F2\u5DF2\u6709\u6C38\u4E45\u4E8B\u5B9E\uFF1B\u4E0D\u8BB0\u5F55\u57FA\u7840\u4EBA\u8BBE\u6587\u98CE\uFF1B\u4E0D\u9884\u6D4B\u672A\u6765\u5267\u60C5\uFF1B\u82E5\u65B0\u4E8B\u5B9E\u4E0E\u5DF2\u53D1\u751F\u65E2\u5B9A\u5267\u60C5\u77DB\u76FE\uFF0C\u5728\u6761\u76EE\u672B\u5C3E\u52A0\u3010CONFLICT\u3011\uFF1B\u8BED\u8A00\u7B80\u6D01\u5177\u4F53\uFF0C\u4E0D\u8981AI\u8154\uFF0C\u5168\u90E8\u7528\u7B2C\u4E09\u4EBA\u79F0\u3002\n\n\u5BF9\u8BDD\u5185\u5BB9\uFF1A\n").concat(recent);
     }
@@ -23696,8 +23767,12 @@ function setupPhoneSystem() {
         if (c) factList.push(c);
       });
     }
-    if (factList.length) pushMemory(character.id, "online", factList.join("\uFF1B"), "fact", midNow, batch + "#F", roundRange);
-    if (impressList.length) pushMemory(character.id, "online", impressList.join("\uFF1B"), "impression", midNow, batch + "#I", roundRange);
+    factList.slice(0, 8).forEach(function (c, k) {
+      pushMemory(character.id, "online", c, "fact", midNow, batch + "#F" + k, roundRange);
+    });
+    impressList.slice(0, 3).forEach(function (c, k) {
+      pushMemory(character.id, "online", c, "impression", midNow, batch + "#I" + k, roundRange);
+    });
     factList.forEach(function (c, k) {
       if (!/(约定|答应|说好|下次|改天|等我|回头|记得|一起|周末|承诺)/.test(c)) return;
       MemoryOS.add(character.id, c, { memory_type: "loop", source_type: "online", confidence: 0.55, importance: 0.55, status: "pending", mask_id: midNow, source_batch: batch + "#P" + k, round_range: roundRange });
@@ -23711,7 +23786,7 @@ function setupPhoneSystem() {
   }
   function setupMemoryApp() {
     var _a;
-    (_a = document.getElementById("memory-help-btn")) == null ? void 0 : _a.addEventListener("click", () => {      showToast("记忆按「面具 + 角色」双重隔离：同一个角色在不同面具下是两段完全独立的记忆。私聊、群聊、动态、评论、角色手机会读写同一套记忆底层，但注入时只挑与当前话题相关的少量记忆，不会把全部记忆塞给模型，也不会让角色复述旧事。点进角色可以分类查看、搜索、纠正、标记重要、调整范围或只清空当前面具下的记忆。");
+    (_a = document.getElementById("memory-help-btn")) == null ? void 0 : _a.addEventListener("click", () => {      showToast("记忆按「面具 + 角色」双重隔离：同一个角色在不同面具下是两段完全独立的记忆。私聊、群聊、动态、评论、角色手机会读写同一套记忆底层，但注入时先常驻最近 5 次对话总结，再挑与当前话题相关的少量记忆，不会把全部记忆塞给模型，也不会让角色复述旧事。点进角色可以分类查看、搜索、纠正、标记重要、调整范围或只清空当前面具下的记忆。");
     });
   }
   function mosTypeTag(t, hot) {
@@ -37812,7 +37887,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.5.7 ================= */
+/* ================= 404 桌面复刻 v5.5.8 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
