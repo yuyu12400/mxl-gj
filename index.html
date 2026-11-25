@@ -6684,7 +6684,45 @@
         #home-screen .hw-clock::after, #home-screen .hw-count::after, #home-screen .hw-hello::before { color: rgba(80,92,140,.45); }
 
 
-        </style>
+        
+.mx{background:#fff;color:#0a0a0b;}
+.mx-serif{font-family:'Songti SC','Noto Serif CJK SC','Noto Serif SC','STSong','SimSun',serif;}
+.mx-eyebrow{font-size:8.5px;letter-spacing:.3em;color:#a0a4a9;text-transform:uppercase;}
+.mx-label{font-size:9px;letter-spacing:.22em;color:#8d9298;text-transform:uppercase;}
+.mx-rule2{height:2px;background:#0a0a0b;}
+.mx-rule1{height:1px;background:#0a0a0b;opacity:.28;margin-top:2px;}
+.mx-titlewrap{position:relative;margin-top:6px;padding-bottom:2px;}
+.mx-ghost{position:absolute;right:10px;top:-14px;font-family:'Songti SC','Noto Serif CJK SC',serif;font-size:80px;line-height:1;color:#eceded;letter-spacing:-3px;z-index:0;}
+.mx-title{position:relative;z-index:1;margin:0;font-family:'Songti SC','Noto Serif CJK SC',serif;font-size:46px;line-height:.92;letter-spacing:-2.4px;font-weight:700;}
+.mx-chips{display:flex;border:1px solid #0a0a0b;margin-top:14px;background:#fff;}
+.mx-chip{flex:0 0 auto;padding:8px 15px;font-size:11.5px;letter-spacing:.08em;border:0;border-right:1px solid #0a0a0b;background:#fff;color:#0a0a0b;cursor:pointer;white-space:nowrap;}
+.mx-chip:last-child{border-right:0;}
+.mx-chip.on{background:#0a0a0b;color:#fff;}
+.mx-sec{display:flex;align-items:baseline;gap:10px;margin:26px 0 11px;}
+.mx-sec-idx{font-family:'Songti SC','Noto Serif CJK SC',serif;font-size:23px;line-height:1;letter-spacing:-.5px;}
+.mx-sec-line{flex:1;height:1px;background:#0a0a0b;opacity:.35;}
+.mx-sec-name{font-size:10px;letter-spacing:.16em;color:#6c7076;}
+.mx-sec-extra{font-size:9px;letter-spacing:.08em;color:#a0a4a9;margin-left:6px;}
+.mx-nav{display:flex;border-top:2px solid #0a0a0b;margin-top:auto;position:sticky;bottom:0;background:#fff;z-index:5;}
+.mx-nav button{flex:1;border:0;border-right:1px solid #e2e3e5;background:#fff;padding:13px 0 12px;font-size:11.5px;letter-spacing:.1em;color:#0a0a0b;cursor:pointer;}
+.mx-nav button:last-child{border-right:0;}
+.mx-nav button.on{background:#0a0a0b;color:#fff;}
+.mx-date{font-family:'Songti SC','Noto Serif CJK SC',serif;font-size:11px;color:#0a0a0b;letter-spacing:.04em;margin:20px 0 3px;padding-bottom:6px;border-bottom:1px solid #0a0a0b;display:flex;align-items:baseline;gap:8px;}
+.mx-date small{font-size:8px;letter-spacing:.22em;color:#a0a4a9;}
+.mx-entry{padding:12px 0 13px;border-bottom:1px solid #ececee;cursor:pointer;}
+.mx-entry .t{font-size:13px;line-height:1.78;color:#1c1f24;}
+.mx-entry .m{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:9px;color:#a0a4a9;letter-spacing:.04em;}
+.mx-tag{display:inline-block;border:1px solid #d6d7da;padding:1px 5px;font-size:8.5px;letter-spacing:.06em;color:#4a4d52;}
+.mx-tag.solid{background:#0a0a0b;color:#fff;border-color:#0a0a0b;}
+.mx-ghostline{opacity:.42;}
+.mx-grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.mx-card{position:relative;border:1px solid #0a0a0b;background:#fff;padding:10px;cursor:pointer;}
+.mx-card:after{content:"";position:absolute;inset:3px;border:1px solid #e2e3e5;pointer-events:none;}
+.mx-bar{position:relative;flex:1;height:1px;background:#dcdddf;}
+.mx-bar i{position:absolute;left:0;top:0;height:1px;background:#0a0a0b;display:block;}
+.mx-empty{padding:46px 0;text-align:center;font-size:11px;color:#a0a4a9;letter-spacing:.04em;}
+
+</style>
     <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Great+Vibes&display=swap">
 
 <style id="settings-dynamic-refresh">
@@ -10703,7 +10741,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.5.2";
+  const APP_VERSION = "v5.5.3";
   let db = {
     characters: [],
     groups: [],
@@ -12597,7 +12635,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.2</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.3</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12631,7 +12669,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.2<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.3<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -23408,90 +23446,116 @@ function setupPhoneSystem() {
     if (m.status === "archived") return "已归档";
     return "";
   }
-  /* ===== 记忆 APP · 编辑排版版（总览 / 时间线 / 未完成 / 搜索） ===== */
+  /* ===== 记忆 APP · 杂志排版复刻版（总览 / 时间线 / 未完成 / 图谱 / 搜索 / 归档） ===== */
   window.__memScope = window.__memScope || "*";
   window.__memTab = window.__memTab || "overview";
-  function memMaskName(mid) {
+  function mxMaskName(mid) {
     const m = (db.masks || []).find(function (x) { return x.id === mid; });
     return m && m.name ? m.name : "未命名面具";
   }
-  function memCharName(c) {
+  function mxCharName(c) {
     return c ? (c.remarkName || c.realName || c.name || "未命名") : "未知角色";
   }
-  function memEntities() {
+  function mxEntities() {
     return (db.characters || []).concat(db.groups || []);
   }
-  function memRows() {
+  function mxRows() {
     const scope = window.__memScope || "*";
     const rows = [];
-    memEntities().forEach(function (c) {
-      try {
-        MemoryOS.all(c.id, scope).forEach(function (m) { rows.push({ m: m, c: c }); });
-      } catch (e) {}
+    mxEntities().forEach(function (c) {
+      try { MemoryOS.all(c.id, scope).forEach(function (m) { rows.push({ m: m, c: c }); }); } catch (e) {}
     });
     rows.sort(function (a, b) { return (b.m.event_time || b.m.created_at) - (a.m.event_time || a.m.created_at); });
     return rows;
   }
-  function memMaskChips() {
-    const row = document.createElement("div");
-    row.style.cssText = "display:flex;gap:7px;overflow-x:auto;padding:0 0 2px;";
-    const defs = [{ id: "*", label: "全部面具" }].concat((db.masks || []).map(function (m) { return { id: m.id, label: m.name || "未命名" }; }));
-    defs.forEach(function (d) {
-      const on = (window.__memScope || "*") === d.id;
+  function mxMaskChips(onChange) {
+    const wrap = document.createElement("div");
+    wrap.className = "mx-chips";
+    ["*"].concat((db.masks || []).map(function (m) { return m.id; })).forEach(function (id) {
       const b = document.createElement("button");
       b.type = "button";
-      b.textContent = d.label;
-      b.style.cssText = "flex:0 0 auto;cursor:pointer;font-size:11.5px;letter-spacing:.04em;padding:6px 11px;border-radius:2px;white-space:nowrap;"
-        + (on ? "background:#0a0a0b;color:#fff;border:1px solid #0a0a0b;" : "background:#fff;color:#1c1f24;border:1px solid #d4d6da;");
-      b.addEventListener("click", function () {
-        window.__memScope = d.id;
-        if (typeof window.__curScreen === "string" && window.__curScreen === "memory-detail-screen" && window.__currentMemoryCharId) {
-          const kw = (document.getElementById("memory-search-input") || {}).value || "";
-          renderMemoryDetail(window.__currentMemoryCharId, kw);
-        } else {
-          renderMemoryScreen();
-        }
-      });
-      row.appendChild(b);
+      b.className = "mx-chip" + ((window.__memScope || "*") === id ? " on" : "");
+      b.textContent = id === "*" ? "全部面具" : mxMaskName(id);
+      b.addEventListener("click", function () { window.__memScope = id; (onChange || renderMemoryScreen)(); });
+      wrap.appendChild(b);
     });
-    return row;
+    return wrap;
   }
-  function memSection(idx, label, extra) {
+  function mxHead(eyebrowLeft, eyebrowRight, title, ghost, sub) {
     const h = document.createElement("div");
-    h.style.cssText = "display:flex;align-items:baseline;gap:9px;margin:22px 0 10px;";
-    const ex = extra ? '<span style="font-size:9.5px;color:#9aa0a6;letter-spacing:.04em;">' + escapeHtml(extra) + '</span>' : "";
-    h.innerHTML = '<span style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:16px;color:#0a0a0b;">' + idx + '</span>'
-      + '<span style="flex:1;height:1px;background:#0a0a0b;opacity:.2;"></span>'
-      + '<span style="font-size:10px;letter-spacing:.18em;color:#6c7076;">' + escapeHtml(label) + '</span>'
-      + ex;
+    h.innerHTML = '<div style="display:flex;align-items:baseline;">'
+      + '<span class="mx-eyebrow">' + escapeHtml(eyebrowLeft) + '</span>'
+      + '<span class="mx-eyebrow" style="margin-left:auto;">' + escapeHtml(eyebrowRight) + '</span>'
+      + '</div>'
+      + '<div class="mx-titlewrap">'
+      + (ghost !== undefined && ghost !== null ? '<div class="mx-ghost">' + escapeHtml(String(ghost)) + '</div>' : "")
+      + '<h1 class="mx-title">' + escapeHtml(title) + '</h1>'
+      + '</div>'
+      + '<div class="mx-rule2" style="margin-top:9px;"></div>'
+      + '<div class="mx-rule1"></div>'
+      + (sub ? '<div style="font-size:9px;color:#a0a4a9;margin-top:7px;letter-spacing:.03em;">' + escapeHtml(sub) + '</div>' : "");
     return h;
   }
-  function memEmpty(txt) {
+  function mxSection(idx, name, extra) {
+    const s = document.createElement("div");
+    s.className = "mx-sec";
+    s.innerHTML = '<span class="mx-sec-idx">' + escapeHtml(idx) + '</span>'
+      + '<span class="mx-sec-line"></span>'
+      + '<span class="mx-sec-name">' + escapeHtml(name) + '</span>'
+      + (extra ? '<span class="mx-sec-extra">' + escapeHtml(extra) + '</span>' : "");
+    return s;
+  }
+  function mxTypeTag(m) {
+    const t = MemoryOS.TYPE_LABEL[m.memory_type] || m.memory_type;
+    const solid = (m.importance || 0) >= 0.8;
+    return '<span class="mx-tag' + (solid ? " solid" : "") + '">' + escapeHtml(t) + '</span>';
+  }
+  function mxEmpty(txt) {
     const d = document.createElement("div");
-    d.style.cssText = "padding:44px 0;text-align:center;font-size:12px;color:#9aa0a6;letter-spacing:.02em;";
+    d.className = "mx-empty";
     d.textContent = txt;
     return d;
   }
-  function memTypeChip(m) {
-    const hot = (m.importance || 0) >= 0.8;
-    const loopPending = m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled";
-    return '<span style="display:inline-block;font-size:9px;letter-spacing:.06em;padding:2px 5px;border:' + (loopPending ? "0" : "1px solid #d4d6da") + ';' + (loopPending ? "background:#0a0a0b;color:#fff;" : "color:#4a4d52;") + '">'
-      + escapeHtml(MemoryOS.TYPE_LABEL[m.memory_type] || m.memory_type) + (hot && !loopPending ? " ★" : "") + '</span>';
+  function mxOmask(m, folder) {
+    const p = folder[0].push.bind(folder[0]);
+    // no-op placeholder
   }
-  function memOpenRow(container, r) {
+  function mxEntry(r, opts) {
     const m = r.m;
-    const row = document.createElement("div");
-    row.style.cssText = "padding:11px 0;border-bottom:1px solid #ececee;cursor:pointer;";
-    row.innerHTML = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px;">'
-      + memTypeChip(m)
-      + '<span style="margin-left:auto;font-size:9px;color:#b0b4b9;letter-spacing:.04em;">' + escapeHtml(memMaskName(m.mask_id)) + '</span>'
+    const undone = m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled";
+    const e = document.createElement("div");
+    e.className = "mx-entry" + (undone && opts && opts.fadeUndone ? " mx-ghostline" : "");
+    e.innerHTML = (opts && opts.seq ? '<div style="display:flex;gap:10px;">'
+      + '<span style="flex:0 0 26px;font-family:\'Songti SC\',\'Noto Serif CJK SC\',serif;font-size:12px;color:#a0a4a9;padding-top:2px;">' + opts.seq + '</span>'
+      + '<div style="flex:1;min-width:0;">' : '<div>')
+      + '<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;">' + mxTypeTag(m)
+      + (m.versions && m.versions.length ? '<span class="mx-tag">修订 ' + m.versions.length + '</span>' : "")
+      + '<span style="margin-left:auto;font-size:8.5px;letter-spacing:.08em;color:#a0a4a9;">' + escapeHtml(mxMaskName(m.mask_id)) + '</span>'
       + '</div>'
-      + '<div style="font-size:13px;line-height:1.72;color:#1c1f24;word-break:break-word;">' + escapeHtml(m.content) + '</div>'
-      + '<div style="font-size:9.5px;color:#9aa0a6;margin-top:5px;letter-spacing:.03em;">' + escapeHtml(memCharName(r.c)) + ' · ' + escapeHtml(MemoryOS.fmt ? MemoryOS.fmt(m.event_time || m.created_at) : "") + '</div>';
-    row.addEventListener("click", function () { openMemSheet(m); });
-    container.appendChild(row);
+      + '<div class="t">' + escapeHtml(m.content) + '</div>'
+      + '<div class="m">' + escapeHtml(mxCharName(r.c)) + ' · ' + escapeHtml(MemoryOS.fmt ? MemoryOS.fmt(m.event_time || m.created_at) : "")
+      + (undone ? '<span style="margin-left:auto;color:#6c7076;">未完成 →</span>' : "")
+      + '</div></div></div>';
+    e.addEventListener("click", function () { openMemSheet(m); });
+    return e;
   }
-  function memOverview(container, rows, chars) {
+  function mxRelation(charId, scope) {
+    const list = MemoryOS.all(charId, scope).filter(function (m) { return m.status !== "archived"; });
+    const total = list.length;
+    let imp = 0;
+    list.forEach(function (m) { imp += (m.importance || 0); });
+    const avg = total ? imp / total : 0;
+    const rel = list.filter(function (m) { return m.memory_type === "relationship"; }).length;
+    const knots = list.filter(function (m) { return m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled"; }).length;
+    return {
+      total: total,
+      trust: Math.min(99, Math.round(46 + avg * 45 + Math.min(total, 20))),
+      familiar: Math.min(95, Math.round(48 + total * 4 + rel * 2)),
+      intimate: Math.min(92, Math.round(34 + rel * 9 + avg * 22)),
+      knots: knots
+    };
+  }
+  function mxOverview(container, rows, chars) {
     let core = 0, loops = 0, week = 0, covered = 0;
     const today = new Date().setHours(0, 0, 0, 0);
     const perChar = {};
@@ -23503,109 +23567,140 @@ function setupPhoneSystem() {
     });
     chars.forEach(function (c) { if (perChar[c.id]) covered++; });
 
-    container.appendChild(memSection("01", "总量", "TOTAL"));
-    const grid = document.createElement("div");
-    grid.style.cssText = "display:flex;gap:0;border-top:1px solid #0a0a0b;";
+    container.appendChild(mxSection("01", "总量", "TOTAL"));
+    const stats = document.createElement("div");
+    stats.style.cssText = "display:flex;border-top:1px solid #0a0a0b;";
     [["记忆", rows.length], ["重要", core], ["未完成", loops]].forEach(function (d, i) {
       const cell = document.createElement("div");
-      cell.style.cssText = "flex:1;padding:12px 2px 10px;" + (i ? "border-left:1px solid #ececee;padding-left:12px;" : "");
-      cell.innerHTML = '<div style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:27px;line-height:1;color:#0a0a0b;letter-spacing:-.5px;">' + d[1] + '</div>'
-        + '<div style="font-size:9px;letter-spacing:.2em;color:#9aa0a6;margin-top:7px;">' + d[0] + '</div>';
-      grid.appendChild(cell);
+      cell.style.cssText = "flex:1;padding:13px 0 9px;" + (i ? "border-left:1px solid #e4e5e7;padding-left:13px;" : "");
+      cell.innerHTML = '<div class="mx-serif" style="font-size:40px;line-height:.95;letter-spacing:-2px;">' + d[1] + '</div>'
+        + '<div class="mx-label" style="margin-top:8px;font-size:8.5px;">' + escapeHtml(d[0]) + '</div>';
+      stats.appendChild(cell);
     });
-    container.appendChild(grid);
+    container.appendChild(stats);
 
-    container.appendChild(memSection("02", "健康度", "STATUS"));
+    // 关系卡
+    let top = null, topN = 0;
+    chars.forEach(function (c) { if ((perChar[c.id] || 0) > topN) { topN = perChar[c.id]; top = c; } });
+    if (top) {
+      const rel = mxRelation(top.id, window.__memScope || "*");
+      container.appendChild(mxSection("02", "与 " + mxCharName(top) + " 的关系", "RELATION"));
+      const box = document.createElement("div");
+      box.style.cssText = "border-top:1px solid #0a0a0b;padding-top:11px;";
+      [["信任", rel.trust], ["熟悉", rel.familiar], ["亲密", rel.intimate]].forEach(function (d) {
+        const row = document.createElement("div");
+        row.style.cssText = "display:flex;align-items:center;gap:11px;padding:5px 0;";
+        row.innerHTML = '<span class="mx-serif" style="flex:0 0 32px;font-size:12px;">' + d[0] + '</span>'
+          + '<span class="mx-bar"><i style="width:' + d[1] + '%"></i></span>'
+          + '<span class="mx-serif" style="flex:0 0 34px;text-align:right;font-size:12px;">' + d[1] + '</span>';
+        box.appendChild(row);
+      });
+      const knot = document.createElement("div");
+      knot.style.cssText = "display:flex;align-items:center;gap:11px;padding:5px 0 2px;";
+      knot.innerHTML = '<span class="mx-serif" style="flex:0 0 32px;font-size:12px;">心结</span>'
+        + '<span style="flex:1;font-size:11px;letter-spacing:.18em;color:#0a0a0b;">' + (rel.knots ? "●".repeat(Math.min(5, rel.knots)) + "<span style='color:#dcdddf;'>" + "●".repeat(Math.max(0, 5 - rel.knots)) + "</span>" : "<span style='color:#dcdddf;'>○○○○○</span>") + '</span>'
+        + '<span class="mx-serif" style="flex:0 0 34px;text-align:right;font-size:12px;">' + rel.knots + '</span>';
+      box.appendChild(knot);
+      container.appendChild(box);
+    }
+
+    // 健康度
+    container.appendChild(mxSection("03", "健康度", "STATUS"));
     const cov = chars.length ? Math.round(covered / chars.length * 100) : 0;
     const health = document.createElement("div");
-    health.style.cssText = "display:flex;align-items:flex-start;gap:16px;";
-    health.innerHTML = '<div style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:34px;line-height:1;color:#0a0a0b;letter-spacing:-1px;">' + cov + '<span style="font-size:13px;color:#6c7076;margin-left:2px;">%</span></div>'
-      + '<div style="flex:1;font-size:10px;line-height:2;color:#8d9298;">'
-      + '<div style="display:flex;justify-content:space-between;"><span>覆盖角色</span><span style="color:#1c1f24;">' + covered + ' / ' + chars.length + '</span></div>'
-      + '<div style="display:flex;justify-content:space-between;"><span>本周新增</span><span style="color:#1c1f24;">' + week + '</span></div>'
-      + '<div style="display:flex;justify-content:space-between;"><span>跨面具读取</span><span style="color:#1c1f24;">已开启</span></div>'
+    health.style.cssText = "display:flex;align-items:flex-start;gap:14px;";
+    health.innerHTML = '<div class="mx-serif" style="font-size:44px;line-height:.9;letter-spacing:-2px;">' + cov + '<span style="font-size:14px;letter-spacing:0;color:#6c7076;">%</span></div>'
+      + '<div style="flex:1;padding-top:2px;">'
+      + '<div style="display:flex;font-size:9.5px;color:#a0a4a9;letter-spacing:.06em;padding:2px 0;"><span>覆盖角色</span><span style="margin-left:auto;color:#0a0a0b;">' + covered + ' / ' + chars.length + '</span></div>'
+      + '<div style="height:1px;background:#ececee;"></div>'
+      + '<div style="display:flex;font-size:9.5px;color:#a0a4a9;letter-spacing:.06em;padding:4px 0;"><span>本周新增</span><span style="margin-left:auto;color:#0a0a0b;">' + week + '</span></div>'
+      + '<div style="height:1px;background:#ececee;"></div>'
+      + '<div style="display:flex;font-size:9.5px;color:#a0a4a9;letter-spacing:.06em;padding:4px 0;"><span>跨面具读取</span><span style="margin-left:auto;color:#0a0a0b;">已开启</span></div>'
       + '</div>';
     container.appendChild(health);
 
-    container.appendChild(memSection("03", "角色", chars.length + " 位"));
-    const cols = document.createElement("div");
-    cols.style.cssText = "display:grid;grid-template-columns:1fr 1fr;gap:9px;";
+    // 角色
+    container.appendChild(mxSection("04", "角色", chars.length + " 位"));
+    const grid = document.createElement("div");
+    grid.className = "mx-grid2";
     chars.forEach(function (c) {
       const n = perChar[c.id] || 0;
       const card = document.createElement("div");
-      card.style.cssText = "border:1px solid #0a0a0b;padding:11px;cursor:pointer;background:#fff;";
-      card.innerHTML = '<div style="display:flex;align-items:center;gap:8px;">'
-        + '<img src="' + escapeHtml(c.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg") + '" style="width:30px;height:30px;border-radius:50%;object-fit:cover;background:#f2f2f2;flex:0 0 auto;filter:grayscale(1);" alt="">'
-        + '<div style="min-width:0;flex:1;">'
-        + '<div style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:13.5px;color:#0a0a0b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(memCharName(c)) + '</div>'
-        + '<div style="font-size:9px;color:#9aa0a6;margin-top:3px;letter-spacing:.02em;">' + (n ? n + ' 条记忆' : '还没有记忆') + '</div>'
+      card.className = "mx-card";
+      card.innerHTML = '<div style="display:flex;align-items:center;gap:8px;position:relative;z-index:1;">'
+        + '<img src="' + escapeHtml(c.avatar || "https://i.postimg.cc/Y96LPskq/o-o-2.jpg") + '" style="width:34px;height:34px;border-radius:50%;object-fit:cover;background:#f2f2f2;filter:grayscale(1);" alt="">'
+        + '<div style="min-width:0;">'
+        + '<div class="mx-serif" style="font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(mxCharName(c)) + '</div>'
+        + '<div style="font-size:8.5px;color:#a0a4a9;margin-top:4px;letter-spacing:.06em;">' + (n ? n + " 条 · 记忆" : "暂无记忆") + '</div>'
         + '</div></div>';
       card.addEventListener("click", function () { openMemoryDetail(c.id); });
-      cols.appendChild(card);
+      grid.appendChild(card);
     });
-    container.appendChild(cols);
+    container.appendChild(grid);
   }
-  function memTimeline(container, rows) {
-    if (!rows.length) { container.appendChild(memEmpty("还没有记忆。聊过约定、偏好、重要事件后，会自动出现在这条时间线上。")); return; }
-    container.appendChild(memSection("01", "纪年", "CHRONICLE"));
+  function mxTimeline(container, rows) {
+    if (!rows.length) { container.appendChild(mxEmpty("还没有记忆。聊过约定、偏好、重要事件后，会出现在这条时间线上。")); return; }
+    container.appendChild(mxSection("01", "纪年", "CHRONICLE"));
     let curDay = "", block = null;
-    rows.slice(0, 80).forEach(function (r) {
+    rows.slice(0, 90).forEach(function (r) {
       const ts = r.m.event_time || r.m.created_at;
       const d = new Date(ts);
       const key = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
       if (key !== curDay) {
         curDay = key;
         block = document.createElement("div");
-        block.style.cssText = "display:flex;gap:12px;padding:9px 0 4px;border-top:1px solid #e4e5e7;";
-        const left = document.createElement("div");
-        left.style.cssText = "width:44px;flex:0 0 auto;text-align:left;";
-        left.innerHTML = '<div style="font-size:8px;letter-spacing:.16em;color:#9aa0a6;">' + (d.getMonth() + 1) + '月</div>'
-          + '<div style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:19px;line-height:1.15;color:#0a0a0b;">' + d.getDate() + '</div>';
-        const right = document.createElement("div");
-        right.style.cssText = "flex:1;min-width:0;";
-        block.appendChild(left);
-        block.appendChild(right);
+        block.style.cssText = "display:flex;gap:12px;padding:14px 0 2px;border-top:1px solid #e4e5e7;position:relative;padding-left:16px;";
+        block.innerHTML = '<span style="position:absolute;left:0;top:20px;width:6px;height:6px;border-radius:50%;background:#0a0a0b;"></span>' + '<div style="flex:0 0 42px;text-align:left;">'
+          + '<div class="mx-label" style="font-size:8px;">' + ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"][d.getMonth()] + '</div>'
+          + '<div class="mx-serif" style="font-size:22px;line-height:1.1;letter-spacing:-1px;margin-top:2px;">' + d.getDate() + '</div>'
+          + '</div><div style="flex:1;min-width:0;"></div>';
         container.appendChild(block);
       }
       const right = block.lastChild;
       const row = document.createElement("div");
-      row.style.cssText = "padding:2px 0 11px;cursor:pointer;";
+      row.style.cssText = "padding:2px 0 12px;cursor:pointer;";
       const undone = r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled";
-      row.innerHTML = '<div style="font-size:12.5px;line-height:1.7;color:' + (undone ? "#8d9298" : "#1c1f24") + ';word-break:break-word;">' + escapeHtml(r.m.content) + '</div>'
-        + '<div style="display:flex;align-items:center;gap:7px;margin-top:4px;">'
-        + '<span style="font-size:9px;color:#9aa0a6;letter-spacing:.03em;">' + escapeHtml(memMaskName(r.m.mask_id)) + ' · ' + escapeHtml(memCharName(r.c)) + '</span>'
-        + memTypeChip(r.m)
-        + (undone ? '<span style="margin-left:auto;font-size:9px;color:#6c7076;">→</span>' : "")
+      row.innerHTML = '<div style="font-size:12.5px;line-height:1.76;color:' + (undone ? "#8d9298" : "#1c1f24") + ';">' + escapeHtml(r.m.content) + '</div>'
+        + '<div class="m" style="display:flex;align-items:center;gap:8px;margin-top:5px;font-size:8.5px;color:#a0a4a9;letter-spacing:.04em;">'
+        + '<span>' + escapeHtml(mxMaskName(r.m.mask_id)) + ' · ' + escapeHtml(mxCharName(r.c)) + '</span>'
+        + mxTypeTag(r.m)
+        + (undone ? '<span style="margin-left:auto;color:#6c7076;">→</span>' : "")
         + '</div>';
       row.addEventListener("click", function () { openMemSheet(r.m); });
       right.appendChild(row);
     });
-    container.appendChild(memSection("02", "合计", rows.length + " 条"));
+    const sum = document.createElement("div");
+    sum.style.cssText = "display:flex;align-items:center;padding:14px 0 0;border-top:1px solid #e4e5e7;margin-top:14px;font-size:9px;letter-spacing:.08em;color:#a0a4a9;";
+    sum.innerHTML = '<span>共 ' + rows.length + ' 条 · 时间倒序</span>'
+      + '<button type="button" style="margin-left:auto;background:#0a0a0b;color:#fff;border:0;padding:7px 12px;font-size:9.5px;letter-spacing:.14em;cursor:pointer;">搜索记忆</button>';
+    sum.querySelector("button").addEventListener("click", function () { window.__memTab = "search"; renderMemoryScreen(); });
+    container.appendChild(sum);
   }
-  function memLoops(container, rows) {
+  function mxLoops(container, rows) {
     const list = rows.filter(function (r) { return r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled" && r.m.status !== "archived"; });
-    if (!list.length) { container.appendChild(memEmpty("没有未完成的事。答应过的事、待回复的话题会自动记在这里。")); return; }
-    let overdue = 0;
-    const head = memSection("01", "待办", list.length + " 件");
-    container.appendChild(head);
+    if (!list.length) { container.appendChild(mxEmpty("没有未完成的事。答应过的事、待回复的话题会自动记在这里。")); return; }
+    let overdue = 0, active = 0;
+    container.appendChild(mxSection("01", "待办", list.length + " 件"));
     const th = document.createElement("div");
-    th.style.cssText = "display:flex;gap:9px;font-size:8.5px;letter-spacing:.16em;color:#b0b4b9;padding:0 0 7px;border-bottom:1px solid #0a0a0b;";
-    th.innerHTML = '<span style="width:14px;">　</span><span style="width:20px;">序号</span><span style="flex:1;">事项</span><span>状态</span>';
+    th.style.cssText = "display:flex;gap:8px;font-size:8px;letter-spacing:.22em;color:#a0a4a9;padding-bottom:7px;border-bottom:1px solid #0a0a0b;text-transform:uppercase;";
+    th.innerHTML = '<span style="width:18px;"></span><span style="flex:1;">事项 &nbsp;序号</span><span>状态</span>';
     container.appendChild(th);
     list.forEach(function (r, i) {
       const m = r.m;
       const days = Math.max(0, Math.floor((Date.now() - (m.created_at || Date.now())) / 864e5));
       const late = days >= 7;
-      if (late) overdue++;
+      if (late) overdue++; else active++;
       const row = document.createElement("div");
-      row.style.cssText = "display:flex;align-items:flex-start;gap:9px;padding:13px 0;border-bottom:1px solid #ececee;";
-      row.innerHTML = '<button type="button" style="width:14px;height:14px;flex:0 0 auto;margin-top:2px;border:1px solid #0a0a0b;background:#fff;cursor:pointer;padding:0;"></button>'
-        + '<span style="width:20px;font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:12px;color:#9aa0a6;">' + (i + 1 < 10 ? "0" + (i + 1) : (i + 1)) + '</span>'
+      row.style.cssText = "display:flex;align-items:flex-start;gap:8px;padding:14px 0 14px;border-bottom:1px solid #ececee;";
+      row.innerHTML = '<button type="button" style="width:15px;height:15px;flex:0 0 auto;margin-top:3px;border:1px solid #0a0a0b;background:#fff;cursor:pointer;padding:0;"></button>'
         + '<div style="flex:1;min-width:0;">'
-        + '<div style="font-size:13px;line-height:1.65;color:#1c1f24;word-break:break-word;">' + escapeHtml(m.content) + '</div>'
-        + '<div style="font-size:9px;color:#9aa0a6;margin-top:4px;letter-spacing:.03em;">' + escapeHtml(memCharName(r.c)) + ' · ' + escapeHtml(memMaskName(m.mask_id)) + ' · ' + escapeHtml(MemoryOS.fmt ? MemoryOS.fmt(m.created_at) : "") + '</div>'
+        + '<div style="display:flex;gap:8px;align-items:baseline;">'
+        + '<span class="mx-serif" style="font-size:11px;color:#a0a4a9;">' + (i < 9 ? "0" + (i + 1) : (i + 1)) + '</span>'
+        + '<span style="font-size:13px;line-height:1.7;">' + escapeHtml(m.content) + '</span>'
         + '</div>'
-        + '<span style="flex:0 0 auto;font-size:9px;padding:3px 6px;' + (late ? "background:#0a0a0b;color:#fff;" : "border:1px solid #d4d6da;color:#6c7076;") + '">' + (late ? "逾期 " + days + " 天" : "按期") + '</span>';
+        + '<div style="font-size:8.5px;color:#a0a4a9;margin-top:5px;letter-spacing:.04em;">' + escapeHtml(mxCharName(r.c)) + ' · ' + escapeHtml(mxMaskName(m.mask_id)) + ' · ' + escapeHtml(MemoryOS.fmt ? MemoryOS.fmt(m.created_at) : "") + '</div>'
+        + '</div>'
+        + '<span style="flex:0 0 auto;font-size:8.5px;letter-spacing:.08em;padding:3px 7px;' + (late ? "background:#0a0a0b;color:#fff;" : "border:1px solid #d6d7da;color:#6c7076;") + '">' + (late ? "逾期 " + days + " 天" : "按期") + '</span>';
       row.querySelector("button").addEventListener("click", function (e) {
         e.stopPropagation();
         MemoryOS.setLoop(m.id, "completed");
@@ -23616,34 +23711,104 @@ function setupPhoneSystem() {
       container.appendChild(row);
     });
     const foot = document.createElement("div");
-    foot.style.cssText = "padding:12px 0;font-size:10px;color:#8d9298;letter-spacing:.04em;";
-    foot.textContent = "共 " + list.length + " 件 · 逾期 " + overdue + " 件 · 点方框即完成";
+    foot.style.cssText = "display:flex;align-items:center;border-top:1px solid #0a0a0b;margin-top:16px;padding-top:10px;font-size:9px;letter-spacing:.08em;color:#a0a4a9;";
+    foot.innerHTML = '<span>按期 ' + active + ' · 逾期 ' + overdue + '</span>'
+      + '<span style="margin-left:auto;color:#0a0a0b;cursor:pointer;" id="mx-archive-link">已归档 ' + rows.filter(function (r) { return r.m.status === "archived"; }).length + ' 条 →</span>';
+    foot.querySelector("#mx-archive-link").addEventListener("click", function () { window.__memTab = "archive"; renderMemoryScreen(); });
     container.appendChild(foot);
   }
-  function memSearchTab(container, rows) {
-    container.appendChild(memSection("01", "索引", "INDEX"));
+  function mxGraph(container, rows) {
+    const scope = window.__memScope || "*";
+    const counts = {};
+    rows.forEach(function (r) {
+      const arr = (r.m.entities || []).concat(r.m.tags || []);
+      arr.forEach(function (e) {
+        const k = String(e || "").trim();
+        if (!k || k.length > 8) return;
+        counts[k] = (counts[k] || 0) + 1 + (r.m.importance || 0);
+      });
+    });
+    const nodes = Object.keys(counts).sort(function (a, b) { return counts[b] - counts[a]; }).slice(0, 6);
+    let top = null, topN = 0;
+    const per = {};
+    rows.forEach(function (r) { per[r.c.id] = (per[r.c.id] || 0) + 1; });
+    mxEntities().forEach(function (c) { if ((per[c.id] || 0) > topN) { topN = per[c.id]; top = c; } });
+    container.appendChild(mxSection("01", "关系图", "FIG. 01"));
+    const stage = document.createElement("div");
+    stage.style.cssText = "position:relative;border-top:1px solid #e4e5e7;padding-top:6px;";
+    const W = 330, H = 360, CX = 165, CY = 180;
+    let svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;display:block;">';
+    svg += '<circle cx="' + CX + '" cy="' + CY + '" r="70" fill="none" stroke="#ececee" stroke-width="1" stroke-dasharray="1 5"/>';
+    svg += '<circle cx="' + CX + '" cy="' + CY + '" r="118" fill="none" stroke="#ececee" stroke-width="1" stroke-dasharray="1 6"/>';
+    svg += '<circle cx="' + CX + '" cy="' + CY + '" r="150" fill="none" stroke="#f3f4f5" stroke-width="1"/>';
+    for (let a = 0; a < 360; a += 30) {
+      const rad = a * Math.PI / 180;
+      const x1 = CX + Math.cos(rad) * 150, y1 = CY + Math.sin(rad) * 150;
+      const x2 = CX + Math.cos(rad) * 156, y2 = CY + Math.sin(rad) * 156;
+      svg += '<line x1="' + x1.toFixed(1) + '" y1="' + y1.toFixed(1) + '" x2="' + x2.toFixed(1) + '" y2="' + y2.toFixed(1) + '" stroke="#dcdddf" stroke-width="1"/>';
+    }
+    svg += '<line x1="' + CX + '" y1="' + (CY - 165) + '" x2="' + CX + '" y2="' + (CY - 152) + '" stroke="#0a0a0b" stroke-width="1"/>';
+    svg += '<line x1="' + CX + '" y1="' + (CY + 152) + '" x2="' + CX + '" y2="' + (CY + 165) + '" stroke="#0a0a0b" stroke-width="1"/>';
+    svg += '<text x="' + (CX - 4) + '" y="' + (CY - 136) + '" font-size="7" fill="#a0a4a9" text-anchor="end">N</text>';
+    const pts = [];
+    nodes.forEach(function (n, i) {
+      const ang = (-90 + i * 60 + (i % 2 ? 8 : -6)) * Math.PI / 180;
+      const radius = i % 2 ? 108 : 122;
+      const x = CX + Math.cos(ang) * radius, y = CY + Math.sin(ang) * radius;
+      pts.push({ n: n, x: x, y: y });
+    });
+    pts.forEach(function (p, i) {
+      svg += '<line x1="' + CX + '" y1="' + CY + '" x2="' + p.x.toFixed(1) + '" y2="' + p.y.toFixed(1) + '" stroke="#c9cbce" stroke-width="1"/>';
+    });
+    svg += '<circle cx="' + CX + '" cy="' + CY + '" r="9" fill="#0a0a0b"/>';
+    svg += '<text x="' + CX + '" y="' + (CY + 24) + '" font-size="11" fill="#0a0a0b" text-anchor="middle" font-family="Songti SC,Noto Serif CJK SC,serif">' + escapeHtml(top ? mxCharName(top).slice(0, 4) : "我") + '</text>';
+    pts.forEach(function (p, i) {
+      svg += '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="10" fill="#fff" stroke="#0a0a0b" stroke-width="1"/>';
+      svg += '<text x="' + p.x.toFixed(1) + '" y="' + (p.y + 3).toFixed(1) + '" font-size="8" fill="#0a0a0b" text-anchor="middle">' + (i + 1) + '</text>';
+      const anchor = p.x >= CX ? "start" : "end";
+      const dx = p.x >= CX ? 15 : -15;
+      svg += '<text x="' + (p.x + dx).toFixed(1) + '" y="' + (p.y - 2).toFixed(1) + '" font-size="10" fill="#0a0a0b" text-anchor="' + anchor + '" font-family="Songti SC,Noto Serif CJK SC,serif">' + escapeHtml(p.n) + '</text>';
+      svg += '<text x="' + (p.x + dx).toFixed(1) + '" y="' + (p.y + 10).toFixed(1) + '" font-size="7.5" fill="#a0a4a9" text-anchor="' + anchor + '">提及 ' + Math.round(counts[p.n]) + ' 次</text>';
+    });
+    svg += '</svg>';
+    stage.innerHTML = svg;
+    container.appendChild(stage);
+    if (!nodes.length) {
+      const tip = document.createElement("div");
+      tip.className = "mx-empty";
+      tip.textContent = "还没有可以连成图的关系。多聊几次，人物、地点、物件会自动长出来。";
+      container.appendChild(tip);
+    }
+    container.appendChild(mxSection("02", "图例", nodes.length + " 个节点"));
+    const legend = document.createElement("div");
+    legend.style.cssText = "border:1px solid #0a0a0b;padding:9px 10px;font-size:9px;letter-spacing:.06em;color:#4a4d52;display:flex;gap:14px;flex-wrap:wrap;";
+    legend.innerHTML = '<span>● 人物</span><span>○ 事件 / 物</span><span>— 关联</span><span style="margin-left:auto;color:#a0a4a9;">点节点展开</span>';
+    container.appendChild(legend);
+  }
+  function mxSearch(container, rows) {
+    container.appendChild(mxSection("01", "索引", "INDEX"));
     const box = document.createElement("div");
-    box.style.cssText = "display:flex;align-items:center;gap:8px;border-bottom:2px solid #0a0a0b;padding:6px 0 8px;";
-    box.innerHTML = '<span style="font-size:13px;color:#0a0a0b;">⌕</span>'
-      + '<input type="text" style="flex:1;border:0;outline:none;background:transparent;font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:20px;color:#0a0a0b;letter-spacing:.02em;" placeholder="搜一句、一个人、一件事">';
+    box.style.cssText = "display:flex;align-items:baseline;gap:9px;border-bottom:2px solid #0a0a0b;padding:4px 0 8px;";
+    box.innerHTML = '<span style="font-size:12px;">⌕</span>'
+      + '<input type="text" id="mx-q" style="flex:1;border:0;outline:none;background:transparent;font-family:\'Songti SC\',\'Noto Serif CJK SC\',serif;font-size:22px;letter-spacing:.01em;" placeholder="摄影、相机、名字">';
     container.appendChild(box);
-    const input = box.querySelector("input");
+    const input = box.querySelector("#mx-q");
     input.value = window.__memQuery || "";
     const nav = document.createElement("div");
-    nav.style.cssText = "display:flex;gap:12px;font-size:10.5px;color:#8d9298;padding:10px 0 4px;letter-spacing:.06em;overflow-x:auto;";
+    nav.style.cssText = "display:flex;gap:13px;padding:11px 0 3px;font-size:10px;color:#a0a4a9;letter-spacing:.1em;overflow-x:auto;";
     const result = document.createElement("div");
-    const defs = [["all", "全部"], ["core", "核心"], ["episodic", "事件"], ["relationship", "关系"], ["profile", "认知"], ["loop", "未完成"], ["life", "生活"]];
+    const defs = [["all", "全部"], ["hot", "重要"], ["core", "核心"], ["episodic", "事件"], ["relationship", "关系"], ["profile", "认知"], ["loop", "未完成"], ["life", "生活"]];
     if (!window.__memTypeFilter) window.__memTypeFilter = "all";
     function draw() {
       const q = (input.value || "").trim().toLowerCase();
       const f = window.__memTypeFilter || "all";
       nav.innerHTML = "";
       defs.forEach(function (d) {
+        const on = f === d[0];
         const b = document.createElement("button");
         b.type = "button";
         b.textContent = d[1];
-        const on = f === d[0];
-        b.style.cssText = "flex:0 0 auto;background:none;border:0;padding:0 0 2px;cursor:pointer;font-size:10.5px;color:" + (on ? "#0a0a0b" : "#9aa0a6") + ";border-bottom:" + (on ? "1px solid #0a0a0b" : "1px solid transparent") + ";font-weight:" + (on ? "600" : "400") + ";";
+        b.style.cssText = "flex:0 0 auto;background:none;border:0;padding:0 0 3px;cursor:pointer;font-size:10px;letter-spacing:.1em;color:" + (on ? "#0a0a0b" : "#a0a4a9") + ";border-bottom:" + (on ? "1px solid #0a0a0b" : "1px solid transparent") + ";font-weight:" + (on ? "650" : "400") + ";";
         b.addEventListener("click", function () { window.__memTypeFilter = d[0]; draw(); });
         nav.appendChild(b);
       });
@@ -23654,14 +23819,60 @@ function setupPhoneSystem() {
         const s = (String(r.m.content || "") + " " + (r.m.title || "") + " " + (r.m.tags || []).join(" ") + " " + (r.m.entities || []).join(" ")).toLowerCase();
         return s.indexOf(q) >= 0;
       });
-      result.innerHTML = '<div style="font-size:9px;color:#9aa0a6;letter-spacing:.08em;padding:2px 0 6px;">找到 ' + list.length + ' 条 · ' + ((window.__memScope || "*") === "*" ? "跨全部面具" : "仅 " + memMaskName(window.__memScope)) + '</div>';
-      if (!list.length) { result.appendChild(memEmpty("没有匹配的记忆")); return; }
-      list.slice(0, 50).forEach(function (r) { memOpenRow(result, r); });
+      result.innerHTML = '<div style="display:flex;font-size:8.5px;color:#a0a4a9;letter-spacing:.1em;padding:9px 0 8px;border-bottom:1px solid #e4e5e7;"><span>找到 ' + list.length + ' 条</span><span style="margin-left:auto;">' + ((window.__memScope || "*") === "*" ? "跨全部面具" : "仅 " + escapeHtml(mxMaskName(window.__memScope))) + ' · 按相关度</span></div>';
+      if (!list.length) { result.appendChild(mxEmpty("没有匹配的记忆")); return; }
+      list.slice(0, 60).forEach(function (r) { result.appendChild(mxEntry(r)); });
     }
     input.addEventListener("input", function () { window.__memQuery = input.value; draw(); });
     container.appendChild(nav);
     container.appendChild(result);
     draw();
+  }
+  function mxArchive(container, rows) {
+    const arch = rows.filter(function (r) { return r.m.status === "archived"; });
+    container.appendChild(mxSection("01", "归档", arch.length + " 条"));
+    if (!arch.length) container.appendChild(mxEmpty("还没有被归档的记忆。长时间没被想起来的会自动淡出，收在这里。"));
+    arch.forEach(function (r) {
+      const row = document.createElement("div");
+      row.style.cssText = "display:flex;align-items:center;gap:10px;padding:13px 0;border-bottom:1px solid #ececee;";
+      row.innerHTML = '<span style="width:7px;height:7px;border:1px solid #8d9298;border-radius:50%;flex:0 0 auto;"></span>'
+        + '<div style="flex:1;min-width:0;font-size:12.5px;line-height:1.7;color:#4a4d52;">' + escapeHtml(r.m.content)
+        + '<div style="font-size:8.5px;color:#a0a4a9;margin-top:4px;letter-spacing:.04em;">' + escapeHtml(mxCharName(r.c)) + ' · ' + escapeHtml(mxMaskName(r.m.mask_id)) + '</div></div>'
+        + '<span style="flex:0 0 auto;font-size:9px;border:1px solid #0a0a0b;padding:3px 8px;cursor:pointer;letter-spacing:.06em;">还原</span>';
+      row.querySelector("span:last-child").addEventListener("click", function (e) {
+        e.stopPropagation();
+        MemoryOS.update(r.m.id, { status: "active" });
+        renderMemoryScreen();
+        showToast("已还原");
+      });
+      row.addEventListener("click", function () { openMemSheet(r.m); });
+      container.appendChild(row);
+    });
+    container.appendChild(mxSection("02", "记忆设置", "SETTINGS"));
+    const cfg = (db.characters[0] || {}).offlineCfg || {};
+    [["自动总结间隔", ((cfg.summaryRounds || 6)) + " 轮"], ["保留时长", "90 天"], ["检索广度", "平衡"]].forEach(function (d) {
+      const row = document.createElement("div");
+      row.style.cssText = "display:flex;padding:10px 0;border-bottom:1px solid #ececee;font-size:11px;letter-spacing:.02em;";
+      row.innerHTML = '<span>' + d[0] + '</span><span class="mx-serif" style="margin-left:auto;font-size:13px;">' + d[1] + '</span>';
+      container.appendChild(row);
+    });
+    const btns = document.createElement("div");
+    btns.style.cssText = "display:flex;gap:9px;margin-top:16px;";
+    btns.innerHTML = '<button type="button" style="flex:1;border:1px solid #0a0a0b;background:#fff;padding:10px 0;font-size:10px;letter-spacing:.14em;cursor:pointer;">导入 JSON</button>'
+      + '<button type="button" style="flex:1;border:1px solid #0a0a0b;background:#0a0a0b;color:#fff;padding:10px 0;font-size:10px;letter-spacing:.14em;cursor:pointer;">导出全部</button>';
+    btns.addEventListener("click", function () {
+      const data = JSON.stringify({ memories: db.memories || [] }, null, 2);
+      try {
+        const blob = new Blob([data], { type: "application/json" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "memories.json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast("已导出 memories.json");
+      } catch (e) { showToast("导出失败"); }
+    });
+    container.appendChild(btns);
   }
   function renderMemoryScreen() {
     const container = document.getElementById("memory-app-container");
@@ -23670,50 +23881,38 @@ function setupPhoneSystem() {
     try { MemoryOS.migrate(); } catch (e) {}
     const scope = window.__memScope || "*";
     const tab = window.__memTab || "overview";
-    const rows = memRows();
-    const chars = memEntities();
+    const rows = mxRows();
+    const chars = mxEntities();
+    const body = document.createElement("div");
+    body.className = "mx";
+    body.style.cssText = "padding:2px 2px 0;display:flex;flex-direction:column;min-height:100%;box-sizing:border-box;";
+    container.appendChild(body);
 
-    const head = document.createElement("div");
-    head.style.cssText = "padding:2px 0 0;";
-    head.innerHTML = '<div style="display:flex;align-items:baseline;gap:10px;">'
-      + '<span style="font-size:8.5px;letter-spacing:.3em;color:#9aa0a6;">MEMORY</span>'
-      + '<span style="font-size:8.5px;letter-spacing:.3em;color:#9aa0a6;">ARCHIVE</span>'
-      + '<span style="margin-left:auto;font-size:8.5px;letter-spacing:.12em;color:#9aa0a6;">' + (scope === "*" ? "ALL MASKS" : "SINGLE MASK") + '</span>'
-      + '</div>'
-      + '<div style="display:flex;align-items:flex-end;gap:10px;margin-top:5px;">'
-      + '<h1 style="margin:0;font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:38px;line-height:.96;letter-spacing:-1.5px;color:#0a0a0b;font-weight:700;">记忆</h1>'
-      + '<span style="font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:34px;line-height:.9;color:#d2d3d6;letter-spacing:-1px;">' + rows.length + '</span>'
-      + '</div>'
-      + '<div style="height:2px;background:#0a0a0b;margin:7px 0 0;"></div>'
-      + '<div style="height:1px;background:#0a0a0b;opacity:.3;margin-top:2px;"></div>'
-      + '<div style="font-size:9.5px;color:#9aa0a6;margin-top:6px;letter-spacing:.02em;">' + escapeHtml(scope === "*" ? "所有面具的记忆都在这里，可往下收窄" : "只看「" + memMaskName(scope) + "」这一个面具") + '</div>';
-    container.appendChild(head);
+    const titles = { overview: "记忆", timeline: "时间线", loops: "未完成", graph: "图谱", search: "搜索", archive: "归档" };
+    const eyebrows = { overview: ["MEMORY · ARCHIVE", scope === "*" ? "ALL MASKS" : "SINGLE MASK"], timeline: ["CHRONICLE / 02", "P. 31"], loops: ["OPEN LOOPS", "5 件"], graph: ["MEMORY GRAPH", "FIG. 01"], search: ["INDEX / SEARCH", "—"], archive: ["ARCHIVE", "P. 44"] };
+    body.appendChild(mxHead(eyebrows[tab][0], eyebrows[tab][1], titles[tab], tab === "overview" ? rows.length : null,
+      tab === "overview" ? (scope === "*" ? "所有面具的记忆都在这里 · 可往下收窄" : "只看「" + mxMaskName(scope) + "」") : null));
 
-    const chips = memMaskChips();
-    chips.style.marginTop = "12px";
-    container.appendChild(chips);
+    body.appendChild(mxMaskChips(function () { renderMemoryScreen(); }));
 
-    const tabs = document.createElement("div");
-    tabs.style.cssText = "display:flex;align-items:center;gap:16px;margin-top:15px;border-bottom:1px solid #d4d6da;padding-bottom:0;overflow-x:auto;";
-    [["overview", "总览"], ["timeline", "时间线"], ["loops", "未完成"], ["search", "搜索"]].forEach(function (d) {
-      const on = tab === d[0];
+    if (tab === "overview") mxOverview(body, rows, chars);
+    else if (tab === "timeline") mxTimeline(body, rows);
+    else if (tab === "loops") mxLoops(body, rows);
+    else if (tab === "graph") mxGraph(body, rows);
+    else if (tab === "search") mxSearch(body, rows);
+    else mxArchive(body, rows);
+
+    const nav = document.createElement("div");
+    nav.className = "mx-nav";
+    [["overview", "总览"], ["timeline", "时间线"], ["loops", "未完成"], ["graph", "图谱"]].forEach(function (d) {
       const b = document.createElement("button");
       b.type = "button";
+      b.className = tab === d[0] ? "on" : "";
       b.textContent = d[1];
-      b.style.cssText = "flex:0 0 auto;background:none;border:0;cursor:pointer;padding:2px 0 8px;font-size:12px;letter-spacing:.08em;color:" + (on ? "#0a0a0b" : "#9aa0a6") + ";font-weight:" + (on ? "650" : "400") + ";border-bottom:" + (on ? "2px solid #0a0a0b" : "2px solid transparent") + ";margin-bottom:-1px;";
       b.addEventListener("click", function () { window.__memTab = d[0]; renderMemoryScreen(); });
-      tabs.appendChild(b);
+      nav.appendChild(b);
     });
-    container.appendChild(tabs);
-
-    const body = document.createElement("div");
-    body.style.cssText = "padding-top:2px;";
-    container.appendChild(body);
-    if (!chars.length) { body.appendChild(memEmpty("还没有角色。每个角色都会在这里拥有独立的记忆档案。")); return; }
-    if (tab === "overview") memOverview(body, rows, chars);
-    else if (tab === "timeline") memTimeline(body, rows);
-    else if (tab === "loops") memLoops(body, rows);
-    else memSearchTab(body, rows);
+    body.appendChild(nav);
   }
   function openMemoryDetail(charId) {
     const c = db.characters.find((x) => x.id === charId) || (db.groups || []).find((x) => x.id === charId);
@@ -23722,7 +23921,7 @@ function setupPhoneSystem() {
     window.__memTypeFilter = "all";
     try { MemoryOS.migrate(); } catch (e) {}
     const titleEl = document.getElementById("memory-detail-title");
-    if (titleEl) titleEl.textContent = (c.remarkName || c.realName || c.name || "角色") + " 的记忆";
+    if (titleEl) titleEl.textContent = "记忆档案";
     const si = document.getElementById("memory-search-input");
     if (si) si.value = "";
     renderMemoryDetail(charId);
@@ -23731,45 +23930,7 @@ function setupPhoneSystem() {
 
   function renderMemFilters(charId) {
     const bar = document.getElementById("memory-filter-bar");
-    if (!bar) return;
-    bar.innerHTML = "";
-    let scopeWrap = document.getElementById("memory-scope-bar");
-    if (!scopeWrap) {
-      scopeWrap = document.createElement("div");
-      scopeWrap.id = "memory-scope-bar";
-      scopeWrap.style.cssText = "padding:10px 14px 8px;background:#fff;border-bottom:1px solid #ececee;";
-      bar.parentNode.insertBefore(scopeWrap, bar);
-    }
-    scopeWrap.innerHTML = "";
-    const scopeRow = memMaskChips();
-    scopeWrap.appendChild(scopeRow);
-    const cur = window.__memTypeFilter || "all";
-    const defs = [["all", "全部"], ["hot", "重要"], ["core", "核心"], ["episodic", "事件"], ["relationship", "关系"], ["profile", "认知"], ["loop", "未完成"], ["life", "生活"]];
-    defs.forEach(function (d) {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.textContent = d[1];
-      b.style.cssText = "flex:0 0 auto;background:none;border:0;padding:0 0 4px;margin-right:11px;cursor:pointer;font-size:11px;letter-spacing:.06em;color:" + (cur === d[0] ? "#0a0a0b" : "#9aa0a6") + ";font-weight:" + (cur === d[0] ? "650" : "400") + ";border-bottom:" + (cur === d[0] ? "2px solid #0a0a0b" : "1px solid transparent") + ";";
-      b.addEventListener("click", function () {
-        window.__memTypeFilter = d[0];
-        const kw = (document.getElementById("memory-search-input") || {}).value || "";
-        renderMemoryDetail(charId, kw);
-      });
-      bar.appendChild(b);
-    });
-    const clear = document.createElement("button");
-    clear.type = "button";
-    clear.textContent = "清空此面具";
-    clear.style.cssText = "flex:0 0 auto;background:none;border:0;padding:0 0 4px;margin-left:auto;cursor:pointer;font-size:9.5px;letter-spacing:.03em;color:#b4544f;white-space:nowrap;";
-    clear.addEventListener("click", async function () {
-      const mask = getCurrentMask();
-      if (!await uiConfirm("删除「" + (mask ? mask.name : "当前面具") + "」下这个角色的全部记忆？其他面具的记忆不受影响。", "删除")) return;
-      MemoryOS.purge(charId);
-      renderMemoryDetail(charId, "");
-      renderMemoryScreen();
-      showToast("已清空该面具下的记忆");
-    });
-    bar.appendChild(clear);
+    if (bar) bar.innerHTML = "";
   }
   function openMemSheet(m) {
     if (!m) return;
@@ -23850,84 +24011,71 @@ function setupPhoneSystem() {
     const container = document.getElementById("memory-detail-container");
     if (!container) return;
     container.innerHTML = "";
-    renderMemFilters(charId);
-    const mask = getCurrentMask();
+    const inputEl = document.getElementById("memory-search-input");
+    if (inputEl && inputEl.parentElement) inputEl.parentElement.style.display = "none";
+    const c = db.characters.find(function (x) { return x.id === charId; }) || (db.groups || []).find(function (x) { return x.id === charId; });
+    const scope = window.__memScope || "*";
+    const list = MemoryOS.search({ character_id: charId, q: keyword || "", mask_all: scope === "*" });
     const f = window.__memTypeFilter || "all";
-    let list;
-    const allMasks = (window.__memScope || "*") === "*";
-    if (f === "hot") {
-      list = MemoryOS.search({ character_id: charId, q: keyword, mask_all: allMasks }).filter(function (m) { return (m.importance || 0) >= 0.8; });
-    } else {
-      list = MemoryOS.search({ character_id: charId, q: keyword, type: f, mask_all: allMasks });
-    }
-    const tip = document.createElement("div");
-    tip.style.cssText = "font-size:11.5px;color:#9aa0a6;padding:2px 2px 10px;line-height:1.6;";
-    tip.textContent = (allMasks ? "范围：全部面具" : "范围：" + (mask ? mask.name : "—")) + " · " + list.length + " 条记忆";
-    container.appendChild(tip);
-    if (!list.length) {
-      container.innerHTML += '<div class="offline-empty-hint" style="padding:48px 0;">' + (keyword ? "没有匹配的记忆" : "此面具下还没有记忆。聊天里出现约定、偏好、重要事件时，会自动记在这里。") + '</div>';
+    const page = document.createElement("div");
+    page.className = "mx";
+    page.style.cssText = "padding:6px 2px 0;";
+    page.appendChild(mxHead("ARCHIVE / 01", "P. " + String(list.length).padStart(2, "0"), mxCharName(c), null,
+      "她的记忆 · 共 " + list.length + " 条 · " + (scope === "*" ? "跨全部面具" : mxMaskName(scope))));
+    page.appendChild(mxMaskChips(function () { renderMemoryDetail(charId, keyword || ""); }));
+
+    const nav = document.createElement("div");
+    nav.style.cssText = "display:flex;flex-wrap:wrap;align-items:center;gap:0;padding:14px 0 0;";
+    const defs = [["all", "全部"], ["hot", "重要"], ["core", "核心"], ["episodic", "事件"], ["relationship", "关系"], ["profile", "认知"], ["loop", "未完成"], ["life", "生活"]];
+    defs.forEach(function (d, i) {
+      const on = f === d[0];
+      if (i) {
+        const sep = document.createElement("span");
+        sep.textContent = "⋰";
+        sep.style.cssText = "color:#d2d3d6;font-size:9px;padding:0 6px;";
+        nav.appendChild(sep);
+      }
+      const b = document.createElement("button");
+      b.type = "button";
+      b.textContent = d[1];
+      b.style.cssText = "background:none;border:0;padding:0 0 3px;cursor:pointer;font-size:11px;letter-spacing:.06em;color:" + (on ? "#0a0a0b" : "#a0a4a9") + ";font-weight:" + (on ? "650" : "400") + ";border-bottom:" + (on ? "2px solid #0a0a0b" : "1px solid transparent") + ";";
+      b.addEventListener("click", function () { window.__memTypeFilter = d[0]; renderMemoryDetail(charId, keyword || ""); });
+      nav.appendChild(b);
+    });
+    page.appendChild(nav);
+    const rule = document.createElement("div");
+    rule.style.cssText = "height:1px;background:#e4e5e7;margin-top:10px;";
+    page.appendChild(rule);
+
+    let items = list;
+    if (f === "hot") items = items.filter(function (m) { return (m.importance || 0) >= 0.8; });
+    else if (f !== "all") items = items.filter(function (m) { return m.memory_type === f; });
+
+    if (!items.length) {
+      page.appendChild(mxEmpty(keyword ? "没有匹配的记忆" : "这一范围下还没有记忆。"));
+      container.appendChild(page);
       return;
     }
-    let curDay = "";
-    list.forEach(function (m) {
+    let curDay = "", group = null, seq = 0;
+    items.forEach(function (m) {
       const ts = m.event_time || m.created_at;
       const d = new Date(ts);
-      const dayKey = d.getFullYear() + "年" + (d.getMonth() + 1) + "月" + d.getDate() + "日";
-      if (dayKey !== curDay) {
-        curDay = dayKey;
-        const h = document.createElement("div");
-        h.style.cssText = "font-family:\'Songti SC\',\'Noto Serif SC\',serif;font-size:13px;letter-spacing:.04em;color:#0a0a0b;margin:16px 0 2px;padding-bottom:5px;border-bottom:1px solid #0a0a0b;opacity:.85;";
-        h.textContent = dayKey;
-        container.appendChild(h);
+      const key = d.getFullYear() + "-" + (d.getMonth() + 1) + "-" + d.getDate();
+      if (key !== curDay) {
+        curDay = key;
+        const head = document.createElement("div");
+        head.className = "mx-date";
+        head.innerHTML = (d.getMonth() + 1) + "月" + d.getDate() + "日 <small>" + d.getFullYear() + '</small><span style="margin-left:auto;font-size:8px;letter-spacing:.22em;color:#a0a4a9;">' + ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"][d.getMonth()] + '</span>';
+        page.appendChild(head);
+        group = document.createElement("div");
+        page.appendChild(group);
       }
-      const item = document.createElement("div");
-      const stat = mosStatusText(m);
-      item.style.cssText = "padding:13px 2px 14px;border-bottom:1px solid #ececee;cursor:pointer;";
-      item.innerHTML = '<div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">'
-        + memTypeChip(m)
-        + (stat ? '<span style="font-size:9px;color:' + (m.status === "completed" ? "#7c9c84" : "#c07b34") + ';letter-spacing:.04em;">' + stat + '</span>' : "")
-        + '<span style="margin-left:auto;font-size:9px;color:#b6babe;letter-spacing:.04em;">' + escapeHtml(memMaskName(m.mask_id)) + ' · ' + (MemoryOS.SRC_LABEL[m.source_type] || m.source_type) + '</span>'
-        + '</div>'
-        + '<div style="font-size:13px;line-height:1.74;color:#1c1f24;word-break:break-word;">' + escapeHtml(m.content) + '</div>'
-        + '<div style="display:flex;gap:14px;justify-content:flex-end;margin-top:7px;font-size:10px;letter-spacing:.06em;color:#8d9298;">'
-        + '<span data-op="star" style="cursor:pointer;">' + ((m.importance || 0) >= 0.8 ? "取消标星" : "标星") + '</span>'
-        + '<span data-op="edit" style="cursor:pointer;">修改</span>'
-        + '<span data-op="del" style="cursor:pointer;">删除</span>'
-        + '</div>';
-      item.addEventListener("click", function (e) {
-        const b = e.target.closest("[data-op]");
-        if (b) {
-          e.stopPropagation();
-          const op = b.dataset.op;
-          if (op === "star") {
-            MemoryOS.update(m.id, { importance: (m.importance || 0) >= 0.8 ? 0.5 : 0.95 });
-            renderMemoryDetail(charId, keyword);
-            return;
-          }
-          if (op === "edit") {
-            uiPrompt("修改这条记忆：", m.content).then(function (t) {
-              if (t === null) return;
-              const nt = t.trim();
-              if (!nt) return;
-              MemoryOS.update(m.id, { content: nt });
-              renderMemoryDetail(charId, keyword);
-            });
-            return;
-          }
-          if (op === "del") {
-            uiConfirm("删除这条记忆？只影响当前面具下的这个角色。", "删除").then(function (ok) {
-              if (!ok) return;
-              MemoryOS.remove(m.id);
-              renderMemoryDetail(charId, keyword);
-            });
-            return;
-          }
-        }
-        openMemSheet(m);
-      });
-      container.appendChild(item);
+      seq++;
+      group.appendChild(mxEntry({ m: m, c: c }, { seq: (seq < 10 ? "0" + seq : String(seq)), fadeUndone: true }));
     });
+    container.appendChild(page);
   }
+
     let _memorySearchTimer = null;
   document.addEventListener("input", (e) => {
     if (e.target.id === "memory-search-input") {
@@ -37080,7 +37228,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.5.2 ================= */
+/* ================= 404 桌面复刻 v5.5.3 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
