@@ -10755,7 +10755,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v5.5.6";
+  const APP_VERSION = "v5.5.7";
   let db = {
     characters: [],
     groups: [],
@@ -12649,7 +12649,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.6</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V5.5.7</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -12683,7 +12683,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.6<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V5.5.7<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -15410,7 +15410,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     return { facts, impressions };
   }
-  function pushMemory(charId, source, content, type, maskId) {
+  function pushMemory(charId, source, content, type, maskId, batch, roundRange) {
     if (!content) return;
     try {
       const isImpress = type === "impression";
@@ -15420,7 +15420,9 @@ document.addEventListener("DOMContentLoaded", () => {
         importance: isImpress ? 0.7 : 0.9,
         confidence: isImpress ? 0.45 : 0.75,
         tags: isImpress ? ["印象"] : ["剧情"],
-        mask_id: maskId
+        mask_id: maskId,
+        source_batch: batch || "",
+        round_range: roundRange || null
       });
       return;
     } catch (e) {}
@@ -18757,8 +18759,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function stampMask(msg, chat) {
     try {
-      if (msg && typeof msg === "object" && typeof msg.maskId !== "string") {
-        msg.maskId = (getCurrentMask() ? getCurrentMask().id : "") || (chat && chat.maskIds && chat.maskIds[0]) || "";
+      if (msg && typeof msg === "object") {
+        if (typeof msg.maskId !== "string") {
+          msg.maskId = (getCurrentMask() ? getCurrentMask().id : "") || (chat && chat.maskIds && chat.maskIds[0]) || "";
+        }
+        /* 消息级身份快照：写入时把当时的角色 id 一并记下，换面具/改绑定后仍可追溯到原对话 */
+        if (!msg.characterId && chat && chat.id) msg.characterId = chat.id;
+        if (!msg.sourceType) msg.sourceType = chat && chat.memberIds ? "group" : "private";
+        if (!msg.maskStampAt) msg.maskStampAt = Date.now();
       }
     } catch (e) {}
     return msg;
@@ -18953,6 +18961,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!m.emotional_context) m.emotional_context = "";
       if (typeof m.relationship_impact !== "number") m.relationship_impact = 0;
       if (!m.version) m.version = 1;
+      if (typeof m.source_batch !== "string") m.source_batch = "";
+      if (!Array.isArray(m.round_range)) m.round_range = null;
+      if (!Array.isArray(m.status_history)) m.status_history = [];
+      if (!Array.isArray(m.versions)) m.versions = [];
+      if (typeof m.mask_id_prev !== "string") m.mask_id_prev = "";
+      if (typeof m.superseded_by !== "string") m.superseded_by = "";
+      if (typeof m.resolved_by_memory_id !== "string") m.resolved_by_memory_id = "";
+      if (m.memory_type === "loop" && m.status === "active") m.status = "pending";
       return m;
     }
     function mems() {
@@ -19003,19 +19019,96 @@ document.addEventListener("DOMContentLoaded", () => {
       return inter / Math.min(A.size, B.size);
     }
 
+    /* ---------- 任务日志：每次总结记录处理范围/来源/状态，便于重试与审计 ---------- */
+    function logTask(flow, charId, mid, from, to, status, extra) {
+      if (!Array.isArray(db.memTaskLog)) db.memTaskLog = [];
+      const rec = {
+        id: rid("task"), flow: flow, character_id: charId || "", mask_id: mid || "",
+        from_round: from, to_round: to, status: status,
+        at: now(), note: (extra && extra.note) || "",
+        batch: (extra && extra.batch) || ""
+      };
+      db.memTaskLog.push(rec);
+      if (db.memTaskLog.length > 200) db.memTaskLog = db.memTaskLog.slice(-200);
+      try { saveData(); } catch (e) {}
+      return rec;
+    }
+    function tasks(charId, limit) {
+      return (db.memTaskLog || []).filter(function (t) { return !charId || t.character_id === charId; }).slice(-(limit || 30)).reverse();
+    }
+
+    /* ---------- Relation：由事件驱动、可追溯 ---------- */
+    function relBase(charId, mid) {
+      const list = mems().filter(function (m) { return m.character_id === charId && m.mask_id === mid && m.status !== "archived"; });
+      const total = list.length;
+      let imp = 0, rel = 0;
+      list.forEach(function (m) { imp += (m.importance || 0); if (m.memory_type === "relationship") rel++; });
+      const avg = total ? imp / total : 0;
+      return {
+        trust: Math.min(99, Math.round(46 + avg * 45 + Math.min(total, 20))),
+        familiar: Math.min(95, Math.round(48 + total * 4 + rel * 2)),
+        intimate: Math.min(92, Math.round(34 + rel * 9 + avg * 22))
+      };
+    }
+    function relState(charId, mid) {
+      const c = charOf(charId);
+      if (!c) return null;
+      if (!c.relationState || typeof c.relationState !== "object") c.relationState = {};
+      if (!c.relationState[mid]) {
+        const base = relBase(charId, mid);
+        c.relationState[mid] = { trust: base.trust, familiar: base.familiar, intimate: base.intimate, updated_at: now(), history: [] };
+      }
+      return c.relationState[mid];
+    }
+    function relation(charId, mid) {
+      const st = relState(charId, mid);
+      const knots = openLoops(charId, mid).length;
+      if (!st) return { trust: 0, familiar: 0, intimate: 0, knots: knots, history: [] };
+      return { trust: st.trust, familiar: st.familiar, intimate: st.intimate, knots: knots, history: (st.history || []).slice(-10).reverse() };
+    }
+    function bumpRelation(charId, mid, text, impact, memId, type) {
+      if (!charId || !mid) return;
+      const st = relState(charId, mid);
+      if (!st) return;
+      const strength = typeof impact === "number" && impact > 0 ? Math.min(0.6, impact) : (type === "relationship" ? 0.18 : 0.05);
+      const neg = /(生气|吵|冷战|失望|讨厌|骗|失约|难过|不理|讨厌|烦|离开|分手|绝交)/.test(text);
+      const pos = /(开心|喜欢|谢谢|温柔|陪|答应|信任|原谅|和好|在乎|抱|甜|可爱)/.test(text);
+      if (!neg && !pos) return;
+      const mag = Math.max(1, Math.min(6, Math.round(strength * (neg ? 12 : 10))));
+      const before = { trust: st.trust, familiar: st.familiar, intimate: st.intimate };
+      const sign = neg ? -1 : 1;
+      st.trust = Math.max(8, Math.min(99, st.trust + sign * mag * (neg ? 2 : 1)));
+      st.familiar = Math.max(8, Math.min(95, st.familiar + sign * Math.max(1, Math.round(mag / 2))));
+      st.intimate = Math.max(5, Math.min(92, st.intimate + sign * mag));
+      st.updated_at = now();
+      st.history = (st.history || []).concat([{
+        at: now(), before: before, after: { trust: st.trust, familiar: st.familiar, intimate: st.intimate },
+        reason: clip(text, 40), memory_id: memId || "", dir: neg ? -1 : 1
+      }]).slice(-20);
+      return st;
+    }
+    function relationHistory(charId, mid) {
+      const c = charOf(charId);
+      const st = c && c.relationState ? c.relationState[mid] : null;
+      return st ? (st.history || []).slice().reverse() : [];
+    }
+
     /* ---------- Updater：冲突处理 / 未完成事项闭环 ---------- */
-    function closeLoops(cid, mid, text) {
+    function closeLoops(cid, mid, text, newId) {
       const done = /(已经|完成|结束|搞定|考完|通过|做到|吃到了|看完了|决定|确定|(逛|看|去|拍|买|吃|见|做|聊|学|订|发|寄|收|玩|签|搬|换|试|到|拿|领)了)/.test(text);
       if (!done) return [];
-      const loops = mems().filter(function (m) { return m.character_id === cid && m.mask_id === mid && m.memory_type === "loop" && m.status !== "completed" && m.status !== "archived"; });
+      const loops = mems().filter(function (m) { return m.character_id === cid && m.mask_id === mid && m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled" && m.status !== "superseded" && m.status !== "archived"; });
       const closed = [];
       loops.forEach(function (l) {
         const A = grams(l.content), B = grams(text);
         let inter = 0;
         A.forEach(function (x) { if (B.has(x)) inter++; });
         if (sim(l.content, text) > 0.3 || inter >= 2) {
+          const from = l.status || "pending";
           l.status = "completed";
           l.updated_at = now();
+          l.resolved_by_memory_id = newId || "";
+          l.status_history = (l.status_history || []).concat([{ from: from, to: "completed", at: l.updated_at, note: "对话中出现明确完成/兑现", memory_id: newId || "" }]).slice(-8);
           l.versions = (l.versions || []).concat([{ content: l.content, at: l.updated_at, note: "已完成" }]).slice(-5);
           closed.push(l.id);
         }
@@ -19033,6 +19126,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const mid = opts.mask_id || (typeof resolveMaskForChat === "function" ? resolveMaskForChat(cid) : maskOf(cid));
       if (!cid || !mid) return null;
       const cls = opts.memory_type ? { type: opts.memory_type, importance: opts.importance || 0.6, tags: opts.tags || [], entities: opts.entities || [] } : classify(text);
+      const batch = opts.source_batch || "";
+      /* 幂等：同一批消息、同一类型，重复触发直接返回已有记录，不新建、不叠加版本 */
+      if (batch) {
+        const hit = db.memories.find(function (m) {
+          return m.source_batch === batch && m.character_id === cid && m.memory_type === cls.type && m.status !== "archived";
+        });
+        if (hit) return hit;
+      }
       const pool = db.memories.filter(function (m) { return m.character_id === cid && m.mask_id === mid && m.status !== "archived" && m.memory_type === cls.type; });
       let dup = null;
       const _dupTh = cls.type === "loop" ? 0.45 : 0.62;
@@ -19048,15 +19149,20 @@ document.addEventListener("DOMContentLoaded", () => {
           dup.version = (dup.version || 1) + 1;
           dup.importance = Math.max(dup.importance || 0, cls.importance);
           dup.confidence = Math.max(dup.confidence || 0, opts.confidence || 0.55);
-          if (opts.status) dup.status = opts.status;
+          if (opts.status && opts.status !== dup.status) {
+            dup.status_history = (dup.status_history || []).concat([{ from: dup.status, to: opts.status, at: now(), note: "同事件更新" }]).slice(-8);
+            dup.status = opts.status;
+          }
+          if (batch && !dup.source_batch) dup.source_batch = batch;
         }
-        closeLoops(cid, mid, text);
+        closeLoops(cid, mid, text, dup.id);
         saveData();
         return dup;
       }
-      const closedIds = closeLoops(cid, mid, text);
+      const nid = rid("mem");
+      const closedIds = closeLoops(cid, mid, text, nid);
       const rec = normalize({
-        id: rid("mem"), mask_id: mid, character_id: cid,
+        id: nid, mask_id: mid, character_id: cid,
         conversation_id: opts.conversation_id || ("c_" + cid),
         group_id: opts.group_id || null,
         memory_type: cls.type, title: clip(opts.title || text, 20),
@@ -19072,7 +19178,10 @@ document.addEventListener("DOMContentLoaded", () => {
         expiration_at: opts.expiration_at || (cls.type === "life" ? now() + 3 * DAY : 0),
         tags: cls.tags, entities: cls.entities, related_memory_ids: closedIds.slice(),
         emotional_context: opts.emotional_context || "",
-        relationship_impact: opts.relationship_impact || 0
+        relationship_impact: opts.relationship_impact || 0,
+        source_batch: batch,
+        round_range: Array.isArray(opts.round_range) ? opts.round_range.slice() : null,
+        status_history: [{ from: "", to: opts.status || (cls.type === "loop" ? "pending" : "active"), at: now(), note: opts.source_batch ? "任务写入" : "手动/对话写入" }]
       });
       const recent = db.memories.filter(function (m) { return m.character_id === cid && m.mask_id === mid && m.id !== rec.id; }).slice(-3);
       recent.forEach(function (m) {
@@ -19081,7 +19190,20 @@ document.addEventListener("DOMContentLoaded", () => {
           m.related_memory_ids = (m.related_memory_ids || []).concat([rec.id]).slice(-8);
         }
       });
+      if (cls.type === "loop") {
+        db.memories.filter(function (m) {
+          return m.character_id === cid && m.mask_id === mid && m.memory_type === "loop" && m.id !== rec.id && (m.status === "pending" || m.status === "in_progress") && sim(m.content, text) > 0.62;
+        }).forEach(function (m) {
+          const from = m.status;
+          m.status = "superseded";
+          m.superseded_by = rec.id;
+          m.updated_at = now();
+          m.status_history = (m.status_history || []).concat([{ from: from, to: "superseded", at: now(), note: "被新的同类事项替代", memory_id: rec.id }]).slice(-8);
+          rec.related_memory_ids.push(m.id);
+        });
+      }
       db.memories.push(rec);
+      try { bumpRelation(cid, mid, text, opts.relationship_impact, rec.id, cls.type); } catch (e) {}
       trim(cid, mid);
       saveData();
       return rec;
@@ -19134,72 +19256,92 @@ document.addEventListener("DOMContentLoaded", () => {
       if (chat.summaryEnabled === void 0 && oc && oc.summaryEnabled === false) return true;
       return false;
     }
-    /* 按聊天设置里的“多少轮自动总结一次”节流：不是每轮都抽记忆 */
+    /* 线上总结是否真的会接管这段对话（关闭总结 / 关了“记住线上聊天”时，由提炼兜底） */
+    function summaryActive(chat, chatType) {
+      if (summaryOff(chat, chatType)) return false;
+      if (chatType !== "group") {
+        const oc = (typeof getOfflineChat === "function" && chat) ? getOfflineChat(chat.id) : null;
+        if (oc && oc.rememberOnline === false) return false;
+      }
+      return true;
+    }
+    /* 按聊天设置里的“多少轮自动总结一次”节流：不是每轮都抽记忆。
+       与线上总结的分工：线上总结开启时由它接管整段区间（它本身也按面具隔离）；
+       自动提炼只在总结关闭时兜底，或处理总结尚未覆盖的新轮次，两者不重复处理同一批消息。 */
     function maybeExtract(chat, chatType) {
       if (!chat) return false;
-      if (summaryOff(chat, chatType)) return false;
       const n = extractRounds(chat, chatType);
       chat.mosExtractRound = (chat.mosExtractRound || 0) + 1;
       if (chat.mosExtractRound < n) return false;
-      chat.mosExtractRound = 0;
-      ingestTurn(chat, chatType, n);
-      return true;
+      const r = ingestTurn(chat, chatType, n);
+      if (r !== false) chat.mosExtractRound = 0;
+      return r === true;
     }
     function ingestTurn(chat, chatType, windowRounds) {
-      if (!chat) return;
+      if (!chat) return "skip";
       const mid = (typeof resolveMaskForChat === "function" ? resolveMaskForChat(chat) : maskOf(chat.id));
-      if (!mid) return;
+      if (!mid) return "skip";
+      /* 线上总结开启时它已按游标覆盖全部轮次，这里主动让位，避免同一批消息被两套流程重复提炼 */
+      if (summaryActive(chat, chatType)) return "skip";
       const hist = (typeof chatHistoryView === "function" ? chatHistoryView(chat) : (chat.history || []));
-      const _wr = Math.max(2, Math.min(12, parseInt(windowRounds, 10) || 3));
-      const _rounds = [];
+      const rounds = [];
       hist.forEach(function (m) {
         if (!m) return;
-        if (m.role === "user" || !_rounds.length) _rounds.push([]);
-        _rounds[_rounds.length - 1].push(m);
+        if (m.role === "user" || !rounds.length) rounds.push([]);
+        rounds[rounds.length - 1].push(m);
       });
-      const tail = _rounds.slice(-_wr).reduce(function (a, b) { return a.concat(b); }, []);
-      let lastUser = null, aiTexts = [];
-      tail.forEach(function (m) {
-        if (!m) return;
-        if (m.role === "user") { lastUser = m; aiTexts = []; }
-        else if (m.role === "assistant" && lastUser) aiTexts.push(String(m.content || ""));
-      });
-      if (!lastUser) return;
-      const cid = chat.id;
-      const at = lastUser.timestamp || lastUser.ts || now();
-      const userTxt = String(lastUser.content || "").replace(/\[[^\]]*\]/g, " ").trim();
-      if (userTxt.length >= 6) {
-        const picks = sentences(userTxt).slice(0, 2);
-        picks.forEach(function (s) {
-          const cls = classify(s);
-          const t = cls.type === "life" ? "profile" : cls.type;
-          add(cid, s, { memory_type: t, source_type: chatType === "group" ? "group" : "online", confidence: 0.5, created_at: at, importance: cls.importance, mask_id: mid });
-        });
+      if (!chat.mosExtractCursorByMask || typeof chat.mosExtractCursorByMask !== "object") chat.mosExtractCursorByMask = {};
+      const cur = chat.mosExtractCursorByMask[mid] || 0;
+      const f = cur + 1;
+      const t = Math.min(rounds.length, cur + 8);
+      if (f > t) return "skip";
+      const batch = "extract:" + mid + ":" + f + "-" + t;
+      try {
+        for (let i = f; i <= t; i++) {
+          const rd = rounds[i - 1] || [];
+          const userMsg = rd.filter(function (m) { return m.role === "user"; }).pop();
+          const aiMsgs = rd.filter(function (m) { return m.role === "assistant"; });
+          if (!userMsg) continue;
+          const at = userMsg.timestamp || userMsg.ts || now();
+          const userTxt = String(userMsg.content || "").replace(/\[[^\]]*\]/g, " ").trim();
+          const picks = sentences(userTxt).slice(0, 2);
+          picks.forEach(function (sent, k) {
+            const cls = classify(sent);
+            const ty = cls.type === "life" ? "profile" : cls.type;
+            add(chat.id, sent, { memory_type: ty, source_type: chatType === "group" ? "group" : "online", confidence: 0.5, created_at: at, importance: cls.importance, mask_id: mid, source_batch: batch + "#" + i + "#" + k, round_range: [i, i] });
+          });
+          const aiText = aiMsgs.map(function (m) { return String(m.content || ""); }).join("。");
+          const selfLife = [];
+          aiText.split(/[。！？!?\n]+/).forEach(function (s) {
+            const tt = s.trim();
+            if (tt.length < 8 || tt.length > 60) return;
+            if (!/^我|我刚|我这|我正在|我最近|我今天|我明天/.test(tt)) return;
+            if (!/(最近|今天|昨天|明天|刚|正在|要|准备|在忙|累|考试|上班|加班|睡|吃|回家|路上|医院|搬家)/.test(tt)) return;
+            if (selfLife.length < 1) selfLife.push(tt);
+          });
+          selfLife.forEach(function (sent) {
+            add(chat.id, sent, { memory_type: "life", source_type: "online", confidence: 0.45, created_at: at, importance: 0.42, expiration_at: now() + 3 * DAY, mask_id: mid, source_batch: batch + "#" + i + "#L", round_range: [i, i] });
+          });
+          const prom = [];
+          aiText.split(/[。！？!?\n]+/).forEach(function (s) {
+            const tt = s.trim();
+            if (tt.length < 6 || tt.length > 70) return;
+            if (!/(说好了|我答应|我下次|改天|等我|回头|周末|我陪你|我会给你|一起去|记得)/.test(tt)) return;
+            if (/[吗呢]$/.test(tt)) return;
+            if (prom.length < 1) prom.push(tt);
+          });
+          prom.forEach(function (sent) {
+            add(chat.id, sent, { memory_type: "loop", source_type: "online", confidence: 0.5, created_at: at, importance: 0.55, status: "pending", mask_id: mid, source_batch: batch + "#" + i + "#P", round_range: [i, i] });
+          });
+        }
+        chat.mosExtractCursorByMask[mid] = t;
+        logTask("extract", chat.id, mid, f, t, "done", { batch: batch });
+        saveData();
+        return true;
+      } catch (e) {
+        logTask("extract", chat.id, mid, f, t, "failed", { batch: batch, note: String(e && e.message || e) });
+        return false;
       }
-      /* 角色自己的生活连续性：只取自称且带时间/状态的短句，避免把每句台词都当记忆 */
-      const selfLife = [];
-      aiTexts.join("。").split(/[。！？!?\n]+/).forEach(function (s) {
-        const t = s.trim();
-        if (t.length < 8 || t.length > 60) return;
-        if (!/^我|我刚|我这|我正在|我最近|我今天|我明天/.test(t)) return;
-        if (!/(最近|今天|昨天|明天|刚|正在|要|准备|在忙|累|考试|上班|加班|睡|吃|回家|路上|医院|搬家)/.test(t)) return;
-        if (selfLife.length < 1) selfLife.push(t);
-      });
-      selfLife.forEach(function (s) {
-        add(cid, s, { memory_type: "life", source_type: "online", confidence: 0.45, created_at: at, importance: 0.42, expiration_at: now() + 3 * DAY, mask_id: mid });
-      });
-      /* TA 自己许下的约定/承诺 → 未完成事项（不会自动算完成） */
-      const prom = [];
-      aiTexts.join("。").split(/[。！？!?\n]+/).forEach(function (s) {
-        const t = s.trim();
-        if (t.length < 6 || t.length > 70) return;
-        if (!/(说好了|我答应|我下次|改天|等我|回头|周末|我陪你|我会给你|一起去|记得)/.test(t)) return;
-        if (/[吗呢]$/.test(t)) return;
-        if (prom.length < 1) prom.push(t);
-      });
-      prom.forEach(function (s) {
-        add(cid, s, { memory_type: "loop", source_type: "online", confidence: 0.5, created_at: at, importance: 0.55, status: "pending", mask_id: mid });
-      });
     }
 
     /* ---------- Retriever：相关性排序 + 预算 ---------- */
@@ -19212,6 +19354,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const pool = mems().filter(function (m) {
         if (m.character_id !== charId || m.mask_id !== mid) return false;
         if (m.status === "archived" || m.status === "expired" || m.status === "cancelled") return false;
+        if (m.memory_type === "loop" && (m.status === "completed" || m.status === "superseded")) return false;
         if (m.expiration_at && m.expiration_at < t) return false;
         return true;
       });
@@ -19219,7 +19362,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const topic = q ? sim(m.content + " " + (m.tags || []).join(" ") + " " + (m.entities || []).join(" "), q) : 0;
         const age = Math.max(0, (t - (m.event_time || m.created_at || t)) / DAY);
         const recency = Math.exp(-age / 21);
-        const loop = (m.memory_type === "loop" && m.status !== "completed") ? 0.2 : 0;
+        const loop = (m.memory_type === "loop" && (m.status === "pending" || m.status === "in_progress")) ? 0.28 : 0;
         const core = m.memory_type === "core" ? 0.12 : 0;
         const rel = m.memory_type === "relationship" ? 0.1 : 0;
         const scene = (opts.scene && (m.source_type === opts.scene || (m.tags || []).indexOf(opts.scene) >= 0)) ? 0.06 : 0;
@@ -19236,30 +19379,78 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!mid) return "";
       const mask = (db.masks || []).find(function (m) { return m.id === mid; });
       const c = charOf(charId);
-      const hits = retrieve(charId, query, { mask_id: mid, scene: scene, limit: 14 });
-      if (!hits.length && !(db.memories || []).some(function (m) { return m.character_id === charId && m.mask_id === mid; })) return "";
-      const by = {};
-      hits.forEach(function (h) { (by[h.m.memory_type] = by[h.m.memory_type] || []).push(h.m); });
+      const cap = budget || 1200;
+      const q = String(query || "").trim();
+      const hits = retrieve(charId, q, { mask_id: mid, scene: scene, limit: 20 });
+      const all = mems().filter(function (m) { return m.character_id === charId && m.mask_id === mid && m.status !== "archived"; });
+      if (!all.length) return "";
+      /* 未完成事项独立优先级：即使相关性低也必须占位 */
+      const loopList = openLoops(charId, mid).slice(0, 4);
+      const ids = {};
+      loopList.forEach(function (m) { ids[m.id] = 1; });
+      const relevant = hits.filter(function (h) {
+        if (ids[h.m.id]) return false;
+        if (h.m.memory_type === "loop") return false;
+        return q ? sim(h.m.content + " " + (h.m.tags || []).join(" ") + " " + (h.m.entities || []).join(" "), q) > 0.12 : false;
+      }).map(function (h) { return h.m; });
+      const ctxMem = hits.map(function (h) { return h.m; }).filter(function (m) { return !ids[m.id] && m.memory_type !== "loop"; });
+      function firstBy(types, n, src) {
+        const out = [];
+        (src || ctxMem).forEach(function (m) {
+          if (out.length >= n) return;
+          if (types.indexOf(m.memory_type) >= 0 && !out.some(function (x) { return x.id === m.id; })) out.push(m);
+        });
+        return out;
+      }
+      const longTerm = firstBy(["core", "profile", "semantic"], 4, ctxMem);
+      const rel = firstBy(["relationship"], 2, ctxMem);
+      const life = firstBy(["life"], 2, ctxMem).filter(function (m) { return !m.expiration_at || m.expiration_at > now(); });
+      const social = firstBy(["social"], 2, ctxMem);
       const lines = [];
       lines.push("【记忆·身份】你现在以「" + (mask && mask.name || "我") + "」这个身份在和" + (c ? "「" + (c.remarkName || c.realName) + "」" : "对方") + "相处；以下是你们在这个面具下真实积累的记忆，只属于这一段关系。");
-      function sec(title, arr, max, mapper) {
+      let used = lines[0].length;
+      const seen = {};
+      function pushSection(title, arr, perChar, quota) {
         if (!arr || !arr.length) return;
-        lines.push(title);
-        arr.slice(0, max).forEach(function (m) {
-          lines.push("- " + (mapper ? mapper(m) : clip(m.content, 90)));
+        const head = title;
+        if (used + head.length > cap - 40) return;
+        const body = [];
+        let q = 0;
+        arr.forEach(function (m) {
+          if (seen[m.id]) return;
+          const txt = clip(m.content, perChar);
+          if (q + txt.length > quota) return;
+          body.push("- " + txt);
+          q += txt.length + 3;
         });
-        arr.slice(0, max).forEach(function (m) { m.last_accessed_at = now(); });
+        if (!body.length) return;
+        if (used + head.length + q > cap) {
+          const room = cap - used - head.length - 20;
+          const trimmed = [];
+          let acc = 0;
+          body.forEach(function (l) { if (acc + l.length <= room) { trimmed.push(l); acc += l.length + 1; } });
+          if (!trimmed.length) return;
+          lines.push(head); trimmed.forEach(function (l) { lines.push(l); });
+          used += head.length + acc;
+          arr.forEach(function (m) { m.last_accessed_at = now(); });
+          return;
+        }
+        lines.push(head);
+        body.forEach(function (l) { lines.push(l); });
+        used += head.length + q;
+        arr.slice(0, body.length).forEach(function (m) { m.last_accessed_at = now(); if (m.id) seen[m.id] = 1; });
       }
-      sec("【当前关系】", by.relationship, 2, function (m) { return clip(m.content, 80); });
-      sec("【你们共同经历过】", (by.episodic || []).concat(by.core || []).filter(function (m) { return m.memory_type !== "profile"; }), 4, function (m) { return fmt(m.event_time) + " · " + clip(m.content, 80); });
-      sec("【你对 TA 的了解】", by.profile, 3, function (m) { return clip(m.content, 80) + "（" + (m.confidence >= 0.75 ? "TA 明确说过" : "你的观察，未完全确认") + "）"; });
-      sec("【还没完成的事】", (by.loop || []).filter(function (m) { return m.status !== "completed"; }), 3, function (m) { return "(" + (m.status === "in_progress" ? "进行中" : "待办") + ") " + clip(m.content, 74); });
-      sec("【你自己的生活近况】", by.life, 2, function (m) { return fmt(m.event_time) + " · " + clip(m.content, 70); });
-      sec("【社交与主题】", (by.social || []).concat(by.semantic || []), 2, function (m) { return clip(m.content, 70); });
-      lines.push("【记忆使用规则】记忆只是你理解当下的背景，不是台词素材。不要复述、不要罗列、不要为了证明记得而主动提起无关旧事；只有当前话题自然相关时才带出来。没被提起不代表已经结束；你猜的、TA 没确认的，不要当作事实说。");
+      pushSection("【当前仍未完成的事】（若当前话题自然相关，可以自然提起；不要生硬追问）",
+        loopList.map(function (m) { return { id: m.id, content: "(" + (m.status === "in_progress" ? "进行中" : "待办") + ") " + m.content }; }),
+        96, 260);
+      pushSection("【和当前话题直接相关】", relevant, 108, 330);
+      pushSection("【对 TA 的长期认知】", longTerm.map(function (m) { return { id: m.id, content: m.content + (m.confidence >= 0.75 ? "" : "（未完全确认）") }; }), 100, 300);
+      pushSection("【你们的关系】", rel, 96, 150);
+      pushSection("【你自己的生活近况】", life, 90, 120);
+      pushSection("【社交与其他】", social, 86, 120);
+      lines.push("【记忆使用规则】记忆只是你理解当下的背景，不是台词素材。不要复述、不要罗列、不要为了证明记得而主动提起无关旧事；只有当前话题自然相关时才带出来。已被取消、被替代或已经完成的事，不要再当成待办；TA 没确认的猜测不要当作事实说。");
       let out = lines.join("\n");
-      const cap = budget || 1200;
-      if (out.length > cap) out = out.slice(0, cap) + "…";
+      if (out.length > cap) out = out.slice(0, cap);
       return out;
     }
 
@@ -19272,18 +19463,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     /* ---------- OpenLoop ---------- */
-    function openLoops(charId) {
-      const mid = maskOf(charId);
+    function openLoops(charId, mid) {
+      const key = mid || maskOf(charId);
       return mems().filter(function (m) {
-        return m.character_id === charId && m.mask_id === mid && m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled" && m.status !== "archived";
+        return m.character_id === charId && m.mask_id === key && m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled" && m.status !== "superseded" && m.status !== "archived";
       }).sort(function (a, b) { return b.created_at - a.created_at; });
     }
-    function setLoop(id, status) {
+    function setLoop(id, status, note) {
       const m = mems().find(function (x) { return x.id === id; });
-      if (!m) return;
+      if (!m) return false;
+      const from = m.status || "pending";
       m.status = status;
       m.updated_at = now();
+      m.status_history = (m.status_history || []).concat([{ from: from, to: status, at: m.updated_at, note: note || "手动更新", memory_id: "" }]).slice(-8);
+      m.versions = (m.versions || []).concat([{ content: m.content, at: m.updated_at, note: "状态：" + status }]).slice(-5);
       saveData();
+      return true;
     }
 
     /* ---------- 读取 / 搜索 ---------- */
@@ -19320,7 +19515,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const today = new Date().setHours(0, 0, 0, 0);
       list.forEach(function (m) {
         if (m.memory_type === "core") s.core++;
-        if (m.memory_type === "loop" && m.status !== "completed") s.loops++;
+        if (m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled" && m.status !== "superseded") s.loops++;
         if (m.memory_type === "life") s.life++;
         if ((m.updated_at || m.created_at) >= today - 6 * DAY) s.recent++;
       });
@@ -19339,11 +19534,21 @@ document.addEventListener("DOMContentLoaded", () => {
     function update(id, patch) {
       const m = mems().find(function (x) { return x.id === id; });
       if (!m || !own(m)) return false;
+      const prevMask = m.mask_id;
       Object.keys(patch || {}).forEach(function (k) { m[k] = patch[k]; });
+      if (patch && patch.mask_id && patch.mask_id !== prevMask) {
+        m.mask_id_prev = prevMask || "";
+        if (!Array.isArray(db.memMigrationLog)) db.memMigrationLog = [];
+        db.memMigrationLog.push({ id: rid("mig"), memory_id: m.id, character_id: m.character_id, from_mask: prevMask || "", to_mask: patch.mask_id, at: now(), via: "manual" });
+        if (db.memMigrationLog.length > 300) db.memMigrationLog = db.memMigrationLog.slice(-300);
+      }
       m.updated_at = now();
       m.version = (m.version || 1) + 1;
       saveData();
       return true;
+    }
+    function migrationLog(limit) {
+      return (db.memMigrationLog || []).slice(-(limit || 50)).reverse();
     }
     function purge(charId, mid) {
       const key = mid || maskOf(charId);
@@ -19360,7 +19565,9 @@ document.addEventListener("DOMContentLoaded", () => {
       maybeExtract: maybeExtract, extractRounds: extractRounds,
       lifeState: lifeState, openLoops: openLoops, setLoop: setLoop,
       remove: remove, update: update, purge: purge, onMaskSwitch: onMaskSwitch,
-      sim: sim, fmtFull: fmtFull, fmt: fmt, TYPE_LABEL: TYPE_LABEL, TYPE_ORDER: TYPE_ORDER, SRC_LABEL: SRC_LABEL
+      sim: sim, fmtFull: fmtFull, fmt: fmt, TYPE_LABEL: TYPE_LABEL, TYPE_ORDER: TYPE_ORDER, SRC_LABEL: SRC_LABEL,
+      relation: relation, relationHistory: relationHistory, bumpRelation: bumpRelation,
+      tasks: tasks, logTask: logTask, summaryActive: summaryActive, migrationLog: migrationLog
     };
   })();
   window.MemoryOS = MemoryOS;
@@ -23367,6 +23574,8 @@ function setupPhoneSystem() {
     if (f > t || !totalRounds) return false;
     const msgs = rounds.slice(f - 1, t).reduce((a, b) => a.concat(b), []);
     if (msgs.length < 2) return false;
+    const gBatch = "gsummary:" + gMid + ":" + f + "-" + t;
+    const gRange = [f, t];
     const lines = msgs.map((m) => {
       if (m.role === "user") return "".concat(group.me ? group.me.nickname : "\u6211", "\uFF1A").concat(String(m.content || "").slice(0, 200));
       const member = (group.members || []).find((mem) => mem.id === m.memberId || mem.originalCharId === m.memberId);
@@ -23379,8 +23588,17 @@ function setupPhoneSystem() {
     } else {
       prompt = "\u4F60\u662F\u5BF9\u8BDD\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u57FA\u4E8E\u4E0B\u9762\u63D0\u4F9B\u7684\u5BF9\u8BDD\u5185\u5BB9\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5BF9\u8BDD\u91CC\u6CA1\u6709\u53D1\u751F\u7684\u4E8B\u4EF6\uFF0C\u4E0D\u80FD\u8111\u8865\u5267\u60C5\u3002\u8BF7\u4EE5\u8D44\u6DF1\u6545\u4E8B\u6574\u7406\u8005\u7684\u8EAB\u4EFD\uFF0C\u9605\u8BFB\u4E0B\u9762\u8FD9\u6BB5\u300C".concat(group.name, '\u300D\u7684\u7FA4\u804A\u8BB0\u5F55\uFF0C**\u5C06\u6574\u4E2A\u533A\u95F4\u89C6\u4E3A\u4E00\u4E2A\u6574\u4F53**\uFF0C\u4E3A\u6BCF\u4E00\u4F4D\u5B9E\u9645\u53C2\u4E0E\u53D1\u8A00\u7684\u89D2\u8272\u5206\u522B\u63D0\u70BC**1\u6761\u7EFC\u5408\u6C38\u4E45\u8BB0\u5FC6**\u2014\u2014\u6DB5\u76D6\u8BE5\u89D2\u8272\u5728\u6574\u4E2A\u533A\u95F4\u5185\u6700\u91CD\u8981\u7684\u5267\u60C5\u8FDB\u5C55\uFF08\u4E8B\u4EF6\u3001\u5BF9\u8BDD\u3001\u7EA6\u5B9A\u3001\u627F\u8BFA\u3001\u79D8\u5BC6\u3001\u5173\u7CFB\u53D8\u5316\u3001\u4F0F\u7B14\uFF09\uFF0C\u5185\u5BB9\u53EF\u4EE5\u7A0D\u957F\u4F46\u5FC5\u987B\u5177\u4F53\u5E26\u7EC6\u8282\u3002\u8981\u6C42\uFF1A0\uFF09\u6BCF\u4F4D\u6210\u5458\u53EA\u80FD\u8F93\u51FA 1 \u6761\u7EFC\u5408\u8BB0\u5FC6\uFF08\u6574\u6BB5\u5185\u5BB9\u5408\u5E76\u6210\u4E00\u6761\uFF0C\u53EF\u7528\u5206\u53F7\u8FDE\u63A5\uFF0C\u7981\u6B62\u62C6\u6210\u591A\u6761\uFF09\uFF1B1\uFF09\u53EA\u603B\u7ED3\u771F\u5B9E\u53D1\u751F\u7684\u65E2\u5B9A\u5267\u60C5\u4E8B\u4EF6\u3001\u5BF9\u8BDD\u3001\u7EA6\u5B9A\u3001\u627F\u8BFA\u3001\u79D8\u5BC6\u3001\u5173\u7CFB\u53D8\u5316\u3001\u4F0F\u7B14\uFF0C\u4E25\u7981\u7F16\u9020\uFF1B2\uFF09\u6BCF\u6761\u52A1\u5FC5\u5177\u4F53\u5E26\u7EC6\u8282\uFF1A\u8C01\u5BF9\u8C01\u8BF4\u4E86\u4EC0\u4E48\u5173\u952E\u7684\u8BDD\u3001\u60C5\u7EEA\u5982\u4F55\u3001\u7ED3\u679C\u5982\u4F55\u3001\u6709\u4EC0\u4E48\u627F\u8BFA\u6216\u672A\u7ADF\u4E4B\u4E8B\uFF1B3\uFF09\u4FDD\u7559\u53EF\u80FD\u5F71\u54CD\u540E\u7EED\u5267\u60C5\u8D70\u5411\u7684\u4F0F\u7B14\u4E0E\u7EC6\u8282\uFF1B4\uFF09\u8BED\u8A00\u81EA\u7136\u5177\u4F53\uFF0C\u7EDD\u4E0D\u8981AI\u8154\u3001\u4E0D\u8981"\u603B\u7ED3\u9053"\u4E4B\u7C7B\u7684\u5957\u8BDD\uFF1B5\uFF09\u5168\u90E8\u7528\u7B2C\u4E09\u4EBA\u79F0\u53D9\u8FF0\uFF08\u4ED6/\u5979/\u4ED6\u4EEC\uFF0C\u4E0D\u7528\u6211/\u4F60\uFF09\uFF1B6\uFF09\u4E0D\u8BB0\u5F55\u57FA\u7840\u4EBA\u8BBE\u6587\u98CE\uFF1B7\uFF09\u8F93\u51FA\u683C\u5F0F\uFF1A\u6BCF\u4E2A\u6210\u5458\u4E00\u884C\uFF0C\u5F00\u5934\u5199"@\u6210\u5458\u540D\uFF1A"\uFF0C\u540E\u9762\u662F\u8BE5\u6210\u5458\u7684\u7EFC\u5408\u8BB0\u5FC6\u8981\u70B9\uFF0C\u6BCF\u6761\u7528\u300C\u300D\u5305\u88F9\uFF1B8\uFF09\u4E0D\u8981\u9057\u6F0F\u53C2\u4E0E\u53D1\u8A00\u7684\u6210\u5458\uFF0C\u4E0D\u8981\u7F16\u9020\u6CA1\u53D1\u8A00\u7684\u6210\u5458\u3002\n\n\u7FA4\u804A\u8BB0\u5F55\uFF1A\n').concat(lines);
     }
-    const text = await offlineRequest(sys, [{ role: "user", content: prompt }], 1200, false, void 0, void 0, summaryApiCfg());
-    if (!text) return false;
+    let text = "";
+    try {
+      text = await offlineRequest(sys, [{ role: "user", content: prompt }], 1200, false, void 0, void 0, summaryApiCfg());
+    } catch (e) {
+      MemoryOS.logTask("group-summary", group.id, gMid, f, t, "failed", { batch: gBatch, note: String(e && e.message || e) });
+      return false;
+    }
+    if (!text) {
+      MemoryOS.logTask("group-summary", group.id, gMid, f, t, "failed", { batch: gBatch, note: "空结果" });
+      return false;
+    }
     const memberBlocks = text.split(/\n+/).map((l) => l.trim()).filter((l) => l && l.indexOf("@") === 0);
     memberBlocks.forEach((block) => {
       const idx = block.indexOf("\uFF1A");
@@ -23392,12 +23610,13 @@ function setupPhoneSystem() {
       if (!member || !member.originalCharId) return;
       const parsed = body.match(/「([^」]+)」/g) || [];
       const merged = parsed.map((p) => p.replace(/「|」/g, "").trim()).filter((c) => c && c.length > 4);
-      if (merged.length) pushMemory(member.originalCharId, "online", "".concat(group.name, "\u7FA4\u804A\uFF1A").concat(merged.join("\uFF1B")), "fact");
+      if (merged.length) pushMemory(member.originalCharId, "online", "".concat(group.name, "\u7FA4\u804A\uFF1A").concat(merged.join("\uFF1B")), "fact", gMid, gBatch + "#" + member.originalCharId, gRange);
     });
     (group.members || []).forEach((m) => {
       if (m.originalCharId) trimMemories(m.originalCharId);
     });
     group.summaryCursor = t;
+    MemoryOS.logTask("group-summary", group.id, gMid, f, t, "done", { batch: gBatch });
     await saveData();
     return true;
   }
@@ -23409,8 +23628,9 @@ function setupPhoneSystem() {
     group.onlineRounds += 1;
     await saveData();
     if (group.onlineRounds >= (cfg.summaryRounds || 6)) {
-      group.onlineRounds = 0;
-      await summarizeGroupChat(group);
+      const ok = await summarizeGroupChat(group);
+      if (ok) group.onlineRounds = 0;
+      await saveData();
     }
   }
   async function maybeOnlineMemorySummary(character) {
@@ -23423,8 +23643,9 @@ function setupPhoneSystem() {
     await saveData();
     const rounds = character.summaryRounds !== void 0 ? character.summaryRounds : oc.summaryRounds || 6;
     if (character.onlineRounds >= (rounds || 6)) {
-      character.onlineRounds = 0;
-      await summarizeOnlineChat(character);
+      const ok = await summarizeOnlineChat(character);
+      if (ok) character.onlineRounds = 0;
+      await saveData();
     }
   }
   async function summarizeOnlineChat(character, fromR, toR) {
@@ -23443,6 +23664,8 @@ function setupPhoneSystem() {
     if (f > t || !totalRounds) return false;
     const msgs = rounds.slice(f - 1, t).reduce((a, b) => a.concat(b), []);
     if (msgs.length < 2) return false;
+    const batch = "summary:" + midNow + ":" + f + "-" + t;
+    const roundRange = [f, t];
     const recent = msgs.map((m) => "".concat(m.role === "assistant" ? character.realName : myNameForMask, "\uFF1A").concat(String(m.content || "").slice(0, 200))).join("\n");
     const sys = "\u4F60\u662F\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u4F9D\u636E\u63D0\u4F9B\u7684\u5BF9\u8BDD\u539F\u6587\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5267\u60C5\u3002";
     const spOnline = character.summaryPrompt !== void 0 ? character.summaryPrompt : oc ? oc.summaryPrompt : "";
@@ -23452,8 +23675,17 @@ function setupPhoneSystem() {
     } else {
       prompt = "\u4F60\u662F\u5BF9\u8BDD\u8BB0\u5FC6\u63D0\u70BC\u5E08\uFF0C\u53EA\u57FA\u4E8E\u4E0B\u9762\u63D0\u4F9B\u7684\u5BF9\u8BDD\u5185\u5BB9\u603B\u7ED3\uFF0C\u4E25\u7981\u7F16\u9020\u5BF9\u8BDD\u91CC\u6CA1\u6709\u53D1\u751F\u7684\u4E8B\u4EF6\uFF0C\u4E0D\u80FD\u8111\u8865\u5267\u60C5\u3002\u8BF7\u628A\u8FD9\u6BB5\u300C".concat(character.realName, "\u4E0E").concat(character.myName, "\u300D\u7684\u5BF9\u8BDD**\u4F5C\u4E3A\u4E00\u4E2A\u6574\u4F53\uFF0C\u53EA\u63D0\u70BC\u4E00\u6761\u603B\u7EB2\u5F0F\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E\u548C\u4E00\u6761\u6574\u4F53\u60C5\u7EEA\u5370\u8C61**\u3002\u8FD9\u6761\u6C38\u4E45\u4E8B\u5B9E\u5FC5\u987B\u6DB5\u76D6\u8BE5\u533A\u95F4\u5185\u6700\u91CD\u8981\u7684\u5267\u60C5\u8FDB\u5C55\uFF08\u5173\u952E\u4E8B\u4EF6\u3001\u7EA6\u5B9A\u3001\u627F\u8BFA\u3001\u79D8\u5BC6\u3001\u5173\u7CFB\u53D8\u5316\u3001\u4F0F\u7B14\u3001\u5173\u952E\u7269\u54C1\uFF09\uFF0C\u5185\u5BB9\u53EF\u4EE5\u7A0D\u957F\uFF0C\u4F46\u5FC5\u987B\u5177\u4F53\u5E26\u7EC6\u8282\u3001\u6309\u65F6\u95F4\u987A\u5E8F\u4E32\u8D77\u6574\u6BB5\u5267\u60C5\uFF0C\u4E0D\u8981\u9057\u6F0F\u5173\u952E\u8F6C\u6298\u3002\u4E25\u683C\u6309\u4EE5\u4E0B\u683C\u5F0F\u8F93\u51FA\uFF08\u4E0D\u8981\u4EFB\u4F55\u591A\u4F59\u89E3\u91CA\u3001\u4E0D\u8981\u5F00\u573A\u767D\u3001\u4E0D\u8981\u5E8F\u53F7\uFF09\uFF1A\n\npermanent_facts:\n- \uFF08\u6574\u6BB5\u5BF9\u8BDD\u5408\u6210\u7684\u4E00\u6761\u603B\u7EB2\u5F0F\u6C38\u4E45\u5267\u60C5\u4E8B\u5B9E\uFF09\n\nimpression_mood:\n- \uFF08\u6574\u6BB5\u5BF9\u8BDD\u5408\u6210\u7684\u89D2\u8272\u6574\u4F53\u60C5\u7EEA\u5370\u8C61\uFF09\n\n\u7EA6\u675F\uFF1Apermanent_facts \u4E0E impression_mood \u5404\u81EA\u53EA\u80FD\u8F93\u51FA 1 \u6761\uFF0C\u6574\u6BB5\u5185\u5BB9\u5408\u5E76\u6210\u4E00\u6761\uFF08\u5185\u5BB9\u957F\u53EF\u7528\u5206\u53F7\u8FDE\u63A5\uFF09\uFF0C\u7981\u6B62\u62C6\u6210\u591A\u6761\uFF1B\u53EA\u603B\u7ED3\u771F\u5B9E\u53D1\u751F\u7684\u5185\u5BB9\uFF1B\u4E0D\u91CD\u590D\u5386\u53F2\u5DF2\u6709\u6C38\u4E45\u4E8B\u5B9E\uFF1B\u4E0D\u8BB0\u5F55\u57FA\u7840\u4EBA\u8BBE\u6587\u98CE\uFF1B\u4E0D\u9884\u6D4B\u672A\u6765\u5267\u60C5\uFF1B\u82E5\u65B0\u4E8B\u5B9E\u4E0E\u5DF2\u53D1\u751F\u65E2\u5B9A\u5267\u60C5\u77DB\u76FE\uFF0C\u5728\u6761\u76EE\u672B\u5C3E\u52A0\u3010CONFLICT\u3011\uFF1B\u8BED\u8A00\u7B80\u6D01\u5177\u4F53\uFF0C\u4E0D\u8981AI\u8154\uFF0C\u5168\u90E8\u7528\u7B2C\u4E09\u4EBA\u79F0\u3002\n\n\u5BF9\u8BDD\u5185\u5BB9\uFF1A\n").concat(recent);
     }
-    const text = await offlineRequest(sys, [{ role: "user", content: prompt }], 1200, false, void 0, void 0, summaryApiCfg());
-    if (!text) return false;
+    let text = "";
+    try {
+      text = await offlineRequest(sys, [{ role: "user", content: prompt }], 1200, false, void 0, void 0, summaryApiCfg());
+    } catch (e) {
+      MemoryOS.logTask("summary", character.id, midNow, f, t, "failed", { batch: batch, note: String(e && e.message || e) });
+      return false;
+    }
+    if (!text) {
+      MemoryOS.logTask("summary", character.id, midNow, f, t, "failed", { batch: batch, note: "空结果" });
+      return false;
+    }
     const res = parseSummaryBlocks(text);
     let factList = res.facts.map((c) => String(c).replace(/【CONFLICT】/g, "").trim()).filter(Boolean);
     let impressList = res.impressions.map((c) => String(c).trim()).filter(Boolean);
@@ -23464,11 +23696,16 @@ function setupPhoneSystem() {
         if (c) factList.push(c);
       });
     }
-    if (factList.length) pushMemory(character.id, "online", factList.join("\uFF1B"), "fact", midNow);
-    if (impressList.length) pushMemory(character.id, "online", impressList.join("\uFF1B"), "impression", midNow);
+    if (factList.length) pushMemory(character.id, "online", factList.join("\uFF1B"), "fact", midNow, batch + "#F", roundRange);
+    if (impressList.length) pushMemory(character.id, "online", impressList.join("\uFF1B"), "impression", midNow, batch + "#I", roundRange);
+    factList.forEach(function (c, k) {
+      if (!/(约定|答应|说好|下次|改天|等我|回头|记得|一起|周末|承诺)/.test(c)) return;
+      MemoryOS.add(character.id, c, { memory_type: "loop", source_type: "online", confidence: 0.55, importance: 0.55, status: "pending", mask_id: midNow, source_batch: batch + "#P" + k, round_range: roundRange });
+    });
     trimMemories(character.id);
     character.summaryCursorByMask[midNow] = t;
     character.summaryCursor = t;
+    MemoryOS.logTask("summary", character.id, midNow, f, t, "done", { batch: batch });
     await saveData();
     return true;
   }
@@ -23587,17 +23824,15 @@ function setupPhoneSystem() {
   function mxRelation(charId, scope) {
     const list = MemoryOS.all(charId, scope).filter(function (m) { return m.status !== "archived"; });
     const total = list.length;
-    let imp = 0;
-    list.forEach(function (m) { imp += (m.importance || 0); });
-    const avg = total ? imp / total : 0;
-    const rel = list.filter(function (m) { return m.memory_type === "relationship"; }).length;
-    const knots = list.filter(function (m) { return m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled"; }).length;
+    const knots = list.filter(function (m) { return m.memory_type === "loop" && m.status !== "completed" && m.status !== "cancelled" && m.status !== "superseded"; }).length;
+    const rel = MemoryOS.relation(charId, scope === "*" ? ((getCurrentMask() || {}).id || "") : scope) || {};
     return {
       total: total,
-      trust: Math.min(99, Math.round(46 + avg * 45 + Math.min(total, 20))),
-      familiar: Math.min(95, Math.round(48 + total * 4 + rel * 2)),
-      intimate: Math.min(92, Math.round(34 + rel * 9 + avg * 22)),
-      knots: knots
+      trust: rel.trust || 0,
+      familiar: rel.familiar || 0,
+      intimate: rel.intimate || 0,
+      knots: knots,
+      history: rel.history || []
     };
   }
   function mxOverview(container, rows, chars) {
@@ -23606,7 +23841,7 @@ function setupPhoneSystem() {
     const perChar = {};
     rows.forEach(function (r) {
       if ((r.m.importance || 0) >= 0.8) core++;
-      if (r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled") loops++;
+      if (r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled" && r.m.status !== "superseded") loops++;
       if ((r.m.created_at || 0) >= today - 6 * 864e5) week++;
       perChar[r.c.id] = (perChar[r.c.id] || 0) + 1;
     });
@@ -23646,6 +23881,15 @@ function setupPhoneSystem() {
         + '<span style="flex:1;font-size:11px;letter-spacing:.18em;color:#0a0a0b;">' + (rel.knots ? "●".repeat(Math.min(5, rel.knots)) + "<span style='color:#dcdddf;'>" + "●".repeat(Math.max(0, 5 - rel.knots)) + "</span>" : "<span style='color:#dcdddf;'>○○○○○</span>") + '</span>'
         + '<span class="mx-serif" style="flex:0 0 34px;text-align:right;font-size:12px;">' + rel.knots + '</span>';
       box.appendChild(knot);
+      if (rel.history && rel.history.length) {
+        const h = rel.history[0];
+        const d = (h.after && h.before) ? (h.after.trust - h.before.trust) : 0;
+        const line = document.createElement("div");
+        line.style.cssText = "display:flex;align-items:baseline;font-size:9px;color:#a0a4a9;letter-spacing:.04em;padding:7px 0 0;border-top:1px solid #f1f2f4;margin-top:7px;";
+        line.innerHTML = '<span>最近变化</span><span class="mx-lead"></span><span style="color:#4a4d52;max-width:60%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + escapeHtml(h.reason || "—") + '</span>'
+          + '<span class="mx-serif" style="margin-left:8px;color:' + (d < 0 ? "#b4544f" : "#0a0a0b") + ';">' + (d > 0 ? "+" : "") + d + '</span>';
+        box.appendChild(line);
+      }
       container.appendChild(box);
     }
 
@@ -23680,6 +23924,17 @@ function setupPhoneSystem() {
       grid.appendChild(card);
     });
     container.appendChild(grid);
+    mxQuickLinks(container);
+  }
+  function mxQuickLinks(container) {
+    const bar = document.createElement("div");
+    bar.style.cssText = "display:flex;align-items:center;gap:8px;margin-top:22px;padding-top:10px;border-top:1px solid #0a0a0b;font-size:9px;letter-spacing:.12em;color:#a0a4a9;";
+    bar.innerHTML = '<span>INDEX</span>'
+      + '<button type="button" data-t="loops" style="margin-left:auto;background:#fff;border:1px solid #0a0a0b;color:#0a0a0b;padding:6px 11px;font-size:9.5px;letter-spacing:.1em;cursor:pointer;">未完成</button>'
+      + '<button type="button" data-t="search" style="background:#fff;border:1px solid #0a0a0b;color:#0a0a0b;padding:6px 11px;font-size:9.5px;letter-spacing:.1em;cursor:pointer;">搜索</button>'
+      + '<button type="button" data-t="archive" style="background:#0a0a0b;color:#fff;border:0;padding:7px 12px;font-size:9.5px;letter-spacing:.1em;cursor:pointer;">归档</button>';
+    bar.querySelectorAll("button").forEach(function (b) { b.addEventListener("click", function () { window.__memTab = b.dataset.t; renderMemoryScreen(); }); });
+    container.appendChild(bar);
   }
   function mxTimeline(container, rows, chars) {
     const active = window.__memChar || "*";
@@ -23740,7 +23995,7 @@ function setupPhoneSystem() {
           right.appendChild(ch);
         }
       }
-      const undone = r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled";
+      const undone = r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled" && r.m.status !== "superseded";
       const row = document.createElement("div");
       row.style.cssText = "padding:2px 0 12px;cursor:pointer;";
       row.innerHTML = '<div style="font-size:12.5px;line-height:1.76;color:' + (undone ? "#8d9298" : "#1c1f24") + ';">' + escapeHtml(r.m.content) + '</div>'
@@ -23754,12 +24009,15 @@ function setupPhoneSystem() {
     const sum = document.createElement("div");
     sum.style.cssText = "display:flex;align-items:center;padding:14px 0 0;border-top:1px solid #e4e5e7;margin-top:14px;font-size:9px;letter-spacing:.08em;color:#a0a4a9;";
     sum.innerHTML = '<span>共 ' + list.length + ' 条 · 时间倒序</span>'
-      + '<button type="button" style="margin-left:auto;background:#0a0a0b;color:#fff;border:0;padding:7px 12px;font-size:9.5px;letter-spacing:.14em;cursor:pointer;">搜索记忆</button>';
-    sum.querySelector("button").addEventListener("click", function () { window.__memTab = "search"; renderMemoryScreen(); });
+      + '<button type="button" data-t="archive" style="margin-left:auto;background:#fff;color:#0a0a0b;border:1px solid #0a0a0b;padding:6px 11px;font-size:9.5px;letter-spacing:.14em;cursor:pointer;">归档与设置</button>'
+      + '<button type="button" data-t="search" style="background:#0a0a0b;color:#fff;border:0;padding:7px 12px;font-size:9.5px;letter-spacing:.14em;cursor:pointer;">搜索记忆</button>';
+    sum.querySelectorAll("button").forEach(function (b) {
+      b.addEventListener("click", function () { window.__memTab = b.dataset.t; renderMemoryScreen(); });
+    });
     container.appendChild(sum);
   }
   function mxLoops(container, rows) {
-    const list = rows.filter(function (r) { return r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled" && r.m.status !== "archived"; });
+    const list = rows.filter(function (r) { return r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled" && r.m.status !== "superseded" && r.m.status !== "archived"; });
     if (!list.length) { container.appendChild(mxEmpty("没有未完成的事。答应过的事、待回复的话题会自动记在这里。")); return; }
     let overdue = 0, active = 0;
     container.appendChild(mxSection("01", "待办", list.length + " 件"));
@@ -23839,6 +24097,25 @@ function setupPhoneSystem() {
       const x = CX + Math.cos(ang) * radius, y = CY + Math.sin(ang) * radius;
       pts.push({ n: n, x: x, y: y });
     });
+    const pairs = {};
+    rows.forEach(function (r) {
+      const set = {};
+      (r.m.entities || []).concat(r.m.tags || []).forEach(function (e) { if (nodes.indexOf(String(e)) >= 0) set[String(e)] = 1; });
+      const ks = Object.keys(set);
+      for (let i = 0; i < ks.length; i++) for (let j = i + 1; j < ks.length; j++) {
+        const key = ks[i] + "|" + ks[j];
+        pairs[key] = (pairs[key] || 0) + 1;
+      }
+    });
+    pts.forEach(function (p, i) {
+      pts.forEach(function (q, j) {
+        if (j <= i) return;
+        const key = [p.n, q.n].sort().join("|");
+        const c = pairs[key];
+        if (!c) return;
+        svg += '<line x1="' + p.x.toFixed(1) + '" y1="' + p.y.toFixed(1) + '" x2="' + q.x.toFixed(1) + '" y2="' + q.y.toFixed(1) + '" stroke="#c9cbce" stroke-width="1" stroke-dasharray="3 4" opacity="' + Math.min(0.85, 0.35 + c * 0.12).toFixed(2) + '"/>';
+      });
+    });
     pts.forEach(function (p, i) {
       svg += '<line x1="' + CX + '" y1="' + CY + '" x2="' + p.x.toFixed(1) + '" y2="' + p.y.toFixed(1) + '" stroke="#c9cbce" stroke-width="1"/>';
     });
@@ -23864,7 +24141,7 @@ function setupPhoneSystem() {
     container.appendChild(mxSection("02", "图例", nodes.length + " 个节点"));
     const legend = document.createElement("div");
     legend.style.cssText = "border:1px solid #0a0a0b;padding:9px 10px;font-size:9px;letter-spacing:.06em;color:#4a4d52;display:flex;gap:14px;flex-wrap:wrap;";
-    legend.innerHTML = '<span>● 人物</span><span>○ 事件 / 物</span><span>— 关联</span><span style="margin-left:auto;color:#a0a4a9;">点节点展开</span>';
+    legend.innerHTML = '<span>● 人物</span><span>○ 事件 / 物</span><span>— 直接提及</span><span>┈ 同条记忆共现</span><span style="margin-left:auto;color:#a0a4a9;">仅统计真实记忆</span>';
     container.appendChild(legend);
   }
   function mxSearch(container, rows) {
@@ -23913,32 +24190,136 @@ function setupPhoneSystem() {
   function mxArchive(container, rows) {
     const maskIds = {};
     (db.masks || []).forEach(function (m) { maskIds[m.id] = 1; });
+    const maskName = function (id) { const m = (db.masks || []).find(function (x) { return x.id === id; }); return m ? m.name : (id || "未归属"); };
     const stale = (db.memories || []).filter(function (m) { return m && m.character_id && !maskIds[m.mask_id]; });
     if (stale.length) {
       container.appendChild(mxSection("00", "归属体检", stale.length + " 条待修"));
       const bx = document.createElement("div");
       bx.style.cssText = "border:1px solid #0a0a0b;padding:11px;";
-      bx.innerHTML = '<div style="font-size:10.5px;line-height:1.7;color:#4a4d52;">有 ' + stale.length + ' 条记忆挂的面具已经不存在了，它们在「全部面具」里能看到，但任何单个面具下都不会出现。</div>'
-        + '<div style="display:flex;gap:8px;margin-top:9px;">'
-        + '<button type="button" data-fix="1" style="border:1px solid #0a0a0b;background:#0a0a0b;color:#fff;padding:6px 11px;font-size:10px;letter-spacing:.1em;cursor:pointer;">按对话身份归位</button>'
-        + '<button type="button" data-fix="0" style="border:1px solid #0a0a0b;background:#fff;padding:6px 11px;font-size:10px;letter-spacing:.1em;cursor:pointer;">先看清单</button></div>';
-      bx.addEventListener("click", async function (e) {
-        const b = e.target.closest("[data-fix]");
-        if (!b) return;
-        if (b.dataset.fix === "0") {
-          showToast(stale.slice(0, 5).map(function (m) { return mxCharName((db.characters || []).find(function (c) { return c.id === m.character_id; })) + "：" + String(m.content || "").slice(0, 12); }).join(" / ") + (stale.length > 5 ? " …" : ""));
-          return;
-        }
-        if (!await uiConfirm("把 " + stale.length + " 条挂在不存在的面具上的记忆，按各自对话身份重新归位？", "归位", false)) return;
-        let n = 0;
-        stale.forEach(function (m) {
-          const mid = resolveMaskForChat(m.character_id);
-          if (mid && mid !== m.mask_id) { m.mask_id = mid; m.updated_at = Date.now(); n++; }
+      const head = document.createElement("div");
+      head.style.cssText = "font-size:10.5px;line-height:1.7;color:#4a4d52;";
+      head.textContent = "有 " + stale.length + " 条记忆挂的面具已经不存在了：它们在「全部面具」里看得到，但任何单个面具下都不会出现。可按来源筛选后批量归位，系统不会替你猜。";
+      bx.appendChild(head);
+      const selChar = document.createElement("select");
+      const selMask = document.createElement("select");
+      const selType = document.createElement("select");
+      [selChar, selMask, selType].forEach(function (el) {
+        el.style.cssText = "flex:1;min-width:0;margin-top:8px;padding:5px 6px;border:1px solid #d8d9dc;background:#fff;font-size:10px;color:#3f4348;";
+      });
+      const charSet = {};
+      stale.forEach(function (m) { if (m.character_id) charSet[m.character_id] = 1; });
+      selChar.innerHTML = '<option value="">角色：全部</option>' + Object.keys(charSet).map(function (id) {
+        const c = (db.characters || []).find(function (x) { return x.id === id; });
+        return '<option value="' + escapeHtml(id) + '">' + escapeHtml(c ? mxCharName(c) : id) + '</option>';
+      }).join("");
+      const maskSet = {};
+      stale.forEach(function (m) { maskSet[m.mask_id || ""] = 1; });
+      selMask.innerHTML = '<option value="">原面具：全部</option>' + Object.keys(maskSet).map(function (id) {
+        return '<option value="' + escapeHtml(id) + '">' + escapeHtml(maskName(id)) + '</option>';
+      }).join("");
+      const tySet = {};
+      stale.forEach(function (m) { tySet[m.memory_type] = 1; });
+      selType.innerHTML = '<option value="">类型：全部</option>' + Object.keys(tySet).map(function (t) {
+        return '<option value="' + escapeHtml(t) + '">' + escapeHtml((MemoryOS.TYPE_LABEL || {})[t] || t) + '</option>';
+      }).join("");
+      const fbar = document.createElement("div");
+      fbar.style.cssText = "display:flex;gap:6px;";
+      fbar.appendChild(selChar); fbar.appendChild(selMask); fbar.appendChild(selType);
+      bx.appendChild(fbar);
+      const listBox = document.createElement("div");
+      listBox.style.cssText = "margin-top:8px;max-height:230px;overflow:auto;border-top:1px solid #ececee;";
+      bx.appendChild(listBox);
+      const foot = document.createElement("div");
+      foot.style.cssText = "display:flex;align-items:center;gap:8px;margin-top:9px;";
+      bx.appendChild(foot);
+      const sel = {};
+      const candidateOf = function (m) {
+        const c = (db.characters || []).find(function (x) { return x.id === m.character_id; });
+        const bound = ((c && c.maskIds) || []).filter(function (id) { return maskIds[id]; });
+        if (bound.length === 1) return { id: bound[0], sure: true };
+        if (bound.length > 1 && typeof resolveMaskForChat === "function") return { id: resolveMaskForChat(c), sure: false };
+        return null;
+      };
+      const visible = function () {
+        return stale.filter(function (m) {
+          if (selChar.value && m.character_id !== selChar.value) return false;
+          if (selMask.value !== "" && (m.mask_id || "") !== selMask.value) return false;
+          if (selType.value && m.memory_type !== selType.value) return false;
+          return true;
         });
+      };
+      const renderList = function () {
+        listBox.innerHTML = "";
+        const vis = visible();
+        if (!vis.length) { listBox.innerHTML = '<div style="font-size:10px;color:#a0a4a9;padding:10px 0;">这个筛选下没有待修记忆。</div>'; return; }
+        vis.slice(0, 40).forEach(function (m) {
+          const cand = candidateOf(m);
+          const row = document.createElement("div");
+          row.style.cssText = "display:flex;gap:8px;align-items:flex-start;padding:7px 0;border-bottom:1px solid #f1f2f4;";
+          row.innerHTML = '<input type="checkbox" data-id="' + escapeHtml(m.id) + '" style="margin-top:2px;flex:0 0 auto;"' + (sel[m.id] ? " checked" : "") + (cand ? "" : " disabled") + '>'
+            + '<div style="flex:1;min-width:0;">'
+            + '<div style="font-size:10.5px;line-height:1.55;color:#1c1f24;">' + escapeHtml(String(m.content || "").slice(0, 60)) + '</div>'
+            + '<div style="font-size:8.5px;color:#a0a4a9;margin-top:3px;letter-spacing:.03em;">' + escapeHtml(maskName(m.mask_id)) + ' → ' + (cand ? escapeHtml(maskName(cand.id)) + (cand.sure ? "" : "（推测，请确认）") : "无法判断，待人工") + '</div>'
+            + '</div>';
+          listBox.appendChild(row);
+        });
+        if (vis.length > 40) {
+          const more = document.createElement("div");
+          more.style.cssText = "font-size:9px;color:#a0a4a9;padding:8px 0;";
+          more.textContent = "仅显示前 40 条，用筛选缩小范围。";
+          listBox.appendChild(more);
+        }
+      };
+      const preview = document.createElement("button");
+      preview.type = "button";
+      preview.textContent = "预览并归位";
+      preview.style.cssText = "border:1px solid #0a0a0b;background:#0a0a0b;color:#fff;padding:6px 11px;font-size:10px;letter-spacing:.1em;cursor:pointer;";
+      const allBtn = document.createElement("button");
+      allBtn.type = "button";
+      allBtn.textContent = "全选本页";
+      allBtn.style.cssText = "border:1px solid #0a0a0b;background:#fff;padding:6px 11px;font-size:10px;letter-spacing:.1em;cursor:pointer;";
+      const cnt = document.createElement("span");
+      cnt.style.cssText = "margin-left:auto;font-size:9px;color:#a0a4a9;";
+      foot.appendChild(allBtn); foot.appendChild(preview); foot.appendChild(cnt);
+      const refreshCnt = function () {
+        const n = Object.keys(sel).filter(function (k) { return sel[k]; }).length;
+        cnt.textContent = "已选 " + n + " 条";
+      };
+      listBox.addEventListener("change", function (e) {
+        const cb = e.target.closest("input[data-id]");
+        if (!cb) return;
+        if (cb.checked) sel[cb.dataset.id] = 1; else delete sel[cb.dataset.id];
+        refreshCnt();
+      });
+      allBtn.addEventListener("click", function () {
+        visible().forEach(function (m) { if (candidateOf(m)) sel[m.id] = 1; });
+        renderList(); refreshCnt();
+      });
+      preview.addEventListener("click", async function () {
+        const picked = stale.filter(function (m) { return sel[m.id]; });
+        const moves = [];
+        picked.forEach(function (m) {
+          const cand = candidateOf(m);
+          if (cand && cand.id) moves.push({ m: m, to: cand.id });
+        });
+        if (!moves.length) { showToast("先勾选可归位的条目"); return; }
+        const lines = moves.slice(0, 8).map(function (x) { return maskName(x.m.mask_id) + " → " + maskName(x.to) + "：" + String(x.m.content || "").slice(0, 18); });
+        const extra = moves.length > 8 ? "\n…等 " + moves.length + " 条" : "";
+        if (!await uiConfirm("将迁移 " + moves.length + " 条记忆：\n" + lines.join("\n") + extra, "确认迁移", false)) return;
+        if (!Array.isArray(db.memMigrationLog)) db.memMigrationLog = [];
+        moves.forEach(function (x) {
+          const m = x.m;
+          m.mask_id_prev = m.mask_id || "";
+          m.mask_id = x.to;
+          m.updated_at = Date.now();
+          db.memMigrationLog.push({ id: "mig_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), memory_id: m.id, character_id: m.character_id, from_mask: m.mask_id_prev, to_mask: x.to, at: Date.now(), via: "health" });
+        });
+        if (db.memMigrationLog.length > 300) db.memMigrationLog = db.memMigrationLog.slice(-300);
         await saveData();
-        showToast("已归位 " + n + " 条");
+        showToast("已迁移 " + moves.length + " 条");
         renderMemoryScreen();
       });
+      renderList(); refreshCnt();
       container.appendChild(bx);
     }
     const arch = rows.filter(function (r) { return r.m.status === "archived"; });
@@ -23953,7 +24334,7 @@ function setupPhoneSystem() {
         + '<span style="flex:0 0 auto;font-size:9px;border:1px solid #0a0a0b;padding:3px 8px;cursor:pointer;letter-spacing:.06em;">还原</span>';
       row.querySelector("span:last-child").addEventListener("click", function (e) {
         e.stopPropagation();
-        MemoryOS.update(r.m.id, { status: "active" });
+        MemoryOS.update(r.m.id, { status: r.m.memory_type === "loop" ? "pending" : "active" });
         renderMemoryScreen();
         showToast("已还原");
       });
@@ -24008,8 +24389,9 @@ function setupPhoneSystem() {
     body.appendChild(top);
     container.appendChild(body);
 
+    const loopCount = rows.filter(function (r) { return r.m.memory_type === "loop" && r.m.status !== "completed" && r.m.status !== "cancelled" && r.m.status !== "superseded" && r.m.status !== "archived"; }).length;
     const titles = { overview: "记忆", timeline: "时间线", loops: "未完成", graph: "图谱", search: "搜索", archive: "归档" };
-    const eyebrows = { overview: ["MEMORY · ARCHIVE", scope === "*" ? "ALL MASKS" : "SINGLE MASK"], timeline: ["CHRONICLE / 02", "P. 31"], loops: ["OPEN LOOPS", "5 件"], graph: ["MEMORY GRAPH", "FIG. 01"], search: ["INDEX / SEARCH", "—"], archive: ["ARCHIVE", "P. 44"] };
+    const eyebrows = { overview: ["MEMORY · ARCHIVE", scope === "*" ? "ALL MASKS" : "SINGLE MASK"], timeline: ["CHRONICLE / 02", "P. 31"], loops: ["OPEN LOOPS", loopCount + " 件"], graph: ["MEMORY GRAPH", "FIG. 01"], search: ["INDEX / SEARCH", "—"], archive: ["ARCHIVE", "P. 44"] };
     body.appendChild(mxHead(eyebrows[tab][0], eyebrows[tab][1], titles[tab], tab === "overview" ? rows.length : null,
       tab === "overview" ? (scope === "*" ? "所有面具的记忆都在这里 · 可往下收窄" : "只看「" + mxMaskName(scope) + "」") : null,
       tab === "loops" || tab === "archive"));
@@ -24089,7 +24471,12 @@ function setupPhoneSystem() {
       + '<button type="button" data-mact="star" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">' + ((m.importance || 0) >= 0.8 ? "取消重要" : "标记重要") + '</button>'
       + '<button type="button" data-mact="scope" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">' + (m.memory_scope === "shared" ? "改为私密" : "设为共享") + '</button>'
       + '<button type="button" data-mact="mask" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">改归属面具</button>'
-      + (m.memory_type === "loop" ? '<button type="button" data-mact="done" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">标记完成</button>' : "")
+      + (m.memory_type === "loop"
+        ? ((m.status === "completed" || m.status === "cancelled" || m.status === "superseded")
+          ? '<button type="button" data-mact="restore" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">恢复待办</button>'
+          : '<button type="button" data-mact="done" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">标记完成</button>'
+            + '<button type="button" data-mact="cancel" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">取消</button>')
+        : "")
       + '<button type="button" data-mact="edit" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #e6e7e9;background:#fff;font-size:12.5px;color:#3f4348;">纠正内容</button>'
       + '<button type="button" data-mact="del" style="flex:1;min-width:88px;height:38px;border-radius:12px;border:1px solid #f0d6d4;background:#fff;font-size:12.5px;color:#b4544f;">删除</button>'
       + '</div>'
@@ -24146,8 +24533,16 @@ function setupPhoneSystem() {
         close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); return;
       }
       if (act === "done") {
-        MemoryOS.setLoop(m.id, "completed");
-        close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); showToast("已标记完成"); return;
+        MemoryOS.setLoop(m.id, "completed", "用户标记完成");
+        close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); try { renderMemoryScreen(); } catch (e2) {} showToast("已标记完成"); return;
+      }
+      if (act === "cancel") {
+        MemoryOS.setLoop(m.id, "cancelled", "用户取消");
+        close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); try { renderMemoryScreen(); } catch (e2) {} showToast("已取消"); return;
+      }
+      if (act === "restore") {
+        MemoryOS.setLoop(m.id, "pending", "用户恢复待办");
+        close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); try { renderMemoryScreen(); } catch (e2) {} showToast("已恢复为待办"); return;
       }
       if (act === "edit") {
         const t = await uiPrompt("纠正这条记忆：", m.content);
@@ -24160,7 +24555,7 @@ function setupPhoneSystem() {
       if (act === "del") {
         if (!await uiConfirm("删除这条记忆？只影响当前面具下的这个角色。", "删除")) return;
         MemoryOS.remove(m.id);
-        close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); return;
+        close(); renderMemoryDetail(cid, (document.getElementById("memory-search-input") || {}).value || ""); try { renderMemoryScreen(); } catch (e2) {} return;
       }
     });
   }
@@ -37417,7 +37812,7 @@ window.bsRoomAI = bsRoomAI;
 #cr-msheet{background:var(--cr-paper,#fffef9);}
 .cr-screen .sheet{background:var(--cr-paper);}
 .cr-screen .env-body{background:#f4f3ee;}
-/* ================= 404 桌面复刻 v5.5.6 ================= */
+/* ================= 404 桌面复刻 v5.5.7 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
