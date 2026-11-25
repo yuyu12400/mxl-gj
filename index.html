@@ -6803,6 +6803,100 @@
 .api404-foot { margin:18px 0 6px; text-align:center; }
 .api404-foot-note { font-size:7.5px; letter-spacing:.18em; color:#9a9a9a; }
 
+
+/* ===== Settings hub v6.3.4 ===== */
+.stg-head{display:flex;align-items:flex-start;gap:12px;padding-top:18px;}
+.stg-back{width:30px;height:30px;flex:0 0 auto;margin-top:4px;border:1px solid #111;border-radius:50%;background:#fff;color:#111;font-size:19px;line-height:1;cursor:pointer;font-family:inherit;}
+.stg-headmain{flex:1;min-width:0;}
+.stg-eyebrow{font-size:7px;letter-spacing:.2em;color:#8c8c8c;font-weight:600;}
+.stg-title{font-family:Georgia,'Times New Roman',serif;font-size:34px;line-height:1.04;letter-spacing:-.03em;color:#111;margin-top:5px;font-weight:400;}
+.stg-title em{font-style:italic;}
+.stg-meta{margin-left:auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px;font-size:7px;line-height:1.5;color:#8c8c8c;letter-spacing:.14em;text-align:right;padding-top:2px;max-width:140px;}
+.stg-meta b{color:#111;font-weight:600;}
+.stg-views{margin-top:18px;}
+.stg-view{display:none;}
+.stg-view.active{display:block;animation:stgFade .24s ease both;}
+@keyframes stgFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.stg-hero{border-top:1px solid #111;padding:17px 0 18px;}
+.stg-hero-k{font-size:7px;letter-spacing:.22em;color:#8c8c8c;font-weight:600;}
+.stg-hero-t{font-size:28px;line-height:1.2;font-weight:600;letter-spacing:-.7px;color:#111;margin-top:11px;}
+.stg-hero-t em{font-family:Georgia,serif;font-style:italic;font-weight:400;}
+.stg-hero-sub{font-size:8.5px;line-height:1.8;letter-spacing:.06em;color:#8f8f96;margin-top:12px;max-width:260px;}
+.stg-menu{border-top:1px solid #111;}
+.stg-item{display:grid;grid-template-columns:27px 1fr 16px;gap:8px;align-items:start;width:100%;border:0;border-bottom:1px solid #dedede;background:none;padding:17px 1px 15px;text-align:left;font-family:inherit;cursor:pointer;color:#111;}
+.stg-item .num{font-family:Georgia,serif;font-size:11px;letter-spacing:.06em;color:#111;padding-top:3px;}
+.stg-item .main b{display:block;font-size:16px;line-height:1.25;letter-spacing:.02em;font-weight:600;color:#111;}
+.stg-item .main em{display:block;margin-top:5px;font-style:normal;font-size:8px;line-height:1.65;letter-spacing:.08em;color:#8b8b92;}
+.stg-item .arrow{font-family:Georgia,serif;font-size:15px;color:#111;text-align:right;padding-top:1px;transition:transform .18s;}
+.stg-item:active .arrow{transform:translateX(3px);}
+.stg-foot{padding:20px 0 12px;font-size:7px;letter-spacing:.18em;color:#9a9aa1;text-align:center;}
+.stg-vhead{display:flex;align-items:flex-start;gap:10px;border-top:1px solid #111;padding:15px 0 12px;}
+.stg-inback{width:26px;height:26px;flex:0 0 auto;border:1px solid #111;border-radius:50%;background:#fff;color:#111;font-size:16px;line-height:1;cursor:pointer;font-family:inherit;margin-top:2px;}
+.stg-vhead .vt{flex:1;min-width:0;}
+.stg-vhead .vt span{display:block;font-size:7px;letter-spacing:.2em;color:#8c8c8c;font-weight:600;}
+.stg-vhead .vt b{display:block;font-size:25px;line-height:1.1;letter-spacing:-.4px;color:#111;margin-top:5px;font-weight:600;}
+.stg-vhead .ve{margin-left:auto;text-align:right;font-size:7px;letter-spacing:.12em;line-height:1.6;color:#8c8c8c;max-width:96px;padding-top:3px;}
+.stg-eyebrow-inline{font-size:7px;letter-spacing:.2em;color:#8c8c8c;font-weight:600;margin-top:4px;}
+.stg-totalcard{border-top:1px solid #111;border-bottom:1px solid #d8d8d8;padding:16px 0 17px;display:flex;gap:16px;align-items:center;}
+.stg-donut{width:112px;height:112px;flex:0 0 auto;border-radius:50%;position:relative;background:conic-gradient(#111 0 100%);box-shadow:inset 0 0 0 1px rgba(0,0,0,.08);}
+.stg-donut-hole{position:absolute;inset:17px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:0 0 0 1px rgba(0,0,0,.04);}
+.stg-donut-hole b{font-family:Georgia,serif;font-size:19px;line-height:1;color:#111;letter-spacing:-.02em;font-weight:400;}
+.stg-donut-hole span{font-size:6px;letter-spacing:.16em;color:#8c8c8c;margin-top:5px;font-weight:600;}
+.stg-sumcopy{flex:1;min-width:0;}
+.stg-sumcopy .k{font-size:7px;letter-spacing:.2em;color:#8c8c8c;font-weight:600;}
+.stg-sumcopy .v{font-size:13px;line-height:1.55;color:#111;margin-top:5px;font-weight:500;}
+.stg-sumcopy .s{font-size:7.5px;line-height:1.7;letter-spacing:.05em;color:#8c8c8c;margin-top:7px;}
+.stg-bars{border-top:1px solid #111;margin-top:18px;}
+.stg-bars .bt{display:flex;align-items:baseline;justify-content:space-between;padding:10px 0 8px;}
+.stg-bars .bt b{font-size:7px;letter-spacing:.18em;color:#111;font-weight:600;}
+.stg-bars .bt em{font-style:normal;font-size:7px;letter-spacing:.1em;color:#9a9aa1;}
+.stg-statrow{padding:10px 0 11px;border-top:1px solid #f0f0f0;}
+.stg-statrow:last-child{border-bottom:1px solid #f0f0f0;}
+.stg-statline{display:flex;align-items:center;gap:8px;}
+.stg-dot{width:7px;height:7px;border-radius:50%;flex:0 0 auto;}
+.stg-statline .nm{font-size:10.5px;color:#222;font-weight:500;letter-spacing:.02em;}
+.stg-statline .sz{margin-left:auto;font-size:8px;color:#8c8c8c;letter-spacing:.05em;}
+.stg-statline .pc{width:44px;text-align:right;font-family:Georgia,serif;font-size:10px;color:#111;}
+.stg-track{height:3px;background:#f0f0f1;margin:7px 0 0 15px;overflow:hidden;}
+.stg-track i{display:block;height:100%;background:#111;border-radius:1px;}
+.stg-actions{display:flex;gap:9px;margin-top:18px;}
+.stg-actions button,.stg-actions label{flex:1;min-height:42px;border-radius:999px;border:1px solid #111;display:flex;align-items:center;justify-content:center;font-size:9px;letter-spacing:.15em;font-family:inherit;cursor:pointer;text-decoration:none;box-sizing:border-box;}
+.stg-actions .stg-primary{background:#111;color:#fff;}
+.stg-actions .stg-ghost{background:#fff;color:#111;}
+.stg-warn{margin:14px 2px 0;padding:11px 12px;border:1px dashed #cfcfcf;font-size:8px;line-height:1.8;color:#8b8b92;letter-spacing:.03em;}
+.stg-warn b{color:#111;font-weight:600;}
+.stg-block{border-top:1px solid #111;padding:16px 0 19px;}
+.stg-block:first-of-type{border-top:1px solid #111;}
+.stg-label{display:flex;align-items:baseline;gap:8px;}
+.stg-label b{font-size:7px;letter-spacing:.2em;color:#111;font-weight:600;}
+.stg-label em{margin-left:auto;font-style:normal;font-size:7px;letter-spacing:.1em;color:#9a9aa1;}
+.stg-wallrow{display:flex;gap:14px;margin-top:12px;align-items:flex-start;}
+.stg-wallprev{width:104px;flex:0 0 auto;aspect-ratio:9/15;border-radius:10px;border:1px solid #d8d8d8;background:#f5f5f6 center/cover no-repeat;display:flex;align-items:center;justify-content:center;font-size:8px;color:#9a9aa1;overflow:hidden;}
+.stg-wallprev span{background:rgba(255,255,255,.88);padding:5px 8px;border-radius:20px;letter-spacing:.08em;}
+.stg-wallcopy{flex:1;min-width:0;}
+.stg-wallcopy p{margin:0;font-size:8px;line-height:1.8;letter-spacing:.04em;color:#8c8c8c;}
+.stg-wallcopy .stg-mini{display:inline-flex;align-items:center;justify-content:center;margin:10px 6px 0 0;padding:9px 12px;min-height:34px;border-radius:999px;border:1px solid #111;background:#fff;color:#111;font-size:8px;letter-spacing:.1em;text-decoration:none;cursor:pointer;font-family:inherit;box-sizing:border-box;}
+.stg-wallcopy .stg-mini.solid{background:#111;color:#fff;}
+.stg-seg{display:flex;gap:8px;margin-top:12px;}
+.stg-seg button{flex:1;min-height:36px;border-radius:999px;border:1px solid #d8d8d8;background:#fff;color:#111;font-size:8px;letter-spacing:.14em;font-family:inherit;cursor:pointer;}
+.stg-seg button.on{background:#111;border-color:#111;color:#fff;}
+.stg-hint{font-size:8px;line-height:1.8;color:#8c8c8c;letter-spacing:.04em;margin:10px 0 0;}
+#api-settings-screen #font-settings-form .form-group{border:0;padding:0;margin:0 0 10px;background:none;}
+#api-settings-screen #font-settings-form label{display:block;font-size:7px;letter-spacing:.16em;color:#111;margin-bottom:5px;}
+#api-settings-screen #font-settings-form input[type=url]{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid #cfcfcf;background:transparent;padding:7px 0;font-size:11px;color:#111;outline:none;}
+#api-settings-screen #font-settings-form button{border-radius:999px;min-height:34px;font-size:8px;letter-spacing:.12em;border:1px solid #111;background:#fff;color:#111;font-family:inherit;cursor:pointer;padding:0 14px;}
+#api-settings-screen #font-settings-form .stg-fontapply{background:#111;color:#fff;}
+#api-settings-screen #font-scale-slider{accent-color:#111;}
+#api-settings-screen #customize-form{margin-top:8px;}
+#api-settings-screen #customize-form .icon-custom-item{display:flex;align-items:center;gap:11px;padding:11px 0;border-bottom:1px solid #f0f0f0;}
+#api-settings-screen #customize-form .icon-custom-item:last-child{border-bottom:0;}
+#api-settings-screen #customize-form .icon-preview{width:38px;height:38px;border-radius:10px;object-fit:cover;flex:0 0 auto;background:#f2f2f3;}
+#api-settings-screen #customize-form .icon-details{flex:1;min-width:0;}
+#api-settings-screen #customize-form .icon-details p{margin:0 0 4px;font-size:9px;font-weight:600;color:#111;letter-spacing:.03em;}
+#api-settings-screen #customize-form .icon-details input{width:100%;box-sizing:border-box;border:0;border-bottom:1px solid #dedede;background:transparent;font-size:9px;color:#555;padding:4px 0;outline:none;font-family:inherit;}
+#api-settings-screen #customize-form .upload-icon-btn,#api-settings-screen #customize-form .reset-icon-btn{flex:0 0 auto;border:1px solid #d8d8d8;background:#fff;color:#111;border-radius:999px;font-size:7px;padding:6px 8px;font-family:inherit;cursor:pointer;letter-spacing:.06em;}
+#api-settings-screen #customize-form .upload-icon-btn{border-color:#111;}
+
 .wb2-budgetrow { display:flex; align-items:baseline; gap:8px; margin:10px 0 2px; padding:9px 0; border-top:1px solid #111; border-bottom:1px solid #d8d8d8; }
 .wb2-budgetrow span { font-size:8px; letter-spacing:.16em; color:#111; }
 .wb2-budgetrow input { flex:1; min-width:0; border:0; border-bottom:1px solid #111; background:transparent; font-size:12px; color:#111; padding:3px 0; outline:none; text-align:right; }
@@ -10369,7 +10463,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane is-on" data-offline-pane="meet">
                 <div class="o404-clock-row">
                     <div class="o404-clock" id="o404-time">20:14</div>
-                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.2</span></div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.4</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR MOMENT</span>
@@ -10402,7 +10496,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:16</div>
-                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.2</span></div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.4</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR CAST</span>
@@ -10414,7 +10508,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="story">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:18</div>
-                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.2</span></div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.4</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR STORY</span>
@@ -11004,7 +11098,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     <div id="forum-settings-screen" class="screen forum-screen"></div>
     <div id="forum-dm-screen" class="screen forum-screen"></div>
     <div id="forum-dm-chat-screen" class="screen forum-screen"></div>
-<input type="file" id="import-data-input" accept=".ee" style="display: none;">
+<input type="file" id="import-data-input" accept=".json,.ee,application/json" style="display: none;">
 <script>
 
 function getRandomValue(str) {
@@ -11069,25 +11163,10 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function setupApiSettings404() {
     var screen = document.getElementById("api-settings-screen");
-    if (!screen || screen.dataset.o404Api === "1") return;
+    if (!screen) return;
     var form = screen.querySelector("#api-form");
-    if (!form) return;
-    screen.dataset.o404Api = "1";
-    var header = screen.querySelector(".app-header");
-    if (header) header.style.display = "none";
-    var content = screen.querySelector(".content");
-    if (!content) return;
-    var head = document.createElement("div");
-    head.className = "api404-head";
-    head.innerHTML = '<button type="button" class="api404-back" aria-label="返回">‹</button>'
-      + '<div class="api404-clock">API</div>'
-      + '<div class="api404-meta"><span>SETTINGS</span><span>MODEL / ACCESS</span><span id="api404-status">READY</span></div>';
-    content.insertBefore(head, content.firstChild);
-    var kicker = document.createElement("div");
-    kicker.className = "api404-kicker";
-    kicker.innerHTML = '<span class="o404-label">CONNECTION</span><span class="api404-script">make it work.</span>';
-    content.insertBefore(kicker, form);
-    head.querySelector(".api404-back").addEventListener("click", function () { switchScreen("home-screen"); });
+    if (!form || form.dataset.stgSecDone === "1") return;
+    form.dataset.stgSecDone = "1";
     var groups = form.querySelectorAll(".form-group");
     var marks = [
       [0, "01", "CONNECTION", "接口地址与密钥"],
@@ -11105,28 +11184,390 @@ document.addEventListener("DOMContentLoaded", () => {
       sec.innerHTML = '<span class="api404-sec-num">' + m[1] + '</span><b>' + m[2] + '</b><em>' + m[3] + '</em>';
       g.parentNode.insertBefore(sec, g);
     });
-    var submit = form.querySelector("#save-btn");
-    if (submit) {
-      var foot = document.createElement("div");
-      foot.className = "api404-foot";
-      foot.innerHTML = '<div class="api404-foot-note">SAVED LOCALLY / 只在当前设备保存</div>';
-      submit.parentNode.insertBefore(foot, submit);
-    }
-    var refresh = function () {
-      var st = document.getElementById("api404-status");
-      if (!st) return;
-      var cfg = (db && db.apiSettings) || {};
-      st.textContent = (cfg.provider ? String(cfg.provider).toUpperCase() : "NO PROVIDER") + (cfg.model ? " / " + String(cfg.model).slice(0, 22) : "");
-    };
-    refresh();
-    var saveBtn = form.querySelector("#save-btn");
-    if (saveBtn) saveBtn.addEventListener("click", function () { setTimeout(refresh, 400); });
   }
-  document.getElementById("api-settings-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">API \u8BBE\u7F6E</h1></div><div class="placeholder"></div></header><main class="content"><form id="api-form"><div class="form-group"><label for="api-provider">API \u670D\u52A1\u5546</label><select id="api-provider" name="provider"><option value="newapi">NewAPI (\u81EA\u5B9A\u4E49)</option><option value="deepseek">DeepSeek</option><option value="claude">Claude</option><option value="gemini">Gemini</option></select></div><div class="form-group" style="border:1px solid #e8eaed;border-radius:12px;padding:12px;margin-bottom:14px;"><label style="font-weight:600;display:block;margin-bottom:8px;">API \u9884\u8BBE\uFF08\u4FDD\u5B58\u6574\u5957\u914D\u7F6E\uFF0C\u9009\u4E2D\u5373\u5207\u6362\uFF09</label><select id="api-preset-select" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;background:#fafafa;"></select><input type="text" id="api-preset-name" placeholder="\u9884\u8BBE\u540D\u79F0" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;"><div style="display:flex;gap:8px;margin-top:8px;"><button type="button" class="btn btn-secondary" id="api-preset-save" style="flex:1;padding:7px 10px;font-size:12px;">\u5B58\u4E3A\u9884\u8BBE</button><button type="button" class="btn btn-secondary" id="api-preset-del" style="flex:1;padding:7px 10px;font-size:12px;">\u5220\u9664</button></div></div><div class="form-group"><label for="api-url">API \u5730\u5740\uFF08\u540E\u7F00\u4E0D\u7528\u6DFB\u52A0/v1\uFF09</label><input type="url" id="api-url" name="url" placeholder="\u9009\u62E9\u670D\u52A1\u5546\u53EF\u81EA\u52A8\u586B\u5199" required></div><div class="form-group"><label for="api-key">\u5BC6\u94A5 (Key)</label><input type="password" id="api-key" name="key" placeholder="\u8BF7\u8F93\u5165\u4F60\u7684API\u5BC6\u94A5" required></div><button type="button" class="btn btn-secondary" id="fetch-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u6A21\u578B</span><div class="spinner"></div></button><div class="form-group"><label for="api-model">\u9009\u62E9\u6A21\u578B</label><select id="api-model" name="model" required><option value="">\u8BF7\u5148\u62C9\u53D6\u6A21\u578B\u5217\u8868</option></select></div><div class="form-group"><label style="display:flex; justify-content:space-between; align-items:center;">\u8BC6\u56FE\uFF08\u5F00\u542F\u540EAPI\u4F1A\u8BC6\u522B\u56FE\u7247\u5185\u5BB9\uFF0C\u5168\u5C40\u751F\u6548\uFF09<div class="switch-wrap"><input type="checkbox" id="api-vision-enabled" class="ios-sw"></div></label></div><div class="form-group"><label for="api-stream-mode">\u6D41\u5F0F\u6A21\u5F0F\uFF08\u5168\u5C40\u8F93\u51FA\uFF09</label><select id="api-stream-mode"><option value="auto">\u81EA\u52A8\u68C0\u6D4B\uFF08\u4F18\u5148\u6D41\u5F0F\uFF0C\u5931\u8D25\u81EA\u52A8\u56DE\u9000\u975E\u6D41\u5F0F\uFF09</option><option value="stream">\u4EC5\u6D41\u5F0F</option><option value="nonstream">\u4EC5\u975E\u6D41\u5F0F</option></select></div><div class="form-group"><label>\u6E29\u5EA6\uFF080~2\uFF0C\u8D8A\u4F4E\u8D8A\u7A33\u5B9A\uFF0C\u8D8A\u9AD8\u8D8A\u6709\u60F3\u8C61\u529B\uFF09<span id="api-temp-val" style="color:#9aa0a6;">1.0</span></label><input type="range" id="api-temperature" min="0" max="2" step="0.1" value="1.0" style="width:100%;"></div><div class="form-group" style="border-top:1px dashed #e8eaed; padding-top:12px; margin-top:12px;"><label style="font-weight:600; display:flex; justify-content:space-between; align-items:center;">AI \u751F\u56FE\uFF08\u89D2\u8272\u53D1\u56FE\u65F6\u4F7F\u7528\uFF0C\u4F5C\u7528\u4E8E\u7EBF\u4E0A\uFF09<div class="switch-wrap"><input type="checkbox" id="img-gen-enabled" class="ios-sw"></div></label><div style="font-size:11px;color:#999;margin:4px 0 10px;">\u624B\u52A8\u5F00\u542F\u540E\uFF0C\u89D2\u8272\u53D1\u56FE\u4F1A\u8C03\u7528\u751F\u56FE API\uFF0C\u6309\u5267\u60C5\u3001\u4EBA\u8BBE\u548C\u804A\u5929\u5185\u5BB9\u751F\u6210\u5BF9\u5E94\u56FE\u7247\uFF1B\u672A\u5F00\u542F\u5219\u4ECD\u53D1\u9001\u6A21\u62DF\u56FE\u7247\u3002</div></div><div class="form-group"><label for="img-gen-url">\u751F\u56FE API \u5730\u5740\uFF08OpenAI \u517C\u5BB9\uFF0C\u542B /v1\uFF09</label><input type="url" id="img-gen-url" placeholder="https://api.openai.com/v1"></div><div class="form-group"><label for="img-gen-key">\u751F\u56FE API \u5BC6\u94A5</label><input type="password" id="img-gen-key" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3B API \u5BC6\u94A5"></div><button type="button" class="btn btn-secondary" id="fetch-img-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u751F\u56FE\u6A21\u578B</span><div class="spinner"></div></button><div class="form-group"><label for="img-gen-model">\u751F\u56FE\u6A21\u578B</label><select id="img-gen-model"><option value="">\u8BF7\u5148\u62C9\u53D6\u751F\u56FE\u6A21\u578B</option></select></div><div class="form-group"><label for="img-gen-size">\u751F\u6210\u5C3A\u5BF8</label><select id="img-gen-size"><option value="1024x1024">1024\xD71024\uFF08\u65B9\u5F62\uFF09</option><option value="1024x1792">1024\xD71792\uFF08\u7AD6\u7248\uFF09</option><option value="1792x1024">1792\xD71024\uFF08\u6A2A\u7248\uFF09</option><option value="512x512">512\xD7512\uFF08\u5FEB\u901F\uFF09</option></select></div>\n<div class="form-group"><label for="img-gen-pos-prompt">\u6B63\u5411\u63D0\u793A\u8BCD\uFF08AI\u4F1A\u81EA\u52A8\u878D\u5165\u5267\u60C5\u3001\u4EBA\u8BBE\u3001\u804A\u5929\u5185\u5BB9\u540E\u8FFD\u52A0\uFF09</label><textarea id="img-gen-pos-prompt" rows="3" placeholder="\u9ED8\u8BA4\uFF1A\u7CBE\u81F4\u97E9\u7CFB/\u5199\u5B9E\u98CE\uFF0C\u5149\u5F71\u67D4\u548C\uFF0C\u6784\u56FE\u9AD8\u7EA7\uFF0C\u8D28\u611F\u7EC6\u817B"></textarea></div>\n<div class="form-group"><label for="img-gen-neg-prompt">\u53CD\u5411\u63D0\u793A\u8BCD\uFF08\u4E0D\u5E0C\u671B\u51FA\u73B0\u7684\u5143\u7D20\uFF09</label><textarea id="img-gen-neg-prompt" rows="2" placeholder="\u4F8B\u5982\uFF1A\u4F4E\u8D28\u91CF\u3001\u6A21\u7CCA\u3001\u7578\u53D8\u3001\u591A\u4F59\u80A2\u4F53\u3001\u6587\u5B57\u3001\u6C34\u5370"></textarea></div>\n<div class="form-group" style="border-top:1px dashed #e8eaed;padding-top:12px;"><label style="font-weight:600;">\u751F\u56FE\u63D0\u793A\u8BCD\u9884\u8BBE</label><select id="img-gen-preset-select" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;background:#fafafa;"></select><input type="text" id="img-gen-preset-name" placeholder="\u9884\u8BBE\u540D\u79F0" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;"><div style="display:flex;gap:8px;margin-top:8px;"><button type="button" class="btn btn-secondary" id="img-gen-preset-save" style="flex:1;padding:7px 10px;font-size:12px;">\u5B58\u4E3A\u9884\u8BBE</button><button type="button" class="btn btn-secondary" id="img-gen-preset-del" style="flex:1;padding:7px 10px;font-size:12px;">\u5220\u9664</button></div></div><div class="form-group" style="border-top:1px dashed #e8eaed; padding-top:12px; margin-top:12px;"><label style="font-weight:600;">\u603B\u7ED3 API\uFF08\u7559\u7A7A\u5219\u4F7F\u7528\u4E3B API\uFF09</label></div><div class="form-group"><label for="api-summary-url">\u603B\u7ED3 API \u5730\u5740</label><input type="url" id="api-summary-url" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3BAPI"></div><div class="form-group"><label for="api-summary-key">\u603B\u7ED3 API \u5BC6\u94A5</label><input type="password" id="api-summary-key" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3BAPI"></div><div class="form-group"><label for="api-summary-model">\u603B\u7ED3 API \u6A21\u578B</label><select id="api-summary-model"><option value="">\u8BF7\u5148\u62C9\u53D6\u603B\u7ED3\u6A21\u578B</option></select></div><button type="button" class="btn btn-secondary" id="fetch-summary-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u603B\u7ED3\u6A21\u578B</span><div class="spinner"></div></button><button type="submit" class="btn btn-primary" id="save-btn"><span class="btn-text">\u4FDD \u5B58</span><div class="spinner"></div></button></form></main>';
-document.getElementById("wallpaper-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u66F4\u6362\u58C1\u7EB8</h1></div><div class="placeholder"></div></header><main class="content"><div class="wallpaper-preview" id="wallpaper-preview"><span>\u5F53\u524D\u58C1\u7EB8\u9884\u89C8</span></div><input type="file" id="wallpaper-upload" accept="image/*" style="display: none;"><label for="wallpaper-upload" class="btn btn-primary">\u4ECE\u76F8\u518C\u9009\u62E9\u65B0\u58C1\u7EB8</label></main>';
-  document.getElementById("font-settings-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u5B57\u4F53\u8BBE\u7F6E</h1></div><div class="placeholder"></div></header><main class="content"><form id="font-settings-form"><div class="form-group"><label for="font-url">\u5B57\u4F53\u94FE\u63A5 (ttf, woff, woff2)</label><input type="url" id="font-url" placeholder="https://.../font.ttf" required></div><p style="font-size:12px; color:#888; text-align:center;">\u793A\u4F8B: https://lf3-static.bytednsdoc.com/obj/eden-cn/jplptk/ljhwZthlaukjlkulzlp/portal/fonts/HarmonyOS_Sans_SC_Regular.woff2</p><button type="submit" class="btn btn-primary">\u5E94\u7528\u5B57\u4F53</button><button type="button" class="btn btn-neutral" id="restore-default-font-btn" style="margin-top: 15px;">\u6062\u590D\u9ED8\u8BA4\u5B57\u4F53</button></form>\n                <div style="height:1px;background:#eee;margin:18px 0;"></div>\n                <div style="padding:0 2px;">\n                    <div style="font-size:15px;font-weight:700;color:#333;margin-bottom:4px;">\u5168\u5C40\u5B57\u4F53\u5927\u5C0F</div>\n                    <div style="font-size:12px;color:#999;margin-bottom:14px;">\u8C03\u6574\u540E\u5E94\u7528\u5230\u6240\u6709\u754C\u9762\uFF08\u4E3B\u5C4F\u5E55\u3001\u804A\u5929\u3001\u8BBA\u575B\u3001\u5916\u5356\u7B49\uFF09</div>\n                    <div style="display:flex;align-items:center;gap:10px;">\n                        <span style="font-size:12px;color:#999;">\u5C0F</span>\n                        <input type="range" id="font-scale-slider" min="80" max="140" value="100" style="flex:1;accent-color:#17171b;">\n                        <span style="font-size:12px;color:#999;">\u5927</span>\n                    </div>\n                    <div style="text-align:center;margin-top:8px;font-size:14px;font-weight:700;color:#17171b;"><span id="font-scale-val">100</span>%</div>\n                    <button type="button" class="btn btn-primary" id="font-scale-apply" style="margin-top:10px;">\u5E94\u7528\u5B57\u53F7</button>\n                </div></main>';
-  document.getElementById("customize-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u5916\u89C2</h1></div><div class="placeholder"></div></header><main class="content"><form id="customize-form"></form></main>';
-  document.getElementById("tutorial-screen").innerHTML = '<header class="app-header"><button class="back-btn" data-target="home-screen">\u2039</button><div class="title-container"><h1 class="title">\u6559\u7A0B</h1></div><div class="placeholder"></div></header><main class="content" id="tutorial-content-area"></main>';
+  const MXG_BACKUP_LOCAL_KEYS = ["tp_mail_v2", "cr_v1", "bs_shelf", "bs_settings", "bs_wallet"];
+  const STG_META = {
+    home: ["SETTINGS / 04", "设置"],
+    api: ["01 / API", "接口"],
+    data: ["02 / DATA", "数据"],
+    look: ["03 / LOOK", "外观"]
+  };
+  function __mxgSizeOf(v) {
+    if (v === undefined || v === null) return 0;
+    try {
+      return new Blob([typeof v === "string" ? v : JSON.stringify(v)]).size;
+    } catch (e) {
+      try { return String(typeof v === "string" ? v : JSON.stringify(v)).length; } catch (e2) { return 0; }
+    }
+  }
+  function __mxgFmtSize(bytes) {
+    var n = Number(bytes) || 0;
+    if (n < 1024) return Math.round(n) + " B";
+    if (n < 1024 * 1024) return (n / 1024).toFixed(n < 10240 ? 1 : 0) + " KB";
+    if (n < 1024 * 1024 * 1024) return (n / 1024 / 1024).toFixed(2) + " MB";
+    return (n / 1024 / 1024 / 1024).toFixed(2) + " GB";
+  }
+  function __mxgCountMessages() {
+    var n = 0;
+    try {
+      (db.characters || []).forEach(function (c) { n += Array.isArray(c.history) ? c.history.length : 0; });
+      (db.groups || []).forEach(function (g) { n += Array.isArray(g.history) ? g.history.length : 0; });
+    } catch (e) {}
+    return n;
+  }
+  function renderSettingsStats() {
+    var donut = document.getElementById("stg-donut");
+    var totalEl = document.getElementById("stg-total-size");
+    var lineEl = document.getElementById("stg-summary-line");
+    var countEl = document.getElementById("stg-summary-counts");
+    var listEl = document.getElementById("stg-bars-list");
+    if (!listEl) return;
+    var total = __mxgSizeOf(db);
+    var groups = [
+      { name: "角色与聊天", color: "#111111", keys: ["characters", "groups", "masks", "relationships", "profile", "activeMaskId"] },
+      { name: "世界书", color: "#5b5b62", keys: ["worldBooks", "worldBookFolders", "worldBookSettings"] },
+      { name: "记忆", color: "#86868e", keys: ["memories"] },
+      { name: "线下", color: "#aaaab1", keys: ["offlineChats", "offlineGlobal", "offlinePresets", "offlineOrbImages", "offlineCover", "writings"] },
+      { name: "社交", color: "#c9c9ce", keys: ["forum", "feeds", "feedSettings", "couple", "coupleByChar", "wallet", "xg"] },
+      { name: "生活", color: "#dedee2", keys: ["food", "pdd", "music", "phoneData"] },
+      { name: "桌面与外观", color: "#ff6b33", keys: ["theme", "wallpaper", "fontUrl", "fontScale", "customIcons", "myStickers", "desktopOrder", "desktopOrderVersion", "homeScreenMode", "ui404", "widgetTexts", "widgetImages", "widgetNote"] },
+      { name: "接口与偏好", color: "#2f6f62", keys: ["apiSettings", "apiPresets", "realTimeSensing", "timeSense", "timeSenseOptInMigrated", "apiPreset"] }
+    ];
+    var rows = groups.map(function (g) {
+      var b = 0;
+      g.keys.forEach(function (k) { if (db && db[k] !== undefined) b += __mxgSizeOf(db[k]); });
+      return { name: g.name, color: g.color, bytes: b, pct: total ? b / total * 100 : 0 };
+    });
+    var assigned = rows.reduce(function (n, r) { return n + r.bytes; }, 0);
+    if (total > assigned) rows.push({ name: "结构与索引", color: "#b9a78f", bytes: total - assigned, pct: (total - assigned) / total * 100 });
+    rows = rows.filter(function (r) { return r.bytes > 0; });
+    if (!rows.length) rows = [{ name: "暂无数据", color: "#d8d8dc", bytes: 0, pct: 0 }];
+    if (donut) {
+      var acc = 0, stops = [];
+      rows.forEach(function (r) {
+        var end = Math.min(100, acc + r.pct);
+        stops.push(r.color + " " + acc.toFixed(2) + "% " + end.toFixed(2) + "%");
+        acc = end;
+      });
+      donut.style.background = "conic-gradient(from -90deg, " + stops.join(", ") + ")";
+    }
+    if (totalEl) totalEl.textContent = __mxgFmtSize(total);
+    if (lineEl) lineEl.textContent = "应用数据 " + __mxgFmtSize(total) + " · 共 " + rows.length + " 类";
+    if (countEl) countEl.textContent = "角色 " + ((db.characters || []).length) + " · 消息 " + __mxgCountMessages().toLocaleString() + " · 世界书 " + ((db.worldBooks || []).length) + " · 记忆 " + ((db.memories || []).length);
+    listEl.innerHTML = rows.map(function (r) {
+      var pct = total ? r.pct : 0;
+      return '<div class="stg-statrow">'
+        + '<div class="stg-statline"><span class="stg-dot" style="background:' + r.color + '"></span><span class="nm">' + escapeHtml(r.name) + '</span><span class="sz">' + __mxgFmtSize(r.bytes) + '</span><span class="pc">' + pct.toFixed(pct >= 10 ? 0 : 1) + '%</span></div>'
+        + '<div class="stg-track"><i style="width:' + Math.max(0, Math.min(100, pct)).toFixed(2) + '%;background:' + r.color + '"></i></div>'
+        + '</div>';
+    }).join("");
+    if (window.navigator && navigator.storage && navigator.storage.estimate) {
+      navigator.storage.estimate().then(function (est) {
+        if (lineEl && est && est.usage) {
+          var quota = est.quota ? " / 配额 " + __mxgFmtSize(est.quota) : "";
+          lineEl.textContent = "应用数据 " + __mxgFmtSize(total) + " · 浏览器已用 " + __mxgFmtSize(est.usage) + quota;
+        }
+      }).catch(function () {});
+    }
+  }
+  function renderSettingsLook() {
+    var wp = document.getElementById("wallpaper-preview");
+    if (wp) {
+      if (db.wallpaper) {
+        wp.style.backgroundImage = "url(" + db.wallpaper + ")";
+        wp.textContent = "";
+      } else {
+        wp.style.backgroundImage = "";
+        wp.innerHTML = "<span>当前壁纸</span>";
+      }
+    }
+    var state = document.getElementById("stg-wall-state");
+    if (state) state.textContent = db.wallpaper ? "CUSTOM" : "DEFAULT";
+    document.querySelectorAll("#api-settings-screen [data-stg-mode]").forEach(function (b) {
+      b.classList.toggle("on", b.dataset.stgMode === (db.homeScreenMode || "night"));
+    });
+    try { renderCustomizeForm(); } catch (e) {}
+    try {
+      var f = document.getElementById("font-url");
+      if (f) f.value = db.fontUrl || "";
+      var fs = document.getElementById("font-scale-slider");
+      var fv = document.getElementById("font-scale-val");
+      if (fs && fv) {
+        var init = Math.round((db && db.fontScale || 1) * 100);
+        fs.value = String(init);
+        fv.textContent = String(init);
+      }
+    } catch (e) {}
+  }
+  function showSettingsView(view) {
+    var screen = document.getElementById("api-settings-screen");
+    if (!screen) return;
+    view = view || "home";
+    screen.querySelectorAll(".stg-view").forEach(function (v) {
+      v.classList.toggle("active", v.dataset.stgPage === view);
+    });
+    var meta = STG_META[view] || STG_META.home;
+    var eb = document.getElementById("stg-eyebrow"), title = document.getElementById("stg-title"), st = document.getElementById("stg-status");
+    if (eb) eb.textContent = meta[0];
+    if (title) title.textContent = meta[1];
+    if (st) st.textContent = view === "api" ? "READY" : view === "data" ? "LOCAL" : view === "look" ? "VISUAL" : "READY";
+    var mhead = screen.querySelector(".stg-head");
+    if (mhead) mhead.style.display = view === "home" ? "" : "none";
+    screen.dataset.stgView = view;
+    var content = screen.querySelector(".content");
+    if (content) { try { content.scrollTop = 0; } catch (e) {} }
+    if (view === "api") { try { setupApiSettings404(); } catch (e) {} }
+    if (view === "data") { try { renderSettingsStats(); } catch (e) {} }
+    if (view === "look") { try { renderSettingsLook(); } catch (e) {} }
+  }
+  function setupSettingsApp() {
+    var screen = document.getElementById("api-settings-screen");
+    if (!screen) return;
+    if (screen.dataset.stgBound !== "1") {
+      screen.dataset.stgBound = "1";
+      var exit = document.getElementById("stg-exit");
+      if (exit) exit.addEventListener("click", function () { switchScreen("home-screen"); });
+      screen.querySelectorAll("[data-stg-go]").forEach(function (b) {
+        b.addEventListener("click", function () { showSettingsView(b.dataset.stgGo); });
+      });
+      screen.querySelectorAll("[data-stg-back]").forEach(function (b) {
+        b.addEventListener("click", function () { showSettingsView("home"); });
+      });
+      screen.querySelectorAll("[data-stg-mode]").forEach(function (b) {
+        b.addEventListener("click", function () {
+          applyHomeScreenMode(b.dataset.stgMode).then(function () {
+            document.querySelectorAll("#api-settings-screen [data-stg-mode]").forEach(function (x) { x.classList.toggle("on", x.dataset.stgMode === b.dataset.stgMode); });
+          });
+        });
+      });
+      var exp = document.getElementById("stg-export-json");
+      if (exp) exp.addEventListener("click", exportBackupJSON);
+      var imp = document.getElementById("import-data-input");
+      if (imp) imp.addEventListener("change", function (ev) { importBackupFile(ev.target.files && ev.target.files[0], ev.target); });
+      var wc = document.getElementById("stg-wall-clear");
+      if (wc) wc.addEventListener("click", async function () {
+        db.wallpaper = "";
+        applyWallpaper("");
+        await saveData();
+        renderSettingsLook();
+        showToast("壁纸已恢复默认");
+      });
+    }
+    showSettingsView("home");
+  }
+  function exportBackupJSON() {
+    if (window.__stgBusy) return;
+    window.__stgBusy = true;
+    try {
+      var payload = {
+        app: "麻辣香锅鸡",
+        format: "mxg-json-backup",
+        version: 3,
+        appVersion: APP_VERSION,
+        exportedAt: new Date().toISOString(),
+        counts: {
+          characters: (db.characters || []).length,
+          groups: (db.groups || []).length,
+          messages: __mxgCountMessages(),
+          worldBooks: (db.worldBooks || []).length,
+          memories: (db.memories || []).length
+        },
+        data: db,
+        local: {}
+      };
+      MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
+        try {
+          var value = localStorage.getItem(key);
+          if (value !== null) payload.local[key] = value;
+        } catch (e) {}
+      });
+      var jsonString = JSON.stringify(payload, null, 2);
+      var blob = new Blob([jsonString], { type: "application/json" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      var now = new Date();
+      var date = now.toISOString().slice(0, 10);
+      var time = now.toTimeString().slice(0, 8).replace(/:/g, "");
+      a.href = url;
+      a.download = "麻辣香锅鸡_备份_" + date + "_" + time + ".json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1800);
+      showToast("JSON 备份已导出（" + __mxgFmtSize(blob.size) + "）");
+    } catch (e) {
+      showToast("导出失败：" + (e.message || "未知错误"));
+    } finally {
+      window.__stgBusy = false;
+    }
+  }
+  async function importBackupFile(file, inputEl) {
+    if (!file || window.__stgBusy) { if (inputEl) inputEl.value = null; return; }
+    var ok = await uiConfirm("此操作将覆盖当前所有聊天记录和设置。此操作不可撤销。确定要继续吗？", "继续", true);
+    if (!ok) { if (inputEl) inputEl.value = null; return; }
+    window.__stgBusy = true;
+    try {
+      var text = await file.text();
+      var parsed = null;
+      try {
+        parsed = JSON.parse(text);
+      } catch (jsonErr) {
+        var decompressedStream = file.stream().pipeThrough(new DecompressionStream("gzip"));
+        var decompressed = await new Response(decompressedStream).text();
+        parsed = JSON.parse(decompressed);
+      }
+      var data = null, localData = {};
+      if (parsed && parsed.data && typeof parsed.data === "object" && !Array.isArray(parsed.data)) {
+        data = parsed.data;
+        localData = parsed.local && typeof parsed.local === "object" ? parsed.local : {};
+      } else if (parsed && parsed.db && typeof parsed.db === "object") {
+        data = parsed.db;
+        localData = parsed.local && typeof parsed.local === "object" ? parsed.local : {};
+      } else {
+        data = parsed;
+      }
+      if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("备份文件里没有有效的应用数据");
+      if (!Array.isArray(data.characters) && !Array.isArray(data.worldBooks) && !Array.isArray(data.groups) && !Array.isArray(data.masks)) throw new Error("备份文件不是麻辣香锅鸡的数据格式");
+      db = data;
+      window.db = db;
+      var saved = await saveData(db, { force: true });
+      if (!saved) throw new Error("写入本地 IDB 失败，当前数据未覆盖");
+      try { await saveWorldBookBackup(); } catch (e) {}
+      MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
+        if (typeof localData[key] === "string") {
+          try { localStorage.setItem(key, localData[key]); } catch (e2) {}
+        }
+      });
+      showToast("数据已成功恢复，应用即将刷新。");
+      setTimeout(function () { window.location.reload(); }, 700);
+    } catch (e) {
+      console.error("导入失败:", e);
+      showToast("导入失败：" + (e.message || "无法读取备份文件"));
+    } finally {
+      window.__stgBusy = false;
+      if (inputEl) inputEl.value = null;
+    }
+  }
+  document.getElementById("api-settings-screen").innerHTML = `<main class="content stg-shell">
+  <div class="stg-head">
+    <button type="button" class="stg-back" id="stg-exit" aria-label="返回桌面">‹</button>
+    <div class="stg-headmain">
+      <div class="stg-eyebrow" id="stg-eyebrow">SETTINGS / 04</div>
+      <div class="stg-title" id="stg-title">设置</div>
+    </div>
+    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.4</b><span id="stg-status">READY</span></div>
+  </div>
+  <div class="stg-views">
+    <section class="stg-view active" data-stg-page="home">
+      <div class="stg-hero">
+        <div class="stg-hero-k">MENU / 目录</div>
+        <div class="stg-hero-t">把这里，<br><em>调成你的样子。</em></div>
+        <div class="stg-hero-sub">接口、数据、外观。全部只保存在这台设备上。</div>
+      </div>
+      <div class="stg-menu">
+        <button type="button" class="stg-item" data-stg-go="api"><span class="num">01</span><span class="main"><b>API / 接口</b><em>服务商、密钥、模型、生图与总结</em></span><span class="arrow">↗</span></button>
+        <button type="button" class="stg-item" data-stg-go="data"><span class="num">02</span><span class="main"><b>数据 / DATA</b><em>数据分布与内存占用 · 导出 / 导入 JSON</em></span><span class="arrow">↗</span></button>
+        <button type="button" class="stg-item" data-stg-go="look"><span class="num">03</span><span class="main"><b>外观 / LOOK</b><em>壁纸、日夜、字体与桌面图标</em></span><span class="arrow">↗</span></button>
+      </div>
+      <div class="stg-foot">MXG / SETTINGS — V6.3.4</div>
+    </section>
+
+    <section class="stg-view" data-stg-page="api">
+      <div class="stg-vhead">
+        <button type="button" class="stg-inback" data-stg-back>‹</button>
+        <div class="vt"><span>01 / API</span><b>接口</b></div>
+        <em class="ve">MODEL /<br>ACCESS</em>
+      </div>
+      <div class="api404-kicker"><span class="o404-label">CONNECTION</span><span class="api404-script">make it work.</span></div>
+      <form id="api-form"><div class="form-group"><label for="api-provider">API \u670D\u52A1\u5546</label><select id="api-provider" name="provider"><option value="newapi">NewAPI (\u81EA\u5B9A\u4E49)</option><option value="deepseek">DeepSeek</option><option value="claude">Claude</option><option value="gemini">Gemini</option></select></div><div class="form-group" style="border:1px solid #e8eaed;border-radius:12px;padding:12px;margin-bottom:14px;"><label style="font-weight:600;display:block;margin-bottom:8px;">API \u9884\u8BBE\uFF08\u4FDD\u5B58\u6574\u5957\u914D\u7F6E\uFF0C\u9009\u4E2D\u5373\u5207\u6362\uFF09</label><select id="api-preset-select" style="width:100%;box-sizing:border-box;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;background:#fafafa;"></select><input type="text" id="api-preset-name" placeholder="\u9884\u8BBE\u540D\u79F0" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;"><div style="display:flex;gap:8px;margin-top:8px;"><button type="button" class="btn btn-secondary" id="api-preset-save" style="flex:1;padding:7px 10px;font-size:12px;">\u5B58\u4E3A\u9884\u8BBE</button><button type="button" class="btn btn-secondary" id="api-preset-del" style="flex:1;padding:7px 10px;font-size:12px;">\u5220\u9664</button></div></div><div class="form-group"><label for="api-url">API \u5730\u5740\uFF08\u540E\u7F00\u4E0D\u7528\u6DFB\u52A0/v1\uFF09</label><input type="url" id="api-url" name="url" placeholder="\u9009\u62E9\u670D\u52A1\u5546\u53EF\u81EA\u52A8\u586B\u5199" required></div><div class="form-group"><label for="api-key">\u5BC6\u94A5 (Key)</label><input type="password" id="api-key" name="key" placeholder="\u8BF7\u8F93\u5165\u4F60\u7684API\u5BC6\u94A5" required></div><button type="button" class="btn btn-secondary" id="fetch-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u6A21\u578B</span><div class="spinner"></div></button><div class="form-group"><label for="api-model">\u9009\u62E9\u6A21\u578B</label><select id="api-model" name="model" required><option value="">\u8BF7\u5148\u62C9\u53D6\u6A21\u578B\u5217\u8868</option></select></div><div class="form-group"><label style="display:flex; justify-content:space-between; align-items:center;">\u8BC6\u56FE\uFF08\u5F00\u542F\u540EAPI\u4F1A\u8BC6\u522B\u56FE\u7247\u5185\u5BB9\uFF0C\u5168\u5C40\u751F\u6548\uFF09<div class="switch-wrap"><input type="checkbox" id="api-vision-enabled" class="ios-sw"></div></label></div><div class="form-group"><label for="api-stream-mode">\u6D41\u5F0F\u6A21\u5F0F\uFF08\u5168\u5C40\u8F93\u51FA\uFF09</label><select id="api-stream-mode"><option value="auto">\u81EA\u52A8\u68C0\u6D4B\uFF08\u4F18\u5148\u6D41\u5F0F\uFF0C\u5931\u8D25\u81EA\u52A8\u56DE\u9000\u975E\u6D41\u5F0F\uFF09</option><option value="stream">\u4EC5\u6D41\u5F0F</option><option value="nonstream">\u4EC5\u975E\u6D41\u5F0F</option></select></div><div class="form-group"><label>\u6E29\u5EA6\uFF080~2\uFF0C\u8D8A\u4F4E\u8D8A\u7A33\u5B9A\uFF0C\u8D8A\u9AD8\u8D8A\u6709\u60F3\u8C61\u529B\uFF09<span id="api-temp-val" style="color:#9aa0a6;">1.0</span></label><input type="range" id="api-temperature" min="0" max="2" step="0.1" value="1.0" style="width:100%;"></div><div class="form-group" style="border-top:1px dashed #e8eaed; padding-top:12px; margin-top:12px;"><label style="font-weight:600; display:flex; justify-content:space-between; align-items:center;">AI \u751F\u56FE\uFF08\u89D2\u8272\u53D1\u56FE\u65F6\u4F7F\u7528\uFF0C\u4F5C\u7528\u4E8E\u7EBF\u4E0A\uFF09<div class="switch-wrap"><input type="checkbox" id="img-gen-enabled" class="ios-sw"></div></label><div style="font-size:11px;color:#999;margin:4px 0 10px;">\u624B\u52A8\u5F00\u542F\u540E\uFF0C\u89D2\u8272\u53D1\u56FE\u4F1A\u8C03\u7528\u751F\u56FE API\uFF0C\u6309\u5267\u60C5\u3001\u4EBA\u8BBE\u548C\u804A\u5929\u5185\u5BB9\u751F\u6210\u5BF9\u5E94\u56FE\u7247\uFF1B\u672A\u5F00\u542F\u5219\u4ECD\u53D1\u9001\u6A21\u62DF\u56FE\u7247\u3002</div></div><div class="form-group"><label for="img-gen-url">\u751F\u56FE API \u5730\u5740\uFF08OpenAI \u517C\u5BB9\uFF0C\u542B /v1\uFF09</label><input type="url" id="img-gen-url" placeholder="https://api.openai.com/v1"></div><div class="form-group"><label for="img-gen-key">\u751F\u56FE API \u5BC6\u94A5</label><input type="password" id="img-gen-key" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3B API \u5BC6\u94A5"></div><button type="button" class="btn btn-secondary" id="fetch-img-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u751F\u56FE\u6A21\u578B</span><div class="spinner"></div></button><div class="form-group"><label for="img-gen-model">\u751F\u56FE\u6A21\u578B</label><select id="img-gen-model"><option value="">\u8BF7\u5148\u62C9\u53D6\u751F\u56FE\u6A21\u578B</option></select></div><div class="form-group"><label for="img-gen-size">\u751F\u6210\u5C3A\u5BF8</label><select id="img-gen-size"><option value="1024x1024">1024\xD71024\uFF08\u65B9\u5F62\uFF09</option><option value="1024x1792">1024\xD71792\uFF08\u7AD6\u7248\uFF09</option><option value="1792x1024">1792\xD71024\uFF08\u6A2A\u7248\uFF09</option><option value="512x512">512\xD7512\uFF08\u5FEB\u901F\uFF09</option></select></div>\n<div class="form-group"><label for="img-gen-pos-prompt">\u6B63\u5411\u63D0\u793A\u8BCD\uFF08AI\u4F1A\u81EA\u52A8\u878D\u5165\u5267\u60C5\u3001\u4EBA\u8BBE\u3001\u804A\u5929\u5185\u5BB9\u540E\u8FFD\u52A0\uFF09</label><textarea id="img-gen-pos-prompt" rows="3" placeholder="\u9ED8\u8BA4\uFF1A\u7CBE\u81F4\u97E9\u7CFB/\u5199\u5B9E\u98CE\uFF0C\u5149\u5F71\u67D4\u548C\uFF0C\u6784\u56FE\u9AD8\u7EA7\uFF0C\u8D28\u611F\u7EC6\u817B"></textarea></div>\n<div class="form-group"><label for="img-gen-neg-prompt">\u53CD\u5411\u63D0\u793A\u8BCD\uFF08\u4E0D\u5E0C\u671B\u51FA\u73B0\u7684\u5143\u7D20\uFF09</label><textarea id="img-gen-neg-prompt" rows="2" placeholder="\u4F8B\u5982\uFF1A\u4F4E\u8D28\u91CF\u3001\u6A21\u7CCA\u3001\u7578\u53D8\u3001\u591A\u4F59\u80A2\u4F53\u3001\u6587\u5B57\u3001\u6C34\u5370"></textarea></div>\n<div class="form-group" style="border-top:1px dashed #e8eaed;padding-top:12px;"><label style="font-weight:600;">\u751F\u56FE\u63D0\u793A\u8BCD\u9884\u8BBE</label><select id="img-gen-preset-select" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;background:#fafafa;"></select><input type="text" id="img-gen-preset-name" placeholder="\u9884\u8BBE\u540D\u79F0" style="width:100%;box-sizing:border-box;margin-top:8px;padding:8px 10px;border:1px solid #e0e3e8;border-radius:8px;font-size:13px;"><div style="display:flex;gap:8px;margin-top:8px;"><button type="button" class="btn btn-secondary" id="img-gen-preset-save" style="flex:1;padding:7px 10px;font-size:12px;">\u5B58\u4E3A\u9884\u8BBE</button><button type="button" class="btn btn-secondary" id="img-gen-preset-del" style="flex:1;padding:7px 10px;font-size:12px;">\u5220\u9664</button></div></div><div class="form-group" style="border-top:1px dashed #e8eaed; padding-top:12px; margin-top:12px;"><label style="font-weight:600;">\u603B\u7ED3 API\uFF08\u7559\u7A7A\u5219\u4F7F\u7528\u4E3B API\uFF09</label></div><div class="form-group"><label for="api-summary-url">\u603B\u7ED3 API \u5730\u5740</label><input type="url" id="api-summary-url" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3BAPI"></div><div class="form-group"><label for="api-summary-key">\u603B\u7ED3 API \u5BC6\u94A5</label><input type="password" id="api-summary-key" placeholder="\u7559\u7A7A\u5219\u4F7F\u7528\u4E3BAPI"></div><div class="form-group"><label for="api-summary-model">\u603B\u7ED3 API \u6A21\u578B</label><select id="api-summary-model"><option value="">\u8BF7\u5148\u62C9\u53D6\u603B\u7ED3\u6A21\u578B</option></select></div><button type="button" class="btn btn-secondary" id="fetch-summary-models-btn"><span class="btn-text">\u70B9\u51FB\u62C9\u53D6\u603B\u7ED3\u6A21\u578B</span><div class="spinner"></div></button><button type="submit" class="btn btn-primary" id="save-btn"><span class="btn-text">\u4FDD \u5B58</span><div class="spinner"></div></button></form>
+      <div class="api404-foot"><div class="api404-foot-note">SAVED LOCALLY / 只在当前设备保存</div></div>
+    </section>
+
+    <section class="stg-view" data-stg-page="data">
+      <div class="stg-vhead">
+        <button type="button" class="stg-inback" data-stg-back>‹</button>
+        <div class="vt"><span>02 / DATA</span><b>数据</b></div>
+        <em class="ve">STORAGE /<br>PORTABLE</em>
+      </div>
+      <div class="stg-totalcard">
+        <div class="stg-donut" id="stg-donut"><div class="stg-donut-hole"><b id="stg-total-size">0 KB</b><span>APP DATA</span></div></div>
+        <div class="stg-sumcopy">
+          <div class="k">STORAGE / 当前数据</div>
+          <div class="v" id="stg-summary-line">正在统计…</div>
+          <div class="s" id="stg-summary-counts">—</div>
+        </div>
+      </div>
+      <div class="stg-bars">
+        <div class="bt"><b>BREAKDOWN / 分类占比</b><em>按序列化体积</em></div>
+        <div id="stg-bars-list"></div>
+      </div>
+      <div class="stg-actions">
+        <button type="button" class="stg-primary" id="stg-export-json">导出 JSON</button>
+        <label for="import-data-input" class="stg-ghost">导入 JSON</label>
+      </div>
+      <div class="stg-warn"><b>导出内容：</b>聊天、角色、面具、群聊、世界书、记忆、线下、论坛、情侣空间、钱包、手机、音乐、商城和全部设置；也包含时空邮局、十字路口、书城与书城钱包。JSON 内有 API Key，请勿外传。<br><b>导入提醒：</b>会整体覆盖当前数据，不可撤销。</div>
+    </section>
+
+    <section class="stg-view" data-stg-page="look">
+      <div class="stg-vhead">
+        <button type="button" class="stg-inback" data-stg-back>‹</button>
+        <div class="vt"><span>03 / LOOK</span><b>外观</b></div>
+        <em class="ve">WALLPAPER /<br>TYPE</em>
+      </div>
+      <div class="stg-block">
+        <div class="stg-label"><b>WALLPAPER / 壁纸</b><em id="stg-wall-state">CURRENT</em></div>
+        <div class="stg-wallrow">
+          <div class="wallpaper-preview stg-wallprev" id="wallpaper-preview"><span>当前壁纸</span></div>
+          <div class="stg-wallcopy">
+            <p>桌面背景与壁纸预览合并在这里。图片只保存在本地，不会上传。</p>
+            <input type="file" id="wallpaper-upload" accept="image/*" style="display:none;">
+            <label for="wallpaper-upload" class="stg-mini solid">从相册选择</label>
+            <button type="button" class="stg-mini" id="stg-wall-clear">恢复默认</button>
+          </div>
+        </div>
+      </div>
+      <div class="stg-block">
+        <div class="stg-label"><b>MODE / 日夜</b><em>桌面模式</em></div>
+        <div class="stg-seg">
+          <button type="button" data-stg-mode="day">日间</button>
+          <button type="button" data-stg-mode="night">夜间</button>
+        </div>
+      </div>
+      <div class="stg-block">
+        <div class="stg-label"><b>TYPE / 字体</b><em>全局生效</em></div>
+        <form id="font-settings-form" style="margin-top:12px;">
+          <div class="form-group">
+            <label for="font-url">字体链接（ttf / woff / woff2）</label>
+            <input type="url" id="font-url" placeholder="https://.../font.ttf" required>
+          </div>
+          <p class="stg-hint">示例：HarmonyOS Sans SC Regular。留空恢复系统默认。</p>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button type="submit" class="stg-fontapply" style="flex:1;">应用字体</button>
+            <button type="button" id="restore-default-font-btn" style="flex:1;">恢复默认</button>
+          </div>
+        </form>
+        <div style="height:1px;background:#eee;margin:16px 0;"></div>
+        <div class="stg-label"><b>SIZE / 字号</b><em>80% — 140%</em></div>
+        <div style="display:flex;align-items:center;gap:9px;margin-top:12px;">
+          <span style="font-size:7px;letter-spacing:.1em;color:#9a9aa1;">小</span>
+          <input type="range" id="font-scale-slider" min="80" max="140" value="100" style="flex:1;accent-color:#17171b;">
+          <span style="font-size:7px;letter-spacing:.1em;color:#9a9aa1;">大</span>
+        </div>
+        <div style="text-align:center;margin-top:7px;font-family:Georgia,serif;font-size:13px;color:#111;"><span id="font-scale-val">100</span>%</div>
+        <button type="button" id="font-scale-apply" style="margin-top:9px;width:100%;min-height:34px;border-radius:999px;border:1px solid #111;background:#111;color:#fff;font-size:8px;letter-spacing:.13em;font-family:inherit;cursor:pointer;">应用字号</button>
+      </div>
+      <div class="stg-block">
+        <div class="stg-label"><b>ICONS / 图标</b><em>桌面与底栏</em></div>
+        <div class="stg-hint">可粘贴图片链接，或从相册上传。留空则使用默认图标。</div>
+        <form id="customize-form"></form>
+      </div>
+    </section>
+  </div>
+</main>`;
+  document.getElementById("wallpaper-screen").innerHTML = "";
+  document.getElementById("font-settings-screen").innerHTML = "";
+  document.getElementById("customize-screen").innerHTML = "";
+  document.getElementById("tutorial-screen").innerHTML = "";
   const colorThemes = {
     "white_pink": {
       name: "\u767D/\u7070 (\u97E9\u7CFB)",
@@ -11186,17 +11627,13 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
   };
   const defaultIcons = {
     "chat-list-screen": { name: "404", url: "https://i.postimg.cc/VvQB8dQT/chan-143.png" },
-    "api-settings-screen": { name: "api", url: "https://i.postimg.cc/50FqT8GL/chan-125.png" },
-    "wallpaper-screen": { name: "\u58C1\u7EB8", url: "https://i.postimg.cc/3wqFttL3/chan-90.png" },
-    "world-book-screen": { name: "\u4E16\u754C\u4E66", url: "https://i.postimg.cc/prCWkrKT/chan-74.png" },
-    "customize-screen": { name: "\u5916\u89C2", url: "https://i.postimg.cc/vZVdC7gt/chan-133.png" },
+    "api-settings-screen": { name: "设置", url: "" },
+    "wb2-library-screen": { name: "\u4E16\u754C\u4E66", url: "https://i.postimg.cc/prCWkrKT/chan-74.png" },
     "phone-screen": { name: "\u67E5\u624B\u673A", url: "" },
     "food-app-screen": { name: "\u5916\u5356", url: "" },
     "couple-screen": { name: "\u60C5\u4FA3\u7A7A\u95F4", url: "" },
     "forum-screen": { name: "\u8BBA\u575B", url: "" },
     "music-app-screen": { name: "\u97F3\u4E50", url: "https://i.postimg.cc/Pq0Wsqz9/music-1.png" },
-    "font-settings-screen": { name: "\u5B57\u4F53", url: "https://i.postimg.cc/FzVtC0x4/chan-21.png" },
-    "tutorial-screen": { name: "\u6559\u7A0B", url: "https://i.postimg.cc/6QgNzCFf/chan-118.png" },
     "offline-home-screen": { name: "\u7EBF\u4E0B", url: "https://aka.doubaocdn.com/s/SZjFctSbMh" },
     "archive-screen": { name: "\u6863\u6848", url: "https://aka.doubaocdn.com/s/57IxfntjxL" },
     "memory-screen": { name: "\u8BB0\u5FC6", url: "https://aka.doubaocdn.com/s/qkVSrMq51u" },
@@ -11204,7 +11641,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.2";
+  const APP_VERSION = "v6.3.4";
   let db = {
     characters: [],
     groups: [],
@@ -11309,7 +11746,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
   const fontSettingsForm = document.getElementById("font-settings-form"), fontUrlInput = document.getElementById("font-url"), restoreDefaultFontBtn = document.getElementById("restore-default-font-btn");
   const createGroupBtn = document.getElementById("create-group-btn"), createGroupModal = document.getElementById("create-group-modal"), createGroupForm = document.getElementById("create-group-form"), memberSelectionList = document.getElementById("member-selection-list"), groupNameInput = document.getElementById("group-name-input"), groupSettingsSidebar = document.getElementById("group-settings-sidebar"), groupSettingsForm = document.getElementById("group-settings-form"), groupMembersListContainer = document.getElementById("group-members-list-container"), editGroupMemberModal = document.getElementById("edit-group-member-modal"), editGroupMemberForm = document.getElementById("edit-group-member-form");
   const addMemberActionSheet = document.getElementById("add-member-actionsheet"), inviteExistingMemberBtn = document.getElementById("invite-existing-member-btn"), createNewMemberBtn = document.getElementById("create-new-member-btn"), inviteMemberModal = document.getElementById("invite-member-modal"), inviteMemberSelectionList = document.getElementById("invite-member-selection-list"), confirmInviteBtn = document.getElementById("confirm-invite-btn"), createMemberForGroupModal = document.getElementById("create-member-for-group-modal"), createMemberForGroupForm = document.getElementById("create-member-for-group-form");
-  const customizeForm = document.getElementById("customize-form"), tutorialContentArea = document.getElementById("tutorial-content-area");
+  const customizeForm = document.getElementById("customize-form");
   const groupRecipientSelectionModal = document.getElementById("group-recipient-selection-modal"), groupRecipientSelectionList = document.getElementById("group-recipient-selection-list"), confirmGroupRecipientBtn = document.getElementById("confirm-group-recipient-btn"), groupRecipientSelectionTitle = document.getElementById("group-recipient-selection-title");
   const linkGroupWorldBookBtn = document.getElementById("link-group-world-book-btn");
   class DataStorage {
@@ -11527,6 +11964,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     if (!db.groups) db.groups = [];
     if (!db.myStickers) db.myStickers = [];
     if (!db.homeScreenMode) db.homeScreenMode = "night";
+    if (db.desktopOrderVersion !== 4) { db.desktopOrder = {}; db.desktopOrderVersion = 4; }
     if (db.realTimeSensing === void 0) db.realTimeSensing = false;
     if (!db.timeSenseOptInMigrated) {
       db.realTimeSensing = false;
@@ -11730,7 +12168,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     }
     if (targetId === "wb2-library-screen" && typeof wb2RenderLibrary === "function") { try { wb2RenderLibrary(); } catch (e) {} }
     if (targetId === "wb2-book-screen" && typeof wb2RenderBook === "function") { try { wb2RenderBook(); } catch (e) {} }
-    if (targetId === "api-settings-screen") { try { setupApiSettings404(); } catch (e) {} }
+    if (targetId === "api-settings-screen") { try { setupSettingsApp(); } catch (e) {} }
     if (targetId === "offline-chat-screen") initOfflineChatView();
     if (targetId === "chat-room-screen") updateCoupleInviteBanner();
     if (targetId === "offline-settings-screen") loadOfflineSettingsView();
@@ -12956,7 +13394,6 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     setupArchiveEntryFromChatSettings();
     startFeedAutoPoster();
     setupCustomizeApp();
-    setupTutorialApp();
   };
   const WEEK_CN = ["\u661F\u671F\u65E5", "\u661F\u671F\u4E00", "\u661F\u671F\u4E8C", "\u661F\u671F\u4E09", "\u661F\u671F\u56DB", "\u661F\u671F\u4E94", "\u661F\u671F\u516D"];
   function updateClock() {
@@ -13030,6 +13467,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     "bookstore-screen": '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>',
     "podcast-screen": '<svg viewBox="0 0 24 24" width="40" height="40" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="7" width="16" height="11" rx="3"/><path d="M9 11h6M9 14h4"/><path d="M8 4.5 4.8 7M16 4.5 19.2 7" /></svg>'
   };
+  appIconSvgs["wb2-library-screen"] = appIconSvgs["world-book-screen"];
   function initPolaCarousel() {
     const car = document.getElementById("hw-pola-carousel");
     if (!car) return;
@@ -13167,12 +13605,12 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       + '<div class="hw-msg m2"><div class="hw-ava" data-widget-ava="hw-bubble-ava2">' + (getIcon('hw-bubble-ava2') ? '<img src="' + getIcon('hw-bubble-ava2') + '" alt="">' : '我') + '</div>'
       + '<span class="hw-mtext"><b>我</b><span data-edit-key="hw-bubble2">' + hwTxt('hw-bubble2', '我挺好的，你呢？') + '</span></span>'
       + '<span class="hw-mtime">09:26</span></div>'
-      + hwGrid('p1', [['api-settings-screen', 'api', 'SETUP'], ['wallpaper-screen', '壁纸', 'WALL'], ['wb2-library-screen', '世界书', 'WORLD'], ['customize-screen', '外观', 'LOOK'], ['tutorial-screen', '教程', 'GUIDE']], 'hw-grid g5')
+      + hwGrid('p1', [['wb2-library-screen', '世界书', 'WORLD'], ['offline-home-screen', '线下', 'OFFLINE'], ['memory-screen', '记忆', 'MEMORY'], ['forum-screen', '论坛', 'FORUM']], 'hw-grid g5')
       + '</div>';
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.2</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.4</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -13192,7 +13630,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       + '<div class="hw-mom c2" data-photo-widget="home-photo-5" data-hw-block="p2-mom2">' + hwPh('home-photo-5') + hwCam('home-photo-5') + '<span class="hw-cband" data-edit-key="hw-mom2">' + hwTxt('hw-mom2', '02 · 陪伴') + '</span></div>'
       + '<div class="hw-mom c3" data-photo-widget="home-photo-6" data-hw-block="p2-mom3">' + hwPh('home-photo-6') + hwCam('home-photo-6') + '<span class="hw-cband" data-edit-key="hw-mom3">' + hwTxt('hw-mom3', '03 · 现在') + '</span></div>'
       + '<div class="hw-momtxt"><b data-edit-key="hw-momtitle">' + hwTxt('hw-momtitle', 'moments.') + '</b><span data-edit-key="hw-momdesc">' + hwTxt('hw-momdesc', '三张圆形照片，替换成回忆。') + '</span></div>'
-      + hwGrid('p2', [['offline-home-screen', '线下', 'OFFLINE'], ['memory-screen', '记忆', 'MEMORY'], ['phone-screen', '查手机', 'PHONE', true], ['food-app-screen', '外卖', 'FOOD'], ['couple-screen', '情侣空间', 'LOVE']], 'hw-grid g5b')
+      + hwGrid('p2', [['phone-screen', '查手机', 'PHONE', true], ['food-app-screen', '外卖', 'FOOD'], ['couple-screen', '情侣空间', 'LOVE'], ['music-app-screen', '音乐', 'MUSIC', true]], 'hw-grid g5b')
       + '<div class="hw-still" data-edit-key="hw-still">' + hwTxt('hw-still', '还是你。') + '</div>'
       + '<div class="hw-stillsub" data-edit-key="hw-stillsub">' + hwTxt('hw-stillsub', 'STILL MY FAVOURITE PERSON / 2026') + '</div>'
       + '</div>';
@@ -13206,7 +13644,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.2<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.4<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -13217,7 +13655,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       + '<span class="hw-captxt"><em data-edit-key="hw-cap-em">' + hwTxt('hw-cap-em', 'TONIGHT / 一起看 · 播客台') + '</em><b data-edit-key="hw-cap-t">' + hwTxt('hw-cap-t', 'stay a while.') + '</b><i data-edit-key="hw-cap-sub">' + hwTxt('hw-cap-sub', 'PLAY SOMETHING IN THE DARK') + '</i></span>'
       + '<span class="hw-capwave"><svg viewBox="0 0 84 16" preserveAspectRatio="none" fill="none" stroke="currentColor" stroke-width="1"><polyline points="0,8 8,8 11,3 14,13 17,1 20,14 23,6 26,10 30,4 34,12 38,8 42,9 46,5 50,12 54,8 58,8 64,6 68,10 72,3 76,13 80,8 84,8"/></svg></span>'
       + '</div>'
-      + hwGrid('p3', [['pdd-screen', '拼多多', 'SHOP'], ['forum-screen', '论坛', 'FORUM'], ['music-app-screen', '音乐', 'MUSIC', true], ['movie-screen', '一起看', 'WATCH'], ['bookstore-screen', '书城', 'BOOKS'], ['podcast-screen', '播客台', 'PODCAST']], 'hw-p3grid')
+      + hwGrid('p3', [['pdd-screen', '拼多多', 'SHOP'], ['movie-screen', '一起看', 'WATCH'], ['bookstore-screen', '书城', 'BOOKS'], ['podcast-screen', '播客台', 'PODCAST']], 'hw-p3grid')
       + '<div class="hw-awake" data-edit-key="hw-awake">' + hwTxt('hw-awake', 'still awake.') + '</div>'
       + '<div class="hw-awakesub" data-edit-key="hw-awakesub">' + hwTxt('hw-awakesub', '02:48 / NO ONE ONLINE') + '</div>'
       + '</div>';
@@ -13232,7 +13670,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
       + '<div class="dock">'
       + '<a href="#" draggable="false" class="app-icon hw-dock-app' + (getIcon('chat-list-screen') ? ' has-img' : '') + '" data-target="chat-list-screen"><button type="button" class="icon-edit-btn" data-icon-id="chat-list-screen" title="换图">' + HW_PEN + '</button><span class="icon-default">' + (appIconSvgs['chat-list-screen'] || '') + '</span><img src="' + (getIcon('chat-list-screen') || PX) + '" alt="聊天" class="icon-img"><span class="app-name">聊天</span><span class="hw-en">CHAT</span></a>'
       + '<a href="#" draggable="false" class="app-icon hw-dock-app' + (getIcon('archive-screen') ? ' has-img' : '') + '" data-target="archive-screen"><button type="button" class="icon-edit-btn" data-icon-id="archive-screen" title="换图">' + HW_PEN + '</button><span class="icon-default">' + (appIconSvgs['archive-screen'] || '') + '</span><img src="' + (getIcon('archive-screen') || PX) + '" alt="档案" class="icon-img"><span class="app-name">档案</span><span class="hw-en">FILE</span></a>'
-      + '<a href="#" draggable="false" class="app-icon hw-dock-app' + (getIcon('font-settings-screen') ? ' has-img' : '') + '" data-target="font-settings-screen"><button type="button" class="icon-edit-btn" data-icon-id="font-settings-screen" title="换图">' + HW_PEN + '</button><span class="icon-default">' + (appIconSvgs['font-settings-screen'] || '') + '</span><img src="' + (getIcon('font-settings-screen') || PX) + '" alt="字体" class="icon-img"><span class="app-name">字体</span><span class="hw-en">TYPE</span></a>'
+      + '<a href="#" draggable="false" class="app-icon hw-dock-app' + (getIcon('api-settings-screen') ? ' has-img' : '') + '" data-target="api-settings-screen"><button type="button" class="icon-edit-btn" data-icon-id="api-settings-screen" title="换图">' + HW_PEN + '</button><span class="icon-default">' + (appIconSvgs['api-settings-screen'] || '') + '</span><img src="' + (getIcon('api-settings-screen') || PX) + '" alt="设置" class="icon-img"><span class="app-name">设置</span><span class="hw-en">SETUP</span></a>'
       + '</div>';
 
     homeScreen.innerHTML = homeScreenHTML;
@@ -13472,8 +13910,6 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     });
     const legacyWbEntry = document.querySelector('[data-target="world-book-screen"]');
     if (legacyWbEntry) legacyWbEntry.addEventListener("click", renderWorldBookList);
-    document.querySelector('[data-target="customize-screen"]').addEventListener("click", renderCustomizeForm);
-    document.querySelector('[data-target="tutorial-screen"]').addEventListener("click", renderTutorialContent);
     document.querySelector('[data-target="offline-home-screen"]').addEventListener("click", openOfflineHome);
     document.querySelector('[data-target="archive-screen"]').addEventListener("click", renderArchiveList);
     document.querySelector('[data-target="memory-screen"]').addEventListener("click", renderMemoryScreen);
@@ -13763,106 +14199,21 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     });
   }
   function renderCustomizeForm() {
+    if (!customizeForm) return;
     customizeForm.innerHTML = "";
-    Object.entries(defaultIcons).forEach(([id, { name, url }]) => {
-      const currentIcon = db.customIcons[id] || url;
-      const itemHTML = '\n                <div class="icon-custom-item">\n                    <img src="'.concat(currentIcon, '" alt="').concat(name, '" class="icon-preview" id="icon-preview-').concat(id, '">\n                    <div class="icon-details">\n                        <p>').concat(name || "\u6A21\u5F0F\u5207\u6362", '</p>\n                        <input type="url" class="form-group" placeholder="\u7C98\u8D34\u65B0\u7684\u56FE\u6807URL" value="').concat(db.customIcons[id] || "", '" data-id="').concat(id, '">\n                    </div>\n                    <button type="button" class="upload-icon-btn" data-id="').concat(id, '">\u672C\u5730\u4E0A\u4F20</button>\n                    <button type="button" class="reset-icon-btn" data-id="').concat(id, '">\u91CD\u7F6E</button>\n                </div>');
+    Object.entries(defaultIcons).forEach(([id, meta]) => {
+      if (!meta || !meta.name) return;
+      const custom = (db.customIcons && db.customIcons[id]) || "";
+      const fallback = custom || meta.url || ("data:image/svg+xml;charset=utf-8," + encodeURIComponent(appIconSvgs[id] || ""));
+      const itemHTML = '<div class="icon-custom-item">'
+        + '<img src="' + escapeHtml(fallback) + '" alt="' + escapeHtml(meta.name) + '" class="icon-preview" id="icon-preview-' + id + '">'
+        + '<div class="icon-details"><p>' + escapeHtml(meta.name) + '</p>'
+        + '<input type="url" class="form-group" placeholder="粘贴新的图标 URL" value="' + escapeHtml(custom) + '" data-id="' + id + '"></div>'
+        + '<button type="button" class="upload-icon-btn" data-id="' + id + '">本地上传</button>'
+        + '<button type="button" class="reset-icon-btn" data-id="' + id + '">重置</button>'
+        + '</div>';
       customizeForm.insertAdjacentHTML("beforeend", itemHTML);
     });
-  }
-  function setupTutorialApp() {
-    tutorialContentArea.addEventListener("click", (e) => {
-      const header = e.target.closest(".tutorial-header");
-      if (header) {
-        header.parentElement.classList.toggle("open");
-      }
-    });
-  }
-  let loadingBtn = false;
-  function renderTutorialContent() {
-    const tutorials = [
-      { title: "\u5199\u5728\u524D\u9762", imageUrls: ["https://i.postimg.cc/7PgyMG9S/image.jpg"] },
-      {
-        title: "\u8F6F\u4EF6\u4ECB\u7ECD",
-        imageUrls: ["https://i.postimg.cc/VvsJRh6q/IMG-20250713-162647.jpg", "https://i.postimg.cc/8P5FfxxD/IMG-20250713-162702.jpg", "https://i.postimg.cc/3r94R3Sn/IMG-20250713-162712.jpg"]
-      },
-      {
-        title: "404",
-        imageUrls: ["https://i.postimg.cc/x8scFPJW/IMG-20250713-162756.jpg", "https://i.postimg.cc/pX6mfqtj/IMG-20250713-162809.jpg", "https://i.postimg.cc/YScjV00q/IMG-20250713-162819.jpg", "https://i.postimg.cc/13VfJw9j/IMG-20250713-162828.jpg"]
-      },
-      { title: "404-\u7FA4\u804A", imageUrls: ["https://i.postimg.cc/X7LSmRTJ/404.jpg"] }
-    ];
-    tutorialContentArea.innerHTML = "";
-    tutorials.forEach((tutorial) => {
-      const item = document.createElement("div");
-      item.className = "tutorial-item";
-      const imagesHtml = tutorial.imageUrls.map((url) => '<img src="'.concat(url, '" alt="').concat(tutorial.title, '\u6559\u7A0B\u56FE\u7247">')).join("");
-      item.innerHTML = '<div class="tutorial-header">'.concat(tutorial.title, '</div><div class="tutorial-content">').concat(imagesHtml, "</div>");
-      tutorialContentArea.appendChild(item);
-    });
-    const backupDataBtn = document.createElement("button");
-    backupDataBtn.className = "btn btn-primary";
-    backupDataBtn.textContent = "\u5907\u4EFD\u6570\u636E";
-    backupDataBtn.disabled = loadingBtn;
-    backupDataBtn.addEventListener("click", async () => {
-      if (loadingBtn) {
-        return;
-      }
-      loadingBtn = true;
-      try {
-        const jsonString = JSON.stringify(db);
-        const dataBlob = new Blob([jsonString]);
-        const compressionStream = new CompressionStream("gzip");
-        const compressedStream = dataBlob.stream().pipeThrough(compressionStream);
-        const compressedBlob = await new Response(compressedStream).blob();
-        const url = URL.createObjectURL(compressedBlob);
-        const a = document.createElement("a");
-        const now = /* @__PURE__ */ new Date();
-        const date = now.toISOString().slice(0, 10);
-        const time = now.toTimeString().slice(0, 8).replace(/:/g, "");
-        a.href = url;
-        a.download = "\u9EBB\u8FA3\u9999\u9505\u9E21_\u5907\u4EFD\u6570\u636E_".concat(date, "_").concat(time, ".ee");
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        loadingBtn = false;
-        showToast("\u804A\u5929\u8BB0\u5F55\u5BFC\u51FA\u6210\u529F");
-      } catch (e) {
-        showToast("\u5BFC\u51FA\u5931\u8D25, \u53D1\u751F\u9519\u8BEF: ".concat(e.message));
-      }
-    });
-    const importDataBtn = document.createElement("label");
-    importDataBtn.className = "btn btn-neutral";
-    importDataBtn.textContent = "\u5BFC\u5165\u6570\u636E";
-    importDataBtn.style.marginTop = "15px";
-    importDataBtn.style.display = "block";
-    importDataBtn.disabled = loadingBtn;
-    importDataBtn.setAttribute("for", "import-data-input");
-    document.querySelector("#import-data-input").addEventListener("change", async (event2) => {
-      const file = event2.target.files[0];
-      if (!file) return;
-      if (await uiConfirm("\u6B64\u64CD\u4F5C\u5C06\u8986\u76D6\u5F53\u524D\u6240\u6709\u804A\u5929\u8BB0\u5F55\u548C\u8BBE\u7F6E\u3002\u6B64\u64CD\u4F5C\u4E0D\u53EF\u64A4\u9500\u3002\u786E\u5B9A\u8981\u7EE7\u7EED\u5417\uFF1F", "\u7EE7\u7EED", true)) {
-        try {
-          const decompressionStream = new DecompressionStream("gzip");
-          const decompressedStream = file.stream().pipeThrough(decompressionStream);
-          const jsonString = await new Response(decompressedStream).text();
-          let data = JSON.parse(jsonString);
-          await saveData(data);
-          showToast("\u6570\u636E\u5DF2\u6210\u529F\u6062\u590D\u3002\u5E94\u7528\u5373\u5C06\u5237\u65B0\u3002");
-          window.location.reload();
-        } catch (error) {
-          console.error("\u5BFC\u5165\u5931\u8D25:", error);
-          showToast("\u89E3\u538B\u6216\u89E3\u6790\u6587\u4EF6\u65F6\u53D1\u751F\u9519\u8BEF: ".concat(error.message));
-        } finally {
-          event2.target.value = null;
-        }
-      } else {
-        event2.target.value = null;
-      }
-    });
-    tutorialContentArea.appendChild(backupDataBtn);
-    tutorialContentArea.appendChild(importDataBtn);
   }
   function setupChatListScreen() {
     renderChatList();
@@ -17967,7 +18318,7 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
     });
   }
   function setupFontSettingsApp() {
-    fontUrlInput.value = db.fontUrl;
+    fontUrlInput.value = db.fontUrl || "";
     fontSettingsForm.addEventListener("submit", async (e) => {
       e.preventDefault();
       const newFontUrl = fontUrlInput.value.trim();
@@ -19182,6 +19533,9 @@ document.getElementById("wallpaper-screen").innerHTML = '<header class="app-head
         try {
           const r = await compressImage(n, { quality: 0.85, maxWidth: 1080, maxHeight: 1920 });
           db.wallpaper = r, applyWallpaper(r), t.style.backgroundImage = "url(".concat(r, ")");
+          t.textContent = "";
+          var _stgWallState = document.getElementById("stg-wall-state");
+          if (_stgWallState) _stgWallState.textContent = "CUSTOM";
           await saveData();
           showToast("\u58C1\u7EB8\u66F4\u6362\u6210\u529F\uFF01");
         } catch (s) {
