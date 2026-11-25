@@ -10220,7 +10220,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                     <label for="offline-summary-rounds2">每几轮总结一次</label>
                     <input type="number" id="offline-summary-rounds2" min="2" max="50" value="6">
                 </div>
-                <div class="offline-config-row" style="font-size:12px;color:#9aa0a6;background:#f8f9fa;border-radius:8px;padding:8px 10px;">当前已聊 <b id="offline-sum-total" style="color:#333;">0</b> 轮 · <b id="offline-sum-msgs" style="color:#333;">0</b> 层气泡 · 已总结到第 <b id="offline-sum-cursor" style="color:#333;">0</b> 轮</div>
+                <div class="offline-config-row offline-stats-inline"><span>当前已聊 <b id="offline-sum-total">0</b> 轮 · <b id="offline-sum-msgs">0</b> 层气泡 · 已总结到第 <b id="offline-sum-cursor">0</b> 轮</span></div>
                 <div class="offline-config-row">
                     <label>总结轮数区间（下次自动从断点继续）</label>
                     <div style="display:flex;align-items:center;gap:8px;"><input type="number" id="offline-summary-from" min="1" value="1" style="flex:1;min-width:0;"><span style="color:#9aa0a6;font-size:12px;">到</span><input type="number" id="offline-summary-to" min="1" style="flex:1;min-width:0;"></div>
@@ -38493,6 +38493,10 @@ window.bsRoomAI = bsRoomAI;
 .offline-status-bar { background:#0a0a0a; color:#fff; border-radius:0; padding:12px 14px; margin:0 0 6px; font-size:9.5px; letter-spacing:.12em; }
 .offline-status-bar b { font-family:Georgia,serif; font-size:14px; font-weight:400; margin-left:4px; }
 #offline-settings-screen .offline-memory-title, #offline-settings-screen #offline-memory-list2 { display:none !important; }
+
+.offline-stats-inline { display:block !important; background:transparent !important; border:0 !important; border-radius:0 !important; padding:10px 0 2px !important; }
+.offline-stats-inline span { display:block; font-size:11px; color:#777; letter-spacing:.04em; line-height:1.8; border-top:1px solid #0a0a0a; padding-top:10px; }
+.offline-stats-inline b { color:#0a0a0a !important; font-family:Georgia,serif; font-weight:400; font-size:13px; }
 
 </style>
 
