@@ -12254,7 +12254,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.22";
+  const APP_VERSION = "v6.3.23";
   let db = {
     characters: [],
     groups: [],
@@ -17369,7 +17369,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const maxChars = Math.max(80, Math.floor(budget * 1.8));
     return raw.length > maxChars ? raw.slice(0, maxChars) + "…" : raw;
   }
-  const WB_CONSTANT_RULE_TEXT = "（下面这些是你本来就知道的设定，怎么用）\n以下常驻设定是角色已经生活在其中的世界、日常与记忆，不是等你提问的资料库，也不是需要逐条展示的清单。不要等用户先提到才想起来，但也不必为了证明自己记得，把设定硬塞进每一条回复。\n每轮回复前，结合当前话题、地点、时间、情绪和关系，自己判断这些设定里有没有正在起作用的部分。有的话，就像真人使用自己的常识和记忆一样自然带出：适合聊到的内容可以说出来，适合用行动、选择、语气、态度或环境细节体现的，就让它在那些地方起作用。哪些该说、哪些只需遵守、说到这里就够了，都由角色按当下情境自己判断，不要机械分类，也不要逐条汇报。\n可以主动从自己的日常、见闻、计划、回忆或身边正在发生的小事里带出相关设定；即使这一轮用户没提，也不必完全搁置。但不必每句都塞，也不要连续多轮完全不碰。\n禁止只在被问到“你知道XX吗”时才使用；禁止整段复述或罗列设定原文；禁止把设定写成说明文。";
+  const WB_CONSTANT_RULE_TEXT = "（这些话你早就知道，不必刻意展示）\n下面写的是你一直生活其中的世界、一直记得的人和事。你说话、做事、看人的方式本来就按它们来，不用等对方先提起才想起来，也不必向对方解释这是什么设定。它们最自然的位置是顺着话头带出来：聊到某个地方就真的知道那儿什么样，碰到某个人就按你们真实的关系反应，说到一件事就自然带出你对它的看法、习惯或回忆。不用每条都提，也别一口气全搬出来，但一整轮如果一点都沾不上，那就是你忘了——把它们当背景，不当清单。";
   function wbConstantRuleFor(books) {
     const list = Array.isArray(books) ? books : [];
     const hasConstant = list.some(function(b) {
@@ -17530,13 +17530,13 @@ document.addEventListener("DOMContentLoaded", () => {
     wbAddFolderIds(sharedIds, extraFolderIds || []);
     const shared = books.filter(function(b) { return b.scope === "global" || sharedIds.has(b.id); })
       .map(function(b) { return wbBookContent(b); }).filter(Boolean);
-    let out = shared.length ? "【共同设定】\n" + shared.join("\n\n") : "";
+    let out = shared.length ? "（大家都知道的）\n" + shared.join("\n\n") : "";
     list.forEach(function(c) {
       const ids = new Set(c.worldBookIds || []);
       wbAddFolderIds(ids, c.worldBookFolderIds || []);
       const own = books.filter(function(b) { return b.scope !== "global" && ids.has(b.id) && !sharedIds.has(b.id); })
         .map(function(b) { return wbBookContent(b); }).filter(Boolean);
-      if (own.length) out += "\n【" + (c.realName || "该角色") + "的专属设定（只对这个角色生效，其他角色不应知道）】\n" + own.join("\n\n");
+      if (own.length) out += "\n（只有" + (c.realName || "该角色") + "自己知道，别人并不知道）\n" + own.join("\n\n");
     });
     const rule = wbConstantRuleFor(books);
     return out ? (out + (rule ? "\n\n" + rule : "")) : "";
@@ -17549,13 +17549,13 @@ document.addEventListener("DOMContentLoaded", () => {
     wbAddFolderIds(sharedIds, extraFolderIds || []);
     const shared = books.filter(function(b) { return b.scope === "global" || sharedIds.has(b.id); })
       .map(function(b) { return wbBookContent(b); }).filter(Boolean);
-    let out = shared.length ? "【共同设定】\n" + shared.join("\n\n") : "";
+    let out = shared.length ? "（大家都知道的）\n" + shared.join("\n\n") : "";
     list.forEach(function(c) {
       const ids = new Set(c.worldBookIds || []);
       wbAddFolderIds(ids, c.worldBookFolderIds || []);
       const own = books.filter(function(b) { return b.scope !== "global" && ids.has(b.id) && !sharedIds.has(b.id); })
         .map(function(b) { return wbBookContent(b); }).filter(Boolean);
-      if (own.length) out += "\n【" + (c.realName || "该角色") + "的专属设定（只对这个角色生效，其他角色不应知道）】\n" + own.join("\n\n");
+      if (own.length) out += "\n（只有" + (c.realName || "该角色") + "自己知道，别人并不知道）\n" + own.join("\n\n");
     });
     return out;
   }
@@ -17570,7 +17570,7 @@ document.addEventListener("DOMContentLoaded", () => {
       wbAddFolderIds(ids, c.worldBookFolderIds || []);
       const own = books.filter(function(b) { return b.scope !== "global" && ids.has(b.id) && !sharedIds.has(b.id); })
         .map(function(b) { return wbBookContent(b); }).filter(Boolean);
-      if (own.length) out += "\n【" + (c.realName || "该角色") + "的专属设定（只对这个角色生效，其他角色不应知道）】\n" + own.join("\n\n");
+      if (own.length) out += "\n（只有" + (c.realName || "该角色") + "自己知道，别人并不知道）\n" + own.join("\n\n");
     });
     return out;
   }
