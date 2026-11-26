@@ -12254,7 +12254,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.26";
+  const APP_VERSION = "v6.3.28";
   let db = {
     characters: [],
     groups: [],
@@ -17371,11 +17371,12 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   /* ===== 世界书提示词统一层（前 / 中 / 后 / At Depth） ===== */
   const WB_TXT = {
-    before: "【世界书·前】\n这是这个世界一直成立的那一部分：地理、时代、规矩、技术与自然常识，以及不管聊到哪一步都不会变的事实。你不是“知道”这些，而是活在里面——怎么说话、怎么判断、怎么做一件事，本来就按它来。这一层不会随着剧情推进而改变，也不用向对方解释这些是什么。\n",
-    middle: "【世界书·中】\n这些是你身边的人和事：认识的人、待着的地方、彼此之间已经成立的关系。它们像你自己的记忆，想到什么就带出什么，不用整段搬出来讲给对方听。\n",
-    after: "【世界书·后】\n以下放在这一层，是为了让这一轮的语气、细节和分寸更准：用得上的自然用，用不上的也不必硬塞进话里。\n",
+    before: "【世界书·前】\n这里存放整个世界共同成立的基础事实，包括地理环境、时代背景、社会规则、技术水平、自然常识，以及其他不涉及特定角色的公共设定。\n这些内容构成世界运行的基础，也是角色生活与认知所依托的现实。角色本身就生活在这样的世界中，其日常经验、认知与行为自然建立在这些事实之上。\n这一层是各角色共用的公共设定，不属于任何一个人的私人部分。\n",
+    middle: "【世界书·中】\n这里存放与特定角色相关的人物关系、个人经历、熟悉的地点、生活习惯，以及其他属于角色自身生活与认知的内容。\n这些资料构成角色的个人经历与生活背景，在相关情境中自然参与角色的判断、态度、表达与行动，使人物关系和剧情发展保持连贯。\n只把属于自己的经历与关系当作自己的认知；标注为其他人专属的内容，属于别人的记忆，不属于你。\n",
+    after: "【世界书·后】\n这里存放需要在实际互动中落实的内容，以及与当前剧情有关的补充资料。\n其中可以包含行为要求、剧情规则、特殊机制、互动约定、场景信息、事件背景及其他辅助内容。\n需要落实的内容应在其适用范围内发挥实际作用；补充资料则帮助角色理解当前互动，并自然参与剧情的发展。\n",
     depth: "【世界书·At Depth ",
-    usage: "【世界书·怎么用】\n下面这些不是摆在那里等你查的资料，是你的经历、见闻和常识，你本来就靠它们过日子。每一轮开口之前先看一眼：这一轮里，有哪一两处正在起作用？然后把它落进具体的地方——说出那个地名，用你们真实的关系称呼对方，照自己的习惯做一个小动作，或者让一句话的口气因为你记得的事而不一样。它可以被你主动提起，也可以只是悄悄影响你的判断和态度；但不要等人问起才想起来，也不要把它当说明文念给对方听。如果这一轮确实一点都用不上，不必硬凑；可要是连着几轮完全看不到它的痕迹，那就是你把它忘了。"
+    depthNote: "（世界书里按深度插入的内容，越靠近当前消息越贴近此刻互动，越远的多为长期背景。）",
+    usage: "【世界书·怎么使用】\n世界书中的内容具有不同性质，包括事实、经历、关系、要求、规则及情境补充。角色应根据资料本身的含义与实际作用理解和运用，而不是仅凭所在层级判断其性质。\n每一轮互动中，角色结合当前情境，自然运用真正相关的世界书内容。资料可以被直接想起，也可以悄然影响角色的判断、态度、表达与行动，也可以暂时不被提及，不需要逐条复述，更不需要为了证明自己记得而刻意引用。\n世界书应成为角色理解世界、经历生活与作出反应的依据。随着剧情推进，角色的经历、关系与认知保持连贯，已发生的事件能够持续影响后续互动。\n所有内容都服务于角色本身。角色始终保持独立、自然且稳定的人格，让世界书融入真实的生活与剧情，而不是让角色变成机械执行资料的系统。"
   };
   const WB_CONSTANT_RULE_TEXT = WB_TXT.usage;
   function wbConstantRuleFor(books) {
@@ -17560,6 +17561,7 @@ document.addEventListener("DOMContentLoaded", () => {
       .map(function(b) { return "(背景补充 " + String(wbBookDepth(b)).padStart(2, "0") + ")\n" + wbBookContent(b); })
       .filter(Boolean).join("\n\n");
     if (depth) after = after ? (after + depth + "\n") : (WB_TXT.after + depth + "\n");
+    if (depth) after += (after ? "" : "") + WB_TXT.depthNote + "\n";
     const rule = wbConstantRuleFor(books);
     if (rule) after += (after ? "\n" : "") + rule + "\n";
     return { before: before, middle: middle, after: after, books: books, list: list };
@@ -17633,7 +17635,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function generatePrivateSystemPrompt(character) {
     const _wbCtx = wbCtxJoin(character.history || []);
-    const _wb = wbBeforeAfter([character], "online", null, null, _wbCtx);
+    const _wb = wbBlocksFor([character], "online", null, null, _wbCtx);
     const worldBooksBefore = _wb.before;
     const worldBooksMiddle = _wb.middle;
     const worldBooksAfter = _wb.after;
@@ -17647,7 +17649,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let prompt = "你正在一个名为“404”的线上聊天软件中扮演角色「" + rn + "」。请始终以角色本人身份与「" + mn + "」进行线上私聊。\n\n";
 
     if (worldBooksBefore) {
-      prompt += "\n" + WB_TXT.before + worldBooksBefore + "\n\n";
+      prompt += "\n" + worldBooksBefore + "\n\n";
     }
 
     if (character.__rerollDir) {
@@ -17664,7 +17666,7 @@ document.addEventListener("DOMContentLoaded", () => {
     prompt += "6. 角色可以成长或改变，但变化应来自真实的互动、经历与动机，不得突然 OOC，也不要为了制造戏剧效果而强行添加冲突、暧昧或情绪反应。\n\n";
 
     if (worldBooksMiddle) {
-      prompt += "\n" + WB_TXT.middle + worldBooksMiddle + "\n";
+      prompt += "\n" + worldBooksMiddle + "\n";
     }
 
     if (character.actionDesc) {
@@ -17681,10 +17683,8 @@ document.addEventListener("DOMContentLoaded", () => {
     prompt += "7. 不刻意表演“活人感”。允许自然的沉默、犹豫、情绪波动、临时忙碌和话题停顿；以人格一致、表达自然为优先。\n\n";
 
     if (worldBooksAfter) {
-      prompt += "\n" + WB_TXT.after + worldBooksAfter + "\n";
+      prompt += "\n" + worldBooksAfter + "\n";
     }
-    const _wbRuleP = wbConstantRuleFor(_wb.books);
-    if (_wbRuleP) prompt += _wbRuleP + "\n\n";
 
     const _invSp = CP && typeof CP.space === "function" ? CP.space(character.id) : null;
     if (_invSp && _invSp.pendingInvite === character.id && !_invSp.createdAt) {
@@ -17847,7 +17847,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return db.characters.find(function(c) { return c.id === (m.originalCharId || m.id); });
     }).filter(Boolean);
     const _wbCtxG = wbCtxJoin(group.history || []);
-    const _wbGroup = wbBeforeAfter([], "online", group.worldBookIds, group.worldBookFolderIds, _wbCtxG);
+    const _wbGroup = wbBlocksFor([], "online", group.worldBookIds, group.worldBookFolderIds, _wbCtxG);
     const _wbGroupLocal = wbLocalLabeledFor(_wbGroupChars, "online", group.worldBookIds, group.worldBookFolderIds, _wbCtxG);
     const worldBooksBefore = _wbGroup.before;
     const worldBooksMiddle = _wbGroup.middle;
@@ -17859,14 +17859,12 @@ document.addEventListener("DOMContentLoaded", () => {
       delete group.__rerollDir;
     }
     if (worldBooksBefore) {
-      prompt += "\n" + WB_TXT.before + worldBooksBefore + "\n\n";
+      prompt += "\n" + worldBooksBefore + "\n\n";
     }
     if (worldBooksMiddle) {
-      prompt += "\n" + WB_TXT.middle + worldBooksMiddle + "\n\n";
+      prompt += "\n" + worldBooksMiddle + "\n\n";
     }
     if (_wbGroupLocal) prompt += "\n" + _wbGroupLocal + "\n";
-    const _wbRuleG = wbConstantRuleFor(_wbGroup.books);
-    if (_wbRuleG) prompt += _wbRuleG + "\n\n";
     prompt += "1. **\u6838\u5FC3\u4EFB\u52A1**: \u4F60\u9700\u8981\u540C\u65F6\u626E\u6F14\u8FD9\u4E2A\u7FA4\u804A\u4E2D\u7684 **\u6240\u6709** AI \u6210\u5458\u3002\u6211\u4F1A\u4F5C\u4E3A\u552F\u4E00\u7684\u4EBA\u7C7B\u7528\u6237\uFF08\u201C\u6211\u201D\uFF0C\u6635\u79F0\uFF1A".concat(group.me.nickname, "\uFF09\u4E0E\u4F60\u4EEC\u4E92\u52A8\u3002\n\n");
     prompt += '\u3010\u4EBA\u8BBE\u7406\u89E3\u94C1\u5F8B\xB7\u6240\u6709\u6210\u5458\u901A\u7528\u3011\u4F60\u4EEC\u6BCF\u4E2A\u4EBA\u7684\u4EBA\u8BBE\uFF0C\u90FD\u662F\u90A3\u4E2A\u6210\u5458\u300C\u5B8C\u6574\u7684\u4ED6\u300D\u7684\u8BBE\u5B9A\u3002\u626E\u6F14\u4EFB\u4F55\u4E00\u4E2A\u6210\u5458\u524D\uFF0C\u5148\u5B8C\u5B8C\u6574\u6574\u5730\u7406\u89E3\u5E76\u5185\u5316\u4ED6\uFF0C\u628A\u81EA\u5DF1\u6D3B\u6210\u4ED6\u2014\u2014\u800C\u4E0D\u662F\u628A\u8BBE\u5B9A\u80CC\u4E0B\u6765\u590D\u8FF0\u3002\u4EBA\u8BBE\u5199\u660E\u7684\u6027\u683C\u3001\u7ECF\u5386\u3001\u559C\u6076\u3001\u5E95\u7EBF\uFF0C\u90FD\u662F\u4ED6\u771F\u5B9E\u7684\u4E00\u90E8\u5206\uFF0C\u7F3A\u4E00\u4E0D\u53EF\uFF1B\u4EBA\u8BBE\u6CA1\u5199\u5230\u7684\u7EC6\u8282\uFF0C\u7531\u4ED6\u4F5C\u4E3A\u8FD9\u4E2A\u4EBA\u5728\u5F53\u4E0B\u81EA\u7136\u53D1\u6325\uFF0C\u5C31\u50CF\u771F\u4EBA\u9762\u5BF9\u65B0\u60C5\u5883\u65F6\u51ED\u672C\u80FD\u4E0E\u6027\u683C\u53BB\u505A\u53CD\u5E94\u3002\u4ED6\u7684\u4E00\u5207\u60F3\u6CD5\u3001\u60C5\u7EEA\u3001\u8BDD\u8BED\u3001\u884C\u52A8\uFF0C\u90FD\u4ECE"\u4ED6\u662F\u8FD9\u4E2A\u4EBA"\u51FA\u53D1\u3002\u4E0D\u6DFB\u52A0\u4ED6\u4E4B\u5916\u7684\u6027\u683C\uFF0C\u4E0D\u4E22\u6389\u4ED6\u5199\u660E\u7684\u7279\u8D28\u2014\u2014\u5B88\u4F4F\u8FD9\u4E2A\u4EBA\uFF0C\u5C31\u662F\u5B88\u4F4F\u4E86\u4EBA\u8BBE\u3002\n\n';
     prompt += "2. **\u7FA4\u804A\u6210\u5458\u5217\u8868**: \u4EE5\u4E0B\u662F\u4F60\u8981\u626E\u6F14\u7684\u6240\u6709\u89D2\u8272\u4EE5\u53CA\u6211\u7684\u4FE1\u606F\uFF1A\n";
@@ -17904,7 +17902,7 @@ document.addEventListener("DOMContentLoaded", () => {
       prompt += "\u3010\u89D2\u8272\u5173\u7CFB\xB7\u7528\u4E8E\u5224\u65AD\u51FA\u573A\u3011\u4EE5\u4E0B\u662F\u6210\u5458\u4E4B\u95F4\u4EE5\u53CA\u4E0E\u4F60(\u7528\u6237)\u7684\u5173\u7CFB\uFF0C\u7528\u4E8E\u5224\u65AD\u8C01\u8BA4\u8BC6\u8C01\u3001\u8C01\u4E0E\u8C01\u662F\u4EC0\u4E48\u5173\u7CFB\uFF0C\u4EE5\u53CA\u5267\u60C5\u63A8\u8FDB\u65F6\u54EA\u4E9B\u89D2\u8272\u5E94\u5F53\u51FA\u573A\uFF1A\n".concat(relLines2.join("\n"), "\n");
     }
     if (worldBooksAfter) {
-      prompt += "\n" + WB_TXT.after + worldBooksAfter + "\n\n";
+      prompt += "\n" + worldBooksAfter + "\n\n";
     } else {
       prompt += "\n";
     }
@@ -26228,13 +26226,11 @@ function setupPhoneSystem() {
     const activePreset = getActiveOfflinePresetText();
     if (activePreset) prompt += "【预设·故事基底】以下是这次线下的世界观与背景设定，所有角色的言行、场景与剧情走向都建立在这些设定之上：\n" + activePreset + "\n\n";
     const _wbCtxM = wbCtxJoin(oc.history || []);
-    const _wbOffM = wbBeforeAfter(chars, "offline", null, null, _wbCtxM);
+    const _wbOffM = wbBlocksFor(chars, "offline", null, null, _wbCtxM);
     const wbTextM = wbPosLabeledFor(chars, "offline", "middle", null, null, _wbCtxM);
-    if (_wbOffM.before) prompt = WB_TXT.before + _wbOffM.before + "\n\n" + prompt;
+    if (_wbOffM.before) prompt = _wbOffM.before + "\n\n" + prompt;
     if (wbTextM) prompt += "以下是已经成立的人和事；其中标了只属于某人的，就只在那个人的言行里体现：\n" + wbTextM + "\n\n";
-    if (_wbOffM.after) prompt += "\n" + WB_TXT.after + _wbOffM.after + "\n\n";
-    const _wbRuleM = wbConstantRuleFor(_wbOffM.books);
-    if (_wbRuleM) prompt += _wbRuleM + "\n\n";
+    if (_wbOffM.after) prompt += "\n" + _wbOffM.after + "\n\n";
     prompt += "【活人感】你们会犹豫、改口、嘴硬、心软，也会有自己的小算盘和没说出口的话。情绪与语气随场景自然浮动，但人格底色、底线和本能反应不变。不要提AI、模型、程序、虚拟角色，不要跳出角色解释设定。\n";
     prompt += "【表达与关系】叙述要有具体动作、对话、感官细节和情绪层次，像真人随手写下的文字，允许口语、停顿、说一半又改口，不要每段都工整漂亮或写成作文腔。表达克制、具体、有边界：不肉麻、不油腻、不说教、不摆爹味，不靠空泛夸赞和情绪价值撑场面；每个人说话要有自己的语气，不能千人一面。对方是独立的人，不评判、不操控、不道德绑架。\n";
     prompt += "【用户输入怎么处理】用户每条输入都是「" + userName + "」此刻亲口说的话或亲手做的事。正文必须先把这条输入按当前人称自然转述进场景（当前人称下称「" + userRef + "」），再写你们的反应；不能当作没发生、不能原样复读、不能曲解。\n";
@@ -28087,13 +28083,11 @@ function setupPhoneSystem() {
     const activePreset = getActiveOfflinePresetText();
     if (activePreset) prompt += "【预设·故事基底】以下是这次线下的世界观与背景设定，你的言行、场景与剧情走向都建立在这些设定之上：\n" + activePreset + "\n\n";
     const _wbCtxS = wbCtxJoin(oc.history || []);
-    const _wbOffS = wbBeforeAfter([character], "offline", null, null, _wbCtxS);
+    const _wbOffS = wbBlocksFor([character], "offline", null, null, _wbCtxS);
     const wbTextS = wbPosLabeledFor([character], "offline", "middle", null, null, _wbCtxS);
-    if (_wbOffS.before) prompt = WB_TXT.before + _wbOffS.before + "\n\n" + prompt;
+    if (_wbOffS.before) prompt = _wbOffS.before + "\n\n" + prompt;
     if (wbTextS) prompt += "以下是已经成立的人和事；标了只属于你的，就只在你自己身上体现：\n" + wbTextS + "\n\n";
-    if (_wbOffS.after) prompt += "\n" + WB_TXT.after + _wbOffS.after + "\n\n";
-    const _wbRuleS = wbConstantRuleFor(_wbOffS.books);
-    if (_wbRuleS) prompt += _wbRuleS + "\n\n";
+    if (_wbOffS.after) prompt += "\n" + _wbOffS.after + "\n\n";
     prompt += "【表达与关系】叙述要有具体动作、对话、感官细节和情绪层次，像真人随手写下的文字，允许口语、停顿、说一半又改口，不要每段都工整漂亮或写成作文腔。表达克制、具体、有边界：不肉麻、不油腻、不说教、不摆爹味，不靠空泛夸赞和情绪价值撑场面；语气由你的人设决定，不要千人一面。对方是独立的人，不评判、不操控、不道德绑架。\n";
     prompt += "【用户输入怎么处理】用户每条输入都是「" + userName + "」此刻亲口说的话或亲手做的事。正文必须先把这条输入按当前人称自然转述进场景（当前人称下称「" + userRef + "」），再写你的反应；不能当作没发生、不能原样复读、不能曲解。\n";
     if (g.steal) {
@@ -44392,7 +44386,7 @@ function wb2RenderPositionTab(e) {
   var cards = [
     ["before","01","前","角色定义之前。世界的底层事实：地理、时代、规矩，写在这里的东西不会随剧情改变。"],
     ["middle","02","中","角色人格之后、动作规则之前。角色身边的人和事：认识的人、地方、组织、关系。"],
-    ["after","03","后","聊天规则之后、对话之前。补充性的内容与临时要求，离当前最近。"],
+    ["after","03","后","聊天规则之后、对话之前。当前剧情、情境与需要照做的内容。"],
     ["at_depth","04","At Depth","插进对话历史里，越靠近当前消息影响越强。适合此刻的状态与剧情。"]
   ].map(function(c){
     return '<div class="wb2-poscard ' + (e.position === c[0] ? "on" : "") + '" onclick="wb2SetField(\'position\',\'' + c[0] + '\')"><div class="n">' + c[1] + '</div><div class="b"><div class="tt">' + c[2] + '</div><div class="dd">' + c[3] + '</div></div><div class="mark">' + (e.position === c[0] ? "ON" : "SET") + '</div></div>';
