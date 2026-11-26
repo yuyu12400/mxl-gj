@@ -11400,14 +11400,25 @@ document.addEventListener("DOMContentLoaded", () => {
           "<br>启动步骤：" + escapeHtml(tr.map(function (x) { return x[1]; }).join(" → ") || "-") +
           "<br>图片：" + __mxgImgStats() +
           "<br>设备：" + escapeHtml(__mxgEnvInfo()) +
+          "<br>IDB 打开：" + escapeHtml(window.__mxgIdbOpen || "?") +
+          "<br>库列表：" + escapeHtml(window.__mxgDbList || "读取中…") +
+          "<br>配额：" + escapeHtml(window.__mxgQuota || "读取中…") +
           "<br>上次错误：" + escapeHtml(String(errText).slice(0, 80));
       }
     } catch (eDiag) {}
+    try {
+      if (indexedDB.databases) {
+        indexedDB.databases().then(function (list) {
+          window.__mxgDbList = (list || []).map(function (d) { return d.name + " v" + (d.version || "?"); }).join(" / ") || "空（一个库都没有）";
+        }).catch(function (e) { window.__mxgDbList = "查询失败:" + (e && e.name); });
+      } else { window.__mxgDbList = "浏览器不支持查询"; }
+    } catch (eDbList) {}
     if (window.navigator && navigator.storage && navigator.storage.estimate) {
       navigator.storage.estimate().then(function (est) {
         if (lineEl && est && est.usage) {
           var quota = est.quota ? " / 配额 " + __mxgFmtSize(est.quota) : "";
           lineEl.textContent = "应用数据 " + __mxgFmtSize(total) + " · 浏览器已用 " + __mxgFmtSize(est.usage) + quota;
+          window.__mxgQuota = "已用 " + __mxgFmtSize(est.usage) + " / 配额 " + __mxgFmtSize(est.quota);
         }
       }).catch(function () {});
     }
@@ -11987,6 +11998,12 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!okGo) return;
         showToast("正在重建本地库…");
         try { dataStorage.db.close(); } catch (e1) {}
+        /* 直接换到一个新的数据库名，绕开打不开的那个旧库 */
+        try {
+          localStorage.setItem("mxl-db-ver", "2");
+          localStorage.setItem("mxg-core-text", "");
+          localStorage.removeItem("mxl-trace");
+        } catch (e4) {}
         await new Promise(function (resolve) {
           var done = false;
           var finish = function () { if (!done) { done = true; resolve(); } };
@@ -11996,7 +12013,6 @@ document.addEventListener("DOMContentLoaded", () => {
             setTimeout(finish, 10000);
           } catch (e2) { finish(); }
         });
-        try { localStorage.removeItem("mxg-core-text"); } catch (e3) {}
         location.replace(location.pathname + "?fresh=" + Date.now());
       })();
       return;
@@ -12348,7 +12364,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const linkGroupWorldBookBtn = document.getElementById("link-group-world-book-btn");
   class DataStorage {
     constructor() {
-      this.db = new Dexie("\u9EBB\u8FA3\u9999\u9505\u9E21DB");
+      /* 旧库打不开时（浏览器把它写坏了），可以用「重建本地库」换成 DB2，
+         不去碰那个坏库——删除它同样会卡住，换名字最省事。 */
+      var useV2 = false;
+      try { useV2 = localStorage.getItem("mxl-db-ver") === "2"; } catch (e) {}
+      this.dbName = useV2 ? "\u9EBB\u8FA3\u9999\u9505\u9E21DB2" : "\u9EBB\u8FA3\u9999\u9505\u9E21DB";
+      this.db = new Dexie(this.dbName);
       this.db.version(1).stores({
         storage: "key, value, timestamp"
         // key作为主键，value存储数据，timestamp记录时间
@@ -12457,6 +12478,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   const dataStorage = new DataStorage();
+  window.__mxgIdbOpen = "pending";
+  try {
+    dataStorage.db.open().then(function () {
+      window.__mxgIdbOpen = "ok";
+      __mxgTrace("idb:open-ok");
+    }).catch(function (e) {
+      window.__mxgIdbOpen = "fail:" + ((e && e.name) || "?") + ":" + ((e && e.message) || "");
+      __mxgTrace("idb:open-fail");
+      console.error("[存储] 打开数据库失败", e);
+    });
+  } catch (eOpen) {
+    window.__mxgIdbOpen = "throw:" + (eOpen && eOpen.message);
+  }
   try {
     dataStorage.db.on("blocked", function () {
       __mxgTrace("idb:blocked");
