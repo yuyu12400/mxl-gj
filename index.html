@@ -11484,11 +11484,18 @@ document.addEventListener("DOMContentLoaded", () => {
         if (typeof localData[key] === "string") data.__localKV[key] = localData[key];
       });
 
-      /* 先备份当前主库；备份失败就取消导入，避免旧数据没留底就被覆盖。 */
+      /* 先备份当前主库；备份失败就取消导入，避免旧数据没留底就被覆盖。
+         如果当前主库已经空了，但上一次的导入前备份里还有角色，就不要用空库覆盖它。 */
       var previous = db;
-      if (previous && Array.isArray(previous.characters) && previous.characters.length) {
+      var preExisting = null;
+      try { preExisting = await dataStorage.getData("mxl-pre-import-backup"); } catch (preErr) {}
+      var existingHasChars = !!(preExisting && preExisting.data && Array.isArray(preExisting.data.characters) && preExisting.data.characters.length);
+      var currentHasChars = !!(previous && Array.isArray(previous.characters) && previous.characters.length);
+      if (currentHasChars) {
         var snapOk = await dataStorage.saveData("mxl-pre-import-backup", { ts: Date.now(), data: previous });
         if (!snapOk) throw new Error("无法备份当前数据（可能存储空间不足），已取消导入");
+      } else if (existingHasChars) {
+        showToast("已保留上一次有数据的导入前备份，本次不再用空库覆盖它。");
       }
 
       /* 不先把 db 换成导入数据；写进主库并回读校验通过后再替换。 */
