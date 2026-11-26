@@ -559,6 +559,10 @@
             box-shadow: var(--card-shadow-lg);
             width: 85%;
             max-width: 340px;
+            max-height: 86dvh;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior: contain;
             animation: slideUp 0.4s ease-out;
         }
 
@@ -12270,7 +12274,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.40";
+  const APP_VERSION = "v6.3.41";
   let db = {
     characters: [],
     groups: [],
@@ -17780,6 +17784,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (p > 0 && Math.random() * 100 < p) {
         out += "【HTML 卡片·允许】这一轮可以额外发一张与当前情境相关的 HTML 卡片，用 ```html 开头、``` 结尾，一条消息完整装下整张卡片，中间不许拆开，内容贴合此刻的人、地点、物品或事件；卡片之后可以再发一条正常的对话，不必每轮都发。\n";
       }
+      if (out) out += "【卡片形态 · 优先可互动】只要题材允许，就把卡片做成可互动的：至少一个可点击按钮、可展开的折叠块、可切换的标签页或滑块，用内联 <script> 或 onclick 实现，不依赖外部资源；确实不适合互动时才退回静态卡片。互动要有真实反馈——点了要变、切了要换，不要做成按了没反应的假按钮。\n";
       return out;
     } catch (e) { return ""; }
   }
