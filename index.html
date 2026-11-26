@@ -11450,6 +11450,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ok) { if (inputEl) inputEl.value = null; return; }
     window.__stgBusy = true;
     try {
+      if (!window.__mxgLoadDone) throw new Error("应用还没加载完，请等桌面出现后再导入");
+      if (file.size > 10 * 1024 * 1024) {
+        var bigOk = await uiConfirm("这个备份约 " + (file.size / 1024 / 1024).toFixed(1) + " MB。手机解析大文件时可能内存不足而闪退；建议在电脑上导入。仍要继续吗？", "继续导入", true);
+        if (!bigOk) { if (inputEl) inputEl.value = null; return; }
+      }
       var text = await file.text();
       var parsed = null;
       try {
@@ -11471,20 +11476,37 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("备份文件里没有有效的应用数据");
       if (!Array.isArray(data.characters) && !Array.isArray(data.worldBooks) && !Array.isArray(data.groups) && !Array.isArray(data.masks)) throw new Error("备份文件不是麻辣香锅鸡的数据格式");
-      db = data;
-      if (!db.__localKV || typeof db.__localKV !== "object" || Array.isArray(db.__localKV)) db.__localKV = {};
+      if (data.characters !== undefined && !Array.isArray(data.characters)) throw new Error("备份里的 characters 不是数组");
+      if (data.groups !== undefined && !Array.isArray(data.groups)) throw new Error("备份里的 groups 不是数组");
+      if (data.worldBooks !== undefined && !Array.isArray(data.worldBooks)) throw new Error("备份里的 worldBooks 不是数组");
+      if (!data.__localKV || typeof data.__localKV !== "object" || Array.isArray(data.__localKV)) data.__localKV = {};
       MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
-        if (typeof localData[key] === "string") db.__localKV[key] = localData[key];
+        if (typeof localData[key] === "string") data.__localKV[key] = localData[key];
       });
-      window.db = db;
-      var saved = await saveData(db, { force: true });
+
+      /* 先备份当前主库；备份失败就取消导入，避免旧数据没留底就被覆盖。 */
+      var previous = db;
+      if (previous && Array.isArray(previous.characters) && previous.characters.length) {
+        var snapOk = await dataStorage.saveData("mxl-pre-import-backup", { ts: Date.now(), data: previous });
+        if (!snapOk) throw new Error("无法备份当前数据（可能存储空间不足），已取消导入");
+      }
+
+      /* 不先把 db 换成导入数据；写进主库并回读校验通过后再替换。 */
+      var saved = await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", data);
       if (!saved) throw new Error("写入本地 IDB 失败，当前数据未覆盖");
+      var verified = await dataStorage.getData("\u9EBB\u8FA3\u9999\u9505\u9E21");
+      if (!verified || typeof verified !== "object") throw new Error("写入后回读失败，已保留导入前备份");
+      if (Array.isArray(data.characters) && (!Array.isArray(verified.characters) || verified.characters.length !== data.characters.length)) {
+        throw new Error("写入后角色数量不一致，已保留导入前备份");
+      }
+      db = verified;
+      window.db = db;
       try { await saveWorldBookBackup(); } catch (e) {}
       MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
         try { localStorage.removeItem(key); } catch (e2) {}
       });
-      showToast("数据已成功恢复，应用即将刷新。");
-      setTimeout(function () { window.location.reload(); }, 700);
+      showToast("数据已恢复，应用即将刷新。");
+      setTimeout(function () { window.location.reload(); }, 1200);
     } catch (e) {
       console.error("导入失败:", e);
       showToast("导入失败：" + (e.message || "无法读取备份文件"));
@@ -11689,7 +11711,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.12";
+  const APP_VERSION = "v6.3.13";
   let db = {
     characters: [],
     groups: [],
