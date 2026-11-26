@@ -11450,7 +11450,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ok) { if (inputEl) inputEl.value = null; return; }
     window.__stgBusy = true;
     try {
-      if (!window.__mxgLoadDone) throw new Error("应用还没加载完，请等桌面出现后再导入");
+      /* 启动时快速渲染会把桌面先画出来，但 loadData 可能还在解析。这里最多等 8 秒；
+         超时也继续，因为下面备份会直接从 IDB 读主库，不依赖内存里的 db。 */
+      if (!window.__mxgLoadDone) {
+        await new Promise(function (resolve) {
+          var done = false;
+          var finish = function () { if (!done) { done = true; resolve(); } };
+          window.addEventListener("mxg-data-ready", finish, { once: true });
+          setTimeout(finish, 8000);
+        });
+      }
       if (file.size > 10 * 1024 * 1024) {
         var bigOk = await uiConfirm("这个备份约 " + (file.size / 1024 / 1024).toFixed(1) + " MB。手机解析大文件时可能内存不足而闪退；建议在电脑上导入。仍要继续吗？", "继续导入", true);
         if (!bigOk) { if (inputEl) inputEl.value = null; return; }
@@ -11487,6 +11496,10 @@ document.addEventListener("DOMContentLoaded", () => {
       /* 先备份当前主库；备份失败就取消导入，避免旧数据没留底就被覆盖。
          如果当前主库已经空了，但上一次的导入前备份里还有角色，就不要用空库覆盖它。 */
       var previous = db;
+      try {
+        var mainNow = await dataStorage.getData("麻辣香锅鸡");
+        if (mainNow && typeof mainNow === "object") previous = mainNow;
+      } catch (mainErr) {}
       var preExisting = null;
       try { preExisting = await dataStorage.getData("mxl-pre-import-backup"); } catch (preErr) {}
       var existingHasChars = !!(preExisting && preExisting.data && Array.isArray(preExisting.data.characters) && preExisting.data.characters.length);
@@ -11718,7 +11731,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.13";
+  const APP_VERSION = "v6.3.14";
   let db = {
     characters: [],
     groups: [],
@@ -12067,9 +12080,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!db.apiSettings) db.apiSettings = {};
     if (db.apiSettings.visionEnabled === void 0) db.apiSettings.visionEnabled = false;
     if (db.wallpaper === "https://aka.doubaocdn.com/s/EbgeuXeUxy") db.wallpaper = "";
-    if (!db.characters) db.characters = [];
-    if (!db.groups) db.groups = [];
-    if (!db.myStickers) db.myStickers = [];
+    if (!Array.isArray(db.characters)) db.characters = [];
+    if (!Array.isArray(db.groups)) db.groups = [];
+    if (!Array.isArray(db.myStickers)) db.myStickers = [];
     if (!db.homeScreenMode) db.homeScreenMode = "night";
     if (db.desktopOrderVersion !== 4) { db.desktopOrder = {}; db.desktopOrderVersion = 4; }
     if (db.realTimeSensing === void 0) db.realTimeSensing = false;
@@ -12079,7 +12092,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (!db.offlineGlobal) db.offlineGlobal = { stylePresets: [], preset: "novel", customStyle: "", persona: "first", steal: false, minChars: 400, maxChars: 1200, realTimeSensing: true, summaryEnabled: true, summaryRounds: 6, summaryCount: 4, summaryPrompt: "", rememberOnline: true, readOnlineRounds: 0, useCustomBubbleCss: false, customBubbleCss: "", chainEnabled: true, chainTemplate: "", activePresetId: "" };
     if (!db.phoneData) db.phoneData = {};
-    if (!db.offlinePresets) db.offlinePresets = [];
+    if (!Array.isArray(db.offlinePresets)) db.offlinePresets = [];
     try {
       const wbBackup = await dataStorage.getData("mxl-worldbooks-backup");
       if (wbBackup && Number(wbBackup.ts) > effectiveTs && (Array.isArray(wbBackup.worldBooks) || Array.isArray(wbBackup.worldBookFolders))) {
@@ -12090,9 +12103,9 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("已从 IDB 世界书备份恢复");
       }
     } catch (wbErr) { console.warn("世界书备份恢复失败", wbErr); }
-    if (!db.worldBooks) db.worldBooks = [];
-    if (!db.worldBookFolders) db.worldBookFolders = [];
-    if (!db.relationships) db.relationships = [];
+    if (!Array.isArray(db.worldBooks)) db.worldBooks = [];
+    if (!Array.isArray(db.worldBookFolders)) db.worldBookFolders = [];
+    if (!Array.isArray(db.relationships)) db.relationships = [];
     if (!db.worldBookSettings) db.worldBookSettings = { totalBudget: 2400 };
     db.worldBooks.forEach((wb) => {
       if (!wb.scope) wb.scope = "local";
@@ -12116,7 +12129,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     if (!db.fontUrl) db.fontUrl = "";
     if (!db.customIcons) db.customIcons = {};
-    if (!db.memories) db.memories = [];
+    if (!Array.isArray(db.memories)) db.memories = [];
     if (!db.profile || typeof db.profile !== "object") db.profile = {};
     if (db.profile.cover === void 0) db.profile.cover = "";
     if (db.profile.name === void 0) db.profile.name = "";
@@ -12128,28 +12141,28 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!db.timeSense.version) db.timeSense.version = 1;
     if (!db.timeSense.life || typeof db.timeSense.life !== "object") db.timeSense.life = {};
     if (!db.timeSense.commitments || typeof db.timeSense.commitments !== "object") db.timeSense.commitments = {};
-    if (!db.offlineChats) db.offlineChats = [];
+    if (!Array.isArray(db.offlineChats)) db.offlineChats = [];
     if (!Array.isArray(db.offlineOrbImages)) db.offlineOrbImages = [];
-    if (!db.masks) db.masks = [];
+    if (!Array.isArray(db.masks)) db.masks = [];
     if (!db.activeMaskId) db.activeMaskId = null;
-    if (!db.feeds) db.feeds = [];
+    if (!Array.isArray(db.feeds)) db.feeds = [];
     if (!db.feedSettings) db.feedSettings = { enabled: true, intervalMinutes: 30, lastPostTs: 0 };
     if (!db.wallet) db.wallet = { balance: 0, tx: [] };
-    if (!db.writings) db.writings = [];
+    if (!Array.isArray(db.writings)) db.writings = [];
     if (!db.couple) db.couple = { invited: false, partnerId: null, pendingInvite: null, inviteSentAt: 0, createdAt: 0, anniversaries: [], todos: [], moods: [], diary: [], letters: [], album: [], quizzes: [], vents: [], activity: [] };
     if (!db.coupleByChar) db.coupleByChar = {};
     else {
-      if (!db.couple.activity) db.couple.activity = [];
-      if (!db.couple.todos) db.couple.todos = [];
-      if (!db.couple.moods) db.couple.moods = [];
-      if (!db.couple.diary) db.couple.diary = [];
-      if (!db.couple.letters) db.couple.letters = [];
-      if (!db.couple.album) db.couple.album = [];
-      if (!db.couple.quizzes) db.couple.quizzes = [];
-      if (!db.couple.vents) db.couple.vents = [];
-      if (!db.couple.timeline) db.couple.timeline = [];
-      if (!db.couple.anniversaries) db.couple.anniversaries = [];
-      if (!db.couple.actions) db.couple.actions = [];
+      if (!Array.isArray(db.couple.activity)) db.couple.activity = [];
+      if (!Array.isArray(db.couple.todos)) db.couple.todos = [];
+      if (!Array.isArray(db.couple.moods)) db.couple.moods = [];
+      if (!Array.isArray(db.couple.diary)) db.couple.diary = [];
+      if (!Array.isArray(db.couple.letters)) db.couple.letters = [];
+      if (!Array.isArray(db.couple.album)) db.couple.album = [];
+      if (!Array.isArray(db.couple.quizzes)) db.couple.quizzes = [];
+      if (!Array.isArray(db.couple.vents)) db.couple.vents = [];
+      if (!Array.isArray(db.couple.timeline)) db.couple.timeline = [];
+      if (!Array.isArray(db.couple.anniversaries)) db.couple.anniversaries = [];
+      if (!Array.isArray(db.couple.actions)) db.couple.actions = [];
       if (db.couple.actionAuto === void 0) db.couple.actionAuto = false;
       if (!db.couple.actionInterval) db.couple.actionInterval = 30;
       if (!db.couple.actionNextTs) db.couple.actionNextTs = 0;
@@ -13213,7 +13226,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     dismissSplash();
     await new Promise((resolve) => setTimeout(resolve, 340));
-    await loadData();
+    try {
+      await loadData();
+    } catch (loadErr) {
+      console.error("数据加载失败:", loadErr);
+      showToast("数据加载失败，请打开恢复页导出或恢复。");
+    }
     try { await __mxgRequestPersist(); } catch (e) {}
     try { migrateMaskScope(); } catch (err) { console.warn("面具迁移失败", err); }
     document.body.addEventListener("click", (e) => {
@@ -18576,7 +18594,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!currentWorldBookFolderId) {
         const name = await uiPrompt("\u65B0\u5EFA\u4E16\u754C\u4E66\u6587\u4EF6\u5939\uFF0C\u8F93\u5165\u6587\u4EF6\u5939\u540D\u79F0", "");
         if (!name || !name.trim()) return;
-        if (!db.worldBookFolders) db.worldBookFolders = [];
+        if (!Array.isArray(db.worldBookFolders)) db.worldBookFolders = [];
         db.worldBookFolders.push({ id: "wbf_" + Date.now(), name: name.trim() });
         await saveData();
         renderWorldBookList();
@@ -18623,7 +18641,7 @@ document.addEventListener("DOMContentLoaded", () => {
     (_b = document.getElementById("add-folder-btn")) == null ? void 0 : _b.addEventListener("click", async () => {
       const name = await uiPrompt("\u65B0\u5EFA\u4E16\u754C\u4E66\u6587\u4EF6\u5939\uFF0C\u8F93\u5165\u6587\u4EF6\u5939\u540D\u79F0", "");
       if (!name || !name.trim()) return;
-      if (!db.worldBookFolders) db.worldBookFolders = [];
+      if (!Array.isArray(db.worldBookFolders)) db.worldBookFolders = [];
       db.worldBookFolders.push({ id: "wbf_" + Date.now(), name: name.trim() });
       await saveData();
       renderWorldBookList();
@@ -22107,7 +22125,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
         if (summaryText) {
-          if (!db.memories) db.memories = [];
+          if (!Array.isArray(db.memories)) db.memories = [];
           pushMemory(was.charId, "call", "\uFF08".concat(was.type === "video" ? "\u89C6\u9891" : "\u8BED\u97F3", "\u901A\u8BDD\u603B\u7ED3\xB7").concat(durText, "\uFF09").concat(summaryText), "fact");
           await saveData();
           console.log("[\u901A\u8BDD\u603B\u7ED3] \u5DF2\u5B58\u5165\u8BB0\u5FC6\u5E93");
@@ -22365,7 +22383,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const bidir = document.getElementById("rel-bidir").checked;
       if (!bId || !label) return showToast("\u8BF7\u9009\u62E9\u89D2\u8272\u5E76\u586B\u5199\u5173\u7CFB");
       if (aType === "char" && aId === bId) return showToast("\u4E0D\u80FD\u8BBE\u7F6E\u89D2\u8272\u548C\u81EA\u8EAB\u7684\u5173\u7CFB");
-      if (!db.relationships) db.relationships = [];
+      if (!Array.isArray(db.relationships)) db.relationships = [];
       db.relationships = db.relationships.filter((r) => !(r.aType === aType && r.aId === aId && r.bType === "char" && r.bId === bId));
       db.relationships.push({ aType, aId, bType: "char", bId, label, bidir });
       await saveData();
@@ -25395,7 +25413,7 @@ function setupPhoneSystem() {
         showToast("\u8BF7\u586B\u5199\u9884\u8BBE\u5185\u5BB9");
         return;
       }
-      if (!db.offlinePresets) db.offlinePresets = [];
+      if (!Array.isArray(db.offlinePresets)) db.offlinePresets = [];
       if (id) {
         const p = db.offlinePresets.find((x) => x.id === id);
         if (p) {
@@ -43408,7 +43426,7 @@ function wb2ToggleEntry(ev, id) {
 function wb2NewBook() {
   wb2Prompt("新建世界书，输入名字", "").then(function(name) {
     if (!name || !String(name).trim()) return;
-    if (!db.worldBookFolders) db.worldBookFolders = [];
+    if (!Array.isArray(db.worldBookFolders)) db.worldBookFolders = [];
     var id = "wbf_" + Date.now();
     db.worldBookFolders.push({ id: id, name: String(name).trim() });
     Promise.resolve(wb2Save()).then(function(ok){
@@ -43424,7 +43442,7 @@ function wb2RenameBook() {
   wb2Prompt("重命名世界书", old === "未分类" ? "" : old).then(function(name) {
     if (!name || !String(name).trim()) return;
     if (id === WB2_UNFILED) {
-      if (!db.worldBookFolders) db.worldBookFolders = [];
+      if (!Array.isArray(db.worldBookFolders)) db.worldBookFolders = [];
       var nid = "wbf_" + Date.now();
       db.worldBookFolders.push({ id: nid, name: String(name).trim() });
       wb2AllEntries().forEach(function(e){ if (!e.folderId) e.folderId = nid; });
