@@ -986,6 +986,7 @@
         }
         .message-bubble.mxg-has-html { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; max-width: min(86vw, 360px); white-space: normal; }
         .mxg-html-card { width: 100%; overflow: hidden; border-radius: 16px; }
+        .mxg-html-frame { pointer-events: none; }
         .mxg-html-card img { max-width: 100%; height: auto; }
         .mxg-html-card table { max-width: 100%; border-collapse: collapse; }
         .mxg-html-card * { box-sizing: border-box; max-width: 100%; }
@@ -12266,7 +12267,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.33";
+  const APP_VERSION = "v6.3.34";
   let db = {
     characters: [],
     groups: [],
@@ -16739,7 +16740,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (message && Array.isArray(message.parts) && message.parts[0].type === "html") {
       bubbleElement = document.createElement("div");
       bubbleElement.className = "message-bubble ".concat(isSent ? "sent" : "received");
-      bubbleElement.innerHTML = message.parts[0].text;
+      mxgFillBubble(bubbleElement, message.parts[0].text);
     } else {
       bubbleElement = document.createElement("div");
       bubbleElement.className = "message-bubble ".concat(isSent ? "sent" : "received");
@@ -17667,9 +17668,10 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       let out = "";
       const hasHtml = (books || []).some(function(b){ return /```html|<(div|section|table|article|figure|header|footer|ul|ol|blockquote)[\s>]/i.test(String(b.content || "")); });
-      if (hasHtml) out += "【HTML 卡片·模板】条目里给出的 HTML 是模板，不是成品。要按当前情境把模板里的占位内容换成真实内容（占位符通常是 {{字段}}、[[字段]]、{字段}，或明显的提示文字如“名字/价格/时间”），再输出由 ```html 开头、``` 结尾的完整 HTML；标签结构、class 与内联样式保持不动，只替换内容，列表处按实际条数增删。不要照抄占位符，不要改动配色和布局，一条消息只放这一张卡片，也不要包进叙述里。\n";
+      if (hasHtml) out += "【HTML 卡片·模板 · 必须遵守】条目里给出的 HTML 是模板，不是成品。要按当前情境把模板里的占位内容换成真实内容（占位符通常是 {{字段}}、[[字段]]、{字段}，或明显的提示文字如“名字/价格/时间”），再输出由 ```html 开头、``` 结尾的完整 HTML；标签结构、class 与内联样式保持不动，只替换内容，列表处按实际条数增删。不要照抄占位符，不要改动配色和布局；整张卡片必须放在同一条消息里，中间不许拆分、不许插 [open] 这类方括号标记；除卡片外不要再发一条消息解释这张卡片。\n";
       const p = Math.max(0, Math.min(100, parseInt((db.worldBookSettings || {}).htmlRandom, 10) || 0));
-      if (p > 0 && Math.random() * 100 < p) out += "【HTML 卡片·随机】这一轮可以额外发一张与当前情境相关的 HTML 卡片，用 ```html 与 ``` 包裹、单独一条消息发出，内容贴合此刻的人、地点、物品或事件；卡片刻度约 320px 宽，配色跟随聊天界面，不必每轮都发。\n";
+      if (p >= 100) { out += "【HTML 卡片·随机 · 必须】这一轮必须发一张与当前情境相关的 HTML 卡片，用 ```html 与 ``` 包裹、单独一条完整消息发出，内容贴合此刻的人、地点、物品或事件；同一张卡片不要拆开，也不要用文字复述卡片内容。\n"; }
+      else if (p > 0 && Math.random() * 100 < p) out += "【HTML 卡片·随机】这一轮可以额外发一张与当前情境相关的 HTML 卡片，用 ```html 与 ``` 包裹、单独一条消息发出，内容贴合此刻的人、地点、物品或事件；卡片刻度约 320px 宽，配色跟随聊天界面，不必每轮都发。\n";
       return out;
     } catch (e) { return ""; }
   }
@@ -18826,17 +18828,26 @@ document.addEventListener("DOMContentLoaded", () => {
       fullResponse = String(fullResponse).trim();
       const blocks = [];
       {
-        const mRegex = /<orange(?:\s+char="([^"]*)")?>([\s\S]*?)<\/orange>|(\[.*?\])/g;
+        let t = String(fullResponse);
+        const segs = [];
+        const stash = function(html) { const i = segs.length; segs.push(String(html).trim()); return "\u0001" + i + "\u0001"; };
+        t = t.replace(/```(?:html)?\s*([\s\S]*?)```/gi, function(m0, inner){ if (!/<[a-z!\/]/i.test(inner)) return m0; return stash(inner); });
+        t = t.replace(/(<!doctype[\s\S]*?<\/html>|<html[\s\S]*?<\/html>)/gi, function(m0){ return stash(m0); });
+        t = t.replace(/(<!doctype[\s\S]*$|<html[\s\S]*$)/gi, function(m0){ return m0.length >= 24 ? stash(m0) : m0; });
+        t = t.replace(/(<style[\s\S]*$)/i, function(m0){ return m0.length >= 40 ? stash(m0) : m0; });
+        const mRegex = /\u0001(\d+)\u0001|<orange(?:\s+char="([^"]*)")?>([\s\S]*?)<\/orange>|(\[.*?\])/g;
         let mLast = 0, mm;
-        while ((mm = mRegex.exec(fullResponse)) !== null) {
-          const plain = fullResponse.slice(mLast, mm.index).trim();
+        while ((mm = mRegex.exec(t)) !== null) {
+          const plain = t.slice(mLast, mm.index).trim();
           if (plain) blocks.push({ type: "text", content: plain });
-          if (mm[1] !== void 0 || mm[2] !== void 0) blocks.push({ type: "html", char: mm[1] || null, content: mm[2].trim() });
-          else if (mm[3]) blocks.push({ type: "text", content: mm[3].trim() });
+          if (mm[1] !== void 0) blocks.push({ type: "html", content: segs[parseInt(mm[1], 10)] || "" });
+          else if (mm[2] !== void 0 || mm[3] !== void 0) blocks.push({ type: "html", char: mm[2] || null, content: (mm[3] || "").trim() });
+          else if (mm[4]) blocks.push({ type: "text", content: mm[4].trim() });
           mLast = mRegex.lastIndex;
         }
-        const tailT = fullResponse.slice(mLast).trim();
+        const tailT = t.slice(mLast).trim();
         if (tailT) blocks.push({ type: "text", content: tailT });
+      }
       }
       if (blocks.length > 0) {
         blocks.forEach((item, idx) => {
