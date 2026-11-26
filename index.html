@@ -6804,7 +6804,7 @@
 .api404-foot-note { font-size:7.5px; letter-spacing:.18em; color:#9a9a9a; }
 
 
-/* ===== Settings hub v6.3.5 ===== */
+/* ===== Settings hub v6.3.6 ===== */
 .stg-head{display:flex;align-items:flex-start;gap:12px;padding-top:18px;}
 .stg-back{width:30px;height:30px;flex:0 0 auto;margin-top:4px;border:1px solid #111;border-radius:50%;background:#fff;color:#111;font-size:19px;line-height:1;cursor:pointer;font-family:inherit;}
 .stg-headmain{flex:1;min-width:0;}
@@ -10463,7 +10463,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane is-on" data-offline-pane="meet">
                 <div class="o404-clock-row">
                     <div class="o404-clock" id="o404-time">20:14</div>
-                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.5</span></div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.6</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR MOMENT</span>
@@ -10496,7 +10496,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:16</div>
-                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.5</span></div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.6</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR CAST</span>
@@ -10508,7 +10508,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="story">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:18</div>
-                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.5</span></div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.6</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR STORY</span>
@@ -11503,7 +11503,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="stg-eyebrow" id="stg-eyebrow">SETTINGS / 04</div>
       <div class="stg-title" id="stg-title">设置</div>
     </div>
-    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.5</b><span id="stg-status">READY</span></div>
+    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.6</b><span id="stg-status">READY</span></div>
   </div>
   <div class="stg-views">
     <section class="stg-view active" data-stg-page="home">
@@ -11517,7 +11517,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <button type="button" class="stg-item" data-stg-go="data"><span class="num">02</span><span class="main"><b>数据 / DATA</b><em>数据分布与内存占用 · 导出 / 导入 JSON</em></span><span class="arrow">↗</span></button>
         <button type="button" class="stg-item" data-stg-go="look"><span class="num">03</span><span class="main"><b>外观 / LOOK</b><em>壁纸、日夜、字体与桌面图标</em></span><span class="arrow">↗</span></button>
       </div>
-      <div class="stg-foot">MXG / SETTINGS — V6.3.5</div>
+      <div class="stg-foot">MXG / SETTINGS — V6.3.6</div>
     </section>
 
     <section class="stg-view" data-stg-page="api">
@@ -11689,7 +11689,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.5";
+  const APP_VERSION = "v6.3.6";
   let db = {
     characters: [],
     groups: [],
@@ -11823,7 +11823,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("数据已保存: ".concat(key));
         if (key === "麻辣香锅鸡") {
           /* 旧版整库镜像会挤占 localStorage 配额，导致书城/邮局等小模块静默写失败。
-             从 v6.3.5 起只保留 IndexedDB；旧镜像在成功写入后立即清掉。 */
+             从 v6.3.6 起只保留 IndexedDB；旧镜像在成功写入后立即清掉。 */
           try {
             localStorage.removeItem("gemini-chat-app-db");
             localStorage.removeItem("__mxg_ls_ts");
@@ -11987,7 +11987,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   const loadData = async () => {
-    /* v6.3.5：主数据只从 IndexedDB 读取。旧版 localStorage 整库镜像仅用于一次性迁移。 */
+    /* v6.3.6：主数据只从 IndexedDB 读取。旧版 localStorage 整库镜像仅用于一次性迁移。 */
     let oldData = null;
     try { oldData = localStorage.getItem("gemini-chat-app-db"); } catch (e) {}
     let data = await dataStorage.getData("\u9EBB\u8FA3\u9999\u9505\u9E21");
@@ -13195,7 +13195,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (!window.__quickShellDone) {
         window.__quickShellDone = 1;
-        /* v6.3.5：不再同步读取 localStorage 整库镜像，先渲染空壳，IndexedDB 加载后重建桌面 */
+        /* v6.3.6：不再同步读取 localStorage 整库镜像，先渲染空壳，IndexedDB 加载后重建桌面 */
         db.customIcons = db.customIcons || {};
         db.characters = db.characters || [];
         db.widgetTexts = db.widgetTexts || {};
@@ -13719,7 +13719,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.5</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.6</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -13753,7 +13753,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.5<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.6<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -14361,32 +14361,85 @@ document.addEventListener("DOMContentLoaded", () => {
     chatListContainer.addEventListener("touchend", () => clearTimeout(longPressTimer));
     chatListContainer.addEventListener("touchmove", () => clearTimeout(longPressTimer));
   }
+  function mxgDetachPrivateChat(chatId, maskId) {
+    const char = (db.characters || []).find((c) => c.id === chatId);
+    const mid = String(maskId || "");
+    if (!char || !mid) return { ok: false, removed: 0 };
+    /* 先按旧绑定清理记忆，再解绑；否则旧记忆会被归到角色剩下的另一个面具 */
+    try { if (typeof MemoryOS !== "undefined" && MemoryOS.purge) MemoryOS.purge(chatId, mid); } catch (e) {}
+    try {
+      if (db.memory && Array.isArray(db.memory.items)) {
+        db.memory.items = db.memory.items.filter(function (m) {
+          if (!m) return false;
+          const cid = m.character_id || m.charId || m.chatId;
+          if (cid !== chatId) return true;
+          const key = String(m.mask_id || m.maskId || (typeof memMaskKey === "function" ? memMaskKey(m) : "") || "");
+          return key !== mid;
+        });
+      }
+    } catch (e2) {}
+    /* 只清当前面具下的聊天；同一角色在别的面具下的记录原样保留 */
+    let removed = 0;
+    const keep = [];
+    (char.history || []).forEach(function (m) {
+      if (msgMaskKey(char, m) === mid) removed++;
+      else keep.push(m);
+    });
+    char.history = keep;
+    /* 当前面具下的关系状态、关系名/想法、总结游标、面具人设一起清掉 */
+    try { if (char.relationState) delete char.relationState[mid]; } catch (e3) {}
+    try { if (char.relationThoughtByMask) delete char.relationThoughtByMask[mid]; } catch (e3) {}
+    try { if (char.relationLabelByMask) delete char.relationLabelByMask[mid]; } catch (e3) {}
+    try { if (char.maskPersona) delete char.maskPersona[mid]; } catch (e3) {}
+    try {
+      if (!char.summaryCursorByMask || typeof char.summaryCursorByMask !== "object") char.summaryCursorByMask = {};
+      char.summaryCursorByMask[mid] = 0;
+    } catch (e3) {}
+    /* 关键：只解除当前面具的绑定，角色档案本身绝不删除 */
+    char.maskIds = (char.maskIds || []).filter(function (id) { return String(id) !== mid; });
+    if (currentChatId === chatId && currentChatType === "private") {
+      currentChatId = null;
+      currentChatType = null;
+    }
+    return { ok: true, removed: removed, left: char.maskIds.length };
+  }
+  window.mxgDetachPrivateChat = mxgDetachPrivateChat;
   function handleChatListLongPress(chatId, chatType, x, y) {
     clearTimeout(longPressTimer);
     window.__chatLongPressAt = Date.now();
     const chatItem = chatType === "private" ? db.characters.find((c) => c.id === chatId) : db.groups.find((g) => g.id === chatId);
     if (!chatItem) return;
-    const itemName = chatType === "private" ? chatItem.remarkName : chatItem.name;
+    const itemName = chatType === "private" ? (chatItem.remarkName || chatItem.realName || "未命名") : (chatItem.name || "未命名群聊");
     const menuItems = [{
-      label: chatItem.isPinned ? "\u53D6\u6D88\u7F6E\u9876" : "\u7F6E\u9876\u804A\u5929",
+      label: chatItem.isPinned ? "取消置顶" : "置顶聊天",
       action: async () => {
         chatItem.isPinned = !chatItem.isPinned;
         await saveData();
         renderChatList();
       }
     }, {
-      label: "\u5220\u9664\u804A\u5929",
+      label: "删除聊天",
       danger: true,
       action: async () => {
-        if (await uiConfirm("\u786E\u5B9A\u8981\u5220\u9664\u4E0E\u201C".concat(itemName, "\u201D\u7684\u804A\u5929\u8BB0\u5F55\u5417\uFF1F\u6B64\u64CD\u4F5C\u4E0D\u53EF\u6062\u590D\u3002"), "\u5220\u9664", true)) {
-          if (chatType === "private") {
-            db.characters = db.characters.filter((c) => c.id !== chatId);
-          } else {
-            db.groups = db.groups.filter((g) => g.id !== chatId);
+        if (chatType === "private") {
+          const mid = curMaskKey() || resolveMaskForChat(chatItem);
+          const maskName = ((db.masks || []).find((m) => m.id === mid) || {}).name || "当前面具";
+          if (await uiConfirm("确定要删除与“".concat(itemName, "”在面具「").concat(maskName, "」下的聊天吗？\n会清除这个面具下的聊天记录、记忆和关系状态，并解除这个面具与角色的绑定；角色档案和其他面具下的聊天不会受影响。"), "取消绑定", true)) {
+            const res = mxgDetachPrivateChat(chatId, mid);
+            await saveData();
+            try { renderChatList(); } catch (e4) {}
+            try { renderContactList(); } catch (e4) {}
+            try { if (typeof renderArchiveList === "function") renderArchiveList(); } catch (e4) {}
+            if (!res.ok) showToast("操作失败：没有找到当前面具或角色");
+            else showToast("已取消绑定 · 角色档案已保留" + (res.removed ? "，已清除 " + res.removed + " 条记录" : ""));
           }
-          await saveData();
-          renderChatList();
-          showToast("\u804A\u5929\u5DF2\u5220\u9664");
+        } else {
+          if (await uiConfirm("确定要删除群聊“".concat(itemName, "”吗？此操作不可恢复。"), "删除", true)) {
+            db.groups = db.groups.filter((g) => g.id !== chatId);
+            await saveData();
+            renderChatList();
+            showToast("群聊已删除");
+          }
         }
       }
     }];
