@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
     <title>麻辣香锅鸡</title>
     <link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Dancing+Script:wght@500;600;700&family=Great+Vibes&display=swap">
     <link rel="preload" href="./sw.js" as="script">
@@ -970,6 +970,8 @@
 
         .message-bubble {
             max-width: 260px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
             padding: 9px 14px;
             border-radius: 20px;
             word-wrap: break-word;
@@ -982,6 +984,11 @@
             border: 1px solid rgba(0,0,0,0.02);
             box-shadow: 0 1px 3px rgba(31,35,42,0.03);
         }
+        .message-bubble.mxg-has-html { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; max-width: min(86vw, 360px); white-space: normal; }
+        .mxg-html-card { width: 100%; overflow: hidden; border-radius: 16px; }
+        .mxg-html-card img { max-width: 100%; height: auto; }
+        .mxg-html-card table { max-width: 100%; border-collapse: collapse; }
+        .mxg-html-card * { box-sizing: border-box; max-width: 100%; }
 
         .message-bubble.sent {
             border-bottom-right-radius: 6px;
@@ -9613,6 +9620,11 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                 <input id="wb2-total-budget" type="number" min="0" step="100" placeholder="0 = 不限制">
                 <em>TOKENS</em>
             </div>
+            <div class="wb2-budgetrow">
+                <span>HTML 卡片随机率</span>
+                <input id="wb2-html-random" type="number" min="0" max="100" step="5" placeholder="0 = 关闭">
+                <em>% 每轮</em>
+            </div>
             <div id="wb2-lib-list"></div>
             <div class="wb2-fab" onclick="wb2NewBook()"><span class="plus">＋</span> 新建世界书</div>
         </div></div>
@@ -12254,7 +12266,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.30";
+  const APP_VERSION = "v6.3.31";
   let db = {
     characters: [],
     groups: [],
@@ -15862,6 +15874,45 @@ document.addEventListener("DOMContentLoaded", () => {
     deleteSelectedBtn.addEventListener("click", deleteSelectedMessages);
   }
   let currentQuoteMsg = null;
+  /* v6.3.31：消息里的 HTML 卡片（```html 包裹，或整段纯 HTML） */
+  function mxgHtmlSanitize(h) {
+    return String(h)
+      .replace(/<script[\s\S]*?<\/script>/gi, "")
+      .replace(/<iframe[\s\S]*?<\/iframe>/gi, "")
+      .replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
+      .replace(/javascript:/gi, "");
+  }
+  function mxgSplitHtml(text) {
+    const raw = String(text == null ? "" : text);
+    const fence = raw.match(/```(?:html)?\s*([\s\S]*?)```/i);
+    if (fence && /<[a-z][\s\S]*>/i.test(fence[1])) {
+      return { before: raw.slice(0, fence.index), html: fence[1].trim(), after: raw.slice(fence.index + fence[0].length) };
+    }
+    const t = raw.trim();
+    if (/^<(div|section|article|table|ul|ol|p|span|figure|header|footer|blockquote|h[1-6])\b/i.test(t) && /<\/[a-z]+>\s*$/i.test(t)) {
+      return { before: "", html: t, after: "" };
+    }
+    return null;
+  }
+  function mxgFillBubble(el, text) {
+    const sp = mxgSplitHtml(text);
+    if (!sp) { el.textContent = String(text == null ? "" : text); return; }
+    el.classList.add("mxg-has-html");
+    el.textContent = "";
+    const pre = document.createElement("div");
+    pre.style.whiteSpace = "pre-wrap";
+    if (sp.before.trim()) { pre.textContent = sp.before.trim(); el.appendChild(pre); }
+    const card = document.createElement("div");
+    card.className = "mxg-html-card";
+    card.innerHTML = mxgHtmlSanitize(sp.html);
+    el.appendChild(card);
+    if (sp.after.trim()) {
+      const post = document.createElement("div");
+      post.style.whiteSpace = "pre-wrap";
+      post.textContent = sp.after.trim();
+      el.appendChild(post);
+    }
+  }
   function renderBubbleContent(text) {
     const qm = String(text).match(/【引用】([\s\S]*?)【\/引用】/);
     if (!qm) return null;
@@ -16139,7 +16190,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
     if (!chat || !chat.history) return;
     const oldScrollHeight = messageArea.scrollHeight;
-    const __view = chatHistoryView(chat);
+    /* v6.3.31：同一条消息偶尔被写入两次（流式完成与落库各追加一次），这里按 id 去重，避免重复气泡 */
+    const __raw = chatHistoryView(chat);
+    const __seen = new Set();
+    const __view = __raw.filter(function(m) {
+      if (!m) return false;
+      const key = m.id ? "id:" + m.id : "ts:" + (m.timestamp || m.ts || 0) + ":" + String(m.content || "").slice(0, 24) + ":" + (m.role || "");
+      if (__seen.has(key)) return false;
+      __seen.add(key); return true;
+    });
     const totalMessages = __view.length;
     try { messageArea.setAttribute("data-conversation", "01—" + pad(totalMessages)); } catch (e) {}
     const end = totalMessages - (currentPage - 1) * MESSAGES_PER_PAGE;
@@ -16185,6 +16244,17 @@ document.addEventListener("DOMContentLoaded", () => {
       loadMoreButton.className = "load-more-btn";
       loadMoreButton.textContent = "\u52A0\u8F7D\u66F4\u65E9\u7684\u6D88\u606F";
       messageArea.prepend(loadMoreButton);
+    }
+    /* v6.3.31：渲染后自检——气泡数少于应有条数时补渲染一次（吞消息的兜底，只重试一次） */
+    if (!isLoadMore && !window.__mxgReRendering) {
+      try {
+        const expect = messagesToRender.filter(function(m){ return m && m.type !== "system_note"; }).length;
+        const got = messageArea.querySelectorAll(".message-wrapper").length;
+        if (got < expect) {
+          window.__mxgReRendering = true;
+          setTimeout(function(){ window.__mxgReRendering = false; try { renderMessages(false, !!forceScrollToBottom); } catch (e) {} }, 60);
+        }
+      } catch (e) {}
     }
     if (forceScrollToBottom) {
       setTimeout(() => {
@@ -16635,7 +16705,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else if (message.quote) {
         bubbleElement.innerHTML = '<div class="msg-quote-block"><span class="msg-quote-name">\u5F15\u7528\u4E86 '.concat(escapeHtml(message.quote.name), '</span><div class="msg-quote-txt">').concat(escapeHtml(message.quote.content), '</div></div><div class="msg-quote-rest">').concat(escapeHtml(renderText), "</div>");
       } else {
-        bubbleElement.textContent = renderText;
+        mxgFillBubble(bubbleElement, renderText);
       }
       if (!chat.useCustomBubbleCss) {
         bubbleElement.style.backgroundColor = bubbleTheme.bg;
@@ -16652,7 +16722,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (qHtml2) {
         bubbleElement.innerHTML = qHtml2;
       } else {
-        bubbleElement.textContent = content;
+        mxgFillBubble(bubbleElement, content);
       }
       if (!chat.useCustomBubbleCss) {
         bubbleElement.style.backgroundColor = bubbleTheme.bg;
@@ -17566,6 +17636,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (rule) after += (after ? "\n" : "") + rule + "\n";
     return { before: before, middle: middle, after: after, books: books, list: list };
   }
+  function wbHtmlHint(books) {
+    try {
+      let out = "";
+      const hasHtml = (books || []).some(function(b){ return /```html|<(div|section|table|article|figure|header|footer|ul|ol|blockquote)[\s>]/i.test(String(b.content || "")); });
+      if (hasHtml) out += "【HTML 卡片】本轮若要用条目里给出的 HTML（名片、票据、歌单、天气、截图式卡片等），把那段 HTML 原样发出：以 ```html 开头、``` 结尾，一条消息里只放这一张卡片，不要改写、翻译、解释，也不要包进叙述里。\n";
+      const p = Math.max(0, Math.min(100, parseInt((db.worldBookSettings || {}).htmlRandom, 10) || 0));
+      if (p > 0 && Math.random() * 100 < p) out += "【HTML 卡片·随机】这一轮可以额外发一张与当前情境相关的 HTML 卡片，用 ```html 与 ``` 包裹、单独一条消息发出，内容贴合此刻的人、地点、物品或事件；卡片刻度约 320px 宽，配色跟随聊天界面，不必每轮都发。\n";
+      return out;
+    } catch (e) { return ""; }
+  }
   function wbAttach(sys, chars, mode, extraIds, extraFolderIds, contextText, opts) {
     try {
       const blk = wbBlocksFor(chars, mode, extraIds, extraFolderIds, contextText, opts);
@@ -17573,6 +17653,8 @@ document.addEventListener("DOMContentLoaded", () => {
       out += String(sys || "");
       if (blk.middle) out += "\n\n" + blk.middle;
       if (blk.after) out += "\n\n" + blk.after;
+      const htmlHint = wbHtmlHint(blk.books);
+      if (htmlHint) out += "\n\n" + htmlHint;
       return out;
     } catch (e) {
       console.warn("世界书注入失败", e);
@@ -41025,6 +41107,8 @@ window.bsRoomAI = bsRoomAI;
 .cr-screen .env-body{background:#f4f3ee;}
 /* ================= 404 桌面复刻 v6.0.0 ================= */
 .screen.active{position:fixed!important;inset:0!important;width:100%!important;height:100dvh!important;z-index:40;background:#f8f8f9}
+    .screen.active{height:var(--mxg-vvh,100dvh)!important}
+    html,body{overflow:hidden;overscroll-behavior:none;}
 #home-screen{position:fixed;inset:0;z-index:1;display:flex;flex-direction:column;justify-content:flex-start;background:#f4f3f4;background-size:cover;background-position:center;padding:0;overflow:hidden}
 #home-screen .home-pages{flex:1;min-height:0;display:flex}
 #home-screen .home-page{position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;background-color:#f4f3f4}
@@ -44142,6 +44226,8 @@ function wb2RenderLibrary() {
     var tbVal = db.worldBookSettings ? db.worldBookSettings.totalBudget : undefined;
     budgetEl.value = String(typeof tbVal === "number" ? tbVal : 2400);
   }
+  var hrEl = document.getElementById("wb2-html-random");
+  if (hrEl) { hrEl.value = String(parseInt(((db.worldBookSettings || {}).htmlRandom), 10) || 0); }
   var searchEl = document.getElementById("wb2-lib-search");
   if (searchEl) { wb2State.search = searchEl.value || ""; }
   var cards = wb2BookCards(wb2State.filter, wb2State.search);
@@ -44569,6 +44655,18 @@ function wb2DeleteEntry() {
     });
     var search = document.getElementById("wb2-lib-search");
     if (search) search.addEventListener("input", function(){ wb2State.search = search.value; wb2RenderLibrary(); });
+    var hr = document.getElementById("wb2-html-random");
+    if (hr) {
+      hr.addEventListener("change", function(){
+        if (!db.worldBookSettings) db.worldBookSettings = {};
+        db.worldBookSettings.htmlRandom = Math.max(0, Math.min(100, parseInt(hr.value, 10) || 0));
+        hr.value = String(db.worldBookSettings.htmlRandom);
+        Promise.resolve(wb2Save()).then(function(ok){
+          if (!ok) { wb2Toast("随机率保存失败：本地 IDB 未写入"); return; }
+          wb2Toast("HTML 卡片随机率：" + db.worldBookSettings.htmlRandom + "%");
+        });
+      });
+    }
     var tb = document.getElementById("wb2-total-budget");
     if (tb) tb.addEventListener("change", function(){
       if (!db.worldBookSettings) db.worldBookSettings = {};
@@ -44610,6 +44708,46 @@ function wb2DeleteEntry() {
       location.replace(location.pathname + '?fresh=' + Date.now());
     };
   }, 12000);
+})();
+</script>
+<script>
+/* v6.3.31：输入法键盘只挤压内容区，不让整页被顶上去 */
+(function(){
+  try{
+    var root = document.documentElement;
+    function sync(){
+      var vv = window.visualViewport;
+      if (!vv) return;
+      root.style.setProperty("--mxg-vvh", Math.round(vv.height) + "px");
+      var kb = Math.max(0, (window.innerHeight || vv.height) - vv.height - (vv.offsetTop || 0));
+      root.classList.toggle("mxg-kb-open", kb > 120);
+    }
+    if (window.visualViewport){
+      window.visualViewport.addEventListener("resize", sync);
+      window.visualViewport.addEventListener("scroll", sync);
+    }
+    window.addEventListener("orientationchange", function(){ setTimeout(sync, 120); });
+    window.addEventListener("resize", function(){
+      sync();
+      setTimeout(function(){
+        try{
+          if (document.querySelector("#chat-room-screen.screen.active")){
+            var ma = document.getElementById("message-area");
+            if (ma) ma.scrollTop = ma.scrollHeight;
+          }
+        }catch(e){}
+      }, 60);
+    });
+    document.addEventListener("focusin", function(ev){
+      var t = ev.target;
+      if (!t || !/^(INPUT|TEXTAREA)$/.test(t.tagName)) return;
+      var vv = window.visualViewport;
+      if (!vv) return;
+      /* 已经按可视视口布局，禁止浏览器再自行平移页面 */
+      setTimeout(function(){ t.scrollIntoView({ block: "nearest" }); sync(); }, 80);
+    });
+    sync();
+  }catch(e){}
 })();
 </script>
 </body>
