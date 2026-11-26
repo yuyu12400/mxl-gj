@@ -12268,7 +12268,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.35";
+  const APP_VERSION = "v6.3.36";
   let db = {
     characters: [],
     groups: [],
@@ -18902,7 +18902,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const tailT = t.slice(mLast).trim();
         if (tailT) blocks.push({ type: "text", content: tailT });
       }
-      }
       if (blocks.length > 0) {
         blocks.forEach((item, idx) => {
           let receivedTransferRegex = null, giftRegex = null;
@@ -18966,9 +18965,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (typeof mvRenderChat === "function") mvRenderChat();
           }
           chat.history.push(stampMask(simpleMessage, chat));
-          if (!skipBubbles) await addMessageBubble(simpleMessage);
+          if (!skipBubbles) addMessageBubble(simpleMessage);
         }
-        else { chat.history.push(stampMask(simpleMessage, chat)); if (!skipBubbles) await addMessageBubble(simpleMessage); }
+        else { chat.history.push(stampMask(simpleMessage, chat)); if (!skipBubbles) addMessageBubble(simpleMessage); }
       }
     }
     try {
@@ -19093,7 +19092,7 @@ document.addEventListener("DOMContentLoaded", () => {
           else if (groupSideNotes && groupSideNotes[firstMember.realName]) simpleMessage.sideNote = groupSideNotes[firstMember.realName];
           lastPushedMsgIds.push(simpleMessage.id);
           group.history.push(stampMask(simpleMessage, group));
-          await addMessageBubble(simpleMessage);
+          addMessageBubble(simpleMessage);
         }
       }
     }
@@ -19148,7 +19147,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       lastPushedMsgIds = [];
     }
-    await saveData();
+    saveData();
     renderChatList();
     if (currentChatType === "private" && currentChatId && !skipBubbles) {
       setTimeout(() => {
