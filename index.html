@@ -6804,7 +6804,7 @@
 .api404-foot-note { font-size:7.5px; letter-spacing:.18em; color:#9a9a9a; }
 
 
-/* ===== Settings hub v6.3.7 ===== */
+/* ===== Settings hub v6.3.8 ===== */
 .stg-head{display:flex;align-items:flex-start;gap:12px;padding-top:18px;}
 .stg-back{width:30px;height:30px;flex:0 0 auto;margin-top:4px;border:1px solid #111;border-radius:50%;background:#fff;color:#111;font-size:19px;line-height:1;cursor:pointer;font-family:inherit;}
 .stg-headmain{flex:1;min-width:0;}
@@ -11689,7 +11689,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.7";
+  const APP_VERSION = "v6.3.8";
   let db = {
     characters: [],
     groups: [],
@@ -11823,7 +11823,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("数据已保存: ".concat(key));
         if (key === "麻辣香锅鸡") {
           /* 旧版整库镜像会挤占 localStorage 配额，导致书城/邮局等小模块静默写失败。
-             从 v6.3.7 起只保留 IndexedDB；旧镜像在成功写入后立即清掉。 */
+             从 v6.3.8 起只保留 IndexedDB；旧镜像在成功写入后立即清掉。 */
           try {
             localStorage.removeItem("gemini-chat-app-db");
             localStorage.removeItem("__mxg_ls_ts");
@@ -11987,7 +11987,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   const loadData = async () => {
-    /* v6.3.7：主数据只从 IndexedDB 读取。旧版 localStorage 整库镜像仅用于一次性迁移。 */
+    /* v6.3.8：主数据只从 IndexedDB 读取。旧版 localStorage 整库镜像仅用于一次性迁移。 */
     let oldData = null;
     try { oldData = localStorage.getItem("gemini-chat-app-db"); } catch (e) {}
     let data = await dataStorage.getData("\u9EBB\u8FA3\u9999\u9505\u9E21");
@@ -13195,7 +13195,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (!window.__quickShellDone) {
         window.__quickShellDone = 1;
-        /* v6.3.7：不再同步读取 localStorage 整库镜像，先渲染空壳，IndexedDB 加载后重建桌面 */
+        /* v6.3.8：不再同步读取 localStorage 整库镜像，先渲染空壳，IndexedDB 加载后重建桌面 */
         db.customIcons = db.customIcons || {};
         db.characters = db.characters || [];
         db.widgetTexts = db.widgetTexts || {};
@@ -16679,7 +16679,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const maxChars = Math.max(80, Math.floor(budget * 1.8));
     return raw.length > maxChars ? raw.slice(0, maxChars) + "…" : raw;
   }
-  const WB_CONSTANT_RULE_TEXT = "【世界书·常驻设定使用规则（必须执行）】\n以下常驻设定不是等你提问的资料库，而是角色已经生活在其中的世界、日常与记忆。不要等用户先提到才想起来。每轮回复前，先看当前话题、地点、时间和情绪，判断有没有相关的常驻设定；只要相关，就主动带出一个具体细节（地点、人物、习惯、物件、事件、规则或关系），让它成为聊天的一部分，而不是设定说明。\n即使这一轮用户完全没有提到这些设定，也可以从角色自己的日常、见闻、计划、回忆或身边正在发生的小事出发，自然提起相关设定。不要连续多轮把常驻设定完全搁置；但也不必每句都塞，选与当下最相关的一两条，像真实生活一样自然出现。\n禁止只在被问到“你知道XX吗”时才使用；禁止整段复述或罗列设定原文。";
+  const WB_CONSTANT_RULE_TEXT = "【世界书·常驻设定使用规则（必须执行）】\n以下常驻设定是角色已经生活在其中的世界、日常与记忆，不是等你提问的资料库。不要等用户先提到才想起来；但“使用”不等于“说出来”，也不是每条都要在台词里出现。\n每轮回复前，先看当前话题、地点、时间和情绪，判断哪些常驻设定正在起作用：\n1. 叙事性设定（地点、人物、关系、经历、习惯、物件、事件、氛围）：情境相关时，主动从角色自己的日常、见闻、计划、回忆或身边正在发生的小事里自然带出一个具体细节，让它成为聊天的一部分。即使这一轮用户没提，也可以自然提起；但不必每句都塞，也不要连续多轮完全搁置。\n2. 指令性/规则性设定（行为准则、世界规则、禁忌、格式、身份约束、关系边界等）：只需在角色的判断、选择、语气、行动和反应里默默遵守，不要说出来、解释、宣告或复述。能通过行为和细节体现的，就不要写成设定说明。\n禁止只在被问到“你知道XX吗”时才使用；禁止整段复述或罗列设定原文；也不要为了证明自己记得设定，硬让角色说一句本不该由他说出的规则。";
   function wbConstantRuleFor(books) {
     const list = Array.isArray(books) ? books : [];
     const hasConstant = list.some(function(b) {
