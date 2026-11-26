@@ -53,12 +53,26 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
   </div>
 
   <div class="card">
+    <h2>从 JSON 文件导入 <span id="fileBadge" class="badge">未选择</span></h2>
+    <div class="kv">
+      <div class="k">文件</div><div class="v" id="fileInfo">—</div>
+      <div class="k">内容</div><div class="v" id="fileCounts">—</div>
+    </div>
+    <input id="importFile" type="file" accept=".json,.ee,application/json" style="display:none">
+    <div class="btns">
+      <button class="btn ghost" id="pickFile">选择备份文件</button>
+      <button class="btn" id="importFileBtn" disabled>写入主库</button>
+    </div>
+    <div class="note">写入前会先把当前主库放进“导入前自动备份”。成功后回应用完全关闭再重开，不要马上刷新。</div>
+  </div>
+
+  <div class="card">
     <h2>localStorage 镜像 <span id="lsBadge" class="badge">检查中</span></h2>
     <div class="kv">
       <div class="k">内容</div><div class="v" id="lsInfo">—</div>
     </div>
     <div class="btns"><button class="btn ghost" id="exportLs" disabled>导出镜像 JSON</button><button class="btn warn" id="restoreLs" disabled>恢复到主库</button></div>
-    <div class="note">v6.3.14 启动时不再读取这个旧镜像；这里只用于你手动导出或恢复。</div>
+    <div class="note">v6.3.15 启动时不再读取这个旧镜像；这里只用于你手动导出或恢复。</div>
   </div>
 
   <div class="card">
@@ -202,6 +216,74 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
   $('exportPre').onclick=function(){ if(preData) download(preData,'麻辣香锅鸡_导入前备份_'+Date.now()+'.json'); };
   $('exportLs').onclick=function(){ if(lsData) download(lsData,'麻辣香锅鸡_旧镜像备份_'+Date.now()+'.json'); };
   $('restorePre').onclick=function(){ restore(preData,'导入前备份'); };
+  /* 从文件导入：绕开主应用按钮，恢复页直接读文件、先备份、再写主库。 */
+  var pendingImport=null;
+  function parseFileText(text){
+    var parsed;
+    try{ parsed=JSON.parse(text); }
+    catch(e){
+      throw new Error('不是有效 JSON；如果是 .ee 压缩备份，请用主应用的导入');
+    }
+    var data=null;
+    if(parsed && parsed.data && typeof parsed.data==='object' && !Array.isArray(parsed.data)) data=parsed.data;
+    else if(parsed && parsed.db && typeof parsed.db==='object') data=parsed.db;
+    else data=parsed;
+    if(!data || typeof data!=='object' || Array.isArray(data)) throw new Error('文件里没有有效的应用数据');
+    if(!Array.isArray(data.characters) && !Array.isArray(data.worldBooks) && !Array.isArray(data.groups) && !Array.isArray(data.masks)) throw new Error('不是麻辣香锅鸡的备份格式');
+    if(data.characters!==undefined && !Array.isArray(data.characters)) throw new Error('characters 不是数组');
+    if(data.groups!==undefined && !Array.isArray(data.groups)) throw new Error('groups 不是数组');
+    if(data.worldBooks!==undefined && !Array.isArray(data.worldBooks)) throw new Error('worldBooks 不是数组');
+    return data;
+  }
+  $('pickFile').onclick=function(){ $('importFile').click(); };
+  $('importFile').onchange=async function(){
+    var f=this.files && this.files[0];
+    pendingImport=null; $('importFileBtn').disabled=true;
+    if(!f){ $('fileBadge').className='badge'; $('fileBadge').textContent='未选择'; $('fileInfo').textContent='—'; $('fileCounts').textContent='—'; return; }
+    $('fileInfo').textContent=f.name+' · '+fmtSize(f.size);
+    $('fileBadge').className='badge warn'; $('fileBadge').textContent='读取中';
+    try{
+      if(f.size>20*1024*1024 && !confirm('这个备份约 '+(f.size/1048576).toFixed(1)+' MB，手机解析时可能内存不足。仍要继续吗？')) throw new Error('已取消读取大文件');
+      var text=await f.text();
+      var data=parseFileText(text);
+      pendingImport=data;
+      $('fileCounts').textContent=counts(data);
+      $('fileBadge').className='badge ok'; $('fileBadge').textContent='可导入';
+      $('importFileBtn').disabled=false;
+    }catch(e){
+      $('fileBadge').className='badge bad'; $('fileBadge').textContent='读取失败';
+      $('fileCounts').textContent=e.message||'无法读取文件';
+    }
+  };
+  $('importFileBtn').onclick=function(){
+    if(!pendingImport) return;
+    if(!confirm('将用这个文件覆盖主库。会先把当前主库放进导入前自动备份，确定继续？')) return;
+    var incoming=pendingImport;
+    openDb(DATA_DB).then(function(db){
+      if(!db){ alert('无法打开主数据库'); return; }
+      Promise.all([readKey(db,DATA_KEY),readKey(db,PRE_KEY)]).then(function(items){
+        var current=parseItem(items[0]);
+        var existingPre=parseItem(items[1]);
+        var currentHas=!!(current && Array.isArray(current.characters) && current.characters.length);
+        var preHas=!!(existingPre && existingPre.data && Array.isArray(existingPre.data.characters) && existingPre.data.characters.length);
+        var tx=db.transaction('storage','readwrite');
+        if(currentHas || !preHas){
+          tx.objectStore('storage').put({key:PRE_KEY,value:JSON.stringify({ts:Date.now(),data:current}),timestamp:Date.now()});
+        }
+        tx.objectStore('storage').put({key:DATA_KEY,value:JSON.stringify(incoming),timestamp:Date.now()});
+        tx.oncomplete=function(){
+          readKey(db,DATA_KEY).then(function(item){
+            var saved=parseItem(item);
+            var ok=!!(saved && (!Array.isArray(incoming.characters) || (Array.isArray(saved.characters)&&saved.characters.length===incoming.characters.length)));
+            if(ok){ $('status').textContent='已写入主库（'+counts(saved)+'）。回到应用完全关闭后重新打开。'; alert('导入成功。请回到应用完全关闭后重新打开。'); }
+            else { $('status').textContent='写入后回读校验失败；导入前备份已保留。'; alert('写入后校验失败，请先导出导入前备份。'); }
+            scan();
+          });
+        };
+        tx.onerror=function(){ alert('写入失败：'+((tx.error&&tx.error.message)||'未知错误')); };
+      });
+    }).catch(function(e){ alert('导入失败：'+e.message); });
+  };
   $('restoreLs').onclick=function(){ restore(lsData,'旧镜像'); };
   $('rescan').onclick=scan;
   scan();
