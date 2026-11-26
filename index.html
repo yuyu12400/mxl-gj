@@ -12268,7 +12268,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.36";
+  const APP_VERSION = "v6.3.37";
   let db = {
     characters: [],
     groups: [],
@@ -15290,6 +15290,35 @@ document.addEventListener("DOMContentLoaded", () => {
     clApplyCovers();
     clApplySearch();
   }
+  /* v6.3.37：消息列表里把 HTML 卡片显示成 [触发关键词] */
+  function mxgHtmlLabel(content) {
+    const html = String(content || "");
+    if (!/<(!doctype|html|style|div|section|table|article|figure)/i.test(html)) return "";
+    let probe = "";
+    try {
+      probe = ((html.match(/<title[^>]*>([\s\S]*?)<\/title>/i) || [])[1] || "").trim();
+    } catch (e) {}
+    if (!probe) {
+      const cls = html.match(/class="([^"]+)"/i);
+      if (cls) probe = String(cls[1]).split(/\s+/)[0];
+    }
+    let label = "";
+    try {
+      const list = Array.isArray(db.worldBooks) ? db.worldBooks : [];
+      const plain = html.replace(/<[^>]+>/g, "").replace(/\s+/g, "").slice(0, 28);
+      const hit = list.find(function(b) {
+        const bc = String((b && b.content) || "");
+        if (probe && bc.indexOf(probe) >= 0) return true;
+        if (plain.length > 8) {
+          const bcp = bc.replace(/<[^>]+>/g, "").replace(/\s+/g, "");
+          if (bcp.indexOf(plain) >= 0) return true;
+        }
+        return false;
+      });
+      if (hit) label = (Array.isArray(hit.keys) && hit.keys[0]) || hit.name || "";
+    } catch (e) {}
+    return "[" + (label || probe || "卡片") + "]";
+  }
   function renderChatList() {
     const cfg = clConfig();
     const pinnedUl = document.getElementById("chat-list-pinned");
@@ -15317,7 +15346,7 @@ document.addEventListener("DOMContentLoaded", () => {
       edLabel.textContent = "CONVERSATIONS / " + MON[now.getMonth()] + " " + String(now.getDate()).padStart(2, "0");
     }
     sortedChats.forEach((chat) => {
-      chat.history = chatHistoryView(chat);
+      chat.history = mxgMergeHtmlRuns(chatHistoryView(chat));
       let lastMessageText = "\u5F00\u59CB\u804A\u5929\u5427...";
       if (chat.history && chat.history.length > 0) {
         const invisibleRegex = /\[.*?(?:接收|退回).*?的转账\]|\[.*?更新状态为：.*?\]|\[.*?已接收礼物\]|\[system:.*?\]|\[.*?邀请.*?加入了群聊\]|\[.*?修改群名为：.*?\]|\[system-display:.*?\]/;
@@ -15344,7 +15373,9 @@ document.addEventListener("DOMContentLoaded", () => {
           } else if (imageRecogRegex.test(lastMsg.content) || lastMsg.parts && lastMsg.parts.some((p) => p.type === "image")) {
             lastMessageText = "[\u56FE\u7247]";
           } else if (lastMsg.parts && lastMsg.parts.some((p) => p.type === "html")) {
-            lastMessageText = "[\u4E92\u52A8]";
+            lastMessageText = mxgHtmlLabel((lastMsg.parts.find((p) => p.type === "html") || {}).text || lastMsg.content) || "[\u4E92\u52A8]";
+          } else if (mxgHtmlLabel(lastMsg.content)) {
+            lastMessageText = mxgHtmlLabel(lastMsg.content);
           } else {
             const textMatch = lastMsg.content.match(/\[.*?的消息：([\s\S]+)\]/);
             let text = textMatch ? textMatch[1].trim() : lastMsg.content.trim();
@@ -17722,7 +17753,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       let out = "";
       const hasHtml = (books || []).some(function(b){ return /```html|<(div|section|table|article|figure|header|footer|ul|ol|blockquote)[\s>]/i.test(String(b.content || "")); });
-      if (hasHtml) out += "【HTML 卡片·模板 · 必须遵守】条目里给出的 HTML 是模板，不是成品。要按当前情境把模板里的占位内容换成真实内容（占位符通常是 {{字段}}、[[字段]]、{字段}，或明显的提示文字如“名字/价格/时间”），再输出由 ```html 开头、``` 结尾的完整 HTML；标签结构、class 与内联样式保持不动，只替换内容，列表处按实际条数增删。不要照抄占位符，不要改动配色和布局；整张卡片必须放在同一条消息里，中间不许拆分、不许插 [open] 这类方括号标记；除卡片外不要再发一条消息解释这张卡片。\n";
+      if (hasHtml) out += "【HTML 卡片·模板 · 必须遵守】条目里给出的 HTML 是模板，不是成品。要按当前情境把模板里的占位内容换成真实内容（占位符通常是 {{字段}}、[[字段]]、{字段}，或明显的提示文字如“名字/价格/时间”），再输出由 ```html 开头、``` 结尾的完整 HTML；标签结构、class 与内联样式保持不动，只替换内容，列表处按实际条数增删。不要照抄占位符，不要改动配色和布局；整张卡片必须放在同一条消息里，中间不许拆分、不许插 [open] 这类方括号标记。卡片发完之后可以另起一条普通消息接着说，但不要把文字塞进卡片中间，也不要在话里复述卡片内容。\n";
       const p = Math.max(0, Math.min(100, parseInt((db.worldBookSettings || {}).htmlRandom, 10) || 0));
       if (p >= 100) { out += "【HTML 卡片·随机 · 必须】这一轮必须发一张与当前情境相关的 HTML 卡片，用 ```html 与 ``` 包裹、单独一条完整消息发出，内容贴合此刻的人、地点、物品或事件；同一张卡片不要拆开，也不要用文字复述卡片内容。\n"; }
       else if (p > 0 && Math.random() * 100 < p) out += "【HTML 卡片·随机】这一轮可以额外发一张与当前情境相关的 HTML 卡片，用 ```html 与 ``` 包裹、单独一条消息发出，内容贴合此刻的人、地点、物品或事件；卡片刻度约 320px 宽，配色跟随聊天界面，不必每轮都发。\n";
