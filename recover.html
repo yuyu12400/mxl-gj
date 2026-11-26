@@ -40,12 +40,25 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
   </div>
 
   <div class="card">
+    <h2>导入前自动备份 <span id="preBadge" class="badge">检查中</span></h2>
+    <div class="kv">
+      <div class="k">内容</div><div class="v" id="preInfo">—</div>
+      <div class="k">备份时间</div><div class="v" id="preTs">—</div>
+    </div>
+    <div class="btns">
+      <button class="btn ghost" id="exportPre" disabled>导出这份备份</button>
+      <button class="btn warn" id="restorePre" disabled>恢复到主库</button>
+    </div>
+    <div class="note">每次导入 JSON 前自动写入；导入失败或覆盖错时可从这里找回。</div>
+  </div>
+
+  <div class="card">
     <h2>localStorage 镜像 <span id="lsBadge" class="badge">检查中</span></h2>
     <div class="kv">
       <div class="k">内容</div><div class="v" id="lsInfo">—</div>
     </div>
     <div class="btns"><button class="btn ghost" id="exportLs" disabled>导出镜像 JSON</button><button class="btn warn" id="restoreLs" disabled>恢复到主库</button></div>
-    <div class="note">v6.3.12 启动时不再读取这个旧镜像；这里只用于你手动导出或恢复。</div>
+    <div class="note">v6.3.13 启动时不再读取这个旧镜像；这里只用于你手动导出或恢复。</div>
   </div>
 
   <div class="card">
@@ -59,8 +72,8 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
 </div>
 <script>
 (function(){
-  var DATA_DB='麻辣香锅鸡DB', DATA_KEY='麻辣香锅鸡';
-  var mainData=null, lsData=null;
+  var DATA_DB='麻辣香锅鸡DB', DATA_KEY='麻辣香锅鸡', PRE_KEY='mxl-pre-import-backup';
+  var mainData=null, lsData=null, preData=null;
   var $=function(id){return document.getElementById(id)};
   function fmtSize(n){ if(!n&&n!==0) return '—'; if(n<1024) return n+' B'; if(n<1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(2)+' MB'; }
   function fmtTs(ts){ if(!ts) return '—'; try{ return new Date(Number(ts)).toLocaleString('zh-CN',{hour12:false}); }catch(e){return String(ts)} }
@@ -120,7 +133,8 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
   function scan(){
     $('status').textContent='正在读取……';
     openDb(DATA_DB).then(function(db){
-      return readKey(db,DATA_KEY).then(function(item){
+      return Promise.all([readKey(db,DATA_KEY), readKey(db,PRE_KEY)]).then(function(items){
+        var item=items[0], preItem=items[1];
         mainData=parseItem(item);
         var mainBadge=$('mainBadge');
         if(mainData && Array.isArray(mainData.characters) && mainData.characters.length){
@@ -136,6 +150,17 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
         $('mainSize').textContent=item?fmtSize((item.value||'').length):'—';
         $('exportMain').disabled=!mainData;
 
+        var preWrap=parseItem(preItem);
+        preData=preWrap && preWrap.data && typeof preWrap.data==='object' ? preWrap.data : null;
+        if(preData && Array.isArray(preData.characters) && preData.characters.length){
+          $('preBadge').className='badge ok'; $('preBadge').textContent='有备份';
+        }else{
+          $('preBadge').className='badge'; $('preBadge').textContent=preData?'备份存在，角色为空':'没有导入前备份';
+        }
+        $('preInfo').textContent=preData?counts(preData):'—';
+        $('preTs').textContent=preWrap&&preWrap.ts?fmtTs(preWrap.ts):'—';
+        $('exportPre').disabled=!preData; $('restorePre').disabled=!preData;
+
         var raw=null;
         try{ raw=localStorage.getItem('gemini-chat-app-db'); }catch(e){}
         lsData=null; if(raw){ try{ lsData=JSON.parse(raw); }catch(e){} }
@@ -149,10 +174,12 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
 
         if(mainData && mainData.characters && mainData.characters.length){
           $('status').textContent='主库存在角色数据。回到应用等页面完全加载；如果应用仍空白，再从上面导出 JSON。';
+        }else if(preData && preData.characters && preData.characters.length){
+          $('status').textContent='主库角色为空，但发现了导入前自动备份。先导出留底，再决定是否恢复到主库。';
         }else if(lsData){
-          $('status').textContent='主库没有角色，但 localStorage 还有旧镜像。v6.3.12 不会自动读它；先导出留底，再决定是否手动恢复。';
+          $('status').textContent='主库没有角色，但 localStorage 还有旧镜像。启动时不会自动读它；先导出留底，再决定是否手动恢复。';
         }else{
-          $('status').textContent='当前浏览器的主库和旧镜像都没有角色数据。先不要清缓存；如果还有旧标签页开着，去那里导出 JSON。';
+          $('status').textContent='当前浏览器的主库、导入前备份和旧镜像都没有角色数据。先不要清缓存；如果还有旧标签页开着，去那里导出 JSON。';
         }
       });
     }).catch(function(e){ $('status').textContent='读取失败：'+e.message; });
@@ -172,7 +199,9 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
     }
   }
   $('exportMain').onclick=function(){ if(mainData) download(mainData,'麻辣香锅鸡_主库备份_'+Date.now()+'.json'); };
+  $('exportPre').onclick=function(){ if(preData) download(preData,'麻辣香锅鸡_导入前备份_'+Date.now()+'.json'); };
   $('exportLs').onclick=function(){ if(lsData) download(lsData,'麻辣香锅鸡_旧镜像备份_'+Date.now()+'.json'); };
+  $('restorePre').onclick=function(){ restore(preData,'导入前备份'); };
   $('restoreLs').onclick=function(){ restore(lsData,'旧镜像'); };
   $('rescan').onclick=scan;
   scan();
