@@ -10477,7 +10477,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane is-on" data-offline-pane="meet">
                 <div class="o404-clock-row">
                     <div class="o404-clock" id="o404-time">20:14</div>
-                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.19</span></div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.20</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR MOMENT</span>
@@ -10510,7 +10510,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:16</div>
-                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.19</span></div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.20</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR CAST</span>
@@ -10522,7 +10522,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="story">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:18</div>
-                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.19</span></div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.20</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR STORY</span>
@@ -11329,10 +11329,15 @@ document.addEventListener("DOMContentLoaded", () => {
         var swState = "未注册";
         try { swState = (navigator.serviceWorker && navigator.serviceWorker.controller) ? "已接管" : "未接管"; } catch (eSw) {}
         var errText = window.__mxgLastError ? (window.__mxgLastError.msg || "") : "无";
-        diagEl.innerHTML = "主库：" + (window.__mxgMainBytes ? __mxgFmtSize(window.__mxgMainBytes) : "未知") +
-          " · 角色 " + ((db.characters || []).length) +
-          " · 本地主库有角色：" + (window.__mxgMainHasChars ? "是" : "否") +
+        var tr = [];
+        try { tr = JSON.parse(localStorage.getItem("mxl-trace") || "[]").slice(-3); } catch (eTr) { tr = []; }
+        diagEl.innerHTML = "core：" + (window.__mxgMainBytes ? __mxgFmtSize(window.__mxgMainBytes) : "未知") +
+          " · 分片 " + ((window.__mxgShardKeys || []).length) + " 个" +
+          (window.__mxgShardMissing ? "（缺 " + window.__mxgShardMissing + "）" : "") +
+          "<br>角色 " + ((db.characters || []).length) + " · 已加载内存 " + (window.__mxgMemMB ? window.__mxgMemMB() + "MB" : "-") +
+          " · 本地有角色：" + (window.__mxgMainHasChars ? "是" : "否") +
           "<br>SW：" + swState + " · 加载来源：" + (window.__mxgLoadSource || "-") +
+          "<br>启动步骤：" + escapeHtml(tr.map(function (x) { return x[1]; }).join(" → ") || "-") +
           "<br>上次错误：" + escapeHtml(String(errText).slice(0, 80));
       }
     } catch (eDiag) {}
@@ -11458,6 +11463,222 @@ document.addEventListener("DOMContentLoaded", () => {
   var MXG_PRE_RAW_KEY = "mxl-pre-import-raw";
   var MXG_IMPORT_FLAG = "mxl-importing";
 
+  /* ============ v6.3.20 分片持久化 ============
+     旧结构：整库一条记录（key=麻辣香锅鸡），改一个字就要 stringify 整个库再整条覆盖。
+     新结构：
+       mxg-core           设置 / 角色与群的基础信息 / 其它所有模块（history 置空）
+       mxg-chat:c:<id>    角色会话历史
+       mxg-chat:g:<id>    群聊历史
+       "麻辣香锅鸡"        旧的单条整库，迁移后不再写，保留 7 天可回退
+     启动时把分片拼回同一个 db 对象，上层业务代码不用改。 */
+  var MXG_CORE_KEY = "mxg-core";
+  var MXG_CHAT_PREFIX = "mxg-chat:";
+  var MXG_LEGACY_KEEP_MS = 7 * 24 * 3600 * 1000;
+  var MXG_MOD_PREFIX = "mxg-mod:";
+  var MXG_MOD_MAX = 256 * 1024; /* 单个模块超过 256KB 就单独存一条，别拖累 core */
+  function __mxgModKey(name) { return MXG_MOD_PREFIX + String(name); }
+
+  /* 启动/导入步骤留痕：Edge 崩了之后重开能看到死在哪一步 */
+  function __mxgTrace(step) {
+    try {
+      var t = [];
+      try { t = JSON.parse(localStorage.getItem("mxl-trace") || "[]"); } catch (e0) { t = []; }
+      if (!Array.isArray(t)) t = [];
+      t.push([Date.now(), String(step), (window.__mxgMemMB ? window.__mxgMemMB() : 0)]);
+      if (t.length > 40) t = t.slice(-40);
+      localStorage.setItem("mxl-trace", JSON.stringify(t));
+    } catch (e1) {}
+  }
+  window.__mxgMemMB = function () {
+    try { return Math.round(((performance && performance.memory && performance.memory.usedJSHeapSize) || 0) / 1048576); } catch (e) { return 0; }
+  };
+  window.__mxgTrace = __mxgTrace;
+
+  function __mxgChatKey(kind, id) { return MXG_CHAT_PREFIX + (kind === "group" ? "g" : "c") + ":" + String(id); }
+
+  function __mxgSplitDB(src) {
+    var core = {}, mods = [];
+    Object.keys(src).forEach(function (k) {
+      if (k === "characters" || k === "groups") return;
+      var text = null;
+      try { text = JSON.stringify(src[k]); } catch (eK) { text = null; }
+      /* 图片、动态这类大块单独一条记录：改设置时就不用重写整块图片 */
+      if (text && text.length > MXG_MOD_MAX) { mods.push({ key: __mxgModKey(k), text: text }); return; }
+      core[k] = src[k];
+    });
+    function strip(list, kind) {
+      var bare = [], shards = [];
+      (list || []).forEach(function (item) {
+        var copy = {};
+        Object.keys(item).forEach(function (k) { if (k !== "history") copy[k] = item[k]; });
+        copy.history = [];
+        bare.push(copy);
+        shards.push({ key: __mxgChatKey(kind, item.id), kind: kind, id: item.id, history: item.history || [] });
+      });
+      return { bare: bare, shards: shards };
+    }
+    var ch = strip(src.characters, "char");
+    var gr = strip(src.groups, "group");
+    core.characters = ch.bare;
+    core.groups = gr.bare;
+    return { core: core, mods: mods, shards: ch.shards.concat(gr.shards) };
+  }
+  function __mxgMergeDB(core, shardMap) {
+    (core.characters || []).forEach(function (item) {
+      var sh = shardMap[__mxgChatKey("char", item.id)];
+      item.history = sh && Array.isArray(sh.history) ? sh.history : [];
+    });
+    (core.groups || []).forEach(function (item) {
+      var sh = shardMap[__mxgChatKey("group", item.id)];
+      item.history = sh && Array.isArray(sh.history) ? sh.history : [];
+    });
+    return core;
+  }
+
+  /* 只写变动的分片：发一条消息只写这个会话那几百 KB，不再整库重写 */
+  async function __mxgSaveSharded(payload, opts) {
+    var parts;
+    try { parts = __mxgSplitDB(payload); } catch (e0) {
+      window.__lastSave = { ok: false, err: "split:" + (e0 && e0.message), ts: Date.now(), size: 0 };
+      return false;
+    }
+    var cache = window.__mxgShardTexts || (window.__mxgShardTexts = {});
+    var next = {}, puts = [], dels = [];
+    var ts = Date.now(), total = 0, forced = !!(opts && opts.force);
+    parts.shards.forEach(function (sh) {
+      var text;
+      try { text = JSON.stringify({ id: sh.id, kind: sh.kind, history: sh.history }); } catch (eS) { text = null; }
+      if (text === null) return;
+      total += text.length;
+      next[sh.key] = text;
+      if (forced || cache[sh.key] !== text) puts.push({ key: sh.key, value: text, timestamp: ts });
+    });
+    parts.mods.forEach(function (m) {
+      total += m.text.length;
+      next[m.key] = m.text;
+      if (forced || cache[m.key] !== m.text) puts.push({ key: m.key, value: m.text, timestamp: ts });
+    });
+    Object.keys(cache).forEach(function (k) { if (next[k] === undefined) dels.push(k); });
+    var coreText = JSON.stringify(parts.core);
+    total += coreText.length;
+    var needCore = forced || window.__mxgCoreText !== coreText;
+    try {
+      await dataStorage.db.transaction("rw", dataStorage.db.storage, async function () {
+        var table = dataStorage.db.storage;
+        if (dels.length) await table.bulkDelete(dels);
+        if (puts.length) await table.bulkPut(puts);
+        if (needCore) await table.put({ key: MXG_CORE_KEY, value: coreText, timestamp: ts });
+      });
+      window.__mxgShardTexts = next;
+      window.__mxgCoreText = coreText;
+      window.__mxgShardKeys = Object.keys(next);
+      window.__mxgMainBytes = total;
+      window.__lastSave = { ok: true, err: "", ts: ts, size: total, key: MXG_CORE_KEY };
+      return true;
+    } catch (e1) {
+      window.__lastSave = { ok: false, err: ((e1 && e1.name) + ":" + (e1 && e1.message)), ts: Date.now(), size: total, key: MXG_CORE_KEY };
+      console.error("分片保存失败:", e1);
+      return false;
+    }
+  }
+
+  /* 按 core 里的会话清单读分片，拼回完整 db */
+  async function __mxgLoadShards(core) {
+    var keys = [];
+    (core.characters || []).forEach(function (c) { keys.push(__mxgChatKey("char", c.id)); });
+    (core.groups || []).forEach(function (g) { keys.push(__mxgChatKey("group", g.id)); });
+    var map = {};
+    if (keys.length) {
+      var items = null;
+      try { items = await dataStorage.db.storage.bulkGet(keys); } catch (e0) {}
+      (items || []).forEach(function (it) {
+        if (!it || typeof it.value !== "string") return;
+        try {
+          var v = JSON.parse(it.value);
+          if (v && Array.isArray(v.history)) {
+            map[it.key] = v;
+            if (!window.__mxgShardTexts) window.__mxgShardTexts = {};
+            window.__mxgShardTexts[it.key] = it.value;
+          }
+        } catch (e1) {}
+      });
+    }
+    /* 外置的大模块（图片、动态等） */
+    try {
+      var allKeys0 = await dataStorage.db.storage.toCollection().primaryKeys();
+      var modKeys = (allKeys0 || []).filter(function (k) {
+        return typeof k === "string" && k.indexOf(MXG_MOD_PREFIX) === 0;
+      });
+      if (modKeys.length) {
+        var modItems = await dataStorage.db.storage.bulkGet(modKeys);
+        if (!window.__mxgShardTexts) window.__mxgShardTexts = {};
+        (modItems || []).forEach(function (it) {
+          if (!it || typeof it.value !== "string") return;
+          try {
+            core[it.key.slice(MXG_MOD_PREFIX.length)] = JSON.parse(it.value);
+            window.__mxgShardTexts[it.key] = it.value;
+            keys.push(it.key);
+          } catch (eM) { console.warn("模块解析失败", it.key, eM); }
+        });
+      }
+    } catch (eMod) { console.warn("模块读取失败", eMod); }
+    __mxgMergeDB(core, map);
+    window.__mxgShardKeys = keys;
+    window.__mxgShardMissing = keys.filter(function (k) { return !map[k]; }).length;
+    /* 清掉已删除会话留下的孤儿分片 */
+    try {
+      var allKeys = await dataStorage.db.storage.toCollection().primaryKeys();
+      var shadow = {};
+      keys.forEach(function (k) { shadow[k] = 1; });
+      var orphans = (allKeys || []).filter(function (k) {
+        return typeof k === "string" && (k.indexOf(MXG_CHAT_PREFIX) === 0 || k.indexOf(MXG_MOD_PREFIX) === 0) && !shadow[k];
+      });
+      if (orphans.length) await dataStorage.db.storage.bulkDelete(orphans);
+    } catch (e2) {}
+    return core;
+  }
+
+  /* 第一次启动新版本：把旧的单条整库拆成 core + 分片，旧记录原样留着当回退 */
+  async function __mxgMigrateFromLegacy() {
+    var keys = [MXG_MAIN_KEY, MXG_PRE_RAW_KEY, MXG_PRE_KEY];
+    for (var i = 0; i < keys.length; i++) {
+      var raw = "";
+      try { raw = await __mxgRawOf(keys[i]); } catch (e0) {}
+      if (!raw) continue;
+      var text = keys[i] === MXG_MAIN_KEY ? raw : __mxgPayloadTextFromBackup(raw);
+      if (!text) continue;
+      var data = null;
+      try { data = JSON.parse(text); } catch (e1) {}
+      if (!data || typeof data !== "object" || Array.isArray(data)) continue;
+      if (!Array.isArray(data.characters) && !Array.isArray(data.worldBooks) && !Array.isArray(data.groups) && !Array.isArray(data.masks)) continue;
+      var item = null;
+      try { item = await dataStorage.db.storage.get(keys[i]); } catch (e2) {}
+      var srcTs = (item && Number(item.timestamp)) || 0;
+      window.__mxgLoadSource = keys[i] === MXG_MAIN_KEY ? "migrate-legacy" : "pre-import-backup";
+      var ok = await __mxgSaveSharded(data, { force: true });
+      if (ok) {
+        try {
+          localStorage.setItem("mxl-legacy-kept-at", String(Date.now()));
+          if (srcTs) window.__mxgMigratedTs = srcTs;
+        } catch (e3) {}
+      }
+      return data;
+    }
+    return null;
+  }
+
+  /* 旧整库满 7 天就清掉，避免一直占着一份重复数据 */
+  function __mxgMaybeDropLegacy() {
+    try {
+      var keptAt = Number(localStorage.getItem("mxl-legacy-kept-at") || 0);
+      if (!keptAt || Date.now() - keptAt < MXG_LEGACY_KEEP_MS) return;
+      dataStorage.db.storage.delete(MXG_MAIN_KEY).then(function () {
+        localStorage.removeItem("mxl-legacy-kept-at");
+        console.log("旧整库已超过 7 天保留期，已清理");
+      }).catch(function () {});
+    } catch (e) {}
+  }
+
   /* 从备份原文里直接切出 data 对象文本，避免为了写库再把整库 stringify 一遍 */
   function __mxgMatchBrace(text, start) {
     var depth = 0, inStr = false, esc = false;
@@ -11509,13 +11730,13 @@ document.addEventListener("DOMContentLoaded", () => {
     window.__stgBusy = true;
     try {
       await __mxgWaitReady(8000);
-      var rawMain = await __mxgRawMain();
+      var rawMain = await __mxgRawOf(MXG_CORE_KEY);
       var payload = buildBackupPayload();
       var chars = (payload.data && payload.data.characters) || [];
       /* 空壳保护：IDB 里明明有角色、内存里却读到 0 个，说明 loadData 还没把数据装进 db。
          用原始字符串判断，既不解析大库，也不会误伤“本来就没有角色”的小库。 */
       if (!chars.length && /"characters"\s*:\s*\[\s*\{/.test(rawMain)) {
-        throw new Error("数据还没加载完（主库约 " + __mxgFmtSize(rawMain.length) + "），请等几秒再导出");
+        throw new Error("数据还没加载完（core 约 " + __mxgFmtSize(rawMain.length) + "），请等几秒再导出");
       }
       var jsonString = JSON.stringify(payload); /* 紧凑输出：体积与内存都更省 */
       payload = null;
@@ -11578,32 +11799,27 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (!ok) { if (inputEl) inputEl.value = ""; return; }
     window.__stgBusy = true;
-    var rawCurrent = "";   /* 导入前主库的原始字符串，失败时原样回滚 */
-    var wroteMain = false;
     try {
       await __mxgWaitReady(8000);
       if (file.size > 10 * 1024 * 1024) {
-        var bigOk = await uiConfirm("这个备份约 " + __mxgFmtSize(file.size) + "。手机上解析大文件可能内存不足而闪退；建议在电脑上导入。仍要继续吗？", "继续导入", true);
+        var bigOk = await uiConfirm("这个备份约 " + __mxgFmtSize(file.size) + "。手机上解析大文件可能内存不足而退出；建议在电脑上导入。仍要继续吗？", "继续导入", true);
         if (!bigOk) { if (inputEl) inputEl.value = ""; return; }
       }
+      __mxgTrace("import:read");
       var text = await file.text();
       var parsed = null;
       try {
         parsed = JSON.parse(text);
       } catch (jsonErr) {
-        var decompressed = null;
         try {
-          decompressed = await new Response(file.stream().pipeThrough(new DecompressionStream("gzip"))).text();
+          var decompressed = await new Response(file.stream().pipeThrough(new DecompressionStream("gzip"))).text();
           parsed = JSON.parse(decompressed);
+          decompressed = null;
         } catch (gzErr) {
           throw new Error("不是有效的 JSON 备份，也不是 gzip 压缩包（文件可能损坏或被截断）");
-        } finally {
-          decompressed = null;
         }
       }
-      /* 先切出 data 原文（后面直接拿它写库），再把整份文本释放 */
-      var payloadText = __mxgPayloadTextFromBackup(text);
-      text = null; /* 尽早释放整份文本，降低峰值内存 */
+      text = null; /* 原始文本尽早释放，只保留解析后的对象 */
       var data = null, localData = {};
       if (parsed && parsed.data && typeof parsed.data === "object" && !Array.isArray(parsed.data)) {
         data = parsed.data;
@@ -11624,81 +11840,23 @@ document.addEventListener("DOMContentLoaded", () => {
       MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
         if (typeof localData[key] === "string") data.__localKV[key] = localData[key];
       });
-
-      /* 先备份当前主库。这里直接复制 IDB 里的原始字符串：
-         不 parse 旧库、不重新 stringify，手机上少一份整库对象的峰值内存。 */
-      rawCurrent = await __mxgRawMain();
-      var currentHasChars = !!(db && Array.isArray(db.characters) && db.characters.length);
-      var preRaw = "";
-      try { preRaw = await __mxgRawOf(MXG_PRE_KEY); } catch (preErr) {}
-      var existingHasChars = /"characters"\s*:\s*\[\s*\{/.test(preRaw);
-      preRaw = null;
-      if (currentHasChars) {
-        var snapOk = false;
-        try {
-          if (rawCurrent && rawCurrent.length > 8 * 1024 * 1024) {
-            /* 大库：原始串直接存一个键，不再包一层 {ts,data}，省掉一份整库拷贝 */
-            await dataStorage.db.storage.put({ key: MXG_PRE_RAW_KEY, value: rawCurrent, timestamp: Date.now() });
-            snapOk = true;
-          } else {
-            var snapValue = '{"ts":' + Date.now() + ',"data":' + (rawCurrent || JSON.stringify(db)) + '}';
-            await dataStorage.db.storage.put({ key: MXG_PRE_KEY, value: snapValue, timestamp: Date.now() });
-            snapValue = null;
-            snapOk = true;
-          }
-        } catch (snapErr) { console.error("导入前备份写入失败:", snapErr); }
-        if (!snapOk) throw new Error("无法备份当前数据（可能存储空间不足），已取消导入");
-      } else if (existingHasChars) {
-        showToast("已保留上一次有数据的导入前备份，本次不再用空库覆盖它。");
-      }
-
-      /* v6.3.19：直接把备份原文写进主库，不再 JSON.stringify 整库，也不回读整库做校验。
-         IDB 的单次 put 是事务性的，写成功即完整；对象树用完立刻丢掉，手机内存峰值少一半。 */
-      if (!payloadText) throw new Error("备份文件里没有有效的应用数据");
-      if (!/"characters"|"worldBooks"|"groups"|"masks"/.test(payloadText.slice(0, 4000000))) {
-        throw new Error("备份文件不是麻辣香锅鸡的数据格式");
-      }
-      if (data && data.__localKV && Object.keys(data.__localKV).length > 0 && !/"__localKV"\s*:/.test(payloadText)) {
-        payloadText = payloadText.slice(0, payloadText.length - 1) + ',"__localKV":' + JSON.stringify(data.__localKV) + "}";
-      }
-      var payloadLen = payloadText.length;
-      text = null;
-      parsed = null;
-      data = null;
+      __mxgTrace("import:parsed");
       try { localStorage.setItem(MXG_IMPORT_FLAG, String(Date.now())); } catch (eFlag) {}
-      await dataStorage.db.storage.put({ key: MXG_MAIN_KEY, value: payloadText, timestamp: Date.now() });
-      wroteMain = true;
-      window.__mxgMainBytes = payloadLen;
-      window.__lastSave = { ok: true, err: "", ts: Date.now(), size: payloadLen, key: MXG_MAIN_KEY };
-      payloadText = null;
+      /* 分片 + core 一次事务写入：要么整体生效，要么完全不动，旧数据不会写坏 */
+      var okWrite = await __mxgSaveSharded(data, { force: true });
+      if (!okWrite) throw new Error("写入本地存储失败（可能空间不足或权限被拒）");
+      __mxgTrace("import:written");
       MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
         try { localStorage.removeItem(key); } catch (e2) {}
       });
       showToast("数据已恢复，应用即将刷新。");
-      setTimeout(function () { window.location.reload(); }, 1200);
+      setTimeout(function () { window.location.reload(); }, 1000);
     } catch (e) {
       console.error("导入失败:", e);
-      if (wroteMain) {
-        /* 关键修复：写坏了要回滚，不能把坏数据留在主库 */
-        try {
-          if (rawCurrent) {
-            await dataStorage.db.storage.put({ key: MXG_MAIN_KEY, value: rawCurrent, timestamp: Date.now() });
-            showToast("导入失败，已回滚到导入前的数据：" + (e.message || "未知错误"));
-          } else {
-            await dataStorage.removeData(MXG_MAIN_KEY);
-            showToast("导入失败，已清空这次写入：" + (e.message || "未知错误"));
-          }
-          setTimeout(function () { window.location.reload(); }, 1200);
-        } catch (rbErr) {
-          console.error("回滚失败:", rbErr);
-          showToast("导入失败，且回滚失败：" + (e.message || "未知错误"));
-        }
-      } else {
-        showToast("导入失败：" + (e.message || "无法读取备份文件"));
-      }
+      try { localStorage.removeItem(MXG_IMPORT_FLAG); } catch (x) {}
+      showToast("导入失败，原有数据未受影响：" + (e.message || "无法读取备份文件"));
     } finally {
       window.__stgBusy = false;
-      rawCurrent = null;
       if (inputEl) inputEl.value = "";
     }
   }
@@ -11755,7 +11913,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="stg-eyebrow" id="stg-eyebrow">SETTINGS / 04</div>
       <div class="stg-title" id="stg-title">设置</div>
     </div>
-    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.19</b><span id="stg-status">READY</span></div>
+    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.20</b><span id="stg-status">READY</span></div>
   </div>
   <div class="stg-views">
     <section class="stg-view active" data-stg-page="home">
@@ -11769,7 +11927,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <button type="button" class="stg-item" data-stg-go="data"><span class="num">02</span><span class="main"><b>数据 / DATA</b><em>数据分布与内存占用 · 导出 / 导入 JSON</em></span><span class="arrow">↗</span></button>
         <button type="button" class="stg-item" data-stg-go="look"><span class="num">03</span><span class="main"><b>外观 / LOOK</b><em>壁纸、日夜、字体与桌面图标</em></span><span class="arrow">↗</span></button>
       </div>
-      <div class="stg-foot">MXG / SETTINGS — V6.3.19</div>
+      <div class="stg-foot">MXG / SETTINGS — V6.3.20</div>
     </section>
 
     <section class="stg-view" data-stg-page="api">
@@ -11950,7 +12108,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.19";
+  const APP_VERSION = "v6.3.20";
   let db = {
     characters: [],
     groups: [],
@@ -12201,7 +12359,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return Promise.resolve(false);
     }
     const payloadHasChars = !!(payload && Array.isArray(payload.characters) && payload.characters.length);
-    __saveChain = __saveChain.catch(() => false).then(() => dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", payload));
+    __saveChain = __saveChain.catch(() => false).then(() => __mxgSaveSharded(payload));
     __saveChain.then((ok) => {
       if (ok && payloadHasChars) window.__mxgMainHasChars = true;
       if (!ok) __mxgNotifySaveFail();
@@ -12277,71 +12435,47 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   const loadData = async () => {
-    /* v6.3.12：主数据只认 IndexedDB 里的“麻辣香锅鸡DB”。
-       不读 localStorage 整库镜像，也不再读取“章鱼喷墨机DB”旧库。 */
-    /* v6.3.19：主库只读一次原始字符串，再解析；避免同一份 30MB 被读两遍 */
-    var mainItem = null;
-    try { mainItem = await dataStorage.db.storage.get("\u9EBB\u8FA3\u9999\u9505\u9E21"); } catch (e0) {}
-    let data = null;
-    let dbTs = 0;
-    var mainRaw = mainItem && typeof mainItem.value === "string" ? mainItem.value : "";
-    if (mainItem) {
-      dbTs = Number(mainItem.timestamp) || 0;
-      window.__mxgMainBytes = mainRaw.length;
+    __mxgTrace("load:start");
+    /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
+    var coreItem = null;
+    try { coreItem = await dataStorage.db.storage.get(MXG_CORE_KEY); } catch (e0) {}
+    var coreRaw = coreItem && typeof coreItem.value === "string" ? coreItem.value : "";
+    var dbTs = coreItem ? (Number(coreItem.timestamp) || 0) : 0;
+    window.__mxgMainBytes = coreRaw.length;
+    var data = null, coreBad = false;
+    if (coreRaw) {
+      try { data = JSON.parse(coreRaw); } catch (e1) { coreBad = true; console.error("core 解析失败：", e1); }
     }
-    var mainParseFailed = false;
-    if (mainRaw) {
-      try {
-        data = JSON.parse(mainRaw);
-      } catch (parseErr) {
-        mainParseFailed = true;
-        console.error("主库解析失败：", parseErr);
-      }
+    var coreHasChars = /"characters"\s*:\s*\[\s*\{/.test(coreRaw);
+    window.__mxgCoreText = coreRaw || null;
+    coreRaw = null;
+    coreItem = null;
+    if (!data || coreBad || Array.isArray(data) || !Array.isArray(data.characters)) {
+      /* core 缺失或损坏：从旧的单条整库迁移，失败再退回导入前备份 */
+      data = await __mxgMigrateFromLegacy();
+      if (data) dbTs = Math.max(dbTs, Number(window.__mxgMigratedTs) || 0);
     }
-    window.__mxgMainHasChars = /"characters"\s*:\s*\[\s*\{/.test(mainRaw);
-    mainRaw = null;
-    mainItem = null;
-    /* 主库缺失/损坏时，用导入前备份兜底，避免用户看到一片空白 */
-    if (!data || mainParseFailed) {
-      var fallbackKeys = [MXG_PRE_RAW_KEY, MXG_PRE_KEY];
-      for (var fi = 0; fi < fallbackKeys.length && (!data || mainParseFailed); fi++) {
-        try {
-          var fbRaw = await __mxgRawOf(fallbackKeys[fi]);
-          if (!fbRaw) continue;
-          var fbText = __mxgPayloadTextFromBackup(fbRaw);
-          if (!fbText) continue;
-          var fbData = JSON.parse(fbText);
-          if (fbData && typeof fbData === "object" && !Array.isArray(fbData)) {
-            data = fbData;
-            mainParseFailed = false;
-            window.__mxgLoadSource = "pre-import-backup";
-            /* 兜底数据立刻写回主库，避免下次打开又走一遍恢复 */
-            try {
-              await dataStorage.db.storage.put({ key: "\u9EBB\u8FA3\u9999\u9505\u9E21", value: fbText, timestamp: Date.now() });
-              window.__mxgMainBytes = fbText.length;
-            } catch (eFb0) {}
-            try { showToast("主库读取失败，已从导入前的备份恢复显示；建议尽快在数据页重新导出。"); } catch (eFb) {}
-          }
-        } catch (eFb2) {}
-      }
+    if (data && typeof data === "object" && !Array.isArray(data)) {
+      try { await __mxgLoadShards(data); } catch (eSh) { console.warn("分片读取失败", eSh); }
+      __mxgTrace("load:shards");
     }
-    /* 上次导入是否被打断：主库时间戳没超过导入标记，说明写库没完成 */
+    window.__mxgMainHasChars = coreHasChars || !!(data && Array.isArray(data.characters) && data.characters.length);
+    __mxgMaybeDropLegacy();
+    /* 上次导入是否被打断：本次改为单事务写入，标记只用于提示 */
     try {
       var impFlag = Number(localStorage.getItem(MXG_IMPORT_FLAG) || 0);
       if (impFlag) {
-        if (dbTs >= impFlag) {
-          localStorage.removeItem(MXG_IMPORT_FLAG);
-        } else {
-          localStorage.removeItem(MXG_IMPORT_FLAG);
-          try { showToast("上次导入没写完就被中断了，导入前的数据还在，可在恢复页取回。"); } catch (eIf) {}
+        localStorage.removeItem(MXG_IMPORT_FLAG);
+        if (dbTs < impFlag) {
+          try { showToast("上次导入没有完成，原有数据未受影响。"); } catch (eIf) {}
         }
       }
     } catch (eIf2) {}
     let effectiveTs = dbTs;
     const hasCharacters = function (x) {
       return !!(x && Array.isArray(x.characters) && x.characters.length);
-    };
-    window.__mxgLoadSource = hasCharacters(data) ? "idb" : "empty";
+    }
+    window.__mxgLoadSource = hasCharacters(data) ? "shards" : "empty";
     if (data) db = data;
     window.db = db;
     if (!db.__localKV || typeof db.__localKV !== "object" || Array.isArray(db.__localKV)) db.__localKV = {};
@@ -12358,7 +12492,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     if (__migratedLocalKeys) {
       try {
-        var migratedOk = await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", db);
+        var migratedOk = await __mxgSaveSharded(db, { force: true });
         if (migratedOk) {
           MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
             try { localStorage.removeItem(key); } catch (e5) {}
@@ -12396,7 +12530,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (Array.isArray(wbBackup.worldBooks)) db.worldBooks = wbBackup.worldBooks;
         if (Array.isArray(wbBackup.worldBookFolders)) db.worldBookFolders = wbBackup.worldBookFolders;
         if (wbBackup.worldBookSettings && typeof wbBackup.worldBookSettings === "object") db.worldBookSettings = wbBackup.worldBookSettings;
-        await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", db);
+        await __mxgSaveSharded(db, { force: true });
         console.log("已从 IDB 世界书备份恢复");
       }
     } catch (wbErr) { console.warn("世界书备份恢复失败", wbErr); }
@@ -14091,7 +14225,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.19</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.20</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -14125,7 +14259,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.19<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.20<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -14543,7 +14677,7 @@ document.addEventListener("DOMContentLoaded", () => {
     input.onchange = () => {
       const file = input.files && input.files[0];
       if (!file) return;
-      compressImageToDataUrl(file, (dataUrl) => {
+      compressIconImage(file, (dataUrl) => {
         if (!db.customIcons) db.customIcons = {};
         db.customIcons[iconId] = dataUrl;
         saveData().then(() => {
@@ -14590,7 +14724,7 @@ document.addEventListener("DOMContentLoaded", () => {
     input.onchange = () => {
       const file = input.files && input.files[0];
       if (!file) return;
-      compressImageToDataUrl(file, (dataUrl) => {
+      compressWidgetImage(file, (dataUrl) => {
         if (!db.widgetImages) db.widgetImages = [];
         db.widgetImages[idx] = dataUrl;
         saveData().then(() => {
@@ -14610,14 +14744,16 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     input.click();
   }
-  function compressImageToDataUrl(file, cb) {
+  function compressIconImage(file, cb) { compressImageToDataUrl(file, cb, 640, 0.84); }
+  function compressWidgetImage(file, cb) { compressImageToDataUrl(file, cb, 960, 0.85); }
+  function compressImageToDataUrl(file, cb, maxSide, quality) {
     const reader = new FileReader();
     reader.onload = () => {
       const img2 = new Image();
       img2.onload = () => {
         const canvas = document.createElement("canvas");
         let w = img2.width, h = img2.height;
-        const maxW = 2048;
+        const maxW = maxSide || 960;
         if (w > maxW) {
           h = Math.round(h * maxW / w);
           w = maxW;
@@ -14629,7 +14765,7 @@ document.addEventListener("DOMContentLoaded", () => {
         canvas.width = w;
         canvas.height = h;
         canvas.getContext("2d").drawImage(img2, 0, 0, w, h);
-        cb(canvas.toDataURL("image/jpeg", 0.92));
+        cb(canvas.toDataURL("image/jpeg", quality || 0.85));
       };
       img2.src = reader.result;
     };

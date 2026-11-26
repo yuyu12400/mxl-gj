@@ -87,6 +87,7 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
 <script>
 (function(){
   var DATA_DB='麻辣香锅鸡DB', DATA_KEY='麻辣香锅鸡', PRE_KEY='mxl-pre-import-backup', PRE_RAW_KEY='mxl-pre-import-raw';
+  var CORE_KEY='mxg-core', CHAT_PFX='mxg-chat:';
   var mainData=null, lsData=null, preData=null;
   var $=function(id){return document.getElementById(id)};
   function fmtSize(n){ if(!n&&n!==0) return '—'; if(n<1024) return n+' B'; if(n<1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(2)+' MB'; }
@@ -126,6 +127,42 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
     if(!item) return null;
     try{ return JSON.parse(item.value); }catch(e){ return null; }
   }
+  /* v6.3.20：应用已改为 core + 会话分片，这里把分片拼回完整库再展示 / 恢复 */
+  function buildFromShards(db){
+    return readKey(db,CORE_KEY).then(function(item){
+      var core=parseItem(item);
+      if(!core||!Array.isArray(core.characters)) return null;
+      return new Promise(function(res){
+        try{
+          var tx=db.transaction('storage','readonly'), st=tx.objectStore('storage');
+          var keys=[];
+          var rq=st.getAllKeys();
+          rq.onsuccess=function(){ keys=(rq.result||[]).filter(function(k){ return typeof k==='string' && k.indexOf(CHAT_PFX)===0; }); };
+          tx.onerror=function(){ res(core); };
+          tx.oncomplete=function(){
+            if(!keys.length){ res(core); return; }
+            Promise.all(keys.map(function(k){ return readKey(db,k); })).then(function(items){
+              var map={};
+              items.forEach(function(it){ var v=parseItem(it); if(v && Array.isArray(v.history)) map[it.key]=v; });
+              (core.characters||[]).forEach(function(c){ var s=map[CHAT_PFX+'c:'+c.id]; c.history=(s&&s.history)||[]; });
+              (core.groups||[]).forEach(function(g){ var s=map[CHAT_PFX+'g:'+g.id]; g.history=(s&&s.history)||[]; });
+              res(core);
+            });
+          };
+        }catch(e){ res(core); }
+      });
+    });
+  }
+  function dropShards(db){
+    try{
+      var tx=db.transaction('storage','readwrite'), st=tx.objectStore('storage');
+      var rq=st.getAllKeys();
+      rq.onsuccess=function(){
+        (rq.result||[]).forEach(function(k){ if(typeof k==='string' && k.indexOf(CHAT_PFX)===0) st.delete(k); });
+        st.delete(CORE_KEY);
+      };
+    }catch(e){}
+  }
   function download(obj,name){
     var blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
     var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
@@ -139,6 +176,11 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
       try{
         var tx=db.transaction('storage','readwrite');
         tx.objectStore('storage').put({key:DATA_KEY,value:JSON.stringify(data),timestamp:Date.now()});
+        /* 删掉旧分片，下次启动会从这条整库自动重建分片 */
+        try{
+          var st=tx.objectStore('storage'), rq=st.getAllKeys();
+          rq.onsuccess=function(){ (rq.result||[]).forEach(function(k){ if(typeof k==='string' && k.indexOf(CHAT_PFX)===0) st.delete(k); }); st.delete(CORE_KEY); };
+        }catch(e){}
         tx.oncomplete=function(){ $('status').textContent='已写入主库。请回到应用完全关闭后重新打开，不要立即再刷新。'; scan(); };
         tx.onerror=function(){ alert('写入失败，请截图当前页面联系我'); };
       }catch(e){ alert('写入失败：'+e.message); }
@@ -147,9 +189,9 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
   function scan(){
     $('status').textContent='正在读取……';
     openDb(DATA_DB).then(function(db){
-      return Promise.all([readKey(db,DATA_KEY), readKey(db,PRE_KEY)]).then(function(items){
-        var item=items[0], preItem=items[1];
-        mainData=parseItem(item);
+      return Promise.all([readKey(db,DATA_KEY), readKey(db,PRE_KEY), buildFromShards(db)]).then(function(items){
+        var item=items[0], preItem=items[1], shardData=items[2];
+        mainData=shardData||parseItem(item);
         var mainBadge=$('mainBadge');
         if(mainData && Array.isArray(mainData.characters) && mainData.characters.length){
           mainBadge.className='badge ok'; mainBadge.textContent='有数据';
@@ -286,6 +328,10 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
         }
         currentRaw=null;
         tx.objectStore('storage').put({key:DATA_KEY,value:incomingValue,timestamp:Date.now()});
+        try{
+          var st2=tx.objectStore('storage'), rq2=st2.getAllKeys();
+          rq2.onsuccess=function(){ (rq2.result||[]).forEach(function(k){ if(typeof k==='string' && k.indexOf(CHAT_PFX)===0) st2.delete(k); }); st2.delete(CORE_KEY); };
+        }catch(e){}
         tx.oncomplete=function(){
           readKey(db,DATA_KEY).then(function(item){
             var written=item && typeof item.value==='string' ? item.value : '';
