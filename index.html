@@ -11300,6 +11300,35 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {}
     return n;
   }
+  /* 诊断用：数一数库里有多少张 base64 图、总共多大、最大一张多大 */
+  function __mxgImgStats() {
+    var n = 0, bytes = 0, maxOne = 0;
+    var look = function (v) {
+      if (!v) return;
+      var str = "";
+      try { str = typeof v === "string" ? v : JSON.stringify(v); } catch (e) { return; }
+      var m = str.match(/data:image\/[a-z+]+;base64/g);
+      if (m) { n += m.length; bytes += str.length; if (str.length > maxOne) maxOne = str.length; }
+    };
+    try {
+      look(db.customIcons); look(db.widgetImages); look(db.wallpaper); look(db.ui404);
+      look(db.myStickers); look(db.offlineOrbImages); look(db.feeds); look(db.forum);
+    } catch (e) {}
+    if (!n) return "无 base64 图";
+    return n + " 张 · 共 " + __mxgFmtSize(bytes) + " · 最大一张 " + __mxgFmtSize(maxOne);
+  }
+  function __mxgEnvInfo() {
+    try {
+      var ua = navigator.userAgent || "";
+      var m = ua.match(/(Edg\/[\d.]+|Chrome\/[\d.]+|Firefox\/[\d.]+|Safari\/[\d.]+)/);
+      var dev = window.screen ? (screen.width + "x" + screen.height) : "?";
+      var cores = navigator.hardwareConcurrency || "?";
+      var mem = navigator.deviceMemory ? navigator.deviceMemory + "GB" : "?";
+      return (m ? m[1] : "未知浏览器") + " · " + dev + " · " + cores + "核 · 内存" + mem;
+    } catch (e) { return "未知"; }
+  }
+  window.__mxgImgStats = __mxgImgStats;
+  window.__mxgEnvInfo = __mxgEnvInfo;
   function renderSettingsStats() {
     var donut = document.getElementById("stg-donut");
     var totalEl = document.getElementById("stg-total-size");
@@ -11368,6 +11397,8 @@ document.addEventListener("DOMContentLoaded", () => {
           " · 本地有角色：" + (window.__mxgMainHasChars ? "是" : "否") +
           "<br>SW：" + swState + " · 加载来源：" + (window.__mxgLoadSource || "-") +
           "<br>启动步骤：" + escapeHtml(tr.map(function (x) { return x[1]; }).join(" → ") || "-") +
+          "<br>图片：" + __mxgImgStats() +
+          "<br>设备：" + escapeHtml(__mxgEnvInfo()) +
           "<br>上次错误：" + escapeHtml(String(errText).slice(0, 80));
       }
     } catch (eDiag) {}
