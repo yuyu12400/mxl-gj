@@ -86,7 +86,7 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
 </div>
 <script>
 (function(){
-  var DATA_DB='麻辣香锅鸡DB', DATA_KEY='麻辣香锅鸡', PRE_KEY='mxl-pre-import-backup';
+  var DATA_DB='麻辣香锅鸡DB', DATA_KEY='麻辣香锅鸡', PRE_KEY='mxl-pre-import-backup', PRE_RAW_KEY='mxl-pre-import-raw';
   var mainData=null, lsData=null, preData=null;
   var $=function(id){return document.getElementById(id)};
   function fmtSize(n){ if(!n&&n!==0) return '—'; if(n<1024) return n+' B'; if(n<1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(2)+' MB'; }
@@ -266,17 +266,23 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
     var incomingValue=pendingValue, incomingCounts=pendingCounts||'—';
     openDb(DATA_DB).then(function(db){
       if(!db){ alert('无法打开主数据库'); return; }
-      Promise.all([readKey(db,DATA_KEY),readKey(db,PRE_KEY)]).then(function(items){
+      Promise.all([readKey(db,DATA_KEY),readKey(db,PRE_KEY),readKey(db,PRE_RAW_KEY)]).then(function(items){
         /* 直接复制原始字符串做导入前备份：不 parse、不 stringify 旧主库 */
         var currentRaw=items[0] && typeof items[0].value==='string' ? items[0].value : '';
         var preRaw=items[1] && typeof items[1].value==='string' ? items[1].value : '';
+        var preRaw2=items[2] && typeof items[2].value==='string' ? items[2].value : '';
         var currentHas=/"characters"\s*:\s*\[\s*\{/.test(currentRaw);
-        var preHas=/"characters"\s*:\s*\[\s*\{/.test(preRaw);
-        preRaw=null;
+        var preHas=/"characters"\s*:\s*\[\s*\{/.test(preRaw2 || preRaw);
+        preRaw=null; preRaw2=null;
         var tx=db.transaction('storage','readwrite');
         if(currentHas || !preHas){
-          var snap='{"ts":'+Date.now()+',"data":'+(currentRaw || 'null')+'}';
-          tx.objectStore('storage').put({key:PRE_KEY,value:snap,timestamp:Date.now()});
+          if((currentRaw||'').length > 8*1024*1024){
+            /* 大库直接存原始串，不再多拼一份包装字符串 */
+            tx.objectStore('storage').put({key:PRE_RAW_KEY,value:currentRaw,timestamp:Date.now()});
+          } else {
+            var snap='{"ts":'+Date.now()+',"data":'+(currentRaw || 'null')+'}';
+            tx.objectStore('storage').put({key:PRE_KEY,value:snap,timestamp:Date.now()});
+          }
         }
         currentRaw=null;
         tx.objectStore('storage').put({key:DATA_KEY,value:incomingValue,timestamp:Date.now()});

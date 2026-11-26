@@ -10477,7 +10477,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane is-on" data-offline-pane="meet">
                 <div class="o404-clock-row">
                     <div class="o404-clock" id="o404-time">20:14</div>
-                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.17</span></div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.18</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR MOMENT</span>
@@ -10510,7 +10510,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:16</div>
-                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.17</span></div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.18</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR CAST</span>
@@ -10522,7 +10522,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="story">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:18</div>
-                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.17</span></div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.18</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR STORY</span>
@@ -11442,6 +11442,38 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   var MXG_MAIN_KEY = "\u9EBB\u8FA3\u9999\u9505\u9E21";
   var MXG_PRE_KEY = "mxl-pre-import-backup";
+  var MXG_PRE_RAW_KEY = "mxl-pre-import-raw";
+  var MXG_IMPORT_FLAG = "mxl-importing";
+
+  /* 从备份原文里直接切出 data 对象文本，避免为了写库再把整库 stringify 一遍 */
+  function __mxgMatchBrace(text, start) {
+    var depth = 0, inStr = false, esc = false;
+    for (var i = start; i < text.length; i++) {
+      var ch = text.charAt(i);
+      if (inStr) {
+        if (esc) esc = false;
+        else if (ch === "\\") esc = true;
+        else if (ch === '"') inStr = false;
+        continue;
+      }
+      if (ch === '"') { inStr = true; continue; }
+      if (ch === "{" || ch === "[") depth++;
+      else if (ch === "}" || ch === "]") { depth--; if (depth === 0) return i; }
+    }
+    return -1;
+  }
+  function __mxgPayloadTextFromBackup(raw) {
+    if (!raw) return null;
+    var m = /"(?:data|db)"\s*:\s*[{[]/.exec(raw);
+    if (m) {
+      var openIdx = m.index + m[0].length - 1;
+      var end = __mxgMatchBrace(raw, openIdx);
+      if (end > openIdx) return raw.slice(openIdx, end + 1);
+    }
+    var t = String(raw).trim();
+    if (t.charAt(0) === "{") return t;
+    return null;
+  }
   /* 等主库加载完成（最多 ms 毫秒），导出/导入都先等这一步，避免拿到空壳 db */
   function __mxgWaitReady(ms) {
     if (window.__mxgLoadDone) return Promise.resolve(true);
@@ -11556,6 +11588,8 @@ document.addEventListener("DOMContentLoaded", () => {
           decompressed = null;
         }
       }
+      /* 先切出 data 原文（后面直接拿它写库），再把整份文本释放 */
+      var payloadText = __mxgPayloadTextFromBackup(text);
       text = null; /* 尽早释放整份文本，降低峰值内存 */
       var data = null, localData = {};
       if (parsed && parsed.data && typeof parsed.data === "object" && !Array.isArray(parsed.data)) {
@@ -11587,33 +11621,43 @@ document.addEventListener("DOMContentLoaded", () => {
       var existingHasChars = /"characters"\s*:\s*\[\s*\{/.test(preRaw);
       preRaw = null;
       if (currentHasChars) {
-        var snapValue = '{"ts":' + Date.now() + ',"data":' + (rawCurrent || JSON.stringify(db)) + '}';
         var snapOk = false;
         try {
-          await dataStorage.db.storage.put({ key: MXG_PRE_KEY, value: snapValue, timestamp: Date.now() });
-          snapOk = true;
+          if (rawCurrent && rawCurrent.length > 8 * 1024 * 1024) {
+            /* 大库：原始串直接存一个键，不再包一层 {ts,data}，省掉一份整库拷贝 */
+            await dataStorage.db.storage.put({ key: MXG_PRE_RAW_KEY, value: rawCurrent, timestamp: Date.now() });
+            snapOk = true;
+          } else {
+            var snapValue = '{"ts":' + Date.now() + ',"data":' + (rawCurrent || JSON.stringify(db)) + '}';
+            await dataStorage.db.storage.put({ key: MXG_PRE_KEY, value: snapValue, timestamp: Date.now() });
+            snapValue = null;
+            snapOk = true;
+          }
         } catch (snapErr) { console.error("导入前备份写入失败:", snapErr); }
-        snapValue = null;
         if (!snapOk) throw new Error("无法备份当前数据（可能存储空间不足），已取消导入");
       } else if (existingHasChars) {
         showToast("已保留上一次有数据的导入前备份，本次不再用空库覆盖它。");
       }
 
-      /* 写进主库；回读只比对字符串长度，不再把整库 parse 成第二个对象 */
-      var saved = await dataStorage.saveData(MXG_MAIN_KEY, data);
-      if (!saved) throw new Error("写入本地 IDB 失败，当前数据未覆盖");
-      wroteMain = true;
-      var written = await __mxgRawMain();
-      var expectedLen = (window.__lastSave && window.__lastSave.size) || 0;
-      if (!written || (expectedLen && written.length !== expectedLen)) {
-        throw new Error("写入后回读校验失败（长度不一致），正在回滚到导入前的数据…");
+      /* v6.3.18：直接把备份原文写进主库，不再 JSON.stringify 整库，也不回读整库做校验。
+         IDB 的单次 put 是事务性的，写成功即完整；对象树用完立刻丢掉，手机内存峰值少一半。 */
+      if (!payloadText) throw new Error("备份文件里没有有效的应用数据");
+      if (!/"characters"|"worldBooks"|"groups"|"masks"/.test(payloadText.slice(0, 4000000))) {
+        throw new Error("备份文件不是麻辣香锅鸡的数据格式");
       }
-      db = data;
-      window.db = db;
-      /* 同步更新数据页用的主库体积，避免下次打开数据页再 stringify 整个库 */
-      window.__mxgMainBytes = written.length;
-      written = null;
-      try { await saveWorldBookBackup(); } catch (e) {}
+      if (data && data.__localKV && Object.keys(data.__localKV).length > 0 && !/"__localKV"\s*:/.test(payloadText)) {
+        payloadText = payloadText.slice(0, payloadText.length - 1) + ',"__localKV":' + JSON.stringify(data.__localKV) + "}";
+      }
+      var payloadLen = payloadText.length;
+      text = null;
+      parsed = null;
+      data = null;
+      try { localStorage.setItem(MXG_IMPORT_FLAG, String(Date.now())); } catch (eFlag) {}
+      await dataStorage.db.storage.put({ key: MXG_MAIN_KEY, value: payloadText, timestamp: Date.now() });
+      wroteMain = true;
+      window.__mxgMainBytes = payloadLen;
+      window.__lastSave = { ok: true, err: "", ts: Date.now(), size: payloadLen, key: MXG_MAIN_KEY };
+      payloadText = null;
       MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
         try { localStorage.removeItem(key); } catch (e2) {}
       });
@@ -11674,7 +11718,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="stg-eyebrow" id="stg-eyebrow">SETTINGS / 04</div>
       <div class="stg-title" id="stg-title">设置</div>
     </div>
-    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.17</b><span id="stg-status">READY</span></div>
+    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.18</b><span id="stg-status">READY</span></div>
   </div>
   <div class="stg-views">
     <section class="stg-view active" data-stg-page="home">
@@ -11688,7 +11732,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <button type="button" class="stg-item" data-stg-go="data"><span class="num">02</span><span class="main"><b>数据 / DATA</b><em>数据分布与内存占用 · 导出 / 导入 JSON</em></span><span class="arrow">↗</span></button>
         <button type="button" class="stg-item" data-stg-go="look"><span class="num">03</span><span class="main"><b>外观 / LOOK</b><em>壁纸、日夜、字体与桌面图标</em></span><span class="arrow">↗</span></button>
       </div>
-      <div class="stg-foot">MXG / SETTINGS — V6.3.17</div>
+      <div class="stg-foot">MXG / SETTINGS — V6.3.18</div>
     </section>
 
     <section class="stg-view" data-stg-page="api">
@@ -11860,7 +11904,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.17";
+  const APP_VERSION = "v6.3.18";
   let db = {
     characters: [],
     groups: [],
@@ -12170,15 +12214,63 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadData = async () => {
     /* v6.3.12：主数据只认 IndexedDB 里的“麻辣香锅鸡DB”。
        不读 localStorage 整库镜像，也不再读取“章鱼喷墨机DB”旧库。 */
-    let data = await dataStorage.getData("\u9EBB\u8FA3\u9999\u9505\u9E21");
+    /* v6.3.18：主库只读一次原始字符串，再解析；避免同一份 30MB 被读两遍 */
+    var mainItem = null;
+    try { mainItem = await dataStorage.db.storage.get("\u9EBB\u8FA3\u9999\u9505\u9E21"); } catch (e0) {}
+    let data = null;
     let dbTs = 0;
-    try {
-      const latestMeta = await dataStorage.db.storage.get("\u9EBB\u8FA3\u9999\u9505\u9E21");
-      if (latestMeta) {
-        dbTs = Number(latestMeta.timestamp) || 0;
-        window.__mxgMainBytes = latestMeta.value ? String(latestMeta.value).length : 0;
+    var mainRaw = mainItem && typeof mainItem.value === "string" ? mainItem.value : "";
+    if (mainItem) {
+      dbTs = Number(mainItem.timestamp) || 0;
+      window.__mxgMainBytes = mainRaw.length;
+    }
+    var mainParseFailed = false;
+    if (mainRaw) {
+      try {
+        data = JSON.parse(mainRaw);
+      } catch (parseErr) {
+        mainParseFailed = true;
+        console.error("主库解析失败：", parseErr);
       }
-    } catch (e0) {}
+    }
+    mainRaw = null;
+    mainItem = null;
+    /* 主库缺失/损坏时，用导入前备份兜底，避免用户看到一片空白 */
+    if (!data || mainParseFailed) {
+      var fallbackKeys = [MXG_PRE_RAW_KEY, MXG_PRE_KEY];
+      for (var fi = 0; fi < fallbackKeys.length && (!data || mainParseFailed); fi++) {
+        try {
+          var fbRaw = await __mxgRawOf(fallbackKeys[fi]);
+          if (!fbRaw) continue;
+          var fbText = __mxgPayloadTextFromBackup(fbRaw);
+          if (!fbText) continue;
+          var fbData = JSON.parse(fbText);
+          if (fbData && typeof fbData === "object" && !Array.isArray(fbData)) {
+            data = fbData;
+            mainParseFailed = false;
+            window.__mxgLoadSource = "pre-import-backup";
+            /* 兜底数据立刻写回主库，避免下次打开又走一遍恢复 */
+            try {
+              await dataStorage.db.storage.put({ key: "\u9EBB\u8FA3\u9999\u9505\u9E21", value: fbText, timestamp: Date.now() });
+              window.__mxgMainBytes = fbText.length;
+            } catch (eFb0) {}
+            try { showToast("主库读取失败，已从导入前的备份恢复显示；建议尽快在数据页重新导出。"); } catch (eFb) {}
+          }
+        } catch (eFb2) {}
+      }
+    }
+    /* 上次导入是否被打断：主库时间戳没超过导入标记，说明写库没完成 */
+    try {
+      var impFlag = Number(localStorage.getItem(MXG_IMPORT_FLAG) || 0);
+      if (impFlag) {
+        if (dbTs >= impFlag) {
+          localStorage.removeItem(MXG_IMPORT_FLAG);
+        } else {
+          localStorage.removeItem(MXG_IMPORT_FLAG);
+          try { showToast("上次导入没写完就被中断了，导入前的数据还在，可在恢复页取回。"); } catch (eIf) {}
+        }
+      }
+    } catch (eIf2) {}
     let effectiveTs = dbTs;
     const hasCharacters = function (x) {
       return !!(x && Array.isArray(x.characters) && x.characters.length);
@@ -12327,7 +12419,7 @@ document.addEventListener("DOMContentLoaded", () => {
     db.memories.forEach((m) => {
       if (m.weight === void 0) m.weight = 1;
     });
-    /* v6.3.17：流水/动态/帖子只增不减会撑爆配额，这里加软上限，只裁最旧的 */
+    /* v6.3.18：流水/动态/帖子只增不减会撑爆配额，这里加软上限，只裁最旧的 */
     try {
       const __trimTail = (arr, max) => {
         if (Array.isArray(arr) && arr.length > max) arr.splice(max, arr.length - max);
@@ -13378,7 +13470,7 @@ document.addEventListener("DOMContentLoaded", () => {
         switchScreen(nav.getAttribute("data-target"));
       });
     }
-    /* v6.3.17：开屏页保留到主库加载完成，避免加载窗口内的操作被 loadData 覆盖 */
+    /* v6.3.18：开屏页保留到主库加载完成，避免加载窗口内的操作被 loadData 覆盖 */
     try {
       await loadData();
     } catch (loadErr) {
@@ -13888,7 +13980,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.17</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.18</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -13922,7 +14014,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.17<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.18<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
