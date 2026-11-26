@@ -1,8 +1,8 @@
 /* 麻辣香锅鸡 Service Worker：离线缓存应用外壳（所有资源内联在 index.html）
    缓存策略改为 network-first：每次打开都优先取最新版，网络失败才回退缓存
    解决"部署新版后浏览器一直返回旧版缓存"的问题 */
-const CACHE_NAME = 'mxl-gj-shell-v79';
-const APP_SHELL = ['./', './index.html', './manifest.json', './icon.svg', './icon.png', './icon-192.png', './icon-maskable.png'];
+const CACHE_NAME = 'mxl-gj-shell-v80';
+const APP_SHELL = ['./manifest.json', './icon.svg', './icon.png', './icon-192.png', './icon-maskable.png']; /* 不再预缓存 3.5MB 的 index.html */
 
 self.addEventListener('install', (e) => {
     /* 预缓存失败时：不激活残缺的 SW（否则离线时缺资源），交给下轮安装重试 */
@@ -26,15 +26,20 @@ self.addEventListener('fetch', (e) => {
     const req = e.request;
     if (req.method !== 'GET') return;
     if (req.mode === 'navigate') {
-        /* 页面：网络优先，断网才回退缓存，保证部署新版后立刻拿到新内容 */
+        /* v6.3.21：页面一律走网络，不再每次打开都把 3.5MB HTML 重写进缓存。
+           只在“这个版本还没有离线副本”时补存一次，避免每次启动都产生一次大写入。 */
         e.respondWith(
             fetch(req, { cache: 'no-store' }).then((res) => {
                 if (res && res.status === 200) {
-                    const clone = res.clone();
-                    caches.open(CACHE_NAME).then((c) => c.put(req, clone));
+                    caches.match('./index.html').then((hit) => {
+                        if (!hit) {
+                            const clone = res.clone();
+                            caches.open(CACHE_NAME).then((c) => c.put('./index.html', clone)).catch(() => {});
+                        }
+                    });
                 }
                 return res;
-            }).catch(() => caches.match(req).then((hit) => hit || caches.match('./index.html')))
+            }).catch(() => caches.match('./index.html').then((hit) => hit || caches.match('./')))
         );
         return;
     }

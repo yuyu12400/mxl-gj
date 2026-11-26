@@ -7481,6 +7481,36 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
 .wb2-previewbox.empty{color:#888;font-style:italic}
 .wb2-tokenline{display:flex;justify-content:space-between;font:8px/1.4 "DejaVu Sans Mono",monospace;color:#777;letter-spacing:.05em;margin-top:6px}
 </style>
+<style id="mxg-data-ui">
+/* v6.3.21 数据页改版：卡片化、留白更大、按钮统一 */
+.stg-view[data-stg-page="data"]{padding-bottom:32px;}
+.dta-hero{background:#fff;border:1px solid #e8e8ee;border-radius:20px;padding:18px 18px;display:flex;align-items:center;gap:18px;margin-bottom:14px;box-shadow:0 8px 22px rgba(17,17,22,.06);}
+.dta-hero .stg-donut{flex:0 0 92px;margin:0;}
+.dta-card{background:#fff;border:1px solid #e8e8ee;border-radius:20px;padding:16px 16px 15px;margin-bottom:14px;box-shadow:0 8px 22px rgba(17,17,22,.06);}
+.dta-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;}
+.dta-head b{font-size:7px;letter-spacing:.2em;font-weight:600;color:#111;}
+.dta-head em{font-style:normal;font-size:7px;letter-spacing:.1em;color:#9a9aa1;}
+.dta-card .stg-bars{border-top:0;margin-top:0;}
+.dta-card .stg-bars .bt{display:none;}
+.dta-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.dta-btn{min-height:44px;border-radius:999px;border:1px solid #111;background:#111;color:#fff;font-family:inherit;font-size:9px;letter-spacing:.16em;cursor:pointer;transition:transform .12s ease,opacity .12s ease;}
+.dta-btn.ghost{background:#fff;color:#111;}
+.dta-btn:active{transform:scale(.985);opacity:.9;}
+.dta-tools{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px;}
+.dta-tool{min-height:36px;border-radius:12px;border:1px solid #e8e8ee;background:#fafafb;color:#3c3c44;font-family:inherit;font-size:8px;letter-spacing:.1em;cursor:pointer;}
+.dta-tool:active{background:#f1f1f4;}
+.dta-note{font-size:9px;line-height:1.9;color:#8a8a92;padding:0 4px;letter-spacing:.02em;}
+[data-stg-page="data"] #stg-diag-info{font-size:9.5px;line-height:2;color:#54545c;word-break:break-word;letter-spacing:.02em;}
+[data-stg-page="data"] .stg-warn{display:none;}
+.dta-card .stg-statrow{padding:10px 0 8px;border-bottom:1px solid #f2f2f5;}
+.dta-card .stg-statrow:last-child{border-bottom:0;padding-bottom:2px;}
+.dta-card .stg-statline{display:flex;align-items:center;gap:8px;}
+.dta-card .stg-statline .nm{flex:1;font-size:10px;color:#26262c;letter-spacing:.02em;}
+.dta-card .stg-statline .sz{font-size:9px;color:#9a9aa1;}
+.dta-card .stg-statline .pc{font-size:9px;color:#9a9aa1;min-width:38px;text-align:right;}
+.dta-card .stg-track{height:2px;background:#f1f1f4;border-radius:2px;margin-top:7px;overflow:hidden;}
+.dta-card .stg-track i{display:block;height:100%;border-radius:2px;}
+</style>
 </head>
 
 <body>
@@ -10477,7 +10507,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane is-on" data-offline-pane="meet">
                 <div class="o404-clock-row">
                     <div class="o404-clock" id="o404-time">20:14</div>
-                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.20</span></div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.21</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR MOMENT</span>
@@ -10510,7 +10540,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:16</div>
-                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.20</span></div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.21</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR CAST</span>
@@ -10522,7 +10552,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="story">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:18</div>
-                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.20</span></div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.21</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR STORY</span>
@@ -11331,7 +11361,7 @@ document.addEventListener("DOMContentLoaded", () => {
         var errText = window.__mxgLastError ? (window.__mxgLastError.msg || "") : "无";
         var tr = [];
         try { tr = JSON.parse(localStorage.getItem("mxl-trace") || "[]").slice(-3); } catch (eTr) { tr = []; }
-        diagEl.innerHTML = "core：" + (window.__mxgMainBytes ? __mxgFmtSize(window.__mxgMainBytes) : "未知") +
+        diagEl.innerHTML = "库体积：" + (window.__mxgMainBytes ? __mxgFmtSize(window.__mxgMainBytes) : "未知") +
           " · 分片 " + ((window.__mxgShardKeys || []).length) + " 个" +
           (window.__mxgShardMissing ? "（缺 " + window.__mxgShardMissing + "）" : "") +
           "<br>角色 " + ((db.characters || []).length) + " · 已加载内存 " + (window.__mxgMemMB ? window.__mxgMemMB() + "MB" : "-") +
@@ -11494,7 +11524,11 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   window.__mxgTrace = __mxgTrace;
 
-  function __mxgChatKey(kind, id) { return MXG_CHAT_PREFIX + (kind === "group" ? "g" : "c") + ":" + String(id); }
+  var MXG_CHUNK_SIZE = 300; /* 每 300 条消息一个分片，长会话只重写最新那块 */
+  function __mxgChatKey(kind, id, chunk) {
+    return MXG_CHAT_PREFIX + (kind === "group" ? "g" : "c") + ":" + String(id) + ":" + String(chunk || 0);
+  }
+  function __mxgChatPrefixOf(kind, id) { return MXG_CHAT_PREFIX + (kind === "group" ? "g" : "c") + ":" + String(id) + ":"; }
 
   function __mxgSplitDB(src) {
     var core = {}, mods = [];
@@ -11513,7 +11547,14 @@ document.addEventListener("DOMContentLoaded", () => {
         Object.keys(item).forEach(function (k) { if (k !== "history") copy[k] = item[k]; });
         copy.history = [];
         bare.push(copy);
-        shards.push({ key: __mxgChatKey(kind, item.id), kind: kind, id: item.id, history: item.history || [] });
+        var hist = item.history || [];
+        var chunks = Math.max(1, Math.ceil(hist.length / MXG_CHUNK_SIZE));
+        for (var ci = 0; ci < chunks; ci++) {
+          shards.push({
+            key: __mxgChatKey(kind, item.id, ci), kind: kind, id: item.id, idx: ci, total: chunks,
+            history: hist.slice(ci * MXG_CHUNK_SIZE, (ci + 1) * MXG_CHUNK_SIZE)
+          });
+        }
       });
       return { bare: bare, shards: shards };
     }
@@ -11524,14 +11565,19 @@ document.addEventListener("DOMContentLoaded", () => {
     return { core: core, mods: mods, shards: ch.shards.concat(gr.shards) };
   }
   function __mxgMergeDB(core, shardMap) {
-    (core.characters || []).forEach(function (item) {
-      var sh = shardMap[__mxgChatKey("char", item.id)];
-      item.history = sh && Array.isArray(sh.history) ? sh.history : [];
-    });
-    (core.groups || []).forEach(function (item) {
-      var sh = shardMap[__mxgChatKey("group", item.id)];
-      item.history = sh && Array.isArray(sh.history) ? sh.history : [];
-    });
+    var fill = function (list, kind) {
+      (list || []).forEach(function (item) {
+        var pref = kind + ":" + String(item.id);
+        var group = shardMap[pref];
+        if (!group) { item.history = []; return; }
+        group.sort(function (a, b) { return (a.idx || 0) - (b.idx || 0); });
+        var all = [];
+        group.forEach(function (c) { if (Array.isArray(c.history)) all = all.concat(c.history); });
+        item.history = all;
+      });
+    };
+    fill(core.characters, "char");
+    fill(core.groups, "group");
     return core;
   }
 
@@ -11547,7 +11593,7 @@ document.addEventListener("DOMContentLoaded", () => {
     var ts = Date.now(), total = 0, forced = !!(opts && opts.force);
     parts.shards.forEach(function (sh) {
       var text;
-      try { text = JSON.stringify({ id: sh.id, kind: sh.kind, history: sh.history }); } catch (eS) { text = null; }
+      try { text = JSON.stringify({ id: sh.id, kind: sh.kind, idx: sh.idx, total: sh.total, history: sh.history }); } catch (eS) { text = null; }
       if (text === null) return;
       total += text.length;
       next[sh.key] = text;
@@ -11584,53 +11630,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* 按 core 里的会话清单读分片，拼回完整 db */
   async function __mxgLoadShards(core) {
-    var keys = [];
-    (core.characters || []).forEach(function (c) { keys.push(__mxgChatKey("char", c.id)); });
-    (core.groups || []).forEach(function (g) { keys.push(__mxgChatKey("group", g.id)); });
-    var map = {};
-    if (keys.length) {
-      var items = null;
-      try { items = await dataStorage.db.storage.bulkGet(keys); } catch (e0) {}
+    var want = {};
+    (core.characters || []).forEach(function (c) { want["char:" + String(c.id)] = 1; });
+    (core.groups || []).forEach(function (g) { want["group:" + String(g.id)] = 1; });
+    var keys = [], parsed = [], missing = 0;
+    try {
+      var allKeys = await dataStorage.db.storage.toCollection().primaryKeys();
+      var chatKeys = (allKeys || []).filter(function (k) {
+        return typeof k === "string" && k.indexOf(MXG_CHAT_PREFIX) === 0;
+      });
+      var items = chatKeys.length ? await dataStorage.db.storage.bulkGet(chatKeys) : [];
+      if (!window.__mxgShardTexts) window.__mxgShardTexts = {};
       (items || []).forEach(function (it) {
         if (!it || typeof it.value !== "string") return;
         try {
           var v = JSON.parse(it.value);
-          if (v && Array.isArray(v.history)) {
-            map[it.key] = v;
-            if (!window.__mxgShardTexts) window.__mxgShardTexts = {};
-            window.__mxgShardTexts[it.key] = it.value;
-          }
+          if (!v || !Array.isArray(v.history)) return;
+          var pref = (v.kind === "group" ? "group" : "char") + ":" + String(v.id);
+          if (!want[pref]) return;
+          (parsed[pref] = parsed[pref] || []).push(v);
+          keys.push(it.key);
+          window.__mxgShardTexts[it.key] = it.value;
         } catch (e1) {}
       });
-    }
-    /* 外置的大模块（图片、动态等） */
-    try {
-      var allKeys0 = await dataStorage.db.storage.toCollection().primaryKeys();
-      var modKeys = (allKeys0 || []).filter(function (k) {
-        return typeof k === "string" && k.indexOf(MXG_MOD_PREFIX) === 0;
-      });
+      Object.keys(want).forEach(function (pref) { if (!parsed[pref]) missing++; });
+      /* 外置的大模块（图片、动态等） */
+      var modKeys = (allKeys || []).filter(function (k) { return typeof k === "string" && k.indexOf(MXG_MOD_PREFIX) === 0; });
       if (modKeys.length) {
         var modItems = await dataStorage.db.storage.bulkGet(modKeys);
-        if (!window.__mxgShardTexts) window.__mxgShardTexts = {};
         (modItems || []).forEach(function (it) {
           if (!it || typeof it.value !== "string") return;
           try {
             core[it.key.slice(MXG_MOD_PREFIX.length)] = JSON.parse(it.value);
             window.__mxgShardTexts[it.key] = it.value;
             keys.push(it.key);
-          } catch (eM) { console.warn("模块解析失败", it.key, eM); }
+          } catch (eM) {}
         });
       }
-    } catch (eMod) { console.warn("模块读取失败", eMod); }
-    __mxgMergeDB(core, map);
+    } catch (eLoad) { console.warn("分片读取失败", eLoad); }
+    __mxgMergeDB(core, parsed);
     window.__mxgShardKeys = keys;
-    window.__mxgShardMissing = keys.filter(function (k) { return !map[k]; }).length;
-    /* 清掉已删除会话留下的孤儿分片 */
+    window.__mxgShardMissing = missing;
+    /* 清掉已删除会话 / 已收缩会话留下的孤儿分片 */
     try {
-      var allKeys = await dataStorage.db.storage.toCollection().primaryKeys();
+      var allKeys2 = await dataStorage.db.storage.toCollection().primaryKeys();
       var shadow = {};
       keys.forEach(function (k) { shadow[k] = 1; });
-      var orphans = (allKeys || []).filter(function (k) {
+      var orphans = (allKeys2 || []).filter(function (k) {
         return typeof k === "string" && (k.indexOf(MXG_CHAT_PREFIX) === 0 || k.indexOf(MXG_MOD_PREFIX) === 0) && !shadow[k];
       });
       if (orphans.length) await dataStorage.db.storage.bulkDelete(orphans);
@@ -11913,7 +11959,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="stg-eyebrow" id="stg-eyebrow">SETTINGS / 04</div>
       <div class="stg-title" id="stg-title">设置</div>
     </div>
-    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.20</b><span id="stg-status">READY</span></div>
+    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.21</b><span id="stg-status">READY</span></div>
   </div>
   <div class="stg-views">
     <section class="stg-view active" data-stg-page="home">
@@ -11927,7 +11973,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <button type="button" class="stg-item" data-stg-go="data"><span class="num">02</span><span class="main"><b>数据 / DATA</b><em>数据分布与内存占用 · 导出 / 导入 JSON</em></span><span class="arrow">↗</span></button>
         <button type="button" class="stg-item" data-stg-go="look"><span class="num">03</span><span class="main"><b>外观 / LOOK</b><em>壁纸、日夜、字体与桌面图标</em></span><span class="arrow">↗</span></button>
       </div>
-      <div class="stg-foot">MXG / SETTINGS — V6.3.20</div>
+      <div class="stg-foot">MXG / SETTINGS — V6.3.21</div>
     </section>
 
     <section class="stg-view" data-stg-page="api">
@@ -11947,7 +11993,8 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="vt"><span>02 / DATA</span><b>数据</b></div>
         <em class="ve">STORAGE /<br>PORTABLE</em>
       </div>
-      <div class="stg-totalcard">
+
+      <div class="dta-hero">
         <div class="stg-donut" id="stg-donut"><div class="stg-donut-hole"><b id="stg-total-size">0 KB</b><span>APP DATA</span></div></div>
         <div class="stg-sumcopy">
           <div class="k">STORAGE / 当前数据</div>
@@ -11955,24 +12002,32 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="s" id="stg-summary-counts">—</div>
         </div>
       </div>
-      <div class="stg-bars">
-        <div class="bt"><b>BREAKDOWN / 分类占比</b><em>按序列化体积</em></div>
-        <div id="stg-bars-list"></div>
+
+      <div class="dta-card">
+        <div class="dta-head"><b>BREAKDOWN / 分类占比</b><em>按序列化体积</em></div>
+        <div class="stg-bars"><div id="stg-bars-list"></div></div>
       </div>
-      <div class="stg-actions">
-        <button type="button" class="stg-primary" id="stg-export-json">导出 JSON</button>
-        <button type="button" class="stg-ghost" id="stg-import-json">导入 JSON</button>
+
+      <div class="dta-card">
+        <div class="dta-head"><b>BACKUP / 备份</b><em>单个 JSON 文件</em></div>
+        <div class="dta-actions">
+          <button type="button" class="dta-btn" id="stg-export-json">导出备用档</button>
+          <button type="button" class="dta-btn ghost" id="stg-import-json">导入备用档</button>
+        </div>
+        <div class="dta-note" style="margin-top:12px;">导出的文件里含 API Key，别外传。导入会整体覆盖当前数据，不可撤销。</div>
       </div>
-      <div class="stg-block" style="margin-top:16px;">
-        <div class="stg-label"><b>DIAG / 诊断</b><em>打不开或怀疑没存上时看这里</em></div>
-        <div id="stg-diag-info" style="font-size:12px;line-height:1.8;color:#555;">检测中…</div>
-        <div style="display:flex;gap:8px;margin-top:10px;">
-          <button type="button" class="stg-ghost" id="stg-diag-reload" style="flex:1;padding:8px;">刷新重载</button>
-          <button type="button" class="stg-ghost" id="stg-diag-clear" style="flex:1;padding:8px;">清缓存重载</button>
-          <button type="button" class="stg-ghost" id="stg-diag-err" style="flex:1;padding:8px;">上次错误</button>
+
+      <div class="dta-card">
+        <div class="dta-head"><b>DIAG / 诊断</b><em>打不开、怀疑没存上时看这里</em></div>
+        <div id="stg-diag-info">检测中…</div>
+        <div class="dta-tools">
+          <button type="button" class="dta-tool" id="stg-diag-reload">刷新重载</button>
+          <button type="button" class="dta-tool" id="stg-diag-clear">清缓存</button>
+          <button type="button" class="dta-tool" id="stg-diag-err">上次错误</button>
         </div>
       </div>
-      <div class="stg-warn"><b>导出内容：</b>聊天、角色、面具、群聊、世界书、记忆、线下、论坛、情侣空间、钱包、手机、音乐、商城和全部设置；也包含时空邮局、十字路口、书城与书城钱包。JSON 内有 API Key，请勿外传。<br><b>导入提醒：</b>会整体覆盖当前数据，不可撤销。</div>
+
+      <div class="dta-note">导出内容：聊天、角色、面具、群聊、世界书、记忆、线下、论坛、情侣空间、钱包、手机、音乐、商城和全部设置。</div>
     </section>
 
     <section class="stg-view" data-stg-page="look">
@@ -12108,7 +12163,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.20";
+  const APP_VERSION = "v6.3.21";
   let db = {
     characters: [],
     groups: [],
@@ -12441,8 +12496,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try { coreItem = await dataStorage.db.storage.get(MXG_CORE_KEY); } catch (e0) {}
     var coreRaw = coreItem && typeof coreItem.value === "string" ? coreItem.value : "";
     var dbTs = coreItem ? (Number(coreItem.timestamp) || 0) : 0;
-    window.__mxgMainBytes = coreRaw.length;
-    var data = null, coreBad = false;
+        var data = null, coreBad = false;
     if (coreRaw) {
       try { data = JSON.parse(coreRaw); } catch (e1) { coreBad = true; console.error("core 解析失败：", e1); }
     }
@@ -12457,6 +12511,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (data && typeof data === "object" && !Array.isArray(data)) {
       try { await __mxgLoadShards(data); } catch (eSh) { console.warn("分片读取失败", eSh); }
+      /* 库体积 = core + 全部分片 + 全部外置模块，数据页/诊断统一用这个数 */
+      try {
+        var sumBytes = (window.__mxgCoreText || "").length;
+        Object.keys(window.__mxgShardTexts || {}).forEach(function (k) { sumBytes += (window.__mxgShardTexts[k] || "").length; });
+        window.__mxgMainBytes = sumBytes;
+      } catch (eSz) {}
       __mxgTrace("load:shards");
     }
     window.__mxgMainHasChars = coreHasChars || !!(data && Array.isArray(data.characters) && data.characters.length);
@@ -14225,7 +14285,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.20</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.21</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -14259,7 +14319,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.20<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.21<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -44356,6 +44416,31 @@ function wb2DeleteEntry() {
 })();
 </script>
 
+<script>
+/* v6.3.21：链接版如果没下载完整（页面卡在开锅页），12 秒后给出可点重试的提示，并绕过 SW 缓存重拉 */
+(function () {
+  try { if (!/^https?:/.test(location.protocol)) return; } catch (e) { return; }
+  setTimeout(function () {
+    if (window.__mxgLoadDone) return;
+    if (document.getElementById('mxg-loadfail')) return;
+    var d = document.createElement('div');
+    d.id = 'mxg-loadfail';
+    d.setAttribute('style', 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:99999;background:#111;color:#fff;border-radius:16px;padding:14px 16px;font:12px/1.7 -apple-system,system-ui,sans-serif;max-width:88%;box-shadow:0 10px 30px rgba(0,0,0,.28);');
+    d.innerHTML = '<div style="margin-bottom:8px;">页面好像没下载完整，卡在开锅这一步。</div>'
+      + '<div style="display:flex;gap:8px;"><button id="mxg-loadfail-go" style="flex:1;min-height:34px;border-radius:999px;border:0;background:#fff;color:#111;font:inherit;">重新加载</button>'
+      + '<button id="mxg-loadfail-x" style="min-height:34px;padding:0 14px;border-radius:999px;border:1px solid #444;background:transparent;color:#bbb;font:inherit;">关掉</button></div>';
+    document.body.appendChild(d);
+    document.getElementById('mxg-loadfail-x').onclick = function () { d.remove(); };
+    document.getElementById('mxg-loadfail-go').onclick = async function () {
+      try {
+        var rs = await navigator.serviceWorker.getRegistrations();
+        for (var i = 0; i < rs.length; i++) { try { await rs[i].unregister(); } catch (e) {} }
+      } catch (e) {}
+      location.replace(location.pathname + '?fresh=' + Date.now());
+    };
+  }, 12000);
+})();
+</script>
 </body>
 
 </html>
