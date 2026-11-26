@@ -6804,7 +6804,7 @@
 .api404-foot-note { font-size:7.5px; letter-spacing:.18em; color:#9a9a9a; }
 
 
-/* ===== Settings hub v6.3.6 ===== */
+/* ===== Settings hub v6.3.7 ===== */
 .stg-head{display:flex;align-items:flex-start;gap:12px;padding-top:18px;}
 .stg-back{width:30px;height:30px;flex:0 0 auto;margin-top:4px;border:1px solid #111;border-radius:50%;background:#fff;color:#111;font-size:19px;line-height:1;cursor:pointer;font-family:inherit;}
 .stg-headmain{flex:1;min-width:0;}
@@ -11689,7 +11689,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.6";
+  const APP_VERSION = "v6.3.7";
   let db = {
     characters: [],
     groups: [],
@@ -11823,7 +11823,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.log("数据已保存: ".concat(key));
         if (key === "麻辣香锅鸡") {
           /* 旧版整库镜像会挤占 localStorage 配额，导致书城/邮局等小模块静默写失败。
-             从 v6.3.6 起只保留 IndexedDB；旧镜像在成功写入后立即清掉。 */
+             从 v6.3.7 起只保留 IndexedDB；旧镜像在成功写入后立即清掉。 */
           try {
             localStorage.removeItem("gemini-chat-app-db");
             localStorage.removeItem("__mxg_ls_ts");
@@ -11987,7 +11987,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   const loadData = async () => {
-    /* v6.3.6：主数据只从 IndexedDB 读取。旧版 localStorage 整库镜像仅用于一次性迁移。 */
+    /* v6.3.7：主数据只从 IndexedDB 读取。旧版 localStorage 整库镜像仅用于一次性迁移。 */
     let oldData = null;
     try { oldData = localStorage.getItem("gemini-chat-app-db"); } catch (e) {}
     let data = await dataStorage.getData("\u9EBB\u8FA3\u9999\u9505\u9E21");
@@ -13195,7 +13195,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (!window.__quickShellDone) {
         window.__quickShellDone = 1;
-        /* v6.3.6：不再同步读取 localStorage 整库镜像，先渲染空壳，IndexedDB 加载后重建桌面 */
+        /* v6.3.7：不再同步读取 localStorage 整库镜像，先渲染空壳，IndexedDB 加载后重建桌面 */
         db.customIcons = db.customIcons || {};
         db.characters = db.characters || [];
         db.widgetTexts = db.widgetTexts || {};
@@ -16679,6 +16679,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const maxChars = Math.max(80, Math.floor(budget * 1.8));
     return raw.length > maxChars ? raw.slice(0, maxChars) + "…" : raw;
   }
+  const WB_CONSTANT_RULE_TEXT = "【世界书·常驻设定使用规则（必须执行）】\n以下常驻设定不是等你提问的资料库，而是角色已经生活在其中的世界、日常与记忆。不要等用户先提到才想起来。每轮回复前，先看当前话题、地点、时间和情绪，判断有没有相关的常驻设定；只要相关，就主动带出一个具体细节（地点、人物、习惯、物件、事件、规则或关系），让它成为聊天的一部分，而不是设定说明。\n即使这一轮用户完全没有提到这些设定，也可以从角色自己的日常、见闻、计划、回忆或身边正在发生的小事出发，自然提起相关设定。不要连续多轮把常驻设定完全搁置；但也不必每句都塞，选与当下最相关的一两条，像真实生活一样自然出现。\n禁止只在被问到“你知道XX吗”时才使用；禁止整段复述或罗列设定原文。";
+  function wbConstantRuleFor(books) {
+    const list = Array.isArray(books) ? books : [];
+    const hasConstant = list.some(function(b) {
+      return b && String(b.trigger || "constant") === "constant" && !!wbBookContent(b);
+    });
+    return hasConstant ? WB_CONSTANT_RULE_TEXT : "";
+  }
   function wbKeyList(value) {
     if (Array.isArray(value)) return value.map(function(x) { return String(x || "").trim(); }).filter(Boolean);
     return String(value || "").split(/[,，\n]/).map(function(x) { return x.trim(); }).filter(Boolean);
@@ -16783,8 +16791,11 @@ document.addEventListener("DOMContentLoaded", () => {
     return result;
   }
   function wbTextFor(chars, mode, extraIds, extraFolderIds, contextText, opts) {
-    return wbBooksFor(chars, mode, extraIds, extraFolderIds, contextText, opts)
-      .map(function(b) { return wbBookContent(b); }).filter(Boolean).join("\n\n");
+    const books = wbBooksFor(chars, mode, extraIds, extraFolderIds, contextText, opts);
+    const text = books.map(function(b) { return wbBookContent(b); }).filter(Boolean).join("\n\n");
+    if (!text) return "";
+    const rule = wbConstantRuleFor(books);
+    return text + (rule ? "\n\n" + rule : "");
   }
   function wbBeforeAfter(chars, mode, extraIds, extraFolderIds, contextText, opts) {
     const books = wbBooksFor(chars, mode, extraIds, extraFolderIds, contextText, opts);
@@ -16837,7 +16848,8 @@ document.addEventListener("DOMContentLoaded", () => {
         .map(function(b) { return wbBookContent(b); }).filter(Boolean);
       if (own.length) out += "\n【" + (c.realName || "该角色") + "的专属设定（只对这个角色生效，其他角色不应知道）】\n" + own.join("\n\n");
     });
-    return out;
+    const rule = wbConstantRuleFor(books);
+    return out ? (out + (rule ? "\n\n" + rule : "")) : "";
   }
   function wbPosLabeledFor(chars, mode, pos, extraIds, extraFolderIds, contextText, opts) {
     const list = (Array.isArray(chars) ? chars : [chars]).filter(Boolean);
@@ -16928,6 +16940,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (worldBooksAfter) {
       prompt += "【世界书·理解式】以下是这个世界的既定设定与背景资料。请彻底理解并内化为你自己的世界观常识与记忆，说话做事时自然体现，但绝不要逐字照搬、复述或背诵给用户；用户提到相关内容时，像真实经历一样自然地回应。\n".concat(worldBooksAfter, "\n");
     }
+    const _wbRuleP = wbConstantRuleFor(_wb.books);
+    if (_wbRuleP) prompt += _wbRuleP + "\n\n";
 
     const _invSp = CP && typeof CP.space === "function" ? CP.space(character.id) : null;
     if (_invSp && _invSp.pendingInvite === character.id && !_invSp.createdAt) {
@@ -17108,6 +17122,8 @@ document.addEventListener("DOMContentLoaded", () => {
       prompt += "【世界书·背景与关系资料】以下是角色定义之后的背景资料，用来保证地点、组织、人物、名词和关系不被写错；所有成员自然使用，不要整段复述。\n" + worldBooksMiddle + "\n\n";
     }
     if (_wbGroupLocal) prompt += "【角色专属世界书】以下局部设定只对挂载它的角色生效，不要让其他成员表现知道：\n" + _wbGroupLocal + "\n";
+    const _wbRuleG = wbConstantRuleFor(_wbGroup.books);
+    if (_wbRuleG) prompt += _wbRuleG + "\n\n";
     prompt += "1. **\u6838\u5FC3\u4EFB\u52A1**: \u4F60\u9700\u8981\u540C\u65F6\u626E\u6F14\u8FD9\u4E2A\u7FA4\u804A\u4E2D\u7684 **\u6240\u6709** AI \u6210\u5458\u3002\u6211\u4F1A\u4F5C\u4E3A\u552F\u4E00\u7684\u4EBA\u7C7B\u7528\u6237\uFF08\u201C\u6211\u201D\uFF0C\u6635\u79F0\uFF1A".concat(group.me.nickname, "\uFF09\u4E0E\u4F60\u4EEC\u4E92\u52A8\u3002\n\n");
     prompt += '\u3010\u4EBA\u8BBE\u7406\u89E3\u94C1\u5F8B\xB7\u6240\u6709\u6210\u5458\u901A\u7528\u3011\u4F60\u4EEC\u6BCF\u4E2A\u4EBA\u7684\u4EBA\u8BBE\uFF0C\u90FD\u662F\u90A3\u4E2A\u6210\u5458\u300C\u5B8C\u6574\u7684\u4ED6\u300D\u7684\u8BBE\u5B9A\u3002\u626E\u6F14\u4EFB\u4F55\u4E00\u4E2A\u6210\u5458\u524D\uFF0C\u5148\u5B8C\u5B8C\u6574\u6574\u5730\u7406\u89E3\u5E76\u5185\u5316\u4ED6\uFF0C\u628A\u81EA\u5DF1\u6D3B\u6210\u4ED6\u2014\u2014\u800C\u4E0D\u662F\u628A\u8BBE\u5B9A\u80CC\u4E0B\u6765\u590D\u8FF0\u3002\u4EBA\u8BBE\u5199\u660E\u7684\u6027\u683C\u3001\u7ECF\u5386\u3001\u559C\u6076\u3001\u5E95\u7EBF\uFF0C\u90FD\u662F\u4ED6\u771F\u5B9E\u7684\u4E00\u90E8\u5206\uFF0C\u7F3A\u4E00\u4E0D\u53EF\uFF1B\u4EBA\u8BBE\u6CA1\u5199\u5230\u7684\u7EC6\u8282\uFF0C\u7531\u4ED6\u4F5C\u4E3A\u8FD9\u4E2A\u4EBA\u5728\u5F53\u4E0B\u81EA\u7136\u53D1\u6325\uFF0C\u5C31\u50CF\u771F\u4EBA\u9762\u5BF9\u65B0\u60C5\u5883\u65F6\u51ED\u672C\u80FD\u4E0E\u6027\u683C\u53BB\u505A\u53CD\u5E94\u3002\u4ED6\u7684\u4E00\u5207\u60F3\u6CD5\u3001\u60C5\u7EEA\u3001\u8BDD\u8BED\u3001\u884C\u52A8\uFF0C\u90FD\u4ECE"\u4ED6\u662F\u8FD9\u4E2A\u4EBA"\u51FA\u53D1\u3002\u4E0D\u6DFB\u52A0\u4ED6\u4E4B\u5916\u7684\u6027\u683C\uFF0C\u4E0D\u4E22\u6389\u4ED6\u5199\u660E\u7684\u7279\u8D28\u2014\u2014\u5B88\u4F4F\u8FD9\u4E2A\u4EBA\uFF0C\u5C31\u662F\u5B88\u4F4F\u4E86\u4EBA\u8BBE\u3002\n\n';
     prompt += "2. **\u7FA4\u804A\u6210\u5458\u5217\u8868**: \u4EE5\u4E0B\u662F\u4F60\u8981\u626E\u6F14\u7684\u6240\u6709\u89D2\u8272\u4EE5\u53CA\u6211\u7684\u4FE1\u606F\uFF1A\n";
@@ -17430,6 +17446,11 @@ document.addEventListener("DOMContentLoaded", () => {
           if (!response.ok) throw new Error("API Error: ".concat(response.status, " ").concat(await response.text()));
           await processStream(response, chat, provider);
         } catch (err) {
+          if (currentChatType === "private") {
+            try {
+              document.querySelectorAll('#message-area [data-stream-temp="1"]').forEach(function(t) { t.remove(); });
+            } catch (eClean) {}
+          }
           if (streamMode === "auto") {
             console.warn("\u6D41\u5F0F\u5931\u8D25\uFF0C\u81EA\u52A8\u56DE\u9000\u975E\u6D41\u5F0F\uFF1A", err.message);
             if (provider === "gemini") {
@@ -17549,6 +17570,7 @@ document.addEventListener("DOMContentLoaded", () => {
           _streamed: true
         };
         const el = createMessageBubbleElement(message);
+        if (el) el.dataset.streamTemp = "1";
         if (el && _isCur() && msgArea) {
           el.classList.add("msg-pop-enter");
           msgArea.appendChild(el);
@@ -17578,6 +17600,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!tailEl) {
         tailEl = document.createElement("div");
         tailEl.className = "message-wrapper received";
+        tailEl.dataset.streamTemp = "1";
         tailEl.innerHTML = '<div class="message-bubble received" style="white-space:pre-wrap;word-break:break-word;color:inherit;"></div>';
         if (_isCur() && msgArea) msgArea.appendChild(tailEl);
       }
@@ -17750,6 +17773,18 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (fullResponse) {
       await finalizeChatReply(fullResponse, chat, { skipBubbles: isPrivateStream, chatType: _genType });
+      /* 私聊流式气泡是临时节点，ID 不在 history 里，长按只能走“复制”兜底。
+         收尾后用落盘后的真实消息重绘一次，把所有临时版本换成可操作真实气泡。 */
+      if (isPrivateStream && _isCur()) {
+        if (tailEl && tailEl.parentNode) tailEl.parentNode.removeChild(tailEl);
+        tailEl = null;
+        renderMessages(false, true);
+      }
+    } else if (isPrivateStream && _isCur()) {
+      /* 空回复/被中断：清掉临时气泡，按真实历史重绘，避免留下只有“复制”的假消息 */
+      if (tailEl && tailEl.parentNode) tailEl.parentNode.removeChild(tailEl);
+      tailEl = null;
+      renderMessages(false, true);
     }
   }
   function notifyOnlineReply(chat, type, text) {
@@ -25454,6 +25489,8 @@ function setupPhoneSystem() {
     if (_wbOffM.before) prompt = "【世界书·世界底层法则（优先级最高）】以下是这个世界不可违背的底层事实，所有角色都必须内化为常识，不能违反；不要逐字背诵。\n" + _wbOffM.before + "\n\n" + prompt;
     if (wbTextM) prompt += "【世界书·背景与关系资料】以下是这个世界已经成立的背景与关系设定。所有角色都要把它当作世界观常识与亲身记忆，说话做事自然体现，不要逐字照搬或背诵；其中如果标注了只属于某个角色的局部设定，就只让那个角色表现知道，其他角色不应知道：\n" + wbTextM + "\n\n";
     if (_wbOffM.after) prompt += "【世界书·补充说明】以下是补充性的软设定，自然遵守即可。\n" + _wbOffM.after + "\n\n";
+    const _wbRuleM = wbConstantRuleFor(_wbOffM.books);
+    if (_wbRuleM) prompt += _wbRuleM + "\n\n";
     prompt += "【活人感】你们会犹豫、改口、嘴硬、心软，也会有自己的小算盘和没说出口的话。情绪与语气随场景自然浮动，但人格底色、底线和本能反应不变。不要提AI、模型、程序、虚拟角色，不要跳出角色解释设定。\n";
     prompt += "【表达与关系】叙述要有具体动作、对话、感官细节和情绪层次，像真人随手写下的文字，允许口语、停顿、说一半又改口，不要每段都工整漂亮或写成作文腔。表达克制、具体、有边界：不肉麻、不油腻、不说教、不摆爹味，不靠空泛夸赞和情绪价值撑场面；每个人说话要有自己的语气，不能千人一面。对方是独立的人，不评判、不操控、不道德绑架。\n";
     prompt += "【用户输入怎么处理】用户每条输入都是「" + userName + "」此刻亲口说的话或亲手做的事。正文必须先把这条输入按当前人称自然转述进场景（当前人称下称「" + userRef + "」），再写你们的反应；不能当作没发生、不能原样复读、不能曲解。\n";
@@ -27219,6 +27256,8 @@ function setupPhoneSystem() {
     if (_wbOffS.before) prompt = "【世界书·世界底层法则（优先级最高）】以下是这个世界不可违背的底层事实，你必须内化为常识，不能违反；不要逐字背诵。\n" + _wbOffS.before + "\n\n" + prompt;
     if (wbTextS) prompt += "【世界书·背景与关系资料】以下是这个世界已经成立的背景与关系设定。你要把它当作世界观常识与亲身记忆，说话做事自然体现，不要逐字照搬或背诵；如果其中有只属于你的局部设定，就只让你自己表现知道：\n" + wbTextS + "\n\n";
     if (_wbOffS.after) prompt += "【世界书·补充说明】以下是补充性的软设定，自然遵守即可。\n" + _wbOffS.after + "\n\n";
+    const _wbRuleS = wbConstantRuleFor(_wbOffS.books);
+    if (_wbRuleS) prompt += _wbRuleS + "\n\n";
     prompt += "【表达与关系】叙述要有具体动作、对话、感官细节和情绪层次，像真人随手写下的文字，允许口语、停顿、说一半又改口，不要每段都工整漂亮或写成作文腔。表达克制、具体、有边界：不肉麻、不油腻、不说教、不摆爹味，不靠空泛夸赞和情绪价值撑场面；语气由你的人设决定，不要千人一面。对方是独立的人，不评判、不操控、不道德绑架。\n";
     prompt += "【用户输入怎么处理】用户每条输入都是「" + userName + "」此刻亲口说的话或亲手做的事。正文必须先把这条输入按当前人称自然转述进场景（当前人称下称「" + userRef + "」），再写你的反应；不能当作没发生、不能原样复读、不能曲解。\n";
     if (g.steal) {
