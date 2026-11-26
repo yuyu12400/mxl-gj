@@ -12270,7 +12270,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.38";
+  const APP_VERSION = "v6.3.39";
   let db = {
     characters: [],
     groups: [],
@@ -15956,28 +15956,25 @@ document.addEventListener("DOMContentLoaded", () => {
     if (sp.before.trim()) { pre.textContent = sp.before.trim(); el.appendChild(pre); }
     const card = document.createElement("div");
     card.className = "mxg-html-card";
-    if (sp.doc) {
-      /* 整页 HTML（含 head/style/body）：用 sandbox iframe 隔离。
-         v6.3.38：允许脚本运行，卡片可以互动（折叠、切换、按钮），但无 allow-same-origin，
-         脚本无法访问父页面；高度由卡片内 postMessage 上报。 */
-      const cid = "mxgcard-" + Math.random().toString(36).slice(2, 8);
-      const frame = document.createElement("iframe");
-      frame.className = "mxg-html-frame";
-      frame.dataset.card = cid;
-      frame.setAttribute("sandbox", "allow-scripts allow-forms");
-      frame.setAttribute("scrolling", "no");
-      frame.style.cssText = "width:100%;border:0;display:block;background:transparent;height:400px";
-      const sid = JSON.stringify(cid);
-      const heightScript = "<script>(function(){var id=" + sid + ";function post(){try{parent.postMessage({mxgCard:id,h:Math.max(document.documentElement.scrollHeight,document.body?document.body.scrollHeight:0)},'*')}catch(e){}}window.addEventListener('load',post);setTimeout(post,200);setTimeout(post,600);setTimeout(post,1200);try{new MutationObserver(function(){setTimeout(post,80)}).observe(document.documentElement,{childList:true,subtree:true,attributes:true})}catch(e){}document.addEventListener('click',function(){setTimeout(post,120)});document.addEventListener('input',function(){setTimeout(post,120)});})();<\/script>";
-      let doc = String(sp.html);
-      if (/<\/body>/i.test(doc)) doc = doc.replace(/<\/body>/i, heightScript + "</body>");
-      else if (/<body[^>]*>/i.test(doc)) doc = doc.replace(/<body([^>]*)>/i, "<body$1>" + heightScript);
-      else doc = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>body{margin:0}</style></head><body>" + doc + heightScript + "</body></html>";
-      frame.srcdoc = doc;
-      card.appendChild(frame);
-    } else {
-      card.innerHTML = mxgHtmlSanitize(sp.html);
+    /* v6.3.39：所有 HTML 卡片统一用 iframe 承载，开放脚本，任何片段也能互动 */
+    const cid = "mxgcard-" + Math.random().toString(36).slice(2, 8);
+    const frame = document.createElement("iframe");
+    frame.className = "mxg-html-frame";
+    frame.dataset.card = cid;
+    frame.setAttribute("sandbox", "allow-scripts allow-same-origin allow-forms allow-popups");
+    frame.setAttribute("scrolling", "no");
+    frame.style.cssText = "width:100%;border:0;display:block;background:transparent;height:400px";
+    const sid = JSON.stringify(cid);
+    const heightScript = "<script>(function(){var id=" + sid + ";function post(){try{parent.postMessage({mxgCard:id,h:Math.max(document.documentElement.scrollHeight,document.body?document.body.scrollHeight:0)},'*')}catch(e){}}window.addEventListener('load',post);setTimeout(post,200);setTimeout(post,600);setTimeout(post,1200);try{new MutationObserver(function(){setTimeout(post,80)}).observe(document.documentElement,{childList:true,subtree:true,attributes:true})}catch(e){}document.addEventListener('click',function(){setTimeout(post,120)});document.addEventListener('input',function(){setTimeout(post,120)});})();<\/script>";
+    let doc = String(sp.html);
+    if (!/<html[\s>]/i.test(doc) && !/^\s*<!doctype/i.test(doc)) {
+      doc = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>html,body{margin:0;padding:0;background:transparent}</style></head><body>" + doc + "</body></html>";
     }
+    if (/<\/body>/i.test(doc)) doc = doc.replace(/<\/body>/i, heightScript + "</body>");
+    else if (/<body[^>]*>/i.test(doc)) doc = doc.replace(/<body([^>]*)>/i, "<body$1>" + heightScript);
+    else doc = doc + heightScript;
+    frame.srcdoc = doc;
+    card.appendChild(frame);
     el.appendChild(card);
     if (sp.after.trim()) {
       const post = document.createElement("div");
