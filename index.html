@@ -6804,7 +6804,7 @@
 .api404-foot-note { font-size:7.5px; letter-spacing:.18em; color:#9a9a9a; }
 
 
-/* ===== Settings hub v6.3.4 ===== */
+/* ===== Settings hub v6.3.5 ===== */
 .stg-head{display:flex;align-items:flex-start;gap:12px;padding-top:18px;}
 .stg-back{width:30px;height:30px;flex:0 0 auto;margin-top:4px;border:1px solid #111;border-radius:50%;background:#fff;color:#111;font-size:19px;line-height:1;cursor:pointer;font-family:inherit;}
 .stg-headmain{flex:1;min-width:0;}
@@ -10463,7 +10463,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane is-on" data-offline-pane="meet">
                 <div class="o404-clock-row">
                     <div class="o404-clock" id="o404-time">20:14</div>
-                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.4</span></div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.5</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR MOMENT</span>
@@ -10496,7 +10496,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:16</div>
-                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.4</span></div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.5</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR CAST</span>
@@ -10508,7 +10508,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="story">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:18</div>
-                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.4</span></div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.5</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR STORY</span>
@@ -11101,6 +11101,45 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
 <input type="file" id="import-data-input" accept=".json,.ee,application/json" style="display: none;">
 <script>
 
+/* 旧版散落在 localStorage 的模块数据统一走主库；这两个函数必须在主作用域暴露，
+   因为书城/邮局/十字路口是后面的独立 script，会在主应用加载前先读取。 */
+window.__mxgLVGet = function (key) {
+  try {
+    var root = window.db;
+    if (root) {
+      if (!root.__localKV || typeof root.__localKV !== "object" || Array.isArray(root.__localKV)) root.__localKV = {};
+      if (Object.prototype.hasOwnProperty.call(root.__localKV, key)) {
+        var v = root.__localKV[key];
+        if (typeof v === "string") return v;
+      }
+    }
+  } catch (e) {}
+  try { return localStorage.getItem(key); } catch (e) { return null; }
+};
+window.__mxgLVSet = function (key, val) {
+  try {
+    var root = window.db;
+    if (root) {
+      if (!root.__localKV || typeof root.__localKV !== "object" || Array.isArray(root.__localKV)) root.__localKV = {};
+      root.__localKV[key] = String(val);
+      try { if (typeof window.__mxgSaveLocal === "function") window.__mxgSaveLocal(); } catch (e) {}
+      return true;
+    }
+  } catch (e) {}
+  try { localStorage.setItem(key, String(val)); return true; } catch (e) { return false; }
+};
+window.__mxgLVDel = function (key) {
+  try {
+    var root = window.db;
+    if (root && root.__localKV) {
+      try { delete root.__localKV[key]; } catch (e) { root.__localKV[key] = ""; }
+      try { if (typeof window.__mxgSaveLocal === "function") window.__mxgSaveLocal(); } catch (e) {}
+      return true;
+    }
+  } catch (e) {}
+  try { localStorage.removeItem(key); return true; } catch (e) { return false; }
+};
+
 function getRandomValue(str) {
   if (str.includes(",")) {
     const arr = str.split(",").map((item) => item.trim());
@@ -11355,32 +11394,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     showSettingsView("home");
   }
+  function buildBackupPayload() {
+    var payload = {
+      app: "麻辣香锅鸡",
+      format: "mxg-json-backup",
+      version: 3,
+      appVersion: APP_VERSION,
+      exportedAt: new Date().toISOString(),
+      counts: {
+        characters: (db.characters || []).length,
+        groups: (db.groups || []).length,
+        messages: __mxgCountMessages(),
+        worldBooks: (db.worldBooks || []).length,
+        memories: (db.memories || []).length
+      },
+      data: db,
+      local: {}
+    };
+    MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
+      try {
+        var value = __mxgLVGet(key);
+        if (value !== null) payload.local[key] = value;
+      } catch (e) {}
+    });
+    return payload;
+  }
   function exportBackupJSON() {
     if (window.__stgBusy) return;
     window.__stgBusy = true;
     try {
-      var payload = {
-        app: "麻辣香锅鸡",
-        format: "mxg-json-backup",
-        version: 3,
-        appVersion: APP_VERSION,
-        exportedAt: new Date().toISOString(),
-        counts: {
-          characters: (db.characters || []).length,
-          groups: (db.groups || []).length,
-          messages: __mxgCountMessages(),
-          worldBooks: (db.worldBooks || []).length,
-          memories: (db.memories || []).length
-        },
-        data: db,
-        local: {}
-      };
-      MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
-        try {
-          var value = localStorage.getItem(key);
-          if (value !== null) payload.local[key] = value;
-        } catch (e) {}
-      });
+      var payload = buildBackupPayload();
       var jsonString = JSON.stringify(payload, null, 2);
       var blob = new Blob([jsonString], { type: "application/json" });
       var url = URL.createObjectURL(blob);
@@ -11429,14 +11472,16 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("备份文件里没有有效的应用数据");
       if (!Array.isArray(data.characters) && !Array.isArray(data.worldBooks) && !Array.isArray(data.groups) && !Array.isArray(data.masks)) throw new Error("备份文件不是麻辣香锅鸡的数据格式");
       db = data;
+      if (!db.__localKV || typeof db.__localKV !== "object" || Array.isArray(db.__localKV)) db.__localKV = {};
+      MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
+        if (typeof localData[key] === "string") db.__localKV[key] = localData[key];
+      });
       window.db = db;
       var saved = await saveData(db, { force: true });
       if (!saved) throw new Error("写入本地 IDB 失败，当前数据未覆盖");
       try { await saveWorldBookBackup(); } catch (e) {}
       MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
-        if (typeof localData[key] === "string") {
-          try { localStorage.setItem(key, localData[key]); } catch (e2) {}
-        }
+        try { localStorage.removeItem(key); } catch (e2) {}
       });
       showToast("数据已成功恢复，应用即将刷新。");
       setTimeout(function () { window.location.reload(); }, 700);
@@ -11448,6 +11493,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (inputEl) inputEl.value = null;
     }
   }
+  window.exportBackupJSON = exportBackupJSON;
+  window.importBackupFile = importBackupFile;
+  window.buildBackupPayload = buildBackupPayload;
   document.getElementById("api-settings-screen").innerHTML = `<main class="content stg-shell">
   <div class="stg-head">
     <button type="button" class="stg-back" id="stg-exit" aria-label="返回桌面">‹</button>
@@ -11455,7 +11503,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="stg-eyebrow" id="stg-eyebrow">SETTINGS / 04</div>
       <div class="stg-title" id="stg-title">设置</div>
     </div>
-    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.4</b><span id="stg-status">READY</span></div>
+    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.5</b><span id="stg-status">READY</span></div>
   </div>
   <div class="stg-views">
     <section class="stg-view active" data-stg-page="home">
@@ -11469,7 +11517,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <button type="button" class="stg-item" data-stg-go="data"><span class="num">02</span><span class="main"><b>数据 / DATA</b><em>数据分布与内存占用 · 导出 / 导入 JSON</em></span><span class="arrow">↗</span></button>
         <button type="button" class="stg-item" data-stg-go="look"><span class="num">03</span><span class="main"><b>外观 / LOOK</b><em>壁纸、日夜、字体与桌面图标</em></span><span class="arrow">↗</span></button>
       </div>
-      <div class="stg-foot">MXG / SETTINGS — V6.3.4</div>
+      <div class="stg-foot">MXG / SETTINGS — V6.3.5</div>
     </section>
 
     <section class="stg-view" data-stg-page="api">
@@ -11641,7 +11689,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.4";
+  const APP_VERSION = "v6.3.5";
   let db = {
     characters: [],
     groups: [],
@@ -11770,20 +11818,19 @@ document.addEventListener("DOMContentLoaded", () => {
       let ok = false, err = "";
       const ts = Date.now();
       try {
-        if (key === "麻辣香锅鸡") {
-          localStorage.setItem("gemini-chat-app-db", json);
-          localStorage.setItem("__mxg_ls_ts", String(ts));
-        }
-        ok = true;
-      } catch (e2) {
-        err = "local:" + (e2 && e2.name);
-      }
-      try {
         await this.db.storage.put({ key, value: json, timestamp: ts });
         ok = true;
         console.log("数据已保存: ".concat(key));
+        if (key === "麻辣香锅鸡") {
+          /* 旧版整库镜像会挤占 localStorage 配额，导致书城/邮局等小模块静默写失败。
+             从 v6.3.5 起只保留 IndexedDB；旧镜像在成功写入后立即清掉。 */
+          try {
+            localStorage.removeItem("gemini-chat-app-db");
+            localStorage.removeItem("__mxg_ls_ts");
+          } catch (e3) {}
+        }
       } catch (e) {
-        err = (err ? err + " | " : "") + ((e && (e.name + ":" + e.message)) || String(e));
+        err = (e && (e.name + ":" + e.message)) || String(e);
         console.error("保存数据失败:", e);
       }
       window.__lastSave = { ok, err, ts, size: json.length, key };
@@ -11861,19 +11908,34 @@ document.addEventListener("DOMContentLoaded", () => {
   let __savePending = null;
   let __saveChain = Promise.resolve();
   let __saveWaiters = [];
+  let __saveFailToastAt = 0;
+  const __mxgNotifySaveFail = () => {
+    const now = Date.now();
+    if (now - __saveFailToastAt < 2e4) return;
+    __saveFailToastAt = now;
+    try {
+      if (typeof showToast === "function") showToast("本地存储写入失败：请检查浏览器存储权限或剩余空间");
+    } catch (e) {}
+  };
   const __flushSave = () => {
     if (__saveTimer) { clearTimeout(__saveTimer); __saveTimer = null; }
     const payload = __savePending || db;
     __savePending = null;
-    __saveChain = __saveChain.catch(() => {}).then(() => dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", payload));
-    __saveChain.finally(() => {
-      const waiters = __saveWaiters;
-      __saveWaiters = [];
-      waiters.forEach((r) => { try { r(); } catch (e) {} });
+    const waiters = __saveWaiters;
+    __saveWaiters = [];
+    __saveChain = __saveChain.catch(() => false).then(() => dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", payload));
+    __saveChain.then((ok) => {
+      if (!ok) __mxgNotifySaveFail();
+      waiters.forEach((r) => { try { r(!!ok); } catch (e) {} });
+    }, () => {
+      __mxgNotifySaveFail();
+      waiters.forEach((r) => { try { r(false); } catch (e) {} });
     });
     return __saveChain;
   };
   const saveData = (data, opts) => {
+    /* 数据未加载完成前禁止写入，避免开屏空壳把默认空库覆盖到真实数据上 */
+    if (!window.__mxgLoadDone) return Promise.resolve(true);
     const payload = data ? data : db;
     __savePending = payload;
     if (opts && opts.force) return __flushSave();
@@ -11883,6 +11945,7 @@ document.addEventListener("DOMContentLoaded", () => {
       __saveTimer = setTimeout(__flushSave, 0);
     });
   };
+  window.__mxgSaveLocal = saveData;
   const saveWorldBookBackup = async () => {
     try {
       return await dataStorage.saveData("mxl-worldbooks-backup", {
@@ -11900,35 +11963,43 @@ document.addEventListener("DOMContentLoaded", () => {
     __flushSave();
     try { saveWorldBookBackup(); } catch (e) {}
   });
-  const loadData = async () => {
-    let oldData = null;
-    try {
-      oldData = localStorage.getItem("gemini-chat-app-db");
-    } catch (e) {
-      console.error("localStorage读取失败:", e);
+  document.addEventListener("visibilitychange", () => {
+    if (document.visibilityState === "hidden") {
+      __flushSave();
+      try { saveWorldBookBackup(); } catch (e) {}
     }
+  });
+  const __mxgRequestPersist = async () => {
+    try {
+      if (!navigator.storage || !navigator.storage.persist) return false;
+      if (navigator.storage.persisted) {
+        const already = await navigator.storage.persisted();
+        window.__mxgPersistGranted = !!already;
+        if (already) return true;
+      }
+      const granted = await navigator.storage.persist();
+      window.__mxgPersistGranted = !!granted;
+      console.log(granted ? "已获得持久化存储授权" : "浏览器暂未授予持久化存储");
+      return !!granted;
+    } catch (e) {
+      console.warn("请求持久化存储失败", e);
+      return false;
+    }
+  };
+  const loadData = async () => {
+    /* v6.3.5：主数据只从 IndexedDB 读取。旧版 localStorage 整库镜像仅用于一次性迁移。 */
+    let oldData = null;
+    try { oldData = localStorage.getItem("gemini-chat-app-db"); } catch (e) {}
     let data = await dataStorage.getData("\u9EBB\u8FA3\u9999\u9505\u9E21");
     let dbTs = 0;
     try {
       const latestMeta = await dataStorage.db.storage.get("\u9EBB\u8FA3\u9999\u9505\u9E21");
       if (latestMeta) dbTs = Number(latestMeta.timestamp) || 0;
     } catch (e0) {}
-    const lsTs = Number((function () { try { return localStorage.getItem("__mxg_ls_ts") || "0"; } catch (e1) { return "0"; } })()) || 0;
     let effectiveTs = dbTs;
     const looksLikeDb = function (x) {
       return !!x && (Array.isArray(x.characters) || Array.isArray(x.worldBooks) || Array.isArray(x.worldBookFolders) || Array.isArray(x.groups));
     };
-    if (oldData && lsTs > dbTs + 1500) {
-      try {
-        const newer = JSON.parse(oldData);
-        if (looksLikeDb(newer)) {
-          data = newer;
-          effectiveTs = Math.max(effectiveTs, lsTs);
-          await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", newer);
-          console.log("已用较新的本地镜像恢复数据");
-        }
-      } catch (e2) { console.error("\u672C\u5730\u955C\u50CF\u6062\u590C\u5931\u8D25:", e2); }
-    }
     if (!data || !data.characters || !data.characters.length) {
       try {
         const legacyDb = new Dexie("\u7AE0\u9C7C\u55B7\u58A8\u673ADB");
@@ -11938,6 +12009,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const legacy = JSON.parse(legacyItem.value);
           if (legacy && legacy.characters && legacy.characters.length) {
             data = legacy;
+            effectiveTs = Date.now();
             await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", data);
             console.log("\u5DF2\u4ECE\u65E7\u5E93\u6062\u590D\u6570\u636E");
           }
@@ -11946,17 +12018,57 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("\u65E7\u5E93\u8FC1\u79FB\u5931\u8D25:", e);
       }
     }
-    if (oldData && (!data || !data.characters || !data.characters.length)) {
+    let __migratedMirror = false;
+    const lsTs = Number((function () { try { return localStorage.getItem("__mxg_ls_ts") || "0"; } catch (e1) { return "0"; } })()) || 0;
+    if (oldData) {
       try {
         var parsedOld = JSON.parse(oldData);
-        data = parsedOld;
-        await saveData(parsedOld, { force: true });
+        var mirrorNewer = !data || !data.characters || !data.characters.length || (lsTs > dbTs + 1500);
+        if (looksLikeDb(parsedOld) && mirrorNewer) {
+          data = parsedOld;
+          effectiveTs = Math.max(Date.now(), lsTs);
+          __migratedMirror = true;
+          console.log("已从旧 localStorage 镜像迁移数据");
+        }
       } catch (e) {
         console.error("旧数据迁移失败:", e);
       }
     }
     if (data) db = data;
     window.db = db;
+    if (!db.__localKV || typeof db.__localKV !== "object" || Array.isArray(db.__localKV)) db.__localKV = {};
+    let __migratedLocalKeys = false;
+    MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
+      if (Object.prototype.hasOwnProperty.call(db.__localKV, key)) return;
+      try {
+        var legacyValue = localStorage.getItem(key);
+        if (legacyValue !== null) {
+          db.__localKV[key] = legacyValue;
+          __migratedLocalKeys = true;
+        }
+      } catch (e) {}
+    });
+    if (__migratedMirror || __migratedLocalKeys) {
+      try {
+        var migratedOk = await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", db);
+        if (migratedOk) {
+          try {
+            localStorage.removeItem("gemini-chat-app-db");
+            localStorage.removeItem("__mxg_ls_ts");
+          } catch (e4) {}
+          MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
+            try { localStorage.removeItem(key); } catch (e5) {}
+          });
+          console.log("旧 localStorage 数据已并入 IndexedDB 并清理");
+        }
+      } catch (e6) { console.warn("旧 localStorage 迁移写入失败", e6); }
+    } else if (oldData) {
+      /* IndexedDB 已是更新版本，旧镜像只占配额，直接清掉 */
+      try {
+        localStorage.removeItem("gemini-chat-app-db");
+        localStorage.removeItem("__mxg_ls_ts");
+      } catch (e8) {}
+    }
     if (!db.apiSettings) db.apiSettings = {};
     if (db.apiSettings.visionEnabled === void 0) db.apiSettings.visionEnabled = false;
     if (db.wallpaper === "https://aka.doubaocdn.com/s/EbgeuXeUxy") db.wallpaper = "";
@@ -12068,6 +12180,8 @@ document.addEventListener("DOMContentLoaded", () => {
     db.memories.forEach((m) => {
       if (m.weight === void 0) m.weight = 1;
     });
+    window.__mxgLoadDone = true;
+    try { window.dispatchEvent(new CustomEvent("mxg-data-ready")); } catch (e7) {}
     return Promise.resolve();
   };
   const showToast = (message) => {
@@ -13081,13 +13195,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (!window.__quickShellDone) {
         window.__quickShellDone = 1;
-        try {
-          const cached = localStorage.getItem("gemini-chat-app-db");
-          if (cached) {
-            const parsed = JSON.parse(cached);
-            if (parsed && parsed.characters) db = parsed;
-          }
-        } catch (e0) {}
+        /* v6.3.5：不再同步读取 localStorage 整库镜像，先渲染空壳，IndexedDB 加载后重建桌面 */
         db.customIcons = db.customIcons || {};
         db.characters = db.characters || [];
         db.widgetTexts = db.widgetTexts || {};
@@ -13111,6 +13219,7 @@ document.addEventListener("DOMContentLoaded", () => {
     dismissSplash();
     await new Promise((resolve) => setTimeout(resolve, 340));
     await loadData();
+    try { await __mxgRequestPersist(); } catch (e) {}
     try { migrateMaskScope(); } catch (err) { console.warn("面具迁移失败", err); }
     document.body.addEventListener("click", (e) => {
       if (e.target.closest(".context-menu")) {
@@ -13610,7 +13719,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.4</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.5</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -13644,7 +13753,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.4<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.5<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -13898,7 +14007,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderWeatherWidget();
     renderNoteWidget();
     applyWallpaper(db.wallpaper);
-    applyHomeScreenMode(db.homeScreenMode);
+    applyHomeScreenMode(db.homeScreenMode, false);
     initPolaCarousel();
     (_a = document.getElementById("day-mode-btn")) == null ? void 0 : _a.addEventListener("click", (e) => {
       e.preventDefault();
@@ -14159,14 +14268,14 @@ document.addEventListener("DOMContentLoaded", () => {
     homeScreen.classList.toggle("has-wallpaper", !!url);
     db.wallpaper = url || "";
   }
-  async function applyHomeScreenMode(mode) {
+  async function applyHomeScreenMode(mode, shouldSave) {
     if (mode === "day") {
       homeScreen.classList.add("day-mode");
     } else {
       homeScreen.classList.remove("day-mode");
     }
     db.homeScreenMode = mode;
-    await saveData();
+    if (shouldSave !== false) await saveData();
   }
   function setupCustomizeApp() {
     customizeForm.addEventListener("input", async (e) => {
@@ -19309,10 +19418,14 @@ document.addEventListener("DOMContentLoaded", () => {
     _stBtn.style.marginTop = "12px";
     _stBtn.textContent = "本地存储自检";
     _stBtn.addEventListener("click", async function () {
-      var _r = await dataStorage.saveData("__probe_" + Date.now(), { ok: 1, t: Date.now() });
+      var _ok = await saveData(null, { force: true });
       var _i = window.__lastSave || {};
+      var _probeKey = "__probe_" + Date.now();
+      var _r = await dataStorage.saveData(_probeKey, { ok: 1, t: Date.now() });
+      try { await dataStorage.removeData(_probeKey); } catch (e0) {}
       var _kb = Math.round((_i.size || 0) / 1024);
-      var _msg = "存储自检\nIDB 写入: " + (_r ? "成功" : "失败") + "\n数据大小: " + _kb + "KB\n备份: " + (_i.ok ? "已写入" : "未写入");
+      var _persisted = window.__mxgPersistGranted ? "已开启" : "未开启";
+      var _msg = "存储自检\nIndexedDB: " + (_ok ? "成功" : "失败") + "\n探针写入: " + (_r ? "成功" : "失败") + "\n主数据大小: " + _kb + "KB\n持久化存储: " + _persisted;
       if (_i.err) _msg += "\n错误: " + _i.err;
       alert(_msg);
     });
@@ -35799,13 +35912,13 @@ var BS = { tab:"home", books:[], shelf:[], works:[], curBook:null, curChap:0,
 
 function bsHash(s){ var h=0; s=String(s||""); for(var i=0;i<s.length;i++){ h=(h*31+s.charCodeAt(i))>>>0; } return h; }
 function bsEsc(t){ var d=document.createElement("div"); d.textContent=t; return d.innerHTML; }
-function bsSaveShelf(){ try{ localStorage.setItem("bs_shelf", JSON.stringify(BS.shelf)); }catch(e){} }
+function bsSaveShelf(){ try{ __mxgLVSet("bs_shelf", JSON.stringify(BS.shelf)); }catch(e){} }
 
 /* ---------- 书城设置 ---------- */
 function bsLoadSettings(){
   var s = { genChapters:5, minChars:1000, fx:true, channel:"男频", bgImage:"", finishStory:false };
   try{
-    var v = localStorage.getItem("bs_settings");
+    var v = __mxgLVGet("bs_settings");
     if(v){ var p = JSON.parse(v);
       if(p && typeof p.genChapters==="number") s.genChapters = Math.max(1, Math.min(30, Math.round(p.genChapters)));
       if(p && typeof p.minChars==="number") s.minChars = Math.max(500, Math.min(3000, Math.round(p.minChars)));
@@ -35822,7 +35935,7 @@ function bsChanHint(){
   if(ch==="女频") return "这是一本【女频】小说，请严格按女频风格创作：以女性视角与情感为主线，注重男女主感情线、细腻的人物内心与氛围描写，行文温柔动人，节奏可慢热但感情推进扎实。";
   return "这是一本【男频】小说，请严格按男频风格创作：以男主成长/升级/爽点为主线，节奏明快、冲突紧凑、金手指合理，注重剧情推进与热血爽感。";
 }
-function bsSaveSettings(s){ try{ localStorage.setItem("bs_settings", JSON.stringify(s)); }catch(e){} }
+function bsSaveSettings(s){ try{ __mxgLVSet("bs_settings", JSON.stringify(s)); }catch(e){} }
 
 function bsOpenSettings(){
   var s = bsLoadSettings();
@@ -35957,7 +36070,7 @@ function bsIcon(name, color){
 function renderBookstoreApp(){
   var root = document.getElementById("bookstore-screen");
   if(!root) return;
-  try{ var s = localStorage.getItem("bs_shelf"); if(s) BS.shelf = JSON.parse(s); }catch(e){}
+  try{ var s = __mxgLVGet("bs_shelf"); if(s) BS.shelf = JSON.parse(s); }catch(e){}
   var navItems = [
     { k:"home", t:"首页", ic:'<path d="M4 11l8-7 8 7" style="fill:none;stroke:CUR;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"/><path d="M6 10v10h12V10" style="fill:none;stroke:CUR;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round"/>' },
     { k:"cat", t:"分类", ic:'<path d="M5 5h6v6H5zM14 5h5v6h-5zM5 14h6v5H5zM14 14h5v5h-5z" style="fill:none;stroke:CUR;stroke-width:1.7;stroke-linejoin:round"/>' },
@@ -36761,11 +36874,11 @@ var BS_READERS = ["夜读人","追更的小鹿","书虫阿茶","深夜读者","�
 
 function bsWallet(){
   var w = { balance:0, total:0, today:0, day:"", gifts:[], withdrawals:[] };
-  try{ var s = localStorage.getItem(BS_WALLET_KEY); if(s){ var p = JSON.parse(s); for(var k in p){ if(p[k]!==undefined) w[k]=p[k]; } } }catch(e){}
+  try{ var s = __mxgLVGet(BS_WALLET_KEY); if(s){ var p = JSON.parse(s); for(var k in p){ if(p[k]!==undefined) w[k]=p[k]; } } }catch(e){}
   bsResetToday(w);
   return w;
 }
-function bsSaveWallet(w){ try{ localStorage.setItem(BS_WALLET_KEY, JSON.stringify(w)); }catch(e){} }
+function bsSaveWallet(w){ try{ __mxgLVSet(BS_WALLET_KEY, JSON.stringify(w)); }catch(e){} }
 function bsDayStr(){ var d=new Date(),p=function(x){return (x<10?"0":"")+x;}; return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
 function bsTimeStr(){ var d=new Date(),p=function(x){return (x<10?"0":"")+x;}; return p(d.getMonth()+1)+"-"+p(d.getDate())+" "+p(d.getHours())+":"+p(d.getMinutes()); }
 function bsResetToday(w){ var t=bsDayStr(); if(w.day!==t){ w.day=t; w.today=0; } }
@@ -38246,7 +38359,7 @@ function bsReaderSettings(){
   var bgclear = ov.querySelector("#bs-set-bgclear");
   if(bgclear) bgclear.onclick = function(){
     var s = bsLoadSettings(); s.bgImage="";
-    try{ localStorage.setItem("bs_settings", JSON.stringify(s)); }catch(e){}
+    try{ __mxgLVSet("bs_settings", JSON.stringify(s)); }catch(e){}
     bsReader(); ov.remove();
     showToast("已恢复默认背景");
   };
@@ -38271,7 +38384,7 @@ function bsUploadReaderBg(input){
       try{ data = cv.toDataURL("image/jpeg", 0.82); }catch(e){ data = cv.toDataURL(); }
       if(data.length > 900*1024){ data = cv.toDataURL("image/jpeg", 0.55); }
       var s = bsLoadSettings(); s.bgImage = data;
-      try{ localStorage.setItem("bs_settings", JSON.stringify(s)); }catch(e){ showToast("图片过大，保存失败"); return; }
+      try{ __mxgLVSet("bs_settings", JSON.stringify(s)); }catch(e){ showToast("图片过大，保存失败"); return; }
       showToast("自定义背景已生效");
       bsReader();
     };
@@ -41047,13 +41160,22 @@ window.bsRoomAI = bsRoomAI;
 <script id="tp-script">
 (function(){
   var KEY='tp_mail_v2';
-  function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){return {};}}
-  function save(o){try{localStorage.setItem(KEY,JSON.stringify(o));}catch(e){}}
+  function load(){try{return JSON.parse(__mxgLVGet(KEY)||'{}');}catch(e){return {};}}
+  function save(o){try{__mxgLVSet(KEY,JSON.stringify(o));}catch(e){}}
   var st=load();
   st.threads=st.threads||[]; st.pens=st.pens||[]; st.seen=st.seen||{}; st.current=st.current||null;
   st.drift=st.drift||[]; st.driftQueue=st.driftQueue||[]; st.paper=st.paper||'#fffef9';
   st.roles=st.roles||[]; st.log=st.log||[]; st.roleOpen=null;
   if(st.current && st.current.some(function(x){return /^l\d+$/.test(String(x.id||''));})){ st.current=null; save(st); }
+  window.addEventListener('mxg-data-ready', function(){
+    try{
+      st=load();
+      st.threads=st.threads||[]; st.pens=st.pens||[]; st.seen=st.seen||{}; st.current=st.current||null;
+      st.drift=st.drift||[]; st.driftQueue=st.driftQueue||[]; st.paper=st.paper||'#fffef9';
+      st.roles=st.roles||[]; st.log=st.log||[]; st.roleOpen=null;
+      if(document.getElementById('time-mail-screen').classList.contains('active')) open();
+    }catch(e){}
+  });
   var busy=false;
   var WINDS=[
     '潮水退了，几封信搁浅在你的岸上。',
@@ -41755,14 +41877,25 @@ window.bsRoomAI = bsRoomAI;
 <script id="cr-script">
 (function(){
   var KEY='cr_v1';
-  function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}');}catch(e){return {};}}
-  function save(){try{localStorage.setItem(KEY,JSON.stringify(st));}catch(e){}}
+  function load(){try{return JSON.parse(__mxgLVGet(KEY)||'{}');}catch(e){return {};}}
+  function save(){try{__mxgLVSet(KEY,JSON.stringify(st));}catch(e){}}
   var st=load();
   st.threads=st.threads||[]; st.current=st.current||null; st.posts=st.posts||[]; st.log=st.log||[];
   st.driftQueue=st.driftQueue||[]; st.paper=st.paper||'#fffef9';
   st.mark=st.mark||{a:0,b:0,open:0,done:0,up:0,down:0};
   st.settings=Object.assign({crack:15,regress:true,parallel:true,chars:true,era:'random',topics:[],pair:true,anchor:true},st.settings||{});
   st.wind=st.wind||'';
+  window.addEventListener('mxg-data-ready', function(){
+    try{
+      st=load();
+      st.threads=st.threads||[]; st.current=st.current||null; st.posts=st.posts||[]; st.log=st.log||[];
+      st.driftQueue=st.driftQueue||[]; st.paper=st.paper||'#fffef9';
+      st.mark=st.mark||{a:0,b:0,open:0,done:0,up:0,down:0};
+      st.settings=Object.assign({crack:15,regress:true,parallel:true,chars:true,era:'random',topics:[],pair:true,anchor:true},st.settings||{});
+      st.wind=st.wind||'';
+      if(document.getElementById('crossroads-screen').classList.contains('active')) open();
+    }catch(e){}
+  });
   var busy=false, pending=null, pendingPost=null;
 
   function $(id){return document.getElementById(id);}
