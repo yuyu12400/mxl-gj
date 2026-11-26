@@ -11389,13 +11389,14 @@ document.addEventListener("DOMContentLoaded", () => {
         try { swState = (navigator.serviceWorker && navigator.serviceWorker.controller) ? "已接管" : "未接管"; } catch (eSw) {}
         var errText = window.__mxgLastError ? (window.__mxgLastError.msg || "") : "无";
         var tr = [];
-        try { tr = JSON.parse(localStorage.getItem("mxl-trace") || "[]").slice(-3); } catch (eTr) { tr = []; }
+        try { tr = JSON.parse(localStorage.getItem("mxl-trace") || "[]").slice(-5); } catch (eTr) { tr = []; }
         diagEl.innerHTML = "库体积：" + (window.__mxgMainBytes ? __mxgFmtSize(window.__mxgMainBytes) : "未知") +
           " · 分片 " + ((window.__mxgShardKeys || []).length) + " 个" +
           (window.__mxgShardMissing ? "（缺 " + window.__mxgShardMissing + "）" : "") +
           "<br>角色 " + ((db.characters || []).length) + " · 已加载内存 " + (window.__mxgMemMB ? window.__mxgMemMB() + "MB" : "-") +
           " · 本地有角色：" + (window.__mxgMainHasChars ? "是" : "否") +
           "<br>SW：" + swState + " · 加载来源：" + (window.__mxgLoadSource || "-") +
+          " · IDB：" + (function () { try { return dataStorage.db.isOpen() ? "已打开" : "未打开"; } catch (e) { return "?"; } })() +
           "<br>启动步骤：" + escapeHtml(tr.map(function (x) { return x[1]; }).join(" → ") || "-") +
           "<br>图片：" + __mxgImgStats() +
           "<br>设备：" + escapeHtml(__mxgEnvInfo()) +
@@ -11539,6 +11540,15 @@ document.addEventListener("DOMContentLoaded", () => {
   var MXG_MOD_MAX = 256 * 1024; /* 单个模块超过 256KB 就单独存一条，别拖累 core */
   function __mxgModKey(name) { return MXG_MOD_PREFIX + String(name); }
 
+  /* IDB 读操作加超时：连接被别的标签页占住或库被写坏时，get 会永远不返回，
+     不能让整个启动卡死在那一行（表现就是“重开后一片空白”）。 */
+  function __mxgRace(promise, ms, fallback) {
+    return Promise.race([
+      promise,
+      new Promise(function (resolve) { setTimeout(function () { resolve(fallback); }, ms || 6000); })
+    ]);
+  }
+
   /* 启动/导入步骤留痕：Edge 崩了之后重开能看到死在哪一步 */
   function __mxgTrace(step) {
     try {
@@ -11670,7 +11680,7 @@ document.addEventListener("DOMContentLoaded", () => {
       var chatKeys = (allKeys || []).filter(function (k) {
         return typeof k === "string" && k.indexOf(MXG_CHAT_PREFIX) === 0;
       });
-      var items = chatKeys.length ? await dataStorage.db.storage.bulkGet(chatKeys) : [];
+      var items = chatKeys.length ? await __mxgRace(dataStorage.db.storage.bulkGet(chatKeys), 8000, []) : [];
       if (!window.__mxgShardTexts) window.__mxgShardTexts = {};
       (items || []).forEach(function (it) {
         if (!it || typeof it.value !== "string") return;
@@ -11688,7 +11698,7 @@ document.addEventListener("DOMContentLoaded", () => {
       /* 外置的大模块（图片、动态等） */
       var modKeys = (allKeys || []).filter(function (k) { return typeof k === "string" && k.indexOf(MXG_MOD_PREFIX) === 0; });
       if (modKeys.length) {
-        var modItems = await dataStorage.db.storage.bulkGet(modKeys);
+        var modItems = await __mxgRace(dataStorage.db.storage.bulkGet(modKeys), 8000, []);
         (modItems || []).forEach(function (it) {
           if (!it || typeof it.value !== "string") return;
           try {
@@ -11704,7 +11714,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.__mxgShardMissing = missing;
     /* 清掉已删除会话 / 已收缩会话留下的孤儿分片 */
     try {
-      var allKeys2 = await dataStorage.db.storage.toCollection().primaryKeys();
+      var allKeys2 = await __mxgRace(dataStorage.db.storage.toCollection().primaryKeys(), 8000, []);
       var shadow = {};
       keys.forEach(function (k) { shadow[k] = 1; });
       var orphans = (allKeys2 || []).filter(function (k) {
@@ -11877,13 +11887,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ok) { if (inputEl) inputEl.value = ""; return; }
     window.__stgBusy = true;
     try {
+      __mxgTrace("import:start");
       await __mxgWaitReady(8000);
+      __mxgTrace("import:ready");
       if (file.size > 10 * 1024 * 1024) {
         var bigOk = await uiConfirm("这个备份约 " + __mxgFmtSize(file.size) + "。手机上解析大文件可能内存不足而退出；建议在电脑上导入。仍要继续吗？", "继续导入", true);
         if (!bigOk) { if (inputEl) inputEl.value = ""; return; }
       }
-      __mxgTrace("import:read");
+      __mxgTrace("import:reading");
       var text = await file.text();
+      __mxgTrace("import:read-done");
       var parsed = null;
       try {
         parsed = JSON.parse(text);
@@ -12413,6 +12426,12 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   const dataStorage = new DataStorage();
+  try {
+    dataStorage.db.on("blocked", function () {
+      __mxgTrace("idb:blocked");
+      console.warn("[存储] 数据库被其他标签页占用，本次可能读不到数据");
+    });
+  } catch (eBlk) {}
   let __saveTimer = null;
   let __savePending = null;
   let __saveChain = Promise.resolve();
@@ -12524,7 +12543,8 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    try { coreItem = await dataStorage.db.storage.get(MXG_CORE_KEY); } catch (e0) {}
+    try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 8000, null); } catch (e0) {}
+    __mxgTrace("load:core-read");
     var coreRaw = coreItem && typeof coreItem.value === "string" ? coreItem.value : "";
     var dbTs = coreItem ? (Number(coreItem.timestamp) || 0) : 0;
         var data = null, coreBad = false;
