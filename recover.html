@@ -86,7 +86,9 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
 </div>
 <script>
 (function(){
-  var DATA_DB='麻辣香锅鸡DB', DATA_KEY='麻辣香锅鸡', PRE_KEY='mxl-pre-import-backup', PRE_RAW_KEY='mxl-pre-import-raw';
+  var DATA_DB=(function(){try{return localStorage.getItem('mxl-db-ver')==='2'?'麻辣香锅鸡DB2':'麻辣香锅鸡DB';}catch(e){return '麻辣香锅鸡DB';}})();
+  var DB_ALT=(DATA_DB==='麻辣香锅鸡DB')?'麻辣香锅鸡DB2':'麻辣香锅鸡DB';
+  var DATA_KEY='麻辣香锅鸡', PRE_KEY='mxl-pre-import-backup', PRE_RAW_KEY='mxl-pre-import-raw';
   var CORE_KEY='mxg-core', CHAT_PFX='mxg-chat:';
   var mainData=null, lsData=null, preData=null;
   var $=function(id){return document.getElementById(id)};
@@ -111,6 +113,17 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
       req.onerror=function(){ resolve(null); };
       req.onblocked=function(){ resolve(null); };
     });
+  }
+  /* v6.3.30：主库名可能是重建后切换的 DB2，两个库都探一遍，取有数据的那个 */
+  function openDataDb(){
+    function probe(name){
+      return openDb(name).then(function(db){
+        return Promise.all([readKey(db,DATA_KEY), readKey(db,CORE_KEY)]).then(function(r){
+          return {db:db, name:name, has:!!(r[0]||r[1])};
+        });
+      });
+    }
+    return probe(DATA_DB).then(function(a){ return a.has ? a : probe(DB_ALT); }).then(function(a){ if(a && a.has) DATA_DB=a.name; return a ? a.db : null; });
   }
   function readKey(db,key){
     return new Promise(function(resolve){
@@ -171,7 +184,7 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
   function restore(data,label){
     if(!data){ alert('没有可恢复的数据'); return; }
     if(!confirm('将把「'+label+'」覆盖写入主库。当前主库内容会被替换，确定继续？')) return;
-    openDb(DATA_DB).then(function(db){
+    openDataDb().then(function(db){
       if(!db){ alert('无法打开主数据库'); return; }
       try{
         var tx=db.transaction('storage','readwrite');
@@ -188,7 +201,7 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
   }
   function scan(){
     $('status').textContent='正在读取……';
-    openDb(DATA_DB).then(function(db){
+    openDataDb().then(function(db){
       return Promise.all([readKey(db,DATA_KEY), readKey(db,PRE_KEY), buildFromShards(db)]).then(function(items){
         var item=items[0], preItem=items[1], shardData=items[2];
         mainData=shardData||parseItem(item);
@@ -306,7 +319,7 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
     if(!pendingValue) return;
     if(!confirm('将用这个文件覆盖主库。会先把当前主库放进导入前自动备份，确定继续？')) return;
     var incomingValue=pendingValue, incomingCounts=pendingCounts||'—';
-    openDb(DATA_DB).then(function(db){
+    openDataDb().then(function(db){
       if(!db){ alert('无法打开主数据库'); return; }
       Promise.all([readKey(db,DATA_KEY),readKey(db,PRE_KEY),readKey(db,PRE_RAW_KEY)]).then(function(items){
         /* 直接复制原始字符串做导入前备份：不 parse、不 stringify 旧主库 */

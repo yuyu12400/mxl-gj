@@ -44403,9 +44403,9 @@ function wb2RenderTriggerTab(e) {
 }
 function wb2RenderPositionTab(e) {
   var cards = [
-    ["before","01","前","角色定义之前。世界的底层事实：地理、时代、规矩，写在这里的东西不会随剧情改变。"],
-    ["middle","02","中","角色人格之后、动作规则之前。角色身边的人和事：认识的人、地方、组织、关系。"],
-    ["after","03","后","聊天规则之后、对话之前。当前剧情、情境与需要照做的内容。"],
+    ["before","01","前","角色与人格设定之前。世界共用的底层事实：地理、时代、规矩，不随剧情改变。"],
+    ["middle","02","中","角色设定之后、聊天规则之前。角色身边的人和事：认识的人、地方、组织、关系。"],
+    ["after","03","后","全部系统规则之后、对话之前。当前剧情、情境，以及需要照做的要求。"],
     ["at_depth","04","At Depth","插进对话历史里，越靠近当前消息影响越强。适合此刻的状态与剧情。"]
   ].map(function(c){
     return '<div class="wb2-poscard ' + (e.position === c[0] ? "on" : "") + '" onclick="wb2SetField(\'position\',\'' + c[0] + '\')"><div class="n">' + c[1] + '</div><div class="b"><div class="tt">' + c[2] + '</div><div class="dd">' + c[3] + '</div></div><div class="mark">' + (e.position === c[0] ? "ON" : "SET") + '</div></div>';
@@ -44416,7 +44416,7 @@ function wb2RenderPositionTab(e) {
       + '<div class="wb2-row"><div><div class="rt">插入深度</div><div class="rd">从最新消息往回数第几条之前</div></div><div class="wb2-stepper" style="display:flex;border:1px solid #111;height:30px"><button style="width:30px;border:0;border-right:1px solid #111;background:transparent" onclick="wb2Step(\'depth\',-1)">−</button><div style="width:38px;display:flex;align-items:center;justify-content:center;font:10px/1 monospace"><input id="wb2-e-depth" class="wb2-input" style="border:0;background:transparent;padding:0;text-align:center;font-size:10px;font-weight:700" type="number" min="0" value="' + e.depth + '"></div><button style="width:30px;border:0;border-left:1px solid #111;background:transparent" onclick="wb2Step(\'depth\',1)">＋</button></div></div>'
       + '<div class="wb2-row"><div><div class="rt">插入角色</div><div class="rd">system 最稳；user 更像旁白</div></div><div class="wb2-seg" style="width:174px;margin:0">' + wb2Choice("role","system","SYSTEM",e.role) + wb2Choice("role","user","USER",e.role) + wb2Choice("role","assistant","ASSIST",e.role) + '</div></div></div>';
   }
-  return cards + depth
+  return '<div class="wb2-callout"><b>放哪一格</b> · 世界级法则放「前」；某个角色私有的放「中」（并挂给该角色）；必须照做的行为要求、禁止事项、剧情规则放「后」；只在当前剧情成立的放 At Depth。</div>' + cards + depth
     + '<div class="wb2-mini"><div class="m"><span>ORDER</span><b><input id="wb2-e-order" class="wb2-input" style="border:0;background:transparent;padding:0;font-size:10px;font-weight:700" type="number" value="' + e.order + '"></b></div><div class="m"><span>TOKEN BUDGET</span><b><input id="wb2-e-budget" class="wb2-input" style="border:0;background:transparent;padding:0;font-size:10px;font-weight:700" type="number" min="0" value="' + e.tokenBudget + '"></b></div></div>'
     + '<div class="wb2-hint">ORDER 越大越先拼接；TOKEN BUDGET 为 0 表示不截断。</div>';
 }
