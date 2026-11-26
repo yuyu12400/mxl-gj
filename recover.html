@@ -72,7 +72,7 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
       <div class="k">内容</div><div class="v" id="lsInfo">—</div>
     </div>
     <div class="btns"><button class="btn ghost" id="exportLs" disabled>导出镜像 JSON</button><button class="btn warn" id="restoreLs" disabled>恢复到主库</button></div>
-    <div class="note">v6.3.16 启动时不再读取这个旧镜像；这里只用于你手动导出或恢复。</div>
+    <div class="note">v6.3.15 启动时不再读取这个旧镜像；这里只用于你手动导出或恢复。</div>
   </div>
 
   <div class="card">
@@ -217,7 +217,7 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
   $('exportLs').onclick=function(){ if(lsData) download(lsData,'麻辣香锅鸡_旧镜像备份_'+Date.now()+'.json'); };
   $('restorePre').onclick=function(){ restore(preData,'导入前备份'); };
   /* 从文件导入：绕开主应用按钮，恢复页直接读文件、先备份、再写主库。 */
-  var pendingImport=null;
+  var pendingImport=null, pendingValue=null, pendingCounts=null;
   function parseFileText(text){
     var parsed;
     try{ parsed=JSON.parse(text); }
@@ -246,8 +246,13 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
       if(f.size>20*1024*1024 && !confirm('这个备份约 '+(f.size/1048576).toFixed(1)+' MB，手机解析时可能内存不足。仍要继续吗？')) throw new Error('已取消读取大文件');
       var text=await f.text();
       var data=parseFileText(text);
-      pendingImport=data;
-      $('fileCounts').textContent=counts(data);
+      /* 只保留一份待写入字符串和概览，对象本身立刻释放，降低峰值内存 */
+      pendingValue=JSON.stringify(data);
+      pendingCounts=counts(data);
+      pendingImport=null;
+      data=null;
+      text=null;
+      $('fileCounts').textContent=pendingCounts;
       $('fileBadge').className='badge ok'; $('fileBadge').textContent='可导入';
       $('importFileBtn').disabled=false;
     }catch(e){
@@ -256,26 +261,31 @@ pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px sol
     }
   };
   $('importFileBtn').onclick=function(){
-    if(!pendingImport) return;
+    if(!pendingValue) return;
     if(!confirm('将用这个文件覆盖主库。会先把当前主库放进导入前自动备份，确定继续？')) return;
-    var incoming=pendingImport;
+    var incomingValue=pendingValue, incomingCounts=pendingCounts||'—';
     openDb(DATA_DB).then(function(db){
       if(!db){ alert('无法打开主数据库'); return; }
       Promise.all([readKey(db,DATA_KEY),readKey(db,PRE_KEY)]).then(function(items){
-        var current=parseItem(items[0]);
-        var existingPre=parseItem(items[1]);
-        var currentHas=!!(current && Array.isArray(current.characters) && current.characters.length);
-        var preHas=!!(existingPre && existingPre.data && Array.isArray(existingPre.data.characters) && existingPre.data.characters.length);
+        /* 直接复制原始字符串做导入前备份：不 parse、不 stringify 旧主库 */
+        var currentRaw=items[0] && typeof items[0].value==='string' ? items[0].value : '';
+        var preRaw=items[1] && typeof items[1].value==='string' ? items[1].value : '';
+        var currentHas=/"characters"\s*:\s*\[\s*\{/.test(currentRaw);
+        var preHas=/"characters"\s*:\s*\[\s*\{/.test(preRaw);
+        preRaw=null;
         var tx=db.transaction('storage','readwrite');
         if(currentHas || !preHas){
-          tx.objectStore('storage').put({key:PRE_KEY,value:JSON.stringify({ts:Date.now(),data:current}),timestamp:Date.now()});
+          var snap='{"ts":'+Date.now()+',"data":'+(currentRaw || 'null')+'}';
+          tx.objectStore('storage').put({key:PRE_KEY,value:snap,timestamp:Date.now()});
         }
-        tx.objectStore('storage').put({key:DATA_KEY,value:JSON.stringify(incoming),timestamp:Date.now()});
+        currentRaw=null;
+        tx.objectStore('storage').put({key:DATA_KEY,value:incomingValue,timestamp:Date.now()});
         tx.oncomplete=function(){
           readKey(db,DATA_KEY).then(function(item){
-            var saved=parseItem(item);
-            var ok=!!(saved && (!Array.isArray(incoming.characters) || (Array.isArray(saved.characters)&&saved.characters.length===incoming.characters.length)));
-            if(ok){ $('status').textContent='已写入主库（'+counts(saved)+'）。回到应用完全关闭后重新打开。'; alert('导入成功。请回到应用完全关闭后重新打开。'); }
+            var written=item && typeof item.value==='string' ? item.value : '';
+            var ok=!!(written && written.length===incomingValue.length);
+            written=null;
+            if(ok){ $('status').textContent='已写入主库（'+incomingCounts+'）。回到应用完全关闭后重新打开。'; alert('导入成功。请回到应用完全关闭后重新打开。'); }
             else { $('status').textContent='写入后回读校验失败；导入前备份已保留。'; alert('写入后校验失败，请先导出导入前备份。'); }
             scan();
           });

@@ -30,18 +30,32 @@
     <script>
     /* ===== 全局错误捕获：仅记录到控制台，不再弹出全屏报错 ===== */
     (function () {
-      function showFatal(msg) {
+      var __lastKey = "", __lastAt = 0;
+      function showFatal(msg, kind) {
         try {
-          console.error("[页面错误(已静默处理)]", msg);
+          var key = (kind || "") + "|" + msg, now = Date.now();
+          if (key === __lastKey && now - __lastAt < 3000) return; /* 同一条错误短时间内只报一次 */
+          __lastKey = key; __lastAt = now;
+          window.__mxgLastError = { kind: kind || "error", msg: msg, ts: now };
+          console.error("[页面错误]", msg);
+          /* 错误不再完全静默：底部提示一次（30 秒内最多一次），不打断操作 */
+          if (window.__mxgErrorToastAt && now - window.__mxgErrorToastAt < 30000) return;
+          window.__mxgErrorToastAt = now;
+          var t = document.getElementById("toast-notification");
+          if (!t) return;
+          t.textContent = "页面出现异常：" + String(msg).slice(0, 50) + "（详见控制台）";
+          t.classList.add("show");
+          clearTimeout(window.__mxgErrorToastTimer);
+          window.__mxgErrorToastTimer = setTimeout(function () { t.classList.remove("show"); }, 4000);
         } catch (e) {}
       }
       window.addEventListener("error", function (ev) {
         var msg = (ev && (ev.message || (ev.error && ev.error.message)) || "未知错误") + (ev && ev.filename ? " @" + ev.filename + ":" + ev.lineno : "");
-        showFatal(msg);
+        showFatal(msg, "error");
       });
       window.addEventListener("unhandledrejection", function (ev) {
         var msg = (ev && (ev.reason && (ev.reason.message || String(ev.reason))) || "未处理的Promise错误");
-        showFatal(msg);
+        showFatal(msg, "rejection");
       });
     })();
     </script>
@@ -10463,7 +10477,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane is-on" data-offline-pane="meet">
                 <div class="o404-clock-row">
                     <div class="o404-clock" id="o404-time">20:14</div>
-                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.6</span></div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.17</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR MOMENT</span>
@@ -10496,7 +10510,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:16</div>
-                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.6</span></div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.17</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR CAST</span>
@@ -10508,7 +10522,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="story">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:18</div>
-                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.6</span></div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.17</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR STORY</span>
@@ -11233,6 +11247,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   function __mxgSizeOf(v) {
     if (v === undefined || v === null) return 0;
+    /* 整个库的体积直接取 IDB 里的原始字符串长度，避免为了统计再 stringify 一遍大库 */
+    if (v === db && Number(window.__mxgMainBytes) > 0) return Number(window.__mxgMainBytes);
     try {
       return new Blob([typeof v === "string" ? v : JSON.stringify(v)]).size;
     } catch (e) {
@@ -11262,6 +11278,8 @@ document.addEventListener("DOMContentLoaded", () => {
     var listEl = document.getElementById("stg-bars-list");
     if (!listEl) return;
     var total = __mxgSizeOf(db);
+    /* 大库（>20MB）打开数据页时不再逐类 stringify，手机上这一步很容易把内存顶爆 */
+    var heavy = total > 20 * 1024 * 1024;
     var groups = [
       { name: "角色与聊天", color: "#111111", keys: ["characters", "groups", "masks", "relationships", "profile", "activeMaskId"] },
       { name: "世界书", color: "#5b5b62", keys: ["worldBooks", "worldBookFolders", "worldBookSettings"] },
@@ -11272,15 +11290,20 @@ document.addEventListener("DOMContentLoaded", () => {
       { name: "桌面与外观", color: "#ff6b33", keys: ["theme", "wallpaper", "fontUrl", "fontScale", "customIcons", "myStickers", "desktopOrder", "desktopOrderVersion", "homeScreenMode", "ui404", "widgetTexts", "widgetImages", "widgetNote"] },
       { name: "接口与偏好", color: "#2f6f62", keys: ["apiSettings", "apiPresets", "realTimeSensing", "timeSense", "timeSenseOptInMigrated", "apiPreset"] }
     ];
-    var rows = groups.map(function (g) {
-      var b = 0;
-      g.keys.forEach(function (k) { if (db && db[k] !== undefined) b += __mxgSizeOf(db[k]); });
-      return { name: g.name, color: g.color, bytes: b, pct: total ? b / total * 100 : 0 };
-    });
-    var assigned = rows.reduce(function (n, r) { return n + r.bytes; }, 0);
-    if (total > assigned) rows.push({ name: "结构与索引", color: "#b9a78f", bytes: total - assigned, pct: (total - assigned) / total * 100 });
-    rows = rows.filter(function (r) { return r.bytes > 0; });
-    if (!rows.length) rows = [{ name: "暂无数据", color: "#d8d8dc", bytes: 0, pct: 0 }];
+    var rows;
+    if (heavy) {
+      rows = [{ name: "整个数据包（体积过大，分类统计已省略）", color: "#111111", bytes: total, pct: 100 }];
+    } else {
+      rows = groups.map(function (g) {
+        var b = 0;
+        g.keys.forEach(function (k) { if (db && db[k] !== undefined) b += __mxgSizeOf(db[k]); });
+        return { name: g.name, color: g.color, bytes: b, pct: total ? b / total * 100 : 0 };
+      });
+      var assigned = rows.reduce(function (n, r) { return n + r.bytes; }, 0);
+      if (total > assigned) rows.push({ name: "结构与索引", color: "#b9a78f", bytes: total - assigned, pct: (total - assigned) / total * 100 });
+      rows = rows.filter(function (r) { return r.bytes > 0; });
+      if (!rows.length) rows = [{ name: "暂无数据", color: "#d8d8dc", bytes: 0, pct: 0 }];
+    }
     if (donut) {
       var acc = 0, stops = [];
       rows.forEach(function (r) {
@@ -11417,25 +11440,69 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     return payload;
   }
-  function exportBackupJSON() {
-    if (window.__stgBusy) return;
+  var MXG_MAIN_KEY = "\u9EBB\u8FA3\u9999\u9505\u9E21";
+  var MXG_PRE_KEY = "mxl-pre-import-backup";
+  /* 等主库加载完成（最多 ms 毫秒），导出/导入都先等这一步，避免拿到空壳 db */
+  function __mxgWaitReady(ms) {
+    if (window.__mxgLoadDone) return Promise.resolve(true);
+    return new Promise(function (resolve) {
+      var done = false;
+      var finish = function (v) { if (!done) { done = true; resolve(v); } };
+      window.addEventListener("mxg-data-ready", function () { finish(true); }, { once: true });
+      setTimeout(function () { finish(!!window.__mxgLoadDone); }, ms || 8000);
+    });
+  }
+  /* 直接读 IDB 里的原始字符串：不 parse、不 stringify，内存只多一份字符串 */
+  function __mxgRawOf(key) {
+    return dataStorage.db.storage.get(key).then(function (item) {
+      return item && typeof item.value === "string" ? item.value : "";
+    }).catch(function () { return ""; });
+  }
+  function __mxgRawMain() { return __mxgRawOf(MXG_MAIN_KEY); }
+  async function exportBackupJSON() {
+    if (window.__stgBusy) { showToast("上一次导入/导出还没结束，请等几秒再试。"); return; }
     window.__stgBusy = true;
     try {
+      await __mxgWaitReady(8000);
+      var rawMain = await __mxgRawMain();
       var payload = buildBackupPayload();
-      var jsonString = JSON.stringify(payload, null, 2);
+      var chars = (payload.data && payload.data.characters) || [];
+      /* 空壳保护：IDB 里明明有角色、内存里却读到 0 个，说明 loadData 还没把数据装进 db。
+         用原始字符串判断，既不解析大库，也不会误伤“本来就没有角色”的小库。 */
+      if (!chars.length && /"characters"\s*:\s*\[\s*\{/.test(rawMain)) {
+        throw new Error("数据还没加载完（主库约 " + __mxgFmtSize(rawMain.length) + "），请等几秒再导出");
+      }
+      var jsonString = JSON.stringify(payload); /* 紧凑输出：体积与内存都更省 */
+      payload = null;
       var blob = new Blob([jsonString], { type: "application/json" });
-      var url = URL.createObjectURL(blob);
-      var a = document.createElement("a");
+      jsonString = null;
       var now = new Date();
       var date = now.toISOString().slice(0, 10);
       var time = now.toTimeString().slice(0, 8).replace(/:/g, "");
+      var fileName = "麻辣香锅鸡_备份_" + date + "_" + time + ".json";
+      /* 手机上很多 WebView 不认 a[download]，优先走系统分享（可直接存到「文件」/微信） */
+      try {
+        if (navigator.canShare && navigator.share) {
+          var shareFile = new File([blob], fileName, { type: "application/json" });
+          if (navigator.canShare({ files: [shareFile] })) {
+            await navigator.share({ files: [shareFile], title: "麻辣香锅鸡备份" });
+            showToast("备份已交给系统保存（" + __mxgFmtSize(blob.size) + "）");
+            return;
+          }
+        }
+      } catch (shareErr) {
+        if (shareErr && shareErr.name === "AbortError") { showToast("已取消导出"); return; }
+        console.warn("系统分享失败，改用下载：", shareErr);
+      }
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
       a.href = url;
-      a.download = "麻辣香锅鸡_备份_" + date + "_" + time + ".json";
+      a.download = fileName;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      setTimeout(function () { URL.revokeObjectURL(url); }, 1800);
-      showToast("JSON 备份已导出（" + __mxgFmtSize(blob.size) + "）");
+      setTimeout(function () { URL.revokeObjectURL(url); }, 3000);
+      showToast("JSON 备份已导出（" + __mxgFmtSize(blob.size) + "）· 含 API Key，请勿外传");
     } catch (e) {
       showToast("导出失败：" + (e.message || "未知错误"));
     } finally {
@@ -11443,61 +11510,53 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   async function importBackupFile(file, inputEl) {
-    /* 这里以前是静默 return：没拿到文件或上一次操作没结束时，用户会看到“点了没反应”。
-       现在每一步都给提示，避免再出现无反馈。 */
+    /* 每一步都给提示，避免“点了没反应”。 */
     if (!file) {
       showToast("没有读到备份文件，请重新点一次「导入 JSON」再选文件。");
-      if (inputEl) inputEl.value = null;
+      if (inputEl) inputEl.value = "";
       return;
     }
     if (window.__stgBusy) {
       showToast("上一次导入/导出还没结束，请等几秒再试。");
-      if (inputEl) inputEl.value = null;
+      if (inputEl) inputEl.value = "";
       return;
     }
-    showToast("已选择：" + (file.name || "备份文件") + "（" + (file.size / 1024 / 1024).toFixed(1) + " MB），正在读取…");
+    showToast("已选择：" + (file.name || "备份文件") + "（" + __mxgFmtSize(file.size) + "），正在读取…");
     var ok = false;
     try {
       ok = await uiConfirm("此操作将覆盖当前所有聊天记录和设置。此操作不可撤销。确定要继续吗？", "继续", true);
     } catch (confirmErr) {
       console.error("导入确认框失败:", confirmErr);
       showToast("确认框没有打开，请刷新页面后再试。");
-      if (inputEl) inputEl.value = null;
+      if (inputEl) inputEl.value = "";
       return;
     }
-    if (!ok) { if (inputEl) inputEl.value = null; return; }
+    if (!ok) { if (inputEl) inputEl.value = ""; return; }
     window.__stgBusy = true;
+    var rawCurrent = "";   /* 导入前主库的原始字符串，失败时原样回滚 */
+    var wroteMain = false;
     try {
-      /* 启动时快速渲染会把桌面先画出来，但 loadData 可能还在解析。这里最多等 8 秒；
-         超时也继续，因为下面备份会直接从 IDB 读主库，不依赖内存里的 db。 */
-      if (!window.__mxgLoadDone) {
-        await new Promise(function (resolve) {
-          var done = false;
-          var finish = function () { if (!done) { done = true; resolve(); } };
-          window.addEventListener("mxg-data-ready", finish, { once: true });
-          setTimeout(finish, 8000);
-        });
-      }
-      if (file.size > 20 * 1024 * 1024) {
-        window.__stgBusy = false;
-        var tooBig = await uiConfirm("这个备份约 " + (file.size / 1024 / 1024).toFixed(1) + " MB。主应用直接解析很容易被手机内存杀掉。建议改用恢复页的「从 JSON 文件导入」，它更轻。要现在打开恢复页吗？", "打开恢复页", false);
-        if (inputEl) inputEl.value = null;
-        if (tooBig) window.location.href = "recover.html";
-        return;
-      }
+      await __mxgWaitReady(8000);
       if (file.size > 10 * 1024 * 1024) {
-        var bigOk = await uiConfirm("这个备份约 " + (file.size / 1024 / 1024).toFixed(1) + " MB。手机解析大文件时可能内存不足而闪退；建议改用恢复页的「从 JSON 文件导入」。仍要在主应用继续吗？", "继续导入", true);
-        if (!bigOk) { if (inputEl) inputEl.value = null; return; }
+        var bigOk = await uiConfirm("这个备份约 " + __mxgFmtSize(file.size) + "。手机上解析大文件可能内存不足而闪退；建议在电脑上导入。仍要继续吗？", "继续导入", true);
+        if (!bigOk) { if (inputEl) inputEl.value = ""; return; }
       }
       var text = await file.text();
       var parsed = null;
       try {
         parsed = JSON.parse(text);
       } catch (jsonErr) {
-        var decompressedStream = file.stream().pipeThrough(new DecompressionStream("gzip"));
-        var decompressed = await new Response(decompressedStream).text();
-        parsed = JSON.parse(decompressed);
+        var decompressed = null;
+        try {
+          decompressed = await new Response(file.stream().pipeThrough(new DecompressionStream("gzip"))).text();
+          parsed = JSON.parse(decompressed);
+        } catch (gzErr) {
+          throw new Error("不是有效的 JSON 备份，也不是 gzip 压缩包（文件可能损坏或被截断）");
+        } finally {
+          decompressed = null;
+        }
       }
+      text = null; /* 尽早释放整份文本，降低峰值内存 */
       var data = null, localData = {};
       if (parsed && parsed.data && typeof parsed.data === "object" && !Array.isArray(parsed.data)) {
         data = parsed.data;
@@ -11508,61 +11567,82 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         data = parsed;
       }
+      parsed = null;
       if (!data || typeof data !== "object" || Array.isArray(data)) throw new Error("备份文件里没有有效的应用数据");
       if (!Array.isArray(data.characters) && !Array.isArray(data.worldBooks) && !Array.isArray(data.groups) && !Array.isArray(data.masks)) throw new Error("备份文件不是麻辣香锅鸡的数据格式");
       if (data.characters !== undefined && !Array.isArray(data.characters)) throw new Error("备份里的 characters 不是数组");
       if (data.groups !== undefined && !Array.isArray(data.groups)) throw new Error("备份里的 groups 不是数组");
       if (data.worldBooks !== undefined && !Array.isArray(data.worldBooks)) throw new Error("备份里的 worldBooks 不是数组");
-      ["characters", "groups", "worldBooks", "memories", "masks", "offlineChats"].forEach(function (k) {
-        if (Array.isArray(data[k])) data[k] = data[k].filter(function (x) { return x && typeof x === "object"; });
-      });
       if (!data.__localKV || typeof data.__localKV !== "object" || Array.isArray(data.__localKV)) data.__localKV = {};
       MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
         if (typeof localData[key] === "string") data.__localKV[key] = localData[key];
       });
 
-      /* 先备份当前主库；备份失败就取消导入，避免旧数据没留底就被覆盖。
-         如果当前主库已经空了，但上一次的导入前备份里还有角色，就不要用空库覆盖它。 */
-      var previous = db;
-      try {
-        var mainNow = await dataStorage.getData("麻辣香锅鸡");
-        if (mainNow && typeof mainNow === "object") previous = mainNow;
-      } catch (mainErr) {}
-      var preExisting = null;
-      try { preExisting = await dataStorage.getData("mxl-pre-import-backup"); } catch (preErr) {}
-      var existingHasChars = !!(preExisting && preExisting.data && Array.isArray(preExisting.data.characters) && preExisting.data.characters.length);
-      var currentHasChars = !!(previous && Array.isArray(previous.characters) && previous.characters.length);
+      /* 先备份当前主库。这里直接复制 IDB 里的原始字符串：
+         不 parse 旧库、不重新 stringify，手机上少一份整库对象的峰值内存。 */
+      rawCurrent = await __mxgRawMain();
+      var currentHasChars = !!(db && Array.isArray(db.characters) && db.characters.length);
+      var preRaw = "";
+      try { preRaw = await __mxgRawOf(MXG_PRE_KEY); } catch (preErr) {}
+      var existingHasChars = /"characters"\s*:\s*\[\s*\{/.test(preRaw);
+      preRaw = null;
       if (currentHasChars) {
-        var snapOk = await dataStorage.saveData("mxl-pre-import-backup", { ts: Date.now(), data: previous });
+        var snapValue = '{"ts":' + Date.now() + ',"data":' + (rawCurrent || JSON.stringify(db)) + '}';
+        var snapOk = false;
+        try {
+          await dataStorage.db.storage.put({ key: MXG_PRE_KEY, value: snapValue, timestamp: Date.now() });
+          snapOk = true;
+        } catch (snapErr) { console.error("导入前备份写入失败:", snapErr); }
+        snapValue = null;
         if (!snapOk) throw new Error("无法备份当前数据（可能存储空间不足），已取消导入");
       } else if (existingHasChars) {
         showToast("已保留上一次有数据的导入前备份，本次不再用空库覆盖它。");
       }
 
-      /* 不先把 db 换成导入数据；写进主库并回读校验通过后再替换。 */
-      var saved = await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", data);
+      /* 写进主库；回读只比对字符串长度，不再把整库 parse 成第二个对象 */
+      var saved = await dataStorage.saveData(MXG_MAIN_KEY, data);
       if (!saved) throw new Error("写入本地 IDB 失败，当前数据未覆盖");
-      var verified = await dataStorage.getData("\u9EBB\u8FA3\u9999\u9505\u9E21");
-      if (!verified || typeof verified !== "object") throw new Error("写入后回读失败，已保留导入前备份");
-      if (Array.isArray(data.characters) && (!Array.isArray(verified.characters) || verified.characters.length !== data.characters.length)) {
-        throw new Error("写入后角色数量不一致，已保留导入前备份");
+      wroteMain = true;
+      var written = await __mxgRawMain();
+      var expectedLen = (window.__lastSave && window.__lastSave.size) || 0;
+      if (!written || (expectedLen && written.length !== expectedLen)) {
+        throw new Error("写入后回读校验失败（长度不一致），正在回滚到导入前的数据…");
       }
+      db = data;
+      window.db = db;
+      /* 同步更新数据页用的主库体积，避免下次打开数据页再 stringify 整个库 */
+      window.__mxgMainBytes = written.length;
+      written = null;
       try { await saveWorldBookBackup(); } catch (e) {}
       MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
         try { localStorage.removeItem(key); } catch (e2) {}
       });
-      /* 不自动 reload：导入大数据时，旧页面还占着内存，刷新会再加载一遍，容易闪退。
-         先释放大对象，提示用户手动完全关闭 App 再打开。 */
-      db = null;
-      window.db = null;
-      showToast("导入已完成，请完全关闭 App 后再打开。");
-      uiAlert("导入已完成。请先把 App 完全关闭，再重新打开；不要停留在当前页面继续操作。");
+      showToast("数据已恢复，应用即将刷新。");
+      setTimeout(function () { window.location.reload(); }, 1200);
     } catch (e) {
       console.error("导入失败:", e);
-      showToast("导入失败：" + (e.message || "无法读取备份文件"));
+      if (wroteMain) {
+        /* 关键修复：写坏了要回滚，不能把坏数据留在主库 */
+        try {
+          if (rawCurrent) {
+            await dataStorage.db.storage.put({ key: MXG_MAIN_KEY, value: rawCurrent, timestamp: Date.now() });
+            showToast("导入失败，已回滚到导入前的数据：" + (e.message || "未知错误"));
+          } else {
+            await dataStorage.removeData(MXG_MAIN_KEY);
+            showToast("导入失败，已清空这次写入：" + (e.message || "未知错误"));
+          }
+          setTimeout(function () { window.location.reload(); }, 1200);
+        } catch (rbErr) {
+          console.error("回滚失败:", rbErr);
+          showToast("导入失败，且回滚失败：" + (e.message || "未知错误"));
+        }
+      } else {
+        showToast("导入失败：" + (e.message || "无法读取备份文件"));
+      }
     } finally {
       window.__stgBusy = false;
-      if (inputEl) inputEl.value = null;
+      rawCurrent = null;
+      if (inputEl) inputEl.value = "";
     }
   }
   /* 用事件委托兜底：设置页 DOM 被重绘或 Edge 不认 label/for 时，导出导入仍然能点。 */
@@ -11594,7 +11674,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="stg-eyebrow" id="stg-eyebrow">SETTINGS / 04</div>
       <div class="stg-title" id="stg-title">设置</div>
     </div>
-    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.6</b><span id="stg-status">READY</span></div>
+    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.17</b><span id="stg-status">READY</span></div>
   </div>
   <div class="stg-views">
     <section class="stg-view active" data-stg-page="home">
@@ -11608,7 +11688,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <button type="button" class="stg-item" data-stg-go="data"><span class="num">02</span><span class="main"><b>数据 / DATA</b><em>数据分布与内存占用 · 导出 / 导入 JSON</em></span><span class="arrow">↗</span></button>
         <button type="button" class="stg-item" data-stg-go="look"><span class="num">03</span><span class="main"><b>外观 / LOOK</b><em>壁纸、日夜、字体与桌面图标</em></span><span class="arrow">↗</span></button>
       </div>
-      <div class="stg-foot">MXG / SETTINGS — V6.3.6</div>
+      <div class="stg-foot">MXG / SETTINGS — V6.3.17</div>
     </section>
 
     <section class="stg-view" data-stg-page="api">
@@ -11780,7 +11860,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.16";
+  const APP_VERSION = "v6.3.17";
   let db = {
     characters: [],
     groups: [],
@@ -11917,6 +11997,7 @@ document.addEventListener("DOMContentLoaded", () => {
         err = (e && (e.name + ":" + e.message)) || String(e);
         console.error("保存数据失败:", e);
       }
+      if (ok && key === "\u9EBB\u8FA3\u9999\u9505\u9E21") window.__mxgMainBytes = json.length;
       window.__lastSave = { ok, err, ts, size: json.length, key };
       return ok;
     }
@@ -12029,14 +12110,20 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const saveData = (data, opts) => {
     /* 数据未加载完成前禁止写入，避免开屏空壳把默认空库覆盖到真实数据上 */
-    if (!window.__mxgLoadDone) return Promise.resolve(true);
+    if (!window.__mxgLoadDone) {
+      if (!window.__mxgSaveBeforeReadyWarned) {
+        window.__mxgSaveBeforeReadyWarned = 1;
+        console.warn("[存储] 数据尚未加载完成，本次保存被拒绝");
+      }
+      return Promise.resolve(false);
+    }
     const payload = data ? data : db;
     __savePending = payload;
     if (opts && opts.force) return __flushSave();
     return new Promise((resolve) => {
       __saveWaiters.push(resolve);
       if (__saveTimer) clearTimeout(__saveTimer);
-      __saveTimer = setTimeout(__flushSave, 0);
+      __saveTimer = setTimeout(__flushSave, 350);
     });
   };
   window.__mxgSaveLocal = saveData;
@@ -12087,7 +12174,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let dbTs = 0;
     try {
       const latestMeta = await dataStorage.db.storage.get("\u9EBB\u8FA3\u9999\u9505\u9E21");
-      if (latestMeta) dbTs = Number(latestMeta.timestamp) || 0;
+      if (latestMeta) {
+        dbTs = Number(latestMeta.timestamp) || 0;
+        window.__mxgMainBytes = latestMeta.value ? String(latestMeta.value).length : 0;
+      }
     } catch (e0) {}
     let effectiveTs = dbTs;
     const hasCharacters = function (x) {
@@ -12217,10 +12307,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!db.couple.actionNextTs) db.couple.actionNextTs = 0;
       if (!db.couple.actionScheduledAt) db.couple.actionScheduledAt = 0;
     }
-    db.characters = db.characters.filter(function (c) { return c && typeof c === "object"; });
-    db.groups = db.groups.filter(function (g) { return g && typeof g === "object"; });
-    db.worldBooks = db.worldBooks.filter(function (w) { return w && typeof w === "object"; });
-    db.memories = db.memories.filter(function (m) { return m && typeof m === "object"; });
     db.characters.forEach((c) => {
       if (c.isPinned === void 0) c.isPinned = false;
       if (c.status === void 0) c.status = "\u5728\u7EBF";
@@ -12241,14 +12327,28 @@ document.addEventListener("DOMContentLoaded", () => {
     db.memories.forEach((m) => {
       if (m.weight === void 0) m.weight = 1;
     });
+    /* v6.3.17：流水/动态/帖子只增不减会撑爆配额，这里加软上限，只裁最旧的 */
+    try {
+      const __trimTail = (arr, max) => {
+        if (Array.isArray(arr) && arr.length > max) arr.splice(max, arr.length - max);
+      };
+      __trimTail(db.feeds, 600);
+      if (db.wallet) __trimTail(db.wallet.tx, 800);
+      if (db.forum) __trimTail(db.forum.posts, 600);
+      __trimTail(db.notifications, 300);
+      __trimTail(db.memories && db.memories.log, 300);
+      if (db.feedSettings && db.feedSettings.log) __trimTail(db.feedSettings.log, 300);
+    } catch (eTrim) {}
     window.__mxgLoadDone = true;
     try { window.dispatchEvent(new CustomEvent("mxg-data-ready")); } catch (e7) {}
     return Promise.resolve();
   };
+  let __toastTimer = 0;
   const showToast = (message) => {
     toastElement.textContent = message;
     toastElement.classList.add("show");
-    setTimeout(() => toastElement.classList.remove("show"), 3e3);
+    if (__toastTimer) clearTimeout(__toastTimer);
+    __toastTimer = setTimeout(() => { toastElement.classList.remove("show"); __toastTimer = 0; }, 3e3);
   };
   function importTxtFile(input, targetId, nameId) {
     const f = input && input.files && input.files[0];
@@ -13267,6 +13367,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e1) {
       console.error("快速桌面渲染失败:", e1);
     }
+    try { __mxgSyncDateLabels(); } catch (eDate) {}
     // 先把桌面交给用户，再开始加载数据；开屏页不承担数据库加载
     if (!window.__earlyNavBound) {
       window.__earlyNavBound = 1;
@@ -13277,13 +13378,14 @@ document.addEventListener("DOMContentLoaded", () => {
         switchScreen(nav.getAttribute("data-target"));
       });
     }
-    dismissSplash();
-    await new Promise((resolve) => setTimeout(resolve, 340));
+    /* v6.3.17：开屏页保留到主库加载完成，避免加载窗口内的操作被 loadData 覆盖 */
     try {
       await loadData();
     } catch (loadErr) {
       console.error("数据加载失败:", loadErr);
       showToast("数据加载失败，请打开恢复页导出或恢复。");
+    } finally {
+      try { dismissSplash(); } catch (e0) {}
     }
     try { await __mxgRequestPersist(); } catch (e) {}
     window.addEventListener("pageshow", function () { window.__stgBusy = false; });
@@ -13786,7 +13888,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.6</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.17</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -13820,7 +13922,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.6<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.17<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -16099,9 +16201,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     if (currentChatType === "private") {
       const character = db.characters.find((c) => c.id === currentChatId);
-      const updateStatusRegex = new RegExp("\\[".concat(character.realName, "\u66F4\u65B0\u72B6\u6001\u4E3A\uFF1A(.*?)\\]"));
-      const transferActionRegex = new RegExp("\\[".concat(character.realName, "(\u63A5\u6536|\u9000\u56DE)").concat(character.myName, "\u7684\u8F6C\u8D26\\]"));
-      const giftReceivedRegex = new RegExp("\\[".concat(character.realName, "\u5DF2\u63A5\u6536\u793C\u7269\\]"));
+      const updateStatusRegex = new RegExp("\\[".concat(escRe(character.realName), "\u66F4\u65B0\u72B6\u6001\u4E3A\uFF1A(.*?)\\]"));
+      const transferActionRegex = new RegExp("\\[".concat(escRe(character.realName), "(\u63A5\u6536|\u9000\u56DE)").concat(escRe(character.myName), "\u7684\u8F6C\u8D26\\]"));
+      const giftReceivedRegex = new RegExp("\\[".concat(escRe(character.realName), "\u5DF2\u63A5\u6536\u793C\u7269\\]"));
       if (message.content.match(updateStatusRegex)) {
         character.status = message.content.match(updateStatusRegex)[1];
         chatRoomStatusText.textContent = character.status;
@@ -16231,7 +16333,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
     const message = {
-      id: "msg_".concat(Date.now()),
+      id: mxgNewMsgId(),
       role: "user",
       content: messageContent,
       parts: [{ type: "text", text: messageContent }],
@@ -16259,7 +16361,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const myName = currentChatType === "private" ? chat.myName : chat.me.nickname;
     const textPrompt = "[".concat(myName, "\u53D1\u6765\u4E86\u4E00\u5F20\u56FE\u7247\uFF1A]");
     const message = {
-      id: "msg_".concat(Date.now()),
+      id: mxgNewMsgId(),
       role: "user",
       content: base64Data,
       parts: [{ type: "text", text: textPrompt }, { type: "image", data: base64Data }],
@@ -16280,7 +16382,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const stickerParts = [{ type: "text", text: messageContentForAI }];
     if (sticker.data) stickerParts.push({ type: "image", data: sticker.data });
     const message = {
-      id: "msg_".concat(Date.now()),
+      id: mxgNewMsgId(),
       role: "user",
       content: messageContentForAI,
       parts: stickerParts,
@@ -16302,7 +16404,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const myName = currentChatType === "private" ? chat.myName : chat.me.nickname;
     const content = "[".concat(myName, "\u7684\u8BED\u97F3\uFF1A").concat(text, "]");
     const message = {
-      id: "msg_".concat(Date.now()),
+      id: mxgNewMsgId(),
       role: "user",
       content,
       parts: [{ type: "text", text: content }],
@@ -16323,7 +16425,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const myName = currentChatType === "private" ? chat.myName : chat.me.nickname;
     const content = "[".concat(myName, "\u53D1\u6765\u7684\u7167\u7247/\u89C6\u9891\uFF1A").concat(text, "]");
     const message = {
-      id: "msg_".concat(Date.now()),
+      id: mxgNewMsgId(),
       role: "user",
       content,
       parts: [{ type: "text", text: content }],
@@ -16343,7 +16445,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentChatType === "private") {
       const content = "[".concat(chat.myName, "\u7ED9\u4F60\u8F6C\u8D26\uFF1A").concat(amount, "\u5143\uFF1B\u5907\u6CE8\uFF1A").concat(remark, "]");
       const message = {
-        id: "msg_".concat(Date.now()),
+        id: mxgNewMsgId(),
         role: "user",
         content,
         parts: [{ type: "text", text: content }],
@@ -16358,7 +16460,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (recipient) {
           const content = "[".concat(chat.me.nickname, " \u5411 ").concat(recipient.realName, " \u8F6C\u8D26\uFF1A").concat(amount, "\u5143\uFF1B\u5907\u6CE8\uFF1A").concat(remark, "]");
           const message = {
-            id: "msg_".concat(Date.now(), "_").concat(recipientId),
+            id: mxgNewMsgId(recipientId),
             role: "user",
             content,
             parts: [{ type: "text", text: content }],
@@ -16380,7 +16482,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentChatType === "private") {
       const content = "[".concat(chat.myName, "\u9001\u6765\u7684\u793C\u7269\uFF1A").concat(description, "]");
       const message = {
-        id: "msg_".concat(Date.now()),
+        id: mxgNewMsgId(),
         role: "user",
         content,
         parts: [{ type: "text", text: content }],
@@ -16395,7 +16497,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (recipient) {
           const content = "[".concat(chat.me.nickname, " \u5411 ").concat(recipient.realName, " \u9001\u6765\u4E86\u793C\u7269\uFF1A").concat(description, "]");
           const message = {
-            id: "msg_".concat(Date.now(), "_").concat(recipientId),
+            id: mxgNewMsgId(recipientId),
             role: "user",
             content,
             parts: [{ type: "text", text: content }],
@@ -17584,7 +17686,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const { b } = bubbleQueue.shift();
       const character = db.characters.find((c) => c.id === currentChatId);
       const contentStr = String(b.content);
-      const stM = character && contentStr.match(new RegExp("\\[".concat(character.realName, "\u66F4\u65B0\u72B6\u6001\u4E3A\uFF1A(.*?)\\]")));
+      const stM = character && contentStr.match(new RegExp("\\[".concat(escRe(character.realName), "\u66F4\u65B0\u72B6\u6001\u4E3A\uFF1A(.*?)\\]")));
       const actM = contentStr.match(/\[动作：([^\]]+)\]/);
       let type = b.type || "text", display = contentStr;
       if (stM) {
@@ -18041,12 +18143,12 @@ document.addEventListener("DOMContentLoaded", () => {
         blocks.forEach((item, idx) => {
           let receivedTransferRegex = null, giftRegex = null;
           try {
-            receivedTransferRegex = new RegExp("\\[".concat(character.realName, "\u7684\u8F6C\u8D26\uFF1A.*?\u5143\uFF1B\u5907\u6CE8\uFF1A.*?\\]"));
-            giftRegex = new RegExp("\\[".concat(character.realName, "\u9001\u6765\u7684\u793C\u7269\uFF1A.*?\\]"));
+            receivedTransferRegex = new RegExp("\\[".concat(escRe(character.realName), "\u7684\u8F6C\u8D26\uFF1A.*?\u5143\uFF1B\u5907\u6CE8\uFF1A.*?\\]"));
+            giftRegex = new RegExp("\\[".concat(escRe(character.realName), "\u9001\u6765\u7684\u793C\u7269\uFF1A.*?\\]"));
           } catch (e2) {
           }
           const message = {
-            id: "msg_".concat(Date.now(), "_").concat(Math.random()),
+            id: mxgNewMsgId(),
             role: "assistant",
             content: item.content.trim(),
             parts: [{ type: item.type, text: item.content.trim() }],
@@ -18076,7 +18178,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       } else {
         const simpleMessage = {
-          id: "msg_".concat(Date.now(), "_").concat(Math.random()),
+          id: mxgNewMsgId(),
           role: "assistant",
           content: fullResponse,
           parts: [{ type: "text", text: fullResponse }],
@@ -18191,7 +18293,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const sender = group.members.find((m) => m.realName === senderName || m.groupNickname === senderName);
             if (sender) {
               const message = {
-                id: "msg_".concat(Date.now(), "_").concat(Math.random()),
+                id: mxgNewMsgId(),
                 role: "assistant",
                 content: item.content.trim(),
                 parts: [{ type: item.type, text: item.content.trim() }],
@@ -18214,7 +18316,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (firstMember) {
           const simpleMessageContent = "[".concat(firstMember.realName, "\u7684\u6D88\u606F\uFF1A").concat(fullResponse, "]");
           const simpleMessage = {
-            id: "msg_".concat(Date.now(), "_").concat(Math.random()),
+            id: mxgNewMsgId(),
             role: "assistant",
             content: simpleMessageContent,
             parts: [{ type: "text", text: simpleMessageContent }],
@@ -18552,7 +18654,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       let contextMessageContent = action === "received" ? "[".concat(character.myName, "\u63A5\u6536").concat(character.realName, "\u7684\u8F6C\u8D26]") : "[".concat(character.myName, "\u9000\u56DE").concat(character.realName, "\u7684\u8F6C\u8D26]");
       const contextMessage = {
-        id: "msg_".concat(Date.now()),
+        id: mxgNewMsgId(),
         role: "user",
         content: contextMessageContent,
         parts: [{ type: "text", text: contextMessageContent }],
@@ -20350,14 +20452,17 @@ document.addEventListener("DOMContentLoaded", () => {
     availableChars.forEach((char) => {
       const li = document.createElement("li");
       li.className = "invite-member-select-item";
-      li.innerHTML = '<input type="checkbox" id="invite-select-'.concat(char.id, '" value="').concat(char.id, '"><label for="invite-select-').concat(char.id, '"><img src="').concat(char.avatar, '" alt="').concat(char.remarkName, '"><span>').concat(char.remarkName, "</span></label>");
+      const safeId = escapeHtml(char.id);
+      const safeAvatar = escapeHtml(char.avatar || "");
+      const safeName = escapeHtml(char.remarkName || char.realName || "");
+      li.innerHTML = '<input type="checkbox" id="invite-select-'.concat(safeId, '" value="').concat(safeId, '"><label for="invite-select-').concat(safeId, '"><img src="').concat(safeAvatar, '" alt="').concat(safeName, '"><span>').concat(safeName, "</span></label>");
       inviteMemberSelectionList.appendChild(li);
     });
   }
   function sendInviteNotification(group, newMemberRealName) {
     const messageContent = "[".concat(group.me.nickname, "\u9080\u8BF7").concat(newMemberRealName, "\u52A0\u5165\u4E86\u7FA4\u804A]");
     const message = {
-      id: "msg_".concat(Date.now()),
+      id: mxgNewMsgId(),
       role: "user",
       content: messageContent,
       parts: [{ type: "text", text: messageContent }],
@@ -20370,7 +20475,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const myName = group.me.nickname;
     const messageContent = "[".concat(myName, "\u4FEE\u6539\u7FA4\u540D\u4E3A\uFF1A").concat(newName, "]");
     const message = {
-      id: "msg_".concat(Date.now()),
+      id: mxgNewMsgId(),
       role: "user",
       content: messageContent,
       parts: [{ type: "text", text: messageContent }],
@@ -26674,7 +26779,8 @@ function setupPhoneSystem() {
       container.appendChild(row);
     });
     container.appendChild(mxSection("02", "记忆设置", "SETTINGS"));
-    const cfg = (db.characters[0] || {}).offlineCfg || {};
+    const memCfgChar = (db.characters || []).find((c) => c.id === currentChatId) || (db.characters || [])[0] || {};
+    const cfg = memCfgChar.offlineCfg || {};
     [["自动总结间隔", ((cfg.summaryRounds || 6)) + " 轮"], ["保留时长", "90 天"], ["检索广度", "平衡"]].forEach(function (d) {
       const row = document.createElement("div");
       row.style.cssText = "display:flex;padding:10px 0;border-bottom:1px solid #ececee;font-size:11px;letter-spacing:.02em;";
@@ -26683,20 +26789,77 @@ function setupPhoneSystem() {
     });
     const btns = document.createElement("div");
     btns.style.cssText = "display:flex;gap:9px;margin-top:16px;";
-    btns.innerHTML = '<button type="button" style="flex:1;border:1px solid #0a0a0b;background:#fff;padding:10px 0;font-size:10px;letter-spacing:.14em;cursor:pointer;">导入 JSON</button>'
-      + '<button type="button" style="flex:1;border:1px solid #0a0a0b;background:#0a0a0b;color:#fff;padding:10px 0;font-size:10px;letter-spacing:.14em;cursor:pointer;">导出全部</button>';
-    btns.addEventListener("click", function () {
-      const data = JSON.stringify({ memories: db.memories || [] }, null, 2);
+    btns.innerHTML = '<button type="button" id="mx-mem-import" style="flex:1;border:1px solid #0a0a0b;background:#fff;padding:10px 0;font-size:10px;letter-spacing:.14em;cursor:pointer;">导入 JSON</button>'
+      + '<button type="button" id="mx-mem-export" style="flex:1;border:1px solid #0a0a0b;background:#0a0a0b;color:#fff;padding:10px 0;font-size:10px;letter-spacing:.14em;cursor:pointer;">导出全部</button>';
+    const memExport = async function () {
       try {
-        const blob = new Blob([data], { type: "application/json" });
+        const blob = new Blob([JSON.stringify({ memories: db.memories || [] })], { type: "application/json" });
+        if (navigator.canShare && navigator.share) {
+          const sf = new File([blob], "memories.json", { type: "application/json" });
+          if (navigator.canShare({ files: [sf] })) {
+            await navigator.share({ files: [sf], title: "记忆备份" });
+            showToast("已交给系统保存 memories.json");
+            return;
+          }
+        }
         const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
+        const u = URL.createObjectURL(blob);
+        a.href = u;
         a.download = "memories.json";
+        document.body.appendChild(a);
         a.click();
-        URL.revokeObjectURL(a.href);
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(u); }, 2000);
         showToast("已导出 memories.json");
       } catch (e) { showToast("导出失败"); }
-    });
+    };
+    const memImport = function () {
+      const inp = document.createElement("input");
+      inp.type = "file";
+      inp.accept = ".json,application/json";
+      inp.onchange = async function () {
+        const f = inp.files && inp.files[0];
+        if (!f) return;
+        try {
+          const txt = await f.text();
+          let parsed = null;
+          try {
+            parsed = JSON.parse(txt);
+          } catch (e1) {
+            const d = await new Response(f.stream().pipeThrough(new DecompressionStream("gzip"))).text();
+            parsed = JSON.parse(d);
+          }
+          let list = [];
+          if (Array.isArray(parsed)) list = parsed;
+          else if (parsed && Array.isArray(parsed.memories)) list = parsed.memories;
+          else if (parsed && parsed.data && Array.isArray(parsed.data.memories)) list = parsed.data.memories;
+          if (!list.length) throw new Error("文件里没有 memories 数组");
+          if (!Array.isArray(db.memories)) db.memories = [];
+          const ids = new Set(db.memories.map(function (m) { return m && m.id; }).filter(Boolean));
+          const sigs = new Set(db.memories.map(function (m) { return String((m && m.character_id) || "") + "|" + String((m && m.content) || ""); }));
+          let added = 0, skipped = 0;
+          list.forEach(function (m) {
+            if (!m || typeof m !== "object" || typeof m.content !== "string" || !m.content.trim()) { skipped++; return; }
+            const sig = String(m.character_id || "") + "|" + m.content;
+            if ((m.id && ids.has(m.id)) || sigs.has(sig)) { skipped++; return; }
+            if (!m.id) m.id = "mem_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+            if (m.weight === undefined) m.weight = 1;
+            db.memories.push(m);
+            ids.add(m.id);
+            sigs.add(sig);
+            added++;
+          });
+          if (added) await saveData();
+          renderMemoryScreen();
+          showToast(added ? ("已导入 " + added + " 条" + (skipped ? "，跳过重复 " + skipped + " 条" : "")) : ("没有新记忆，跳过 " + skipped + " 条"));
+        } catch (e) {
+          showToast("导入失败：" + (e.message || "文件读不出来"));
+        }
+      };
+      inp.click();
+    };
+    btns.querySelector("#mx-mem-import").addEventListener("click", memImport);
+    btns.querySelector("#mx-mem-export").addEventListener("click", memExport);
     container.appendChild(btns);
   }
   function renderMemoryScreen() {
@@ -27276,6 +27439,40 @@ function setupPhoneSystem() {
   }
   async function uiPrompt(msg, def) {
     return await uiModal("\u8BF7\u8F93\u5165", msg, { input: true, defaultValue: def || "", cancel: true });
+  }
+  function mxgMeName() {
+    try {
+      const mask = db.masks && db.masks.length ? (db.masks.find((m) => m.id === db.activeMaskId) || db.masks[0]) : null;
+      if (mask && mask.name) return mask.name;
+    } catch (e) {}
+    if (db && db.profile && db.profile.name) return db.profile.name;
+    const c = db && db.characters && db.characters.find((x) => x.id === currentChatId);
+    if (c && c.myName) return c.myName;
+    if (db && db.characters && db.characters.length && db.characters[0].myName) return db.characters[0].myName;
+    return "我";
+  }
+  function __mxgSyncDateLabels() {
+    try {
+      const label = mxgTodayLabel();
+      ["date-display", "date-display3", "o404-date", "o404-date-2", "o404-date-3"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el && /^\d{2}\.\d{2}\s/.test(el.textContent || "")) el.textContent = label;
+      });
+    } catch (e) {}
+  }
+  function mxgTodayLabel() {
+    const d = new Date();
+    const wd = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][d.getDay()];
+    const pad = (n) => String(n).padStart(2, "0");
+    return pad(d.getMonth() + 1) + "." + pad(d.getDate()) + " " + wd;
+  }
+  function mxgNewMsgId(tag) {
+    return "msg_" + Date.now().toString(36) + "_" +
+      (tag ? String(tag).replace(/[^A-Za-z0-9_-]/g, "").slice(0, 12) + "_" : "") +
+      Math.random().toString(36).slice(2, 8);
+  }
+  function escRe(str) {
+    return String(str == null ? "" : str).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   }
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
@@ -29330,12 +29527,12 @@ function setupPhoneSystem() {
     const foodCheckoutItemsTotal = total;
     currentFoodRemark = "";
     const body = document.getElementById("food-co-body");
-    body.innerHTML = '\n                <div class="food-co-card">\n                    <div class="food-co-card-title">\u914D\u9001\u81F3</div>\n                    <div class="food-co-addr">\n                        <div class="food-co-addr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>\n                        <div class="food-co-addr-text"><div class="food-co-addr-name">'.concat(escapeHtml(fd.address || "\u5FB7\u9633 \xB7 \u67D0\u5C0F\u533A"), '</div><div class="food-co-addr-detail">').concat(escapeHtml((db.masks && db.masks.length ? (db.masks.find((m) => m.id === db.activeMaskId) || db.masks[0]).name : db.characters && db.characters.length ? db.characters[0].myName : "\u6211") || "\u6211"), ' \u6536</div></div>\n                        <button class="food-back" id="food-edit-addr-btn" style="width:30px;height:30px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>\n                    </div>\n                </div>\n                <div class="food-co-card">\n                    <div class="food-co-card-title">').concat(escapeHtml(shop ? shop.name : ""), "</div>\n                    ").concat(items.map((it) => '<div class="food-co-row"><span>'.concat(escapeHtml(it.name), " \xD7").concat(it.qty, "</span><b>").concat(foodCurSym()).concat((it.price * it.qty).toFixed(2), "</b></div>")).join(""), '\n                    <div class="food-co-row"><span>\u914D\u9001\u8D39</span><b>').concat(foodCurSym()).concat(fee.toFixed(2), '</b></div>\n                    <div class="food-co-row"><span>\u5305\u88C5\u8D39</span><b>').concat(foodCurSym(), '0.00</b></div>\n                    <div class="food-co-row" style="color:#ff6b33;"><span>\u65B0\u4EBA\u7ACB\u51CF</span><b>-').concat(foodCurSym(), '0.00</b></div>\n                    <div id="food-coupon-area"></div>\n                    <div class="food-co-total"><span>\u5408\u8BA1</span><span id="food-co-total-num">').concat(foodCurSym()).concat((total + fee).toFixed(2), '</span></div>\n                </div>\n                <div class="food-co-card">\n                    <div class="food-co-card-title">\u8BA2\u5355\u5907\u6CE8</div>\n                    <div class="food-remark-row"><input id="food-remark-input" type="text" maxlength="40" placeholder="\u53E3\u5473\u504F\u597D\u3001\u8FA3\u5EA6\u3001\u4E0D\u8981\u9999\u83DC\u2026" value="').concat(escapeHtml(currentFoodRemark || ""), '"><div class="food-remark-tip">\u53EF\u5199\uFF1A\u5C11\u8FA3\u3001\u591A\u653E\u8471\u3001\u65E0\u7CD6\u2026</div></div>\n                </div>');
+    body.innerHTML = '\n                <div class="food-co-card">\n                    <div class="food-co-card-title">\u914D\u9001\u81F3</div>\n                    <div class="food-co-addr">\n                        <div class="food-co-addr-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s7-5.5 7-11a7 7 0 1 0-14 0c0 5.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>\n                        <div class="food-co-addr-text"><div class="food-co-addr-name">'.concat(escapeHtml(fd.address || "\u5FB7\u9633 \xB7 \u67D0\u5C0F\u533A"), '</div><div class="food-co-addr-detail">').concat(escapeHtml((db.masks && db.masks.length ? (db.masks.find((m) => m.id === db.activeMaskId) || db.masks[0]).name : mxgMeName()) || "\u6211"), ' \u6536</div></div>\n                        <button class="food-back" id="food-edit-addr-btn" style="width:30px;height:30px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>\n                    </div>\n                </div>\n                <div class="food-co-card">\n                    <div class="food-co-card-title">').concat(escapeHtml(shop ? shop.name : ""), "</div>\n                    ").concat(items.map((it) => '<div class="food-co-row"><span>'.concat(escapeHtml(it.name), " \xD7").concat(it.qty, "</span><b>").concat(foodCurSym()).concat((it.price * it.qty).toFixed(2), "</b></div>")).join(""), '\n                    <div class="food-co-row"><span>\u914D\u9001\u8D39</span><b>').concat(foodCurSym()).concat(fee.toFixed(2), '</b></div>\n                    <div class="food-co-row"><span>\u5305\u88C5\u8D39</span><b>').concat(foodCurSym(), '0.00</b></div>\n                    <div class="food-co-row" style="color:#ff6b33;"><span>\u65B0\u4EBA\u7ACB\u51CF</span><b>-').concat(foodCurSym(), '0.00</b></div>\n                    <div id="food-coupon-area"></div>\n                    <div class="food-co-total"><span>\u5408\u8BA1</span><span id="food-co-total-num">').concat(foodCurSym()).concat((total + fee).toFixed(2), '</span></div>\n                </div>\n                <div class="food-co-card">\n                    <div class="food-co-card-title">\u8BA2\u5355\u5907\u6CE8</div>\n                    <div class="food-remark-row"><input id="food-remark-input" type="text" maxlength="40" placeholder="\u53E3\u5473\u504F\u597D\u3001\u8FA3\u5EA6\u3001\u4E0D\u8981\u9999\u83DC\u2026" value="').concat(escapeHtml(currentFoodRemark || ""), '"><div class="food-remark-tip">\u53EF\u5199\uFF1A\u5C11\u8FA3\u3001\u591A\u653E\u8471\u3001\u65E0\u7CD6\u2026</div></div>\n                </div>');
     const payBox = document.createElement("div");
     payBox.className = "food-pay-box";
     payBox.id = "food-pay-box";
     const mask = db.masks && db.masks.length ? db.masks.find((m) => m.id === db.activeMaskId) || db.masks[0] : null;
-    const meName = mask ? mask.name : db.characters && db.characters.length ? db.characters[0].myName : "\u6211";
+    const meName = mask ? mask.name : mxgMeName();
     payBox.innerHTML = '\n                <div class="food-co-card-title">\u652F\u4ED8\u65B9\u5F0F</div>\n                <div class="food-pay-item on" data-food-pay="wallet">\n                    <div class="fp-ic" style="background:linear-gradient(135deg,#2b2d33,#55585f);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="6" width="18" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M3 10h18"/></svg></div>\n                    <div class="fp-name">'.concat(escapeHtml(meName), '\u7684\u94B1\u5305<div class="fp-desc">\u4F59\u989D \xA5').concat((db.wallet ? db.wallet.balance : 0).toFixed(2), '</div></div>\n                    <div class="fp-radio"></div>\n                </div>\n                <div class="food-pay-item" data-food-pay="daifu">\n                    <div class="fp-ic" style="background:linear-gradient(135deg,#ff6b33,#ff9a66);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h20M12 2v20"/></svg></div>\n                    <div class="fp-name">\u8BA9\u89D2\u8272\u4EE3\u4ED8<div class="fp-desc">\u53D1\u5230\u804A\u5929\uFF0C\u8BA9TA\u5E2E\u4F60\u4ED8</div></div>\n                    <div class="fp-radio"></div>\n                </div>\n                <div class="food-pay-item" data-food-pay="give">\n                    <div class="fp-ic" style="background:linear-gradient(135deg,#e0563b,#ff8a65);"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg></div>\n                    <div class="fp-name">\u7ED9\u89D2\u8272\u70B9\u5916\u5356<div class="fp-desc">\u70B9\u597D\u9001\u5230TA\u90A3\u91CC</div></div>\n                    <div class="fp-radio"></div>\n                </div>');
     body.appendChild(payBox);
     renderFoodCouponArea();
@@ -29546,7 +29743,7 @@ function setupPhoneSystem() {
     if (!body) return;
     const chats = merchantChats()[shopName] || [];
     const mask = db.masks && db.masks.length ? db.masks.find((m) => m.id === db.activeMaskId) || db.masks[0] : null;
-    const meName = mask ? mask.name : db.characters && db.characters.length ? db.characters[0].myName : "\u6211";
+    const meName = mask ? mask.name : mxgMeName();
     body.innerHTML = chats.map((m) => {
       const isMine = m.role === "user";
       return '<div class="food-mc-msg'.concat(isMine ? " mine" : "", '">\n                    <div class="food-mc-ava">').concat(isMine ? mask && mask.avatar ? '<img src="' + escapeHtml(mask.avatar) + '">' : escapeHtml(meName[0] || "\u6211") : escapeHtml(shopName[0] || "\u5E97"), '</div>\n                    <div class="food-mc-bub">').concat(escapeHtml(m.content), "</div>\n                </div>");
@@ -29835,7 +30032,7 @@ function setupPhoneSystem() {
     if (!el) return;
     const fd = getFood();
     const mask = db.masks && db.masks.length ? db.masks.find((m) => m.id === db.activeMaskId) || db.masks[0] : null;
-    const meName = mask ? mask.name : db.characters && db.characters.length ? db.characters[0].myName : "\u6211";
+    const meName = mask ? mask.name : mxgMeName();
     const meAvatar = mask ? mask.avatar || "" : "";
     const balance = db.wallet ? db.wallet.balance || 0 : 0;
     const orderCount = (fd.orders || []).length;
