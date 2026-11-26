@@ -10477,7 +10477,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane is-on" data-offline-pane="meet">
                 <div class="o404-clock-row">
                     <div class="o404-clock" id="o404-time">20:14</div>
-                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.18</span></div>
+                    <div class="o404-meta"><span id="o404-page-count">01 / 03</span><span id="o404-date">11.25 WED</span><span>V6.3.19</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR MOMENT</span>
@@ -10510,7 +10510,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="role">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:16</div>
-                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.18</span></div>
+                    <div class="o404-meta"><span>02 / 03</span><span id="o404-date-2">11.25 WED</span><span>V6.3.19</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR CAST</span>
@@ -10522,7 +10522,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <section class="o404-pane" data-offline-pane="story">
                 <div class="o404-clock-row">
                     <div class="o404-clock">20:18</div>
-                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.18</span></div>
+                    <div class="o404-meta"><span>03 / 03</span><span id="o404-date-3">11.25 WED</span><span>V6.3.19</span></div>
                 </div>
                 <div class="o404-kicker-row">
                     <span class="o404-label">OUR STORY</span>
@@ -11323,6 +11323,19 @@ document.addEventListener("DOMContentLoaded", () => {
         + '<div class="stg-track"><i style="width:' + Math.max(0, Math.min(100, pct)).toFixed(2) + '%;background:' + r.color + '"></i></div>'
         + '</div>';
     }).join("");
+    try {
+      var diagEl = document.getElementById("stg-diag-info");
+      if (diagEl) {
+        var swState = "未注册";
+        try { swState = (navigator.serviceWorker && navigator.serviceWorker.controller) ? "已接管" : "未接管"; } catch (eSw) {}
+        var errText = window.__mxgLastError ? (window.__mxgLastError.msg || "") : "无";
+        diagEl.innerHTML = "主库：" + (window.__mxgMainBytes ? __mxgFmtSize(window.__mxgMainBytes) : "未知") +
+          " · 角色 " + ((db.characters || []).length) +
+          " · 本地主库有角色：" + (window.__mxgMainHasChars ? "是" : "否") +
+          "<br>SW：" + swState + " · 加载来源：" + (window.__mxgLoadSource || "-") +
+          "<br>上次错误：" + escapeHtml(String(errText).slice(0, 80));
+      }
+    } catch (eDiag) {}
     if (window.navigator && navigator.storage && navigator.storage.estimate) {
       navigator.storage.estimate().then(function (est) {
         if (lineEl && est && est.usage) {
@@ -11639,7 +11652,7 @@ document.addEventListener("DOMContentLoaded", () => {
         showToast("已保留上一次有数据的导入前备份，本次不再用空库覆盖它。");
       }
 
-      /* v6.3.18：直接把备份原文写进主库，不再 JSON.stringify 整库，也不回读整库做校验。
+      /* v6.3.19：直接把备份原文写进主库，不再 JSON.stringify 整库，也不回读整库做校验。
          IDB 的单次 put 是事务性的，写成功即完整；对象树用完立刻丢掉，手机内存峰值少一半。 */
       if (!payloadText) throw new Error("备份文件里没有有效的应用数据");
       if (!/"characters"|"worldBooks"|"groups"|"masks"/.test(payloadText.slice(0, 4000000))) {
@@ -11693,6 +11706,30 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("click", function (ev) {
     var expBtn = ev.target.closest && ev.target.closest("#stg-export-json");
     if (expBtn) { ev.preventDefault(); exportBackupJSON(); return; }
+    var dRel = ev.target.closest && ev.target.closest("#stg-diag-reload");
+    if (dRel) { ev.preventDefault(); location.reload(); return; }
+    var dClr = ev.target.closest && ev.target.closest("#stg-diag-clear");
+    if (dClr) {
+      ev.preventDefault();
+      (async function () {
+        try { showToast("正在清理缓存…"); } catch (e1) {}
+        try {
+          var rs = await navigator.serviceWorker.getRegistrations();
+          for (var i = 0; i < rs.length; i++) { try { await rs[i].unregister(); } catch (e2) {} }
+          var ks = await caches.keys();
+          for (var j = 0; j < ks.length; j++) { try { await caches.delete(ks[j]); } catch (e3) {} }
+        } catch (e4) {}
+        location.replace(location.pathname + "?fresh=" + Date.now());
+      })();
+      return;
+    }
+    var dErr = ev.target.closest && ev.target.closest("#stg-diag-err");
+    if (dErr) {
+      ev.preventDefault();
+      var le = window.__mxgLastError;
+      showToast(le ? ("上次错误：" + String(le.msg || "").slice(0, 60)) : "没有捕获到页面错误");
+      return;
+    }
     var impBtn = ev.target.closest && ev.target.closest("#stg-import-json");
     if (impBtn) {
       ev.preventDefault();
@@ -11718,7 +11755,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="stg-eyebrow" id="stg-eyebrow">SETTINGS / 04</div>
       <div class="stg-title" id="stg-title">设置</div>
     </div>
-    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.18</b><span id="stg-status">READY</span></div>
+    <div class="stg-meta"><span>LOCAL ONLY</span><b>V6.3.19</b><span id="stg-status">READY</span></div>
   </div>
   <div class="stg-views">
     <section class="stg-view active" data-stg-page="home">
@@ -11732,7 +11769,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <button type="button" class="stg-item" data-stg-go="data"><span class="num">02</span><span class="main"><b>数据 / DATA</b><em>数据分布与内存占用 · 导出 / 导入 JSON</em></span><span class="arrow">↗</span></button>
         <button type="button" class="stg-item" data-stg-go="look"><span class="num">03</span><span class="main"><b>外观 / LOOK</b><em>壁纸、日夜、字体与桌面图标</em></span><span class="arrow">↗</span></button>
       </div>
-      <div class="stg-foot">MXG / SETTINGS — V6.3.18</div>
+      <div class="stg-foot">MXG / SETTINGS — V6.3.19</div>
     </section>
 
     <section class="stg-view" data-stg-page="api">
@@ -11767,6 +11804,15 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="stg-actions">
         <button type="button" class="stg-primary" id="stg-export-json">导出 JSON</button>
         <button type="button" class="stg-ghost" id="stg-import-json">导入 JSON</button>
+      </div>
+      <div class="stg-block" style="margin-top:16px;">
+        <div class="stg-label"><b>DIAG / 诊断</b><em>打不开或怀疑没存上时看这里</em></div>
+        <div id="stg-diag-info" style="font-size:12px;line-height:1.8;color:#555;">检测中…</div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button type="button" class="stg-ghost" id="stg-diag-reload" style="flex:1;padding:8px;">刷新重载</button>
+          <button type="button" class="stg-ghost" id="stg-diag-clear" style="flex:1;padding:8px;">清缓存重载</button>
+          <button type="button" class="stg-ghost" id="stg-diag-err" style="flex:1;padding:8px;">上次错误</button>
+        </div>
       </div>
       <div class="stg-warn"><b>导出内容：</b>聊天、角色、面具、群聊、世界书、记忆、线下、论坛、情侣空间、钱包、手机、音乐、商城和全部设置；也包含时空邮局、十字路口、书城与书城钱包。JSON 内有 API Key，请勿外传。<br><b>导入提醒：</b>会整体覆盖当前数据，不可撤销。</div>
     </section>
@@ -11904,7 +11950,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.18";
+  const APP_VERSION = "v6.3.19";
   let db = {
     characters: [],
     groups: [],
@@ -12142,8 +12188,22 @@ document.addEventListener("DOMContentLoaded", () => {
     __savePending = null;
     const waiters = __saveWaiters;
     __saveWaiters = [];
+    /* v6.3.19：全局防覆盖——内存里没有角色，但本地主库明明有角色，说明这次是空壳/加载失败。
+       宁可拒绝保存，也不能把真实数据写没。 */
+    if (payload && payload === db && window.__mxgMainHasChars && !window.__mxgAllowEmptySave &&
+        (!Array.isArray(payload.characters) || payload.characters.length === 0)) {
+      if (!window.__mxgEmptyGuardToastAt || Date.now() - window.__mxgEmptyGuardToastAt > 60000) {
+        window.__mxgEmptyGuardToastAt = Date.now();
+        try { showToast("检测到当前数据为空、本地却有角色，已阻止覆盖；请刷新页面重新加载"); } catch (eG) {}
+        console.warn("[存储] 空壳保护触发，已阻止写入");
+      }
+      waiters.forEach((r) => { try { r(false); } catch (eG2) {} });
+      return Promise.resolve(false);
+    }
+    const payloadHasChars = !!(payload && Array.isArray(payload.characters) && payload.characters.length);
     __saveChain = __saveChain.catch(() => false).then(() => dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", payload));
     __saveChain.then((ok) => {
+      if (ok && payloadHasChars) window.__mxgMainHasChars = true;
       if (!ok) __mxgNotifySaveFail();
       waiters.forEach((r) => { try { r(!!ok); } catch (e) {} });
     }, () => {
@@ -12159,6 +12219,11 @@ document.addEventListener("DOMContentLoaded", () => {
         window.__mxgSaveBeforeReadyWarned = 1;
         console.warn("[存储] 数据尚未加载完成，本次保存被拒绝");
       }
+      return Promise.resolve(false);
+    }
+    if (data && typeof data === "object" && !Array.isArray(data.characters) && !Array.isArray(data.worldBooks) &&
+        !Array.isArray(data.groups) && !Array.isArray(data.masks)) {
+      console.warn("[存储] saveData 收到不是库对象的参数，已忽略");
       return Promise.resolve(false);
     }
     const payload = data ? data : db;
@@ -12214,7 +12279,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadData = async () => {
     /* v6.3.12：主数据只认 IndexedDB 里的“麻辣香锅鸡DB”。
        不读 localStorage 整库镜像，也不再读取“章鱼喷墨机DB”旧库。 */
-    /* v6.3.18：主库只读一次原始字符串，再解析；避免同一份 30MB 被读两遍 */
+    /* v6.3.19：主库只读一次原始字符串，再解析；避免同一份 30MB 被读两遍 */
     var mainItem = null;
     try { mainItem = await dataStorage.db.storage.get("\u9EBB\u8FA3\u9999\u9505\u9E21"); } catch (e0) {}
     let data = null;
@@ -12233,6 +12298,7 @@ document.addEventListener("DOMContentLoaded", () => {
         console.error("主库解析失败：", parseErr);
       }
     }
+    window.__mxgMainHasChars = /"characters"\s*:\s*\[\s*\{/.test(mainRaw);
     mainRaw = null;
     mainItem = null;
     /* 主库缺失/损坏时，用导入前备份兜底，避免用户看到一片空白 */
@@ -12419,7 +12485,7 @@ document.addEventListener("DOMContentLoaded", () => {
     db.memories.forEach((m) => {
       if (m.weight === void 0) m.weight = 1;
     });
-    /* v6.3.18：流水/动态/帖子只增不减会撑爆配额，这里加软上限，只裁最旧的 */
+    /* v6.3.19：流水/动态/帖子只增不减会撑爆配额，这里加软上限，只裁最旧的 */
     try {
       const __trimTail = (arr, max) => {
         if (Array.isArray(arr) && arr.length > max) arr.splice(max, arr.length - max);
@@ -13443,7 +13509,51 @@ document.addEventListener("DOMContentLoaded", () => {
     splash.style.opacity = "0";
     setTimeout(() => { try { splash.remove(); } catch (e) {} }, 320);
   }
+  function __mxgBootGuard() {
+    try {
+      var now = Date.now(), st = {};
+      try { st = JSON.parse(localStorage.getItem("mxl-boot") || "{}") || {}; } catch (e0) {}
+      var n = (now - (Number(st.ts) || 0) < 5 * 60 * 1000) ? (Number(st.n) || 0) + 1 : 1;
+      localStorage.setItem("mxl-boot", JSON.stringify({ n: n, ts: now }));
+      return n;
+    } catch (e) { return 1; }
+  }
+  function __mxgBootGuardReset() {
+    try { localStorage.setItem("mxl-boot", JSON.stringify({ n: 0, ts: 0 })); } catch (e) {}
+  }
+  function __mxgShowSafeMode(count) {
+    try { if (document.getElementById("mxg-safemode")) return; } catch (e0) {}
+    var ov = document.createElement("div");
+    ov.id = "mxg-safemode";
+    ov.style.cssText = "position:fixed;inset:0;z-index:99999;background:#0e0e11;color:#f2f2f4;padding:28px 22px;font-family:inherit;display:flex;flex-direction:column;justify-content:center;gap:14px;";
+    ov.innerHTML =
+      '<div style="font-size:11px;letter-spacing:2px;color:#8a8a92;">SAFE MODE</div>' +
+      '<div style="font-size:24px;font-weight:800;">安全模式</div>' +
+      '<div style="font-size:13px;line-height:1.9;color:#b9b9c1;">最近连续启动失败 ' + count + ' 次，已跳过桌面渲染，先保证数据不被写坏。<br>可以先清缓存重启；还是进不去就去恢复页把数据导出来。</div>' +
+      '<button id="mxg-sm-try" style="margin-top:6px;padding:12px;border-radius:12px;border:none;background:#ff6b33;color:#fff;font-size:14px;font-weight:700;">直接进入应用</button>' +
+      '<button id="mxg-sm-clear" style="padding:12px;border-radius:12px;border:1px solid #3a3a42;background:transparent;color:#eee;font-size:14px;">清缓存并重启</button>' +
+      '<button id="mxg-sm-recover" style="padding:12px;border-radius:12px;border:1px solid #3a3a42;background:transparent;color:#eee;font-size:14px;">打开恢复页</button>';
+    document.body.appendChild(ov);
+    document.getElementById("mxg-sm-try").onclick = function () { __mxgBootGuardReset(); location.reload(); };
+    document.getElementById("mxg-sm-clear").onclick = async function () {
+      try {
+        var rs = await navigator.serviceWorker.getRegistrations();
+        for (var i = 0; i < rs.length; i++) { try { await rs[i].unregister(); } catch (e2) {} }
+        var ks = await caches.keys();
+        for (var j = 0; j < ks.length; j++) { try { await caches.delete(ks[j]); } catch (e3) {} }
+      } catch (e4) {}
+      __mxgBootGuardReset();
+      location.replace(location.pathname + "?fresh=" + Date.now());
+    };
+    document.getElementById("mxg-sm-recover").onclick = function () { location.href = "./recover.html"; };
+  }
   const init = async () => {
+    var __bootCount = __mxgBootGuard();
+    if (__bootCount >= 3) {
+      try { dismissSplash(); } catch (eSm) {}
+      __mxgShowSafeMode(__bootCount);
+      return;
+    }
     // 先同步读缓存并渲染桌面，数据在后台继续加载；不再让开屏页等待整个数据库
     try {
       if (!window.__quickShellDone) {
@@ -13470,7 +13580,7 @@ document.addEventListener("DOMContentLoaded", () => {
         switchScreen(nav.getAttribute("data-target"));
       });
     }
-    /* v6.3.18：开屏页保留到主库加载完成，避免加载窗口内的操作被 loadData 覆盖 */
+    /* v6.3.19：开屏页保留到主库加载完成，避免加载窗口内的操作被 loadData 覆盖 */
     try {
       await loadData();
     } catch (loadErr) {
@@ -13480,6 +13590,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try { dismissSplash(); } catch (e0) {}
     }
     try { await __mxgRequestPersist(); } catch (e) {}
+    setTimeout(function () { __mxgBootGuardReset(); }, 4000);
     window.addEventListener("pageshow", function () { window.__stgBusy = false; });
     try { migrateMaskScope(); } catch (err) { console.warn("面具迁移失败", err); }
     document.body.addEventListener("click", (e) => {
@@ -13980,7 +14091,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     /* ---------- 第二页 ---------- */
     const hwPage2 = '<div class="hw-canvas">'
-      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.18</div>'
+      + '<div class="hw-p2top">' + hwClockDate() + ' / V6.3.19</div>'
       + '<div class="hw-p2num">02 / 03</div>'
       + '<div class="hw-p2title" data-edit-key="hw-p2title">' + hwTxt('hw-p2title', '第二页 · 我们') + '</div>'
       + '<div class="hw-p2en">OUR STORY / 002</div>'
@@ -14014,7 +14125,7 @@ document.addEventListener("DOMContentLoaded", () => {
     })();
     const hwPage3 = '<div class="hw-canvas pg-light">'
       + '<div class="hw-t"><span id="time-display3">02:48</span></div>'
-      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.18<br>第三页 · 论坛<br>INDEX / 008</div>'
+      + '<div class="hw-meta"><b>03 / 03</b><span id="date-display3">11.25 WED</span> &#183; V6.3.19<br>第三页 · 论坛<br>INDEX / 008</div>'
       + '<div class="hw-forum" data-edit-key="hw-forum">' + hwTxt('hw-forum', 'FORUM') + '</div>'
       + '<div class="hw-p3rule"></div>'
       + '<div class="hw-cal25" data-edit-key="hw-cal25">' + hwTxt('hw-cal25', '25') + '</div>'
@@ -20451,7 +20562,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const memberDiv = document.createElement("div");
       memberDiv.className = "group-member";
       memberDiv.dataset.id = member.id;
-      memberDiv.innerHTML = '<img src="'.concat(member.avatar, '" alt="').concat(member.groupNickname, '"><span>').concat(member.groupNickname, "</span>");
+      memberDiv.innerHTML = '<img src="'.concat(escapeHtml(member.avatar || ""), '" alt="').concat(escapeHtml(member.groupNickname || member.realName || ""), '"><span>').concat(escapeHtml(member.groupNickname || member.realName || ""), "</span>");
       groupMembersListContainer.appendChild(memberDiv);
     });
     const addBtn = document.createElement("div");
@@ -20467,7 +20578,10 @@ document.addEventListener("DOMContentLoaded", () => {
     group.members.forEach((member) => {
       const li = document.createElement("li");
       li.className = "group-recipient-select-item";
-      li.innerHTML = '\n                        <input type="checkbox" id="recipient-select-'.concat(member.id, '" value="').concat(member.id, '">\n                        <label for="recipient-select-').concat(member.id, '">\n                            <img src="').concat(member.avatar, '" alt="').concat(member.groupNickname, '">\n                            <span>').concat(member.groupNickname, "</span>\n                        </label>");
+      const _rid = escapeHtml(member.id);
+      const _rav = escapeHtml(member.avatar || "");
+      const _rnm = escapeHtml(member.groupNickname || member.realName || "");
+      li.innerHTML = '\n                        <input type="checkbox" id="recipient-select-'.concat(_rid, '" value="').concat(_rid, '">\n                        <label for="recipient-select-').concat(_rid, '">\n                            <img src="').concat(_rav, '" alt="').concat(_rnm, '">\n                            <span>').concat(_rnm, "</span>\n                        </label>");
       groupRecipientSelectionList.appendChild(li);
     });
   }
