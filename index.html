@@ -11689,7 +11689,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.11";
+  const APP_VERSION = "v6.3.12";
   let db = {
     characters: [],
     groups: [],
@@ -11990,8 +11990,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   const loadData = async () => {
-    /* v6.3.11：主数据只走 IndexedDB。旧 localStorage 整库镜像不再读取、不再参与迁移；
-       主库确认有角色后再把旧镜像清掉，避免它继续占配额或造成误判。 */
+    /* v6.3.12：主数据只认 IndexedDB 里的“麻辣香锅鸡DB”。
+       不读 localStorage 整库镜像，也不再读取“章鱼喷墨机DB”旧库。 */
     let data = await dataStorage.getData("\u9EBB\u8FA3\u9999\u9505\u9E21");
     let dbTs = 0;
     try {
@@ -12003,26 +12003,6 @@ document.addEventListener("DOMContentLoaded", () => {
       return !!(x && Array.isArray(x.characters) && x.characters.length);
     };
     window.__mxgLoadSource = hasCharacters(data) ? "idb" : "empty";
-    if (!hasCharacters(data)) {
-      /* 主库没有角色时，只在 IDB 里再找一次更老的“章鱼喷墨机”库；不碰 localStorage。 */
-      try {
-        const legacyDb = new Dexie("\u7AE0\u9C7C\u55B7\u58A8\u673ADB");
-        legacyDb.version(1).stores({ storage: "key, value, timestamp" });
-        const legacyItem = await legacyDb.storage.get("\u7AE0\u9C7C\u55B7\u58A8\u673A");
-        if (legacyItem) {
-          const legacy = JSON.parse(legacyItem.value);
-          if (hasCharacters(legacy)) {
-            data = legacy;
-            effectiveTs = Date.now();
-            window.__mxgLoadSource = "legacy";
-            await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", data);
-            console.log("\u5DF2\u4ECE\u65E7\u5E93\u6062\u590D\u6570\u636E");
-          }
-        }
-      } catch (e2) {
-        console.error("\u65E7\u5E93\u8FC1\u79FB\u5931\u8D25:", e2);
-      }
-    }
     if (data) db = data;
     window.db = db;
     if (!db.__localKV || typeof db.__localKV !== "object" || Array.isArray(db.__localKV)) db.__localKV = {};
@@ -13181,7 +13161,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (!window.__quickShellDone) {
         window.__quickShellDone = 1;
-        /* v6.3.11：主库加载完成后再重建桌面；旧镜像不再读取 */
+        /* v6.3.12：主库加载完成后再重建桌面；旧镜像与章鱼旧库都不再读取 */
         db.customIcons = db.customIcons || {};
         db.characters = db.characters || [];
         db.widgetTexts = db.widgetTexts || {};
