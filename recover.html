@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>数据检查 · 麻辣香锅鸡</title>
+<style>
+:root{color-scheme:light;--ink:#17171b;--muted:#7b7b88;--line:#e8e6e3;--bg:#f4f1ed;--card:#fff;--accent:#9b2f2f;--ok:#1d7a4c;--warn:#a65b16}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.6 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;padding:18px 14px 40px}
+.wrap{max-width:680px;margin:0 auto}h1{font-size:19px;margin:0 0 4px;letter-spacing:.02em}p.sub{margin:0 0 16px;color:var(--muted);font-size:12.5px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px;margin:10px 0;box-shadow:0 6px 20px rgba(30,20,10,.04)}
+.card h2{font-size:14px;margin:0 0 8px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.badge{font-size:10.5px;font-weight:700;padding:3px 8px;border-radius:999px;background:#f1eee9;color:var(--muted);white-space:nowrap}
+.badge.ok{background:#e7f5ed;color:var(--ok)}.badge.warn{background:#fdf0e2;color:var(--warn)}.badge.bad{background:#fbeaea;color:var(--accent)}
+.kv{display:grid;grid-template-columns:86px minmax(0,1fr);gap:5px 10px;font-size:12.5px;margin-top:4px}.kv .k{color:var(--muted)}.kv .v{word-break:break-word}
+.status{margin:12px 0 4px;padding:10px 12px;border-radius:12px;background:#fff;border:1px dashed var(--line);font-size:12.5px;color:var(--muted)}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.btn{border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:11px;padding:9px 13px;font-size:12.5px;font-weight:700;cursor:pointer}.btn.ghost{background:#fff;color:var(--ink)}.btn.warn{background:#fff;color:var(--accent);border-color:var(--accent)}.btn:disabled{opacity:.4;cursor:not-allowed}
+.note{font-size:11.5px;color:var(--muted);margin-top:9px}.danger{color:var(--accent)}
+pre{white-space:pre-wrap;word-break:break-word;background:#faf9f7;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:11px;max-height:160px;overflow:auto;margin:8px 0 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>数据检查 / 恢复</h1>
+  <p class="sub">只读检查本机浏览器里的应用数据。不会自动修改任何内容；只有你点“恢复到主库”并确认时才会写入。</p>
+
+  <div class="card">
+    <h2>主数据库 <span id="mainBadge" class="badge">检查中</span></h2>
+    <div class="kv">
+      <div class="k">数据库</div><div class="v">麻辣香锅鸡DB / storage</div>
+      <div class="k">角色 / 群聊</div><div class="v" id="mainCounts">—</div>
+      <div class="k">世界书 / 面具</div><div class="v" id="mainMore">—</div>
+      <div class="k">最后写入</div><div class="v" id="mainTs">—</div>
+      <div class="k">数据大小</div><div class="v" id="mainSize">—</div>
+    </div>
+    <div class="btns">
+      <button class="btn" id="exportMain" disabled>导出主库 JSON</button>
+      <button class="btn ghost" id="rescan">重新检查</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>旧数据库 <span id="legacyBadge" class="badge">检查中</span></h2>
+    <div class="kv">
+      <div class="k">数据库</div><div class="v">章鱼喷墨机DB / storage</div>
+      <div class="k">内容</div><div class="v" id="legacyInfo">—</div>
+    </div>
+    <div class="btns">
+      <button class="btn ghost" id="exportLegacy" disabled>导出旧库 JSON</button>
+      <button class="btn warn" id="restoreLegacy" disabled>恢复到主库</button>
+    </div>
+    <div class="note">旧库是历史版本留下的备份。只有主库确实为空、且这里能看到角色数据时，才建议恢复。</div>
+  </div>
+
+  <div class="card">
+    <h2>localStorage 镜像 <span id="lsBadge" class="badge">检查中</span></h2>
+    <div class="kv">
+      <div class="k">内容</div><div class="v" id="lsInfo">—</div>
+    </div>
+    <div class="btns"><button class="btn ghost" id="exportLs" disabled>导出镜像 JSON</button><button class="btn warn" id="restoreLs" disabled>恢复到主库</button></div>
+  </div>
+
+  <div class="card">
+    <h2>浏览器存储占用 <span class="badge" id="quotaBadge">—</span></h2>
+    <div class="kv"><div class="k">已用 / 配额</div><div class="v" id="quotaInfo">—</div><div class="k">数据库列表</div><div class="v" id="dbList">—</div></div>
+    <div class="note">如果这里显示有几百 MB 占用，说明数据很可能还在，只是应用没有正确读出来。</div>
+  </div>
+
+  <div class="status" id="status">正在读取……</div>
+  <div class="note danger">重要：在确认数据之前，不要清除浏览器缓存 / 网站数据，不要卸载应用，也不要在旧标签页里点保存或导入。</div>
+</div>
+<script>
+(function(){
+  var DATA_DB='麻辣香锅鸡DB', DATA_KEY='麻辣香锅鸡';
+  var LEGACY_DB='章鱼喷墨机DB', LEGACY_KEY='章鱼喷墨机';
+  var mainData=null, legacyData=null, lsData=null;
+  var $=function(id){return document.getElementById(id)};
+  function fmtSize(n){ if(!n&&n!==0) return '—'; if(n<1024) return n+' B'; if(n<1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(2)+' MB'; }
+  function fmtTs(ts){ if(!ts) return '—'; try{ return new Date(Number(ts)).toLocaleString('zh-CN',{hour12:false}); }catch(e){return String(ts)} }
+  function counts(o){
+    if(!o) return '没有数据';
+    var parts=[];
+    if(Array.isArray(o.characters)) parts.push('角色 '+o.characters.length);
+    if(Array.isArray(o.groups)) parts.push('群聊 '+o.groups.length);
+    if(Array.isArray(o.worldBooks)) parts.push('世界书 '+o.worldBooks.length);
+    if(Array.isArray(o.masks)) parts.push('面具 '+o.masks.length);
+    if(Array.isArray(o.offlineChats)) parts.push('线下 '+o.offlineChats.length);
+    return parts.length?parts.join(' · '):'有数据但没有角色/群聊字段';
+  }
+  function openDb(name){
+    return new Promise(function(resolve){
+      var req;
+      try{ req=indexedDB.open(name); }catch(e){ resolve(null); return; }
+      req.onupgradeneeded=function(){ try{ req.result.createObjectStore('storage',{keyPath:'key'}); }catch(e){} };
+      req.onsuccess=function(){ resolve(req.result); };
+      req.onerror=function(){ resolve(null); };
+      req.onblocked=function(){ resolve(null); };
+    });
+  }
+  function readKey(db,key){
+    return new Promise(function(resolve){
+      if(!db){ resolve(null); return; }
+      try{
+        var tx=db.transaction('storage','readonly');
+        var req=tx.objectStore('storage').get(key);
+        req.onsuccess=function(){ resolve(req.result||null); };
+        req.onerror=function(){ resolve(null); };
+      }catch(e){ resolve(null); }
+    });
+  }
+  function parseItem(item){
+    if(!item) return null;
+    try{ return JSON.parse(item.value); }catch(e){ return null; }
+  }
+  function download(obj,name){
+    var blob=new Blob([JSON.stringify(obj,null,2)],{type:'application/json'});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=name; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },600);
+  }
+  function restore(data,label){
+    if(!data){ alert('没有可恢复的数据'); return; }
+    if(!confirm('将把「'+label+'」覆盖写入主库。当前主库内容会被替换，确定继续？')) return;
+    openDb(DATA_DB).then(function(db){
+      if(!db){ alert('无法打开主数据库'); return; }
+      try{
+        var tx=db.transaction('storage','readwrite');
+        tx.objectStore('storage').put({key:DATA_KEY,value:JSON.stringify(data),timestamp:Date.now()});
+        tx.oncomplete=function(){ $('status').textContent='已写入主库。请回到应用完全关闭后重新打开，不要立即再刷新。'; scan(); };
+        tx.onerror=function(){ alert('写入失败，请截图当前页面联系我'); };
+      }catch(e){ alert('写入失败：'+e.message); }
+    });
+  }
+  function scan(){
+    $('status').textContent='正在读取……';
+    Promise.all([openDb(DATA_DB),openDb(LEGACY_DB)]).then(function(dbs){
+      return Promise.all([readKey(dbs[0],DATA_KEY),readKey(dbs[1],LEGACY_KEY)]).then(function(items){
+        mainData=parseItem(items[0]); legacyData=parseItem(items[1]);
+        var mainBadge=$('mainBadge'), legacyBadge=$('legacyBadge');
+        if(mainData && Array.isArray(mainData.characters) && mainData.characters.length){
+          mainBadge.className='badge ok'; mainBadge.textContent='有数据';
+        }else if(mainData){
+          mainBadge.className='badge warn'; mainBadge.textContent='结构存在，角色为空';
+        }else{
+          mainBadge.className='badge bad'; mainBadge.textContent='未找到主库数据';
+        }
+        $('mainCounts').textContent=counts(mainData);
+        $('mainMore').textContent=mainData?('世界书 '+(mainData.worldBooks||[]).length+' · 面具 '+(mainData.masks||[]).length+' · 动态 '+(mainData.feeds||[]).length):'—';
+        $('mainTs').textContent=items[0]?fmtTs(items[0].timestamp):'—';
+        $('mainSize').textContent=items[0]?fmtSize((items[0].value||'').length):'—';
+        $('exportMain').disabled=!mainData;
+
+        if(legacyData && Array.isArray(legacyData.characters) && legacyData.characters.length){
+          legacyBadge.className='badge warn'; legacyBadge.textContent='发现旧数据';
+        }else{
+          legacyBadge.className='badge'; legacyBadge.textContent=legacyData?'旧库为空':'没有旧库';
+        }
+        $('legacyInfo').textContent=counts(legacyData);
+        $('exportLegacy').disabled=!legacyData; $('restoreLegacy').disabled=!legacyData;
+
+        var raw=null;
+        try{ raw=localStorage.getItem('gemini-chat-app-db'); }catch(e){}
+        lsData=null; if(raw){ try{ lsData=JSON.parse(raw); }catch(e){} }
+        if(lsData && Array.isArray(lsData.characters) && lsData.characters.length){
+          $('lsBadge').className='badge warn'; $('lsBadge').textContent='发现镜像';
+        }else{
+          $('lsBadge').className='badge'; $('lsBadge').textContent=raw?'镜像为空':'没有镜像';
+        }
+        $('lsInfo').textContent=raw?('大小 '+fmtSize(raw.length)+' · '+counts(lsData)):'—';
+        $('exportLs').disabled=!lsData; $('restoreLs').disabled=!lsData;
+
+        if(mainData && mainData.characters && mainData.characters.length){
+          $('status').textContent='主库存在角色数据。先回到应用，等页面完全加载；如果应用仍显示空白，再从上面导出 JSON。';
+        }else if(legacyData || lsData){
+          $('status').textContent='主库没有可用角色数据，但发现了旧库或 localStorage 镜像。可以先导出留底，再决定是否恢复。';
+        }else{
+          $('status').textContent='当前浏览器里没有找到主库、旧库或 localStorage 数据。先不要清缓存；如果还有旧标签页开着，去那里导出 JSON。';
+        }
+      });
+    }).catch(function(e){ $('status').textContent='读取失败：'+e.message; });
+    if(navigator.storage && navigator.storage.estimate){
+      navigator.storage.estimate().then(function(est){
+        $('quotaInfo').textContent=fmtSize(est.usage)+' / '+fmtSize(est.quota);
+        $('quotaBadge').className='badge '+(est.usage>1000000?'ok':'');
+        $('quotaBadge').textContent=est.usage>1000000?'数据还在':'占用很小';
+      }).catch(function(){});
+    }
+    if(indexedDB.databases){
+      indexedDB.databases().then(function(list){
+        $('dbList').textContent=(list||[]).map(function(d){return d.name+' v'+(d.version||'?')}).join('，')||'—';
+      }).catch(function(){});
+    }
+  }
+  $('exportMain').onclick=function(){ if(mainData) download(mainData,'麻辣香锅鸡_主库备份_'+Date.now()+'.json'); };
+  $('exportLegacy').onclick=function(){ if(legacyData) download(legacyData,'麻辣香锅鸡_旧库备份_'+Date.now()+'.json'); };
+  $('exportLs').onclick=function(){ if(lsData) download(lsData,'麻辣香锅鸡_镜像备份_'+Date.now()+'.json'); };
+  $('restoreLegacy').onclick=function(){ restore(legacyData,'旧库'); };
+  $('restoreLs').onclick=function(){ restore(lsData,'localStorage 镜像'); };
+  $('rescan').onclick=scan;
+  scan();
+})();
+</script>
+</body>
+</html>
