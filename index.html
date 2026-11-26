@@ -11689,7 +11689,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.9";
+  const APP_VERSION = "v6.3.10";
   let db = {
     characters: [],
     groups: [],
@@ -11821,14 +11821,8 @@ document.addEventListener("DOMContentLoaded", () => {
         await this.db.storage.put({ key, value: json, timestamp: ts });
         ok = true;
         console.log("数据已保存: ".concat(key));
-        if (key === "麻辣香锅鸡") {
-          /* 旧版整库镜像会挤占 localStorage 配额，导致书城/邮局等小模块静默写失败。
-             从 v6.3.9 起只保留 IndexedDB；旧镜像在成功写入后立即清掉。 */
-          try {
-            localStorage.removeItem("gemini-chat-app-db");
-            localStorage.removeItem("__mxg_ls_ts");
-          } catch (e3) {}
-        }
+        /* 不在这里删除旧镜像：镜像可能是用户唯一的旧版现场备份。
+           主库已有角色时镜像不会参与加载；只有用户主动清空数据时才清镜像。 */
       } catch (e) {
         err = (e && (e.name + ":" + e.message)) || String(e);
         console.error("保存数据失败:", e);
@@ -11855,6 +11849,12 @@ document.addEventListener("DOMContentLoaded", () => {
     async removeData(key) {
       try {
         await this.db.storage.delete(key);
+        if (key === "\u9EBB\u8FA3\u9999\u9505\u9E21") {
+          try {
+            localStorage.removeItem("gemini-chat-app-db");
+            localStorage.removeItem("__mxg_ls_ts");
+          } catch (e3) {}
+        }
         console.log("\u6570\u636E\u5DF2\u5220\u9664: ".concat(key));
         return true;
       } catch (error) {
@@ -11866,6 +11866,10 @@ document.addEventListener("DOMContentLoaded", () => {
     async clearAll() {
       try {
         await this.db.storage.clear();
+        try {
+          localStorage.removeItem("gemini-chat-app-db");
+          localStorage.removeItem("__mxg_ls_ts");
+        } catch (e3) {}
         console.log("\u6240\u6709\u6570\u636E\u5DF2\u6E05\u7A7A");
         return true;
       } catch (error) {
@@ -11987,7 +11991,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   const loadData = async () => {
-    /* v6.3.9：主数据只从 IndexedDB 读取。旧版 localStorage 整库镜像仅用于一次性迁移。 */
+    /* v6.3.10：主库优先。旧 localStorage 镜像只在“主库没有角色数据”时兜底，
+       绝不允许一个较新的空镜像覆盖已有主库（v6.3.9 的迁移顺序会造成这种覆盖）。 */
     let oldData = null;
     try { oldData = localStorage.getItem("gemini-chat-app-db"); } catch (e) {}
     let data = await dataStorage.getData("\u9EBB\u8FA3\u9999\u9505\u9E21");
@@ -12000,38 +12005,43 @@ document.addEventListener("DOMContentLoaded", () => {
     const looksLikeDb = function (x) {
       return !!x && (Array.isArray(x.characters) || Array.isArray(x.worldBooks) || Array.isArray(x.worldBookFolders) || Array.isArray(x.groups));
     };
-    if (!data || !data.characters || !data.characters.length) {
-      try {
-        const legacyDb = new Dexie("\u7AE0\u9C7C\u55B7\u58A8\u673ADB");
-        legacyDb.version(1).stores({ storage: "key, value, timestamp" });
-        const legacyItem = await legacyDb.storage.get("\u7AE0\u9C7C\u55B7\u58A8\u673A");
-        if (legacyItem) {
-          const legacy = JSON.parse(legacyItem.value);
-          if (legacy && legacy.characters && legacy.characters.length) {
-            data = legacy;
-            effectiveTs = Date.now();
-            await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", data);
-            console.log("\u5DF2\u4ECE\u65E7\u5E93\u6062\u590D\u6570\u636E");
-          }
-        }
-      } catch (e) {
-        console.error("\u65E7\u5E93\u8FC1\u79FB\u5931\u8D25:", e);
-      }
-    }
-    let __migratedMirror = false;
+    const hasCharacters = function (x) {
+      return !!(x && Array.isArray(x.characters) && x.characters.length);
+    };
     const lsTs = Number((function () { try { return localStorage.getItem("__mxg_ls_ts") || "0"; } catch (e1) { return "0"; } })()) || 0;
-    if (oldData) {
-      try {
-        var parsedOld = JSON.parse(oldData);
-        var mirrorNewer = !data || !data.characters || !data.characters.length || (lsTs > dbTs + 1500);
-        if (looksLikeDb(parsedOld) && mirrorNewer) {
-          data = parsedOld;
-          effectiveTs = Math.max(Date.now(), lsTs);
-          __migratedMirror = true;
-          console.log("已从旧 localStorage 镜像迁移数据");
+    let parsedOld = null;
+    let __migratedMirror = false;
+    try { if (oldData) parsedOld = JSON.parse(oldData); } catch (e) { console.warn("旧镜像解析失败，忽略:", e); }
+    if (hasCharacters(data)) {
+      /* 主库已经有角色：旧镜像不参与任何覆盖。即便它的时间戳更新，也只保留不读。 */
+      window.__mxgLoadSource = "idb";
+      if (oldData) window.__mxgMirrorIgnored = true;
+    } else {
+      /* 主库没有角色：先看旧镜像里有没有真角色，再看更老的“章鱼喷墨机”库。 */
+      if (looksLikeDb(parsedOld) && hasCharacters(parsedOld)) {
+        data = parsedOld;
+        effectiveTs = Math.max(Date.now(), lsTs);
+        __migratedMirror = true;
+        window.__mxgLoadSource = "mirror";
+        console.log("主库没有角色数据，已从旧 localStorage 镜像恢复");
+      } else {
+        try {
+          const legacyDb = new Dexie("\u7AE0\u9C7C\u55B7\u58A8\u673ADB");
+          legacyDb.version(1).stores({ storage: "key, value, timestamp" });
+          const legacyItem = await legacyDb.storage.get("\u7AE0\u9C7C\u55B7\u58A8\u673A");
+          if (legacyItem) {
+            const legacy = JSON.parse(legacyItem.value);
+            if (hasCharacters(legacy)) {
+              data = legacy;
+              effectiveTs = Date.now();
+              window.__mxgLoadSource = "legacy";
+              await dataStorage.saveData("\u9EBB\u8FA3\u9999\u9505\u9E21", data);
+              console.log("\u5DF2\u4ECE\u65E7\u5E93\u6062\u590D\u6570\u636E");
+            }
+          }
+        } catch (e2) {
+          console.error("\u65E7\u5E93\u8FC1\u79FB\u5931\u8D25:", e2);
         }
-      } catch (e) {
-        console.error("旧数据迁移失败:", e);
       }
     }
     if (data) db = data;
@@ -12063,11 +12073,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       } catch (e6) { console.warn("旧 localStorage 迁移写入失败", e6); }
     } else if (oldData) {
-      /* IndexedDB 已是更新版本，旧镜像只占配额，直接清掉 */
-      try {
-        localStorage.removeItem("gemini-chat-app-db");
-        localStorage.removeItem("__mxg_ls_ts");
-      } catch (e8) {}
+      /* 主库已有角色时，旧镜像不参与加载。只有镜像本身没有角色数据才清掉；
+         镜像里还有角色就保留，作为用户最后一次可导出的现场备份。 */
+      if (!hasCharacters(parsedOld)) {
+        try {
+          localStorage.removeItem("gemini-chat-app-db");
+          localStorage.removeItem("__mxg_ls_ts");
+        } catch (e8) {}
+      }
     }
     if (!db.apiSettings) db.apiSettings = {};
     if (db.apiSettings.visionEnabled === void 0) db.apiSettings.visionEnabled = false;
@@ -13195,7 +13208,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (!window.__quickShellDone) {
         window.__quickShellDone = 1;
-        /* v6.3.9：不再同步读取 localStorage 整库镜像，先渲染空壳，IndexedDB 加载后重建桌面 */
+        /* v6.3.10：主库加载完成后再重建桌面；旧镜像不再覆盖已有主库 */
         db.customIcons = db.customIcons || {};
         db.characters = db.characters || [];
         db.widgetTexts = db.widgetTexts || {};
