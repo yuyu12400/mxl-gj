@@ -987,7 +987,7 @@
         .sticker-block { display: flex; flex-direction: column; align-items: center; gap: 5px; margin: 0 8px; max-width: 230px; }
         .sticker-block .image-bubble { margin: 0 !important; }
         .sticker-cap { font-size: calc(var(--app-fs, 1) * 10px); line-height: 1.3; color: #8b8b96; text-align: center; margin-top: 4px; letter-spacing: .02em; }
-        .message-bubble.mxg-has-html { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; max-width: min(86vw, 360px); white-space: normal; }
+        .message-bubble.mxg-has-html { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; max-width: min(94vw, 460px); width: min(94vw, 460px); white-space: normal; }
         .mxg-html-card { width: 100%; overflow: hidden; border-radius: 16px; }
         .mxg-html-frame { pointer-events: auto; }
         .mxg-html-card img { max-width: 100%; height: auto; }
@@ -12270,7 +12270,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.39";
+  const APP_VERSION = "v6.3.40";
   let db = {
     characters: [],
     groups: [],
@@ -17776,7 +17776,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (hasHtml) out += "【HTML 卡片·模板 · 必须遵守】条目里给出的 HTML 是模板，不是成品。要按当前情境把模板里的占位内容换成真实内容（占位符通常是 {{字段}}、[[字段]]、{字段}，或明显的提示文字如“名字/价格/时间”），再输出由 ```html 开头、``` 结尾的完整 HTML。整张卡片必须在同一条消息里完整输出：从第一个标签到最后一个闭合标签不许拆开，中间不许插 [open] 这类方括号标记，也不许插别的话。标签结构、class 与内联样式保持不动，只替换内容，列表处按实际条数增删。卡片发完之后，可以再另起一条消息正常说话，但不要在卡片里解释它。\n";
       const p = Math.max(0, Math.min(100, parseInt((db.worldBookSettings || {}).htmlRandom, 10) || 0));
       if (p >= 100) {
-        out += "【HTML 卡片·本轮必发】这一轮必须发一张与当前情境相关的 HTML 卡片：用 ```html 开头、``` 结尾，一条消息完整装下整张卡片，中间不许拆开、不许插话，内容由当前剧情主题决定，贴合此刻的人、地点、物品或事件（名片、票据、歌单、天气、订单、相册封面等），不要套用固定模板。卡片发完之后，可以再另起一条正常的对话，但不要在卡片里解释它。\n";
+        out += "【HTML 卡片·本轮必发 · 强制】无论本轮内容是否需要，都必须先发一张与当前情境相关的 HTML 卡片：用 ```html 开头、``` 结尾，一条消息完整装下整张卡片，中间不许拆开、不许插话，内容由当前剧情主题决定，贴合此刻的人、地点、物品或事件（名片、票据、歌单、天气、订单、相册封面等），不要套用固定模板。卡片发完之后，可以再另起一条正常的对话，但不要在卡片里解释它。\n";
       } else if (p > 0 && Math.random() * 100 < p) {
         out += "【HTML 卡片·允许】这一轮可以额外发一张与当前情境相关的 HTML 卡片，用 ```html 开头、``` 结尾，一条消息完整装下整张卡片，中间不许拆开，内容贴合此刻的人、地点、物品或事件；卡片之后可以再发一条正常的对话，不必每轮都发。\n";
       }
@@ -24336,7 +24336,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let content = fallback[i % fallback.length];
       if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
         const otherComments = existing.slice(-4).join("\n") || "暂无";
-    const sys = wbAttach(("你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。你的朋友（" + (mask ? mask.name : char.myName) + "）发了一条动态，原文与图片信息如下：「" + feedBrief + "」。现在你要评论这条动态。要求：1. 只从以下角度写：" + angle + " 2. 必须落到原文或图片里的一个具体细节，不能只写空泛感受；3. 严禁与其他人的评论相似或重复，已出现的评论是：\n" + otherComments + "\n4. 用你自己的口吻，20-50字，像真实的人在朋友圈随手评论；5. 不要总结整条动态，不要写成鸡汤或文案；6. 严禁承认自己是AI或人机。" + (_wbCm ? "\n\n" + _wbCm : "")), [char], "online", null, null, feedBrief + "\n" + otherComments);
+    const sys = wbAttach(("你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。你的朋友（" + (mask ? mask.name : char.myName) + "）发了一条动态，原文与图片信息如下：「" + feedBrief + "」。现在你要评论这条动态。要求：1. 只从以下角度写：" + angle + " 2. 必须落到原文或图片里的一个具体细节，不能只写空泛感受；3. 严禁与其他人的评论相似或重复，已出现的评论是：\n" + otherComments + "\n4. 用你自己的口吻，20-50字，像真实的人在朋友圈随手评论；5. 不要总结整条动态，不要写成鸡汤或文案；6. 严禁承认自己是AI或人机。"), [char], "online", null, null, feedBrief + "\n" + otherComments);
         let _mosCm = "";
         try { _mosCm = MemoryOS.context(char.id, feedBrief, "comment", 900); } catch (e) {}
         const sysWithTime = sys + (_mosCm ? "\n\n" + _mosCm : "") + "\n\n" + TimeSense.feedBlock(char, feed.ts);
@@ -44802,6 +44802,16 @@ function wb2DeleteEntry() {
     if (search) search.addEventListener("input", function(){ wb2State.search = search.value; wb2RenderLibrary(); });
     var hr = document.getElementById("wb2-html-random");
     if (hr) {
+      var hrSave = function(){
+        if (!db.worldBookSettings) db.worldBookSettings = {};
+        db.worldBookSettings.htmlRandom = Math.max(0, Math.min(100, parseInt(hr.value, 10) || 0));
+        hr.value = String(db.worldBookSettings.htmlRandom);
+        Promise.resolve(wb2Save()).then(function(ok){
+          if (!ok) { wb2Toast("随机率保存失败：本地 IDB 未写入"); return; }
+          wb2Toast("HTML 卡片随机率：" + db.worldBookSettings.htmlRandom + "%");
+        });
+      };
+      hr.addEventListener("input", hrSave);
       hr.addEventListener("change", function(){
         if (!db.worldBookSettings) db.worldBookSettings = {};
         db.worldBookSettings.htmlRandom = Math.max(0, Math.min(100, parseInt(hr.value, 10) || 0));
