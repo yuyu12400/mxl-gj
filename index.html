@@ -11478,8 +11478,15 @@ document.addEventListener("DOMContentLoaded", () => {
           setTimeout(finish, 8000);
         });
       }
+      if (file.size > 20 * 1024 * 1024) {
+        window.__stgBusy = false;
+        var tooBig = await uiConfirm("这个备份约 " + (file.size / 1024 / 1024).toFixed(1) + " MB。主应用直接解析很容易被手机内存杀掉。建议改用恢复页的「从 JSON 文件导入」，它更轻。要现在打开恢复页吗？", "打开恢复页", false);
+        if (inputEl) inputEl.value = null;
+        if (tooBig) window.location.href = "recover.html";
+        return;
+      }
       if (file.size > 10 * 1024 * 1024) {
-        var bigOk = await uiConfirm("这个备份约 " + (file.size / 1024 / 1024).toFixed(1) + " MB。手机解析大文件时可能内存不足而闪退；建议在电脑上导入。仍要继续吗？", "继续导入", true);
+        var bigOk = await uiConfirm("这个备份约 " + (file.size / 1024 / 1024).toFixed(1) + " MB。手机解析大文件时可能内存不足而闪退；建议改用恢复页的「从 JSON 文件导入」。仍要在主应用继续吗？", "继续导入", true);
         if (!bigOk) { if (inputEl) inputEl.value = null; return; }
       }
       var text = await file.text();
@@ -11506,6 +11513,9 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.characters !== undefined && !Array.isArray(data.characters)) throw new Error("备份里的 characters 不是数组");
       if (data.groups !== undefined && !Array.isArray(data.groups)) throw new Error("备份里的 groups 不是数组");
       if (data.worldBooks !== undefined && !Array.isArray(data.worldBooks)) throw new Error("备份里的 worldBooks 不是数组");
+      ["characters", "groups", "worldBooks", "memories", "masks", "offlineChats"].forEach(function (k) {
+        if (Array.isArray(data[k])) data[k] = data[k].filter(function (x) { return x && typeof x === "object"; });
+      });
       if (!data.__localKV || typeof data.__localKV !== "object" || Array.isArray(data.__localKV)) data.__localKV = {};
       MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
         if (typeof localData[key] === "string") data.__localKV[key] = localData[key];
@@ -11537,14 +11547,16 @@ document.addEventListener("DOMContentLoaded", () => {
       if (Array.isArray(data.characters) && (!Array.isArray(verified.characters) || verified.characters.length !== data.characters.length)) {
         throw new Error("写入后角色数量不一致，已保留导入前备份");
       }
-      db = verified;
-      window.db = db;
       try { await saveWorldBookBackup(); } catch (e) {}
       MXG_BACKUP_LOCAL_KEYS.forEach(function (key) {
         try { localStorage.removeItem(key); } catch (e2) {}
       });
-      showToast("数据已恢复，应用即将刷新。");
-      setTimeout(function () { window.location.reload(); }, 1200);
+      /* 不自动 reload：导入大数据时，旧页面还占着内存，刷新会再加载一遍，容易闪退。
+         先释放大对象，提示用户手动完全关闭 App 再打开。 */
+      db = null;
+      window.db = null;
+      showToast("导入已完成，请完全关闭 App 后再打开。");
+      uiAlert("导入已完成。请先把 App 完全关闭，再重新打开；不要停留在当前页面继续操作。");
     } catch (e) {
       console.error("导入失败:", e);
       showToast("导入失败：" + (e.message || "无法读取备份文件"));
@@ -11768,7 +11780,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.15";
+  const APP_VERSION = "v6.3.16";
   let db = {
     characters: [],
     groups: [],
@@ -12205,6 +12217,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!db.couple.actionNextTs) db.couple.actionNextTs = 0;
       if (!db.couple.actionScheduledAt) db.couple.actionScheduledAt = 0;
     }
+    db.characters = db.characters.filter(function (c) { return c && typeof c === "object"; });
+    db.groups = db.groups.filter(function (g) { return g && typeof g === "object"; });
+    db.worldBooks = db.worldBooks.filter(function (w) { return w && typeof w === "object"; });
+    db.memories = db.memories.filter(function (m) { return m && typeof m === "object"; });
     db.characters.forEach((c) => {
       if (c.isPinned === void 0) c.isPinned = false;
       if (c.status === void 0) c.status = "\u5728\u7EBF";
