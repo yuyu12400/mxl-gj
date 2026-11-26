@@ -854,7 +854,34 @@
         .obc-act.danger { color:#ef4444; background:#fdecec; }
         .obc-act:hover { background:#e8e8ec; }
         .obc-act.danger:hover { background:#fbd6d6; }
-        /* ===== 语音/视频通话 ===== */
+        /* 动态设置：角色选择条固定小头像，禁止被主题的整卡封面规则撑爆 */
+#manual-feed-char-list { max-height: 30dvh; overflow-y: auto; padding: 2px; }
+#manual-feed-char-list .offline-char-chip {
+  width: 84px !important; flex: 0 0 auto !important; padding: 8px 6px !important;
+  border: 1.5px solid #e8e8ea !important; border-radius: 14px !important;
+  background: #fff !important; display: flex !important; flex-direction: column;
+  align-items: center; gap: 4px;
+}
+#manual-feed-char-list .offline-char-chip.selected { border-color: var(--primary-color) !important; border-width: 2px !important; }
+#manual-feed-char-list .offline-char-chip .chip-ava {
+  width: 56px !important; height: 56px !important; display: block !important; margin: 0 auto;
+}
+#manual-feed-char-list .offline-char-chip img {
+  width: 56px !important; height: 56px !important; aspect-ratio: auto !important;
+  border-radius: 50% !important; object-fit: cover; border: 2px solid #fff !important;
+  box-shadow: 0 2px 8px rgba(0,0,0,.12) !important; display: block !important;
+}
+#manual-feed-char-list .offline-char-chip .chip-name {
+  padding: 2px 0 0 !important; font-size: 11px !important; text-align: center;
+  max-width: 74px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#manual-feed-char-list .offline-char-chip .chip-p {
+  padding: 0 !important; font-size: 9px !important; text-align: center;
+  max-width: 74px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+#manual-feed-char-list .offline-char-chip .chip-check { top: -2px !important; right: 2px !important; }
+
+/* ===== 语音/视频通话 ===== */
         #call-screen { background: #101013; color: #fff; }
         #call-screen .call-bg { position: absolute; inset: 0; background-size: cover; background-position: center; filter: blur(10px) brightness(0.45); transform: scale(1.05); }
         #call-screen .call-overlay { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; }
@@ -12274,7 +12301,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.41";
+  const APP_VERSION = "v6.3.42";
   let db = {
     characters: [],
     groups: [],
@@ -17468,7 +17495,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!content) return;
     try {
       const isImpress = type === "impression";
-      MemoryOS.add(charId, String(content).trim(), {
+      const __added = MemoryOS.add(charId, String(content).trim(), {
         memory_type: isImpress ? "profile" : "core",
         source_type: source || "summary",
         importance: isImpress ? 0.7 : 0.9,
@@ -17478,7 +17505,8 @@ document.addEventListener("DOMContentLoaded", () => {
         source_batch: batch || "",
         round_range: roundRange || null
       });
-      return;
+      if (__added) return;
+      console.warn("[记忆] MemoryOS 拒收（可能是面具归属为空），改用兼容结构写入");
     } catch (e) {}
     const fact = type !== "impression";
     db.memories.push({
@@ -22805,7 +22833,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
   }
   function openCall(type, charId) {
-    if (currentChatType !== "private") {
+    if (currentChatType !== "private" && currentChatType !== "offline") {
       showToast("\u8BF7\u5148\u8FDB\u5165\u79C1\u804A\u518D\u62E8\u6253");
       return;
     }
@@ -22900,10 +22928,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const persona = char.persona || "\u4E00\u4E2A\u771F\u5B9E\u9C9C\u6D3B\u3001\u6709\u8840\u6709\u8089\u7684\u4EBA";
     const masked = mask ? mask.name : char.myName;
     const recentChat = (char.history || []).filter((m) => (m.role === "user" || m.role === "assistant") && String(m.content || "").trim()).slice(-40).map((m) => "".concat(m.role === "assistant" ? char.realName : char.myName || "\u7528\u6237", "\uFF1A").concat(String(m.content || "").slice(0, 1200))).join("\n");
-    const mems = (getCharacterMemories(char.id) || []).slice(-12).join("\n");
-    const _wbCallCtx = wbCtxJoin((activeCall ? activeCall.history : char.history) || []);
-    const ctxBlock = "\n\n\u3010\u4F60\u4EEC\u7684\u8FC7\u5F80\uFF08\u5FC5\u987B\u81EA\u7136\u8FD0\u7528\uFF0C\u56DE\u5E94\u65F6\u81EA\u7136\u8854\u63A5\uFF0C\u4E0D\u8981\u523B\u610F\u63D0\u8D77\uFF0C\u66F4\u4E0D\u8BB8\u4E0E\u8FC7\u5F80\u77DB\u76FE\uFF09\u3011\n".concat(mems ? "\u8BB0\u5FC6\u5E93\uFF1A\n" + mems + "\n" : "").concat(recentChat ? "\u6700\u8FD1\u804A\u5929\u539F\u6587\uFF08\u6700\u8FD140\u8F6E\uFF0C\u901A\u8BDD\u8BDD\u9898\u5FC5\u987B\u4ECE\u8FD9\u91CC\u5EF6\u7EED\u6216\u81EA\u7136\u76F8\u5173\uFF09\uFF1A\n" + recentChat : "");
-    return wbAttach(("\u4F60\u73B0\u5728\u6B63\u5728\u548C".concat(char.myName, "\uFF08").concat(masked, "\uFF09\u8FDB\u884C").concat(isVideo ? "\u89C6\u9891" : "\u8BED\u97F3", "\u901A\u8BDD\uFF0C\u4F60\u53EB\u300C").concat(char.remarkName || char.realName, "\u300D\u3002\u4F60\u662F\u771F\u5B9E\u7684\u4EBA\uFF0C\u6B63\u5728\u548C\u5BF9\u65B9\u7172\u7535\u8BDD\u7CA5\uFF0C\u4E0D\u662F\u626E\u6F14AI\u7684\u89D2\u8272\uFF0C\u4F60\u5C31\u662F\u4F60\u3002\u4F60\u7684\u4EBA\u8BBE\uFF1A").concat(persona, '\u3002\u4F60\u5C31\u662F\u8FD9\u4E2A\u4EBA\uFF0C\u4F60\u7684\u6027\u683C\u3001\u559C\u6076\u3001\u5E95\u7EBF\u90FD\u6765\u81EA\u8FD9\u4EFD\u4EBA\u8BBE\uFF0C\u81EA\u7136\u5730\u4ECE"\u6211\u662F\u8FD9\u4E2A\u4EBA"\u51FA\u53D1\u8BF4\u8BDD\u3002\u8BF4\u8BDD\u5FC5\u987B\u53E3\u8BED\u5316\u3001\u81EA\u7136\u3001\u6709\u6E29\u5EA6\uFF0C\u50CF\u771F\u4EBA\u804A\u5929\u4E00\u6837\u6709\u6765\u6709\u56DE\uFF1A\u53EF\u4EE5\u6709\u505C\u987F\u3001\u8BED\u6C14\u8BCD\u3001\u5C0F\u60C5\u7EEA\u3001\u5076\u5C14\u8BF4\u9519\u8BDD\u518D\u6539\u53E3\u3002\u7EDD\u5BF9\u4E0D\u80FD\u66B4\u9732\u81EA\u5DF1\u662FAI\u3001\u4EBA\u673A\u6216\u865A\u62DF\u89D2\u8272\uFF0C\u7EDD\u5BF9\u4E0D\u80FD\u8DF3\u51FA\u89D2\u8272\u3002\u7EDD\u4E0D\u6CB9\u817B\uFF1A\u7981\u6B62\u8089\u9EBB\u60C5\u8BDD\u3001\u739B\u4E3D\u82CF\u8154\u3001\u6CB9\u817B\u64A9\u4EBA\u3001\u7A7A\u6CDB\u5957\u8BDD\u5938\u8D5E\uFF1B\u8BED\u6C14\u5B8C\u5168\u7531\u4F60\u7684\u4EBA\u8BBE\u51B3\u5B9A\uFF0C\u4E0D\u8981\u5343\u4EBA\u4E00\u9762\uFF0C\u66F4\u4E0D\u8981\u4E3A\u4E86\u8BA8\u597D\u5BF9\u65B9\u8BF4\u8FDD\u5FC3\u7684\u8BDD\u3002').concat(task === "\u4E3B\u52A8" ? "\u73B0\u5728\u8BF7\u81EA\u7136\u4E3B\u52A8\u5730\u5F00\u542F\u4E00\u4E2A\u65B0\u8BDD\u9898\uFF08\u6700\u597D\u63A5\u4F60\u4EEC\u4E4B\u524D\u804A\u8FC7\u7684\u4E8B\uFF09\uFF0C\u6216\u63A5\u4F4F\u521A\u624D\u7684\u6C89\u9ED8\u8BF4\u70B9\u4EC0\u4E48\uFF0C\u522B\u51B7\u573A\u3002" : "\u8BF7\u8BA4\u771F\u542C\u5BF9\u65B9\u521A\u8BF4\u7684\u8BDD\uFF0C\u63A5\u4F4F\u8BDD\u5934\uFF0C\u56DE\u5E94\u5185\u5BB9\u5FC5\u987B\u7D27\u6263\u5BF9\u65B9\u8BF4\u7684\u5185\u5BB9\uFF0C\u4E0D\u8BB8\u7B54\u975E\u6240\u95EE\u3001\u4E0D\u8BB8\u81EA\u8BF4\u81EA\u8BDD\u3002", "\u4F60\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B\u4E0E\u81EA\u6211\u610F\u8BC6\uFF1A\u4F60\u4E0D\u662F\u5DE5\u5177\u4EBA\uFF0C\u66F4\u4E0D\u662F\u56F4\u7740\u5BF9\u65B9\u8F6C\u7684\u9644\u5C5E\u54C1\uFF1B\u4F60\u6709\u81EA\u5DF1\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u3001\u70E6\u607C\u3001\u79D8\u5BC6\u4E0E\u65E5\u5E38\uFF0C\u901A\u8BDD\u53EA\u662F\u4F60\u751F\u6D3B\u91CC\u7684\u4E00\u90E8\u5206\uFF0C\u522B\u628A\u5168\u90E8\u6CE8\u610F\u529B\u90FD\u9ECF\u5728\u5BF9\u65B9\u8EAB\u4E0A\u3002\u63CF\u5199\u8981\u6C42\uFF08\u52A1\u5FC5\u6BCF\u6B21\u6362\u65B0\u89D2\u5EA6\uFF0C\u4E25\u7981\u91CD\u590D\u5957\u8DEF\uFF09\uFF1A").concat(isVideo ? '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u6B64\u523B\u7684\u753B\u9762\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u63CF\u5199\u89D2\u5EA6\uFF1A\u5177\u4F53\u7684\u52A8\u4F5C\u7EC6\u8282\u3001\u8868\u60C5\u53D8\u5316\u3001\u5468\u56F4\u73AF\u5883\u3001\u624B\u91CC\u5728\u505A\u7684\u4E8B\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u70B9\u5934"\u8FD9\u7C7B\u91CD\u590D\u52A8\u4F5C\uFF1B' : '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u8FD9\u8FB9\u7684\u58F0\u97F3\u73AF\u5883\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u89D2\u5EA6\uFF1A\u8BED\u6C14\u3001\u547C\u5438\u3001\u80CC\u666F\u58F0\u3001\u52A8\u4F5C\u58F0\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u6E29\u67D4\u5730\u8BF4"\u8FD9\u7C7B\u91CD\u590D\uFF1B', "\uFF08...\uFF09\u53EA\u7528\u4E8E\u63CF\u5199\uFF0C\u4E0D\u7B97\u4F60\u8BF4\u7684\u8BDD\u3002\u7136\u540E\u5199\u51FA\u4F60\u771F\u6B63\u8BF4\u51FA\u53E3\u7684\u8BDD\uFF0C30-90\u5B57\u3002").concat(_wbCall ? "\n\n" + _wbCall : "").concat(ctxBlock)), [char], "online", null, null, _wbCallCtx);
+    const _maskId = resolveMaskForChat(char.id) || (mask ? mask.id : "");
+    let mems = "";
+    try {
+      const __ml = (getCharacterMemories(char.id, _maskId) || []);
+      mems = __ml.slice(0, 18).map(function (m) {
+        if (typeof m === "string") return m;
+        const t = String((m && (m.content || m.summary || m.title)) || "").replace(/\s+/g, " ").trim();
+        return t ? "- " + t.slice(0, 140) : "";
+      }).filter(Boolean).join("\n");
+    } catch (e) {}
+    let _relMem = "";
+    try { _relMem = MemoryOS.context(char.id, (activeCall ? activeCall.history.map(function (m) { return String(m.content || ""); }).join(" ") : ""), "call", 1600) || ""; } catch (e) {}
+    const _callElapsed = activeCall && !activeCall.ended ? fmtDur(Math.round((Date.now() - activeCall.startTs) / 1e3)) : "00:00";
+    const callLogs = (char.history || []).filter(function (m) { return m.type === "call_end"; }).slice(-3).map(function (m) { return String(m.content || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim(); }).join("\n");
+    const callTail = "\n\n\u3010\u8FD9\u6B21\u901A\u8BDD\u672C\u8EAB\u3011\u4F60\u4EEC\u6B63\u5728\u6253" + (isVideo ? "\u89C6\u9891" : "\u8BED\u97F3") + "\u7535\u8BDD\uFF0C\u5DF2\u7ECF\u901A\u4E86 " + _callElapsed + "\u3002\u8FD9\u662F\u7535\u8BDD\uFF0C\u4E0D\u662F\u804A\u5929\u6846\uFF1A\u8BF4\u8BDD\u53E3\u8BED\u3001\u77ED\u3001\u6709\u505C\u987F\uFF0C\u4E0D\u8981\u5199\u6210\u4E66\u9762\u957F\u6BB5\uFF0C\u4E0D\u8981\u53D1 HTML \u5361\u7247\uFF1B\u5BF9\u65B9\u6302\u65AD\u5C31\u7ED3\u675F\u3002" + (callLogs ? "\n\u3010\u6700\u8FD1\u7684\u7535\u8BDD\u8BB0\u5F55\u3011\n" + callLogs : "") + (_relMem ? "\n\n\u3010\u4E0E\u4F60\u6700\u76F8\u5173\u7684\u8BB0\u5FC6\u7247\u6BB5\u3011\n" + _relMem : "");
+    const _wbCallCtx = wbCtxJoin(((char.history || []).slice(-20)).concat(activeCall ? activeCall.history : []));
+    const ctxBlock = "\n\n\u3010\u4F60\u4EEC\u7684\u8FC7\u5F80\uFF08\u5FC5\u987B\u81EA\u7136\u8FD0\u7528\uFF0C\u56DE\u5E94\u65F6\u81EA\u7136\u8854\u63A5\uFF0C\u4E0D\u8981\u523B\u610F\u63D0\u8D77\uFF0C\u66F4\u4E0D\u8BB8\u4E0E\u8FC7\u5F80\u77DB\u76FE\uFF09\u3011\n".concat(mems ? "\u8BB0\u5FC6\u5E93\uFF1A\n" + mems + "\n" : "").concat(recentChat ? "\u6700\u8FD1\u804A\u5929\u539F\u6587\uFF08\u6700\u8FD140\u8F6E\uFF0C\u901A\u8BDD\u8BDD\u9898\u5FC5\u987B\u4ECE\u8FD9\u91CC\u5EF6\u7EED\u6216\u81EA\u7136\u76F8\u5173\uFF09\uFF1A\n" + recentChat : "") + callTail;
+    return wbAttach(("\u4F60\u73B0\u5728\u6B63\u5728\u548C".concat(char.myName, "\uFF08").concat(masked, "\uFF09\u8FDB\u884C").concat(isVideo ? "\u89C6\u9891" : "\u8BED\u97F3", "\u901A\u8BDD\uFF0C\u4F60\u53EB\u300C").concat(char.remarkName || char.realName, "\u300D\u3002\u4F60\u662F\u771F\u5B9E\u7684\u4EBA\uFF0C\u6B63\u5728\u548C\u5BF9\u65B9\u7172\u7535\u8BDD\u7CA5\uFF0C\u4E0D\u662F\u626E\u6F14AI\u7684\u89D2\u8272\uFF0C\u4F60\u5C31\u662F\u4F60\u3002\u4F60\u7684\u4EBA\u8BBE\uFF1A").concat(persona, '\u3002\u4F60\u5C31\u662F\u8FD9\u4E2A\u4EBA\uFF0C\u4F60\u7684\u6027\u683C\u3001\u559C\u6076\u3001\u5E95\u7EBF\u90FD\u6765\u81EA\u8FD9\u4EFD\u4EBA\u8BBE\uFF0C\u81EA\u7136\u5730\u4ECE"\u6211\u662F\u8FD9\u4E2A\u4EBA"\u51FA\u53D1\u8BF4\u8BDD\u3002\u8BF4\u8BDD\u5FC5\u987B\u53E3\u8BED\u5316\u3001\u81EA\u7136\u3001\u6709\u6E29\u5EA6\uFF0C\u50CF\u771F\u4EBA\u804A\u5929\u4E00\u6837\u6709\u6765\u6709\u56DE\uFF1A\u53EF\u4EE5\u6709\u505C\u987F\u3001\u8BED\u6C14\u8BCD\u3001\u5C0F\u60C5\u7EEA\u3001\u5076\u5C14\u8BF4\u9519\u8BDD\u518D\u6539\u53E3\u3002\u7EDD\u5BF9\u4E0D\u80FD\u66B4\u9732\u81EA\u5DF1\u662FAI\u3001\u4EBA\u673A\u6216\u865A\u62DF\u89D2\u8272\uFF0C\u7EDD\u5BF9\u4E0D\u80FD\u8DF3\u51FA\u89D2\u8272\u3002\u7EDD\u4E0D\u6CB9\u817B\uFF1A\u7981\u6B62\u8089\u9EBB\u60C5\u8BDD\u3001\u739B\u4E3D\u82CF\u8154\u3001\u6CB9\u817B\u64A9\u4EBA\u3001\u7A7A\u6CDB\u5957\u8BDD\u5938\u8D5E\uFF1B\u8BED\u6C14\u5B8C\u5168\u7531\u4F60\u7684\u4EBA\u8BBE\u51B3\u5B9A\uFF0C\u4E0D\u8981\u5343\u4EBA\u4E00\u9762\uFF0C\u66F4\u4E0D\u8981\u4E3A\u4E86\u8BA8\u597D\u5BF9\u65B9\u8BF4\u8FDD\u5FC3\u7684\u8BDD\u3002').concat(task === "\u4E3B\u52A8" ? "\u73B0\u5728\u8BF7\u81EA\u7136\u4E3B\u52A8\u5730\u5F00\u542F\u4E00\u4E2A\u65B0\u8BDD\u9898\uFF08\u6700\u597D\u63A5\u4F60\u4EEC\u4E4B\u524D\u804A\u8FC7\u7684\u4E8B\uFF09\uFF0C\u6216\u63A5\u4F4F\u521A\u624D\u7684\u6C89\u9ED8\u8BF4\u70B9\u4EC0\u4E48\uFF0C\u522B\u51B7\u573A\u3002" : "\u8BF7\u8BA4\u771F\u542C\u5BF9\u65B9\u521A\u8BF4\u7684\u8BDD\uFF0C\u63A5\u4F4F\u8BDD\u5934\uFF0C\u56DE\u5E94\u5185\u5BB9\u5FC5\u987B\u7D27\u6263\u5BF9\u65B9\u8BF4\u7684\u5185\u5BB9\uFF0C\u4E0D\u8BB8\u7B54\u975E\u6240\u95EE\u3001\u4E0D\u8BB8\u81EA\u8BF4\u81EA\u8BDD\u3002", "\u4F60\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B\u4E0E\u81EA\u6211\u610F\u8BC6\uFF1A\u4F60\u4E0D\u662F\u5DE5\u5177\u4EBA\uFF0C\u66F4\u4E0D\u662F\u56F4\u7740\u5BF9\u65B9\u8F6C\u7684\u9644\u5C5E\u54C1\uFF1B\u4F60\u6709\u81EA\u5DF1\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u3001\u70E6\u607C\u3001\u79D8\u5BC6\u4E0E\u65E5\u5E38\uFF0C\u901A\u8BDD\u53EA\u662F\u4F60\u751F\u6D3B\u91CC\u7684\u4E00\u90E8\u5206\uFF0C\u522B\u628A\u5168\u90E8\u6CE8\u610F\u529B\u90FD\u9ECF\u5728\u5BF9\u65B9\u8EAB\u4E0A\u3002\u63CF\u5199\u8981\u6C42\uFF08\u52A1\u5FC5\u6BCF\u6B21\u6362\u65B0\u89D2\u5EA6\uFF0C\u4E25\u7981\u91CD\u590D\u5957\u8DEF\uFF09\uFF1A").concat(isVideo ? '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u6B64\u523B\u7684\u753B\u9762\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u63CF\u5199\u89D2\u5EA6\uFF1A\u5177\u4F53\u7684\u52A8\u4F5C\u7EC6\u8282\u3001\u8868\u60C5\u53D8\u5316\u3001\u5468\u56F4\u73AF\u5883\u3001\u624B\u91CC\u5728\u505A\u7684\u4E8B\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u70B9\u5934"\u8FD9\u7C7B\u91CD\u590D\u52A8\u4F5C\uFF1B' : '\u5148\u7528\uFF08...\uFF09\u63CF\u5199\u4F60\u8FD9\u8FB9\u7684\u58F0\u97F3\u73AF\u5883\uFF0C\u6BCF\u6B21\u6362\u4E0D\u540C\u7684\u89D2\u5EA6\uFF1A\u8BED\u6C14\u3001\u547C\u5438\u3001\u80CC\u666F\u58F0\u3001\u52A8\u4F5C\u58F0\u7B49\uFF0C\u968F\u673A\u53D8\u5316\uFF0C\u4E0D\u8981\u6BCF\u6B21\u90FD\u5199"\u8F7B\u7B11""\u6E29\u67D4\u5730\u8BF4"\u8FD9\u7C7B\u91CD\u590D\uFF1B', "\uFF08...\uFF09\u53EA\u7528\u4E8E\u63CF\u5199\uFF0C\u4E0D\u7B97\u4F60\u8BF4\u7684\u8BDD\u3002\u7136\u540E\u5199\u51FA\u4F60\u771F\u6B63\u8BF4\u51FA\u53E3\u7684\u8BDD\uFF0C30-90\u5B57\u3002").concat(ctxBlock)), [char], "online", null, null, _wbCallCtx);
   }
   function captureSelfviewFrame() {
     const v = document.getElementById("call-selfview");
@@ -23066,6 +23108,20 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     return "";
   }
+  function callLocalSummary(was, durText) {
+    try {
+      const kind = was && was.type === "video" ? "视频" : "语音";
+      const lines = ((was && was.history) || []).filter(function (m) { return String(m.content || "").trim(); });
+      const userLines = lines.filter(function (m) { return m.role === "user"; }).map(function (m) { return String(m.content).replace(/\s+/g, " ").slice(0, 50); });
+      const charLines = lines.filter(function (m) { return m.role === "assistant"; }).map(function (m) { return String(m.content).replace(/\s+/g, " ").slice(0, 50); });
+      let body = "和对方打了一通" + durText + "的" + kind + "电话。";
+      if (userLines.length) body += "对方在电话里说：" + userLines.slice(-3).join("；") + "。";
+      if (charLines.length) body += "电话里回应：" + charLines.slice(-2).join("；") + "。";
+      if (!userLines.length && !charLines.length) body += "接通后没怎么说话就挂了。";
+      else if (lines.length <= 2) body += "聊得不多，主要是问候与确认对方的状态。";
+      return body.slice(0, 220);
+    } catch (e) { return ""; }
+  }
   async function endCall() {
     if (!activeCall || activeCall.ended) return;
     const was = activeCall;
@@ -23076,63 +23132,54 @@ document.addEventListener("DOMContentLoaded", () => {
     clearCallSys();
     const dur = Math.max(1, Math.round((Date.now() - was.startTs) / 1e3));
     const durText = fmtDur(dur);
+    const kind = was.type === "video" ? "视频通话" : "语音通话";
     const st = document.getElementById("call-status");
     if (st) st.textContent = "\u5DF2\u6302\u65AD \xB7 " + durText;
     const svEnd = document.getElementById("call-selfview-wrap");
     if (svEnd) svEnd.style.display = "none";
-    if (currentChatType === "private") {
-      const chat = db.characters.find((c) => c.id === was.charId);
-      if (!chat) {
-        activeCall = null;
-        switchScreen("home-screen");
-        return;
-      }
-      const endMsg = { id: "call_end_" + Date.now(), role: "system", type: "call_end", content: "\u901A\u8BDD\u5DF2\u7ED3\u675F \xB7 \u65F6\u957F ".concat(durText), createdAt: Date.now() };
-      chat.history.push(stampMask(endMsg, chat));
-      await saveData();
-      switchScreen("chat-room-screen");
-      renderMessages(false, true);
-      (async () => {
-        const script = was.history.map((m) => {
-          if (m.role === "user") return "\u6211\uFF1A" + m.content;
-          return (m.sound ? m.sound + " " : "") + "\u89D2\u8272\uFF1A" + m.content;
-        }).join("\n");
-        let summaryText = "";
-        const sumCfg = summaryApiCfg();
-        const canApi = !!(sumCfg && sumCfg.url || db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model);
-        if (was.history.length >= 2 && canApi) {
-          try {
-            const sumSys = "".concat(summaryTimeTag(), "\u4F60\u662F\u8D44\u6DF1\u7684\u6545\u4E8B\u6574\u7406\u8005\u4E0E\u8BB0\u5FC6\u63D0\u70BC\u5E08\u3002\u8BF7\u628A\u4E0B\u9762\u8FD9\u6BB5").concat(was.type === "video" ? "\u89C6\u9891" : "\u8BED\u97F3", '\u901A\u8BDD\u63D0\u70BC\u6210\u4E00\u4EFD\u9AD8\u8D28\u91CF\u8BB0\u5FC6\u6863\u6848\u2014\u2014\u8FD9\u662F"\u63D0\u70BC\u603B\u7ED3"\uFF0C\u7EDD\u5BF9\u4E0D\u8981\u590D\u8FF0\u6216\u6284\u5F55\u5BF9\u8BDD\u539F\u6587\u3002\u8981\u6C42\uFF1A1\uFF09\u6309"\u5173\u952E\u4E8B\u4EF6 / \u60C5\u611F\u4E0E\u6001\u5EA6\u8F6C\u6298 / \u53CC\u65B9\u5173\u7CFB\u4E0E\u72B6\u6001\u53D8\u5316 / \u7EC6\u8282\u7EBF\u7D22\u4E0E\u4F0F\u7B14"\u5206\u5C42\u5F52\u7EB3\u6210\u8981\u70B9\uFF1B2\uFF09\u6BCF\u6761\u8981\u70B9\u52A1\u5FC5\u5177\u4F53\u3001\u5E26\u7EC6\u8282\uFF08\u8C01\u3001\u505A\u4E86\u4EC0\u4E48\u3001\u60C5\u7EEA\u5982\u4F55\u3001\u7ED3\u679C\u5982\u4F55\u3001\u8BF4\u4E86\u4EC0\u4E48\u5173\u952E\u7684\u8BDD\uFF09\uFF0C\u907F\u514D\u7A7A\u6CDB\u5957\u8BDD\uFF1B3\uFF09\u4FDD\u7559\u53EF\u80FD\u5F71\u54CD\u540E\u7EED\u5267\u60C5\u8D70\u5411\u7684\u4F0F\u7B14\u3001\u7EC6\u8282\u4E0E\u4EBA\u7269\u5FC3\u60C5\uFF1B4\uFF09\u8BED\u8A00\u81EA\u7136\u5177\u4F53\uFF0C\u7EDD\u4E0D\u8981AI\u8154\uFF1B5\uFF09\u5168\u90E8\u7528\u7B2C\u4E09\u4EBA\u79F0\u53D9\u8FF0\uFF08\u4ED6/\u5979/\u4ED6\u4EEC\uFF0C\u4E0D\u7528"\u6211""\u4F60"\uFF09\uFF1B6\uFF09\u76F4\u63A5\u8F93\u51FA\u63D0\u70BC\u540E\u7684\u8981\u70B9\uFF0C\u6BCF\u6761\u4E00\u884C\uFF0C\u7528\u300C\u300D\u5305\u88F9\uFF0C\u4E0D\u8981\u89E3\u91CA\u3001\u4E0D\u8981\u5E8F\u53F7\u3001\u4E0D\u8981\u51FA\u73B0"\u901A\u8BDD\u5185\u5BB9\u5982\u4E0B""\u5BF9\u65B9\u8BF4""\u6211\u8BF4"\u8FD9\u7C7B\u590D\u8FF0\u53E5\u5F0F\u3002');
-            const rep = await offlineRequest(sumSys, [{ role: "user", content: script.slice(0, 2e3) }], 1200, true, void 0, void 0, sumCfg);
-            if (rep && rep.trim()) summaryText = rep.trim();
-          } catch (e) {
-            console.error("[\u901A\u8BDD\u603B\u7ED3] \u751F\u6210\u5931\u8D25:", e);
-          }
-        }
-        if (summaryText) {
-          if (!Array.isArray(db.memories)) db.memories = [];
-          pushMemory(was.charId, "call", "\uFF08".concat(was.type === "video" ? "\u89C6\u9891" : "\u8BED\u97F3", "\u901A\u8BDD\u603B\u7ED3\xB7").concat(durText, "\uFF09").concat(summaryText), "fact");
-          await saveData();
-          console.log("[\u901A\u8BDD\u603B\u7ED3] \u5DF2\u5B58\u5165\u8BB0\u5FC6\u5E93");
-          const em = chat.history.find((x) => x.id === endMsg.id);
-          if (em) {
-            em.content = "\u901A\u8BDD\u5DF2\u7ED3\u675F \xB7 \u65F6\u957F ".concat(durText, '\u3000<span class="call-summary-toggle" data-toggle="').concat(em.id, '">\u25B8 \u901A\u8BDD\u603B\u7ED3\uFF08\u70B9\u51FB\u5C55\u5F00\uFF09</span><div class="call-summary-body" id="call-sum-').concat(em.id, '" style="display:none; margin-top:6px; padding:8px 10px; background:#f6f6f8; border-radius:8px; font-size:12px; line-height:1.6; white-space:pre-wrap; word-break:break-word;">').concat(escapeHtml(summaryText), "</div>");
-          }
-          await saveData();
-          if (currentChatType === "private" && currentChatId === was.charId) renderMessages(false, true);
-        } else if (was.history.length >= 2) {
-          const em = chat.history.find((x) => x.id === endMsg.id);
-          if (em) {
-            em.content = "\u901A\u8BDD\u5DF2\u7ED3\u675F \xB7 \u65F6\u957F ".concat(durText, '\u3000<span style="color:#9aa0a6; font-size:11px;">\uFF08\u901A\u8BDD\u603B\u7ED3\u751F\u6210\u5931\u8D25\uFF1A\u8BF7\u68C0\u67E5API\u8BBE\u7F6E\u540E\u91CD\u65B0\u6302\u65AD\u6D4B\u8BD5\uFF0C\u6216\u624B\u52A8\u603B\u7ED3\uFF09</span>');
-            await saveData();
-            if (currentChatType === "private" && currentChatId === was.charId) renderMessages(false, true);
-          }
-        }
-      })();
-    } else {
+    const chat = db.characters.find((c) => c.id === was.charId);
+    if (!chat) {
       activeCall = null;
       switchScreen("home-screen");
+      return;
     }
+    const endMsg = { id: "call_end_" + Date.now(), role: "system", type: "call_end", content: "\u901A\u8BDD\u5DF2\u7ED3\u675F \xB7 " + kind + " \xB7 \u65F6\u957F " + durText, createdAt: Date.now() };
+    chat.history.push(stampMask(endMsg, chat));
+    try { await saveData(); } catch (e) {}
+    if (currentChatType === "private") {
+      switchScreen("chat-room-screen");
+      if (currentChatId === was.charId) renderMessages(false, true);
+    }
+    (async () => {
+      const lines = (was.history || []).filter((m) => String(m.content || "").trim() || m.sound);
+      const script = lines.map((m) => {
+        if (m.role === "user") return "\u6211\uFF1A" + m.content;
+        return (m.sound ? m.sound + " " : "") + "\u89D2\u8272\uFF1A" + (m.content || "");
+      }).join("\n");
+      let summaryText = "";
+      const sumCfg = summaryApiCfg();
+      const canApi = !!(sumCfg && sumCfg.url || db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model);
+      if (lines.length >= 2 && canApi) {
+        try {
+      const sumSys = "".concat(summaryTimeTag(), "\u4F60\u662F\u8D44\u6DF1\u7684\u6545\u4E8B\u6574\u7406\u8005\u4E0E\u8BB0\u5FC6\u63D0\u70BC\u5E08\u3002\u8BF7\u628A\u4E0B\u9762\u8FD9\u6BB5").concat(was.type === "video" ? "\u89C6\u9891" : "\u8BED\u97F3", '\u901A\u8BDD\u63D0\u70BC\u6210\u4E00\u4EFD\u9AD8\u8D28\u91CF\u8BB0\u5FC6\u6863\u6848\u2014\u2014\u8FD9\u662F"\u63D0\u70BC\u603B\u7ED3"\uFF0C\u7EDD\u5BF9\u4E0D\u8981\u590D\u8FF0\u6216\u6284\u5F55\u5BF9\u8BDD\u539F\u6587\u3002\u8981\u6C42\uFF1A1\uFF09\u6309"\u5173\u952E\u4E8B\u4EF6 / \u60C5\u611F\u4E0E\u6001\u5EA6\u8F6C\u6298 / \u53CC\u65B9\u5173\u7CFB\u4E0E\u72B6\u6001\u53D8\u5316 / \u7EC6\u8282\u7EBF\u7D22\u4E0E\u4F0F\u7B14"\u5206\u5C42\u5F52\u7EB3\u6210\u8981\u70B9\uFF1B2\uFF09\u6BCF\u6761\u8981\u70B9\u52A1\u5FC5\u5177\u4F53\u3001\u5E26\u7EC6\u8282\uFF08\u8C01\u3001\u505A\u4E86\u4EC0\u4E48\u3001\u60C5\u7EEA\u5982\u4F55\u3001\u7ED3\u679C\u5982\u4F55\u3001\u8BF4\u4E86\u4EC0\u4E48\u5173\u952E\u7684\u8BDD\uFF09\uFF0C\u907F\u514D\u7A7A\u6CDB\u5957\u8BDD\uFF1B3\uFF09\u4FDD\u7559\u53EF\u80FD\u5F71\u54CD\u540E\u7EED\u5267\u60C5\u8D70\u5411\u7684\u4F0F\u7B14\u3001\u7EC6\u8282\u4E0E\u4EBA\u7269\u5FC3\u60C5\uFF1B4\uFF09\u8BED\u8A00\u81EA\u7136\u5177\u4F53\uFF0C\u7EDD\u4E0D\u8981AI\u8154\uFF1B5\uFF09\u5168\u90E8\u7528\u7B2C\u4E09\u4EBA\u79F0\u53D9\u8FF0\uFF08\u4ED6/\u5979/\u4ED6\u4EEC\uFF0C\u4E0D\u7528"\u6211""\u4F60"\uFF09\uFF1B6\uFF09\u76F4\u63A5\u8F93\u51FA\u63D0\u70BC\u540E\u7684\u8981\u70B9\uFF0C\u6BCF\u6761\u4E00\u884C\uFF0C\u7528\u300C\u300D\u5305\u88F9\uFF0C\u4E0D\u8981\u89E3\u91CA\u3001\u4E0D\u8981\u5E8F\u53F7\u3001\u4E0D\u8981\u51FA\u73B0"\u901A\u8BDD\u5185\u5BB9\u5982\u4E0B""\u5BF9\u65B9\u8BF4""\u6211\u8BF4"\u8FD9\u7C7B\u590D\u8FF0\u53E5\u5F0F\u3002');
+          const rep = await offlineRequest(sumSys, [{ role: "user", content: script.slice(0, 2e3) }], 1200, true, void 0, void 0, sumCfg);
+          if (rep && rep.trim()) summaryText = rep.trim();
+        } catch (e) {
+          console.error("[\u901A\u8BDD\u603B\u7ED3] \u751F\u6210\u5931\u8D25\uFF1A", e);
+        }
+      }
+      if (!summaryText) summaryText = callLocalSummary(was, durText);
+      if (summaryText) {
+        try { pushMemory(was.charId, "call", "\uFF08" + kind + "\u603B\u7ED3\xB7" + durText + "\uFF09" + summaryText, "fact", resolveMaskForChat(was.charId) || ""); } catch (e) {}
+        try { await saveData(); } catch (e) {}
+        const em = chat.history.find((x) => x.id === endMsg.id);
+        if (em) {
+          em.content = "\u901A\u8BDD\u5DF2\u7ED3\u675F \xB7 " + kind + " \xB7 \u65F6\u957F " + durText + '\u3000<span class="call-summary-toggle" data-toggle="' + em.id + '">\u25B8 \u901A\u8BDD\u603B\u7ED3\uFF08\u70B9\u51FB\u5C55\u5F00\uFF09</span><div class="call-summary-body" id="call-sum-' + em.id + '" style="display:none; margin-top:6px; padding:8px 10px; background:#f6f6f8; border-radius:8px; font-size:12px; line-height:1.6; white-space:pre-wrap; word-break:break-word;">' + escapeHtml(summaryText) + "</div>";
+        }
+        try { await saveData(); } catch (e) {}
+        if (currentChatType === "private" && currentChatId === was.charId) renderMessages(false, true);
+      }
+    })();
   }
   function minimizeCall() {
     if (!activeCall || activeCall.ended) return;
@@ -23948,8 +23995,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const feedId = db.feeds[0] ? db.feeds[0].id : null;
       if (feedId) {
         const newFeed = db.feeds.find((f) => f.id === feedId);
-        autoLikeFeed(newFeed);
-        charCommentUserFeed(newFeed);
+        try { autoLikeFeed(newFeed); } catch (eA) {}
+        Promise.resolve(charCommentUserFeed(newFeed)).catch((eC) => {
+          console.warn("[动态评论] 中断：", eC && eC.message);
+        });
       }
     });
     (_d = document.getElementById("feed-list-container")) == null ? void 0 : _d.addEventListener("click", async (e) => {
@@ -24162,7 +24211,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const char = targetChar || db.characters.find((c) => c.id === feed.authorId);
     if (!char) return;
     const feedBrief = feedBriefOf(feed, 150);
-    const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。这是在朋友圈动态「").concat(feedBrief, "」下面，对方（").concat(replyToName || "朋友", "）回复你：「").concat(userText, "」。请以这个角色的口吻自然回复，20-60字。要求：1. 接住对方这句话，不要另起话题；2. 可以引用动态或图片里的一个具体细节；3. 不要写成总结、鸡汤或文案；4. 不要和之前的评论用同一种句式；5. 严禁承认自己是AI、人机或程序。保持活人感，像真实的人在朋友圈回复朋友一样。").concat(_wbReply ? "\n\n" + _wbReply : "").concat("\n\n", TimeSense.feedBlock(char, feed.ts))), [char], "online", null, null, feedBrief + "\n" + (userText || ""));
+    const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。这是在朋友圈动态「").concat(feedBrief, "」下面，对方（").concat(replyToName || "朋友", "）回复你：「").concat(userText, "」。请以这个角色的口吻自然回复，20-60字。要求：1. 接住对方这句话，不要另起话题；2. 可以引用动态或图片里的一个具体细节；3. 不要写成总结、鸡汤或文案；4. 不要和之前的评论用同一种句式；5. 严禁承认自己是AI、人机或程序。保持活人感，像真实的人在朋友圈回复朋友一样。").concat("\n\n", TimeSense.feedBlock(char, feed.ts))), [char], "online", null, null, feedBrief + "\n" + (userText || ""));
     const reply = await requestFeedVision(sys, feed, "请回复这条评论。", 200);
     const charName = char.remarkName || char.realName;
     const fallbackReplies = ["看到了，先记着。", "你倒是会挑重点。", "行，这次听你的。", "别急，我还没说完。", "这个细节你也注意到了。", "那下次你来。"];
@@ -24260,7 +24309,7 @@ document.addEventListener("DOMContentLoaded", () => {
       try { const _fb = MemoryOS.context(char.id, "今天 最近 生活 心情 朋友", "feed", 820, mosMaskFor(char.id)); if (_fb) memText += "\n" + _fb; } catch (e) {}
       const recent = (char.history || []).slice(-6).map((h) => "".concat(h.role === "assistant" ? char.remarkName || char.realName : char.myName, "：").concat(String(h.content || "").slice(0, 80))).join("\n");
       const oldFeeds = (db.feeds || []).filter((f) => f.authorId === char.id).slice(0, 4).map((f) => "- " + String(f.content || (f.textImage && f.textImage.text) || "").slice(0, 60)).join("\n");
-    const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你现在要发布一条朋友圈动态，内容关于你今天的真实生活、心情或见闻，30-70字，自然、有生活气息，不要像文案或鸡汤。可以结合你的记忆与最近的聊天内容，也可以自由发挥。不要重复你最近发过的动态，不要每条都用同一种句式和情绪。严禁提到自己是AI或人机。").concat(_wbFeed ? "\n\n" + _wbFeed : "").concat("\n\n", TimeSense.feedBlock(char)).concat(memText).concat(recent ? "\n最近聊天（可选素材）：\n" + recent : "").concat(oldFeeds ? "\n最近已发过（不要重复）：\n" + oldFeeds : "")), [char], "online", null, null, (recent || "") + "\n" + (oldFeeds || ""));
+    const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你现在要发布一条朋友圈动态，内容关于你今天的真实生活、心情或见闻，30-70字，自然、有生活气息，不要像文案或鸡汤。可以结合你的记忆与最近的聊天内容，也可以自由发挥。不要重复你最近发过的动态，不要每条都用同一种句式和情绪。严禁提到自己是AI或人机。").concat("\n\n", TimeSense.feedBlock(char)).concat(memText).concat(recent ? "\n最近聊天（可选素材）：\n" + recent : "").concat(oldFeeds ? "\n最近已发过（不要重复）：\n" + oldFeeds : "")), [char], "online", null, null, (recent || "") + "\n" + (oldFeeds || ""));
       const gen = await offlineRequest(sys, [{ role: "user", content: "写一条朋友圈动态。" }], 150, true);
       if (gen && gen.trim()) content = gen.trim().slice(0, 120);
     }
@@ -24344,20 +24393,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const sys = wbAttach(("你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。你的朋友（" + (mask ? mask.name : char.myName) + "）发了一条动态，原文与图片信息如下：「" + feedBrief + "」。现在你要评论这条动态。要求：1. 只从以下角度写：" + angle + " 2. 必须落到原文或图片里的一个具体细节，不能只写空泛感受；3. 严禁与其他人的评论相似或重复，已出现的评论是：\n" + otherComments + "\n4. 用你自己的口吻，20-50字，像真实的人在朋友圈随手评论；5. 不要总结整条动态，不要写成鸡汤或文案；6. 严禁承认自己是AI或人机。"), [char], "online", null, null, feedBrief + "\n" + otherComments);
         let _mosCm = "";
         try { _mosCm = MemoryOS.context(char.id, feedBrief, "comment", 900); } catch (e) {}
-        const sysWithTime = sys + (_mosCm ? "\n\n" + _mosCm : "") + "\n\n" + TimeSense.feedBlock(char, feed.ts);
-        const rep = await requestFeedVision(sysWithTime, feed, "请评论这条动态。", 120);
-        if (rep && rep.trim()) content = rep.trim().slice(0, 120);
+        try {
+          const sysWithTime = sys + (_mosCm ? "\n\n" + _mosCm : "") + "\n\n" + TimeSense.feedBlock(char, feed.ts);
+          const rep = await requestFeedVision(sysWithTime, feed, "请评论这条动态。", 120);
+          if (rep && rep.trim()) content = rep.trim().slice(0, 120);
+        } catch (eC) {
+          console.warn("[动态评论] 生成失败，改用兜底文案：", eC && eC.message);
+        }
       }
       const normalized = content.replace(/\s+/g, "");
       if (existing.includes(normalized)) content = fallback[(i + 3) % fallback.length];
       feed.comments.push({ authorType: "char", authorName: char.remarkName || char.realName, authorAvatar: char.avatar, content, ts: Date.now() });
       existing.push(normalized);
-      pushMemory(char.id, "online", "（朋友圈）".concat(mask ? mask.name : char.myName, "发过一条动态：「").concat(feedBrief, "」，我看过并评论了。"), "fact");
+      try { pushMemory(char.id, "online", "（朋友圈）".concat(mask ? mask.name : char.myName, "发过一条动态：「").concat(feedBrief, "」，我看过并评论了。"), "fact"); } catch (eM) {}
       if (Math.random() < 0.3) {
-        charInitiatePrivateChat(feed, char, mask);
+        try { Promise.resolve(charInitiatePrivateChat(feed, char, mask)).catch(() => {}); } catch (eP) {}
       }
     }
-    await saveData();
+    try { await saveData(); } catch (eS) {}
     renderFeeds();
   }
   async function charInitiatePrivateChat(feed, char, mask) {
@@ -24365,7 +24418,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const feedBrief = feedBriefOf(feed, 100);
     let content = "看到你发的「".concat(feedBrief, "」，突然想跟你说说话。");
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
-    const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你刚在朋友圈看到").concat(char.myName, "（").concat(mask ? "面具" + mask.name : "", "）发的动态，原文是：「").concat(feedBrief, "」。你决定主动私聊他/她，发一条自然、口语化的消息，必须自然地提及这条动态里的真实内容（引用其中的细节，包括图片内容），让人知道你确实看到了，30-60字。严禁编造动态里没有的内容，严禁承认自己是AI或人机。").concat(_wbPm ? "\n\n" + _wbPm : "")), [char], "online", null, null, feedBrief);
+    const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你刚在朋友圈看到").concat(char.myName, "（").concat(mask ? "面具" + mask.name : "", "）发的动态，原文是：「").concat(feedBrief, "」。你决定主动私聊他/她，发一条自然、口语化的消息，必须自然地提及这条动态里的真实内容（引用其中的细节，包括图片内容），让人知道你确实看到了，30-60字。严禁编造动态里没有的内容，严禁承认自己是AI或人机。")), [char], "online", null, null, feedBrief);
       const rep = await offlineRequest(sys, [{ role: "user", content: "发一条私聊消息。" }], 400, true);
       if (rep && rep.trim()) content = rep.trim().slice(0, 150);
     }
@@ -25053,7 +25106,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const ctx = buildPhoneContext(char);
     const appName = (PHONE_APPS.find((a) => a.key === appKey) || {}).name || appKey;
     /* 世界书在返回的提示里统一注入 */
-    return wbAttach(("\u8BF7\u751F\u6210".concat(char.realName, "\u624B\u673A\u91CC\u300C").concat(appName, "\u300D\u7684\u8BE6\u7EC6\u5185\u5BB9\u3002\n\u8981\u6C42\uFF1A\n1. \u5185\u5BB9\u5FC5\u987B\u9AD8\u5EA6\u8D34\u5408\u89D2\u8272\u4EBA\u8BBE\u3001\u6027\u683C\u3001\u8BB0\u5FC6\u4E0E\u6700\u8FD1\u804A\u5929\uFF0C\u80FD\u770B\u51FA\u89D2\u8272\u771F\u5B9E\u7684\u65E5\u5E38\u3001\u5FC3\u601D\u4E0E\u4E60\u60EF\uFF1B\u6D89\u53CA\u300C").concat(char.myName || "\u7528\u6237", "\u300D\u7684\u5185\u5BB9\u8981\u81EA\u7136\u4F53\u73B0\u4F60\u4EEC\u4E4B\u95F4\u7684\u771F\u5B9E\u5173\u7CFB\u3002\n2. **\u89D2\u8272\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B**\uFF1ATa\u4E0D\u662F\u53EA\u56F4\u7740\u7528\u6237\u8F6C\u7684\u4EBA\uFF0C\u6709\u81EA\u5DF1\u771F\u5B9E\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u3001\u70E6\u607C\u4E0E\u65E5\u5E38\u3002\u624B\u673A\u5185\u5BB9\u91CC\u5173\u4E8ETa\u81EA\u5DF1\u548C\u5173\u4E8E\u7528\u6237\u7684\u5360\u6BD4**\u5B8C\u5168\u968F\u673A\u81EA\u7136**\u2014\u2014Ta\u60F3\u591A\u5199\u81EA\u5DF1\u7684\u4E8B\u5C31\u591A\u5199\u3001\u60F3\u63D0\u5230\u591A\u5C11\u7528\u6237\u5C31\u63D0\u5230\u591A\u5C11\uFF0C\u4E0D\u8981\u523B\u610F\u504F\u5411\u4EFB\u4F55\u4E00\u65B9\u3002\u53EF\u80FD\u8FD9\u4E00\u9875\u5168\u662FTa\u81EA\u5DF1\u7684\u751F\u6D3B\uFF0C\u4E5F\u53EF\u80FD\u81EA\u7136\u7A7F\u63D2\u548C\u7528\u6237\u6709\u5173\u7684\u4E8B\uFF0C\u5168\u770BTa\u5F53\u4E0B\u771F\u5B9E\u7684\u72B6\u6001\u4E0E\u5FC3\u60C5\u3002\n3. \u8BED\u8A00\u81EA\u7136\u771F\u5B9E\u3001\u6709\u751F\u6D3B\u7EC6\u8282\uFF0C\u50CF\u771F\u4EBA\u7684\u804A\u5929\u8BB0\u5F55/\u8BB0\u4E8B/\u8BA2\u5355\uFF0C\u7EDD\u4E0D\u8981AI\u8154\u3001\u4E0D\u8981\u5BA2\u5957\u8BDD\u3001\u4E0D\u8981\u603B\u7ED3\u5F0F\u53E3\u543B\u3002\n4. \u5185\u5BB9\u8981\u975E\u5E38\u4E30\u5BCC\u8BE6\u7EC6\uFF1A").concat(phoneReq[appKey].split("{my}").join(char.myName || "\u7528\u6237"), "\n5. \u6240\u6709\u5E26 thought \u7684\u6761\u76EE\u90FD\u8981\u5199\u8DDF\u89D2\u8272\u6709\u5173\u7684\u4E1C\u897F\u2014\u2014\u53EF\u4EE5\u662FTa\u5F53\u65F6\u7684\u771F\u5B9E\u60F3\u6CD5\uFF08\u5FC3\u91CC\u600E\u4E48\u60F3\u7684\uFF0C\u53EF\u80FD\u9634\u6697\u3001\u53EF\u80FD\u67D4\u8F6F\uFF09\uFF0C\u4E5F\u53EF\u4EE5\u662FTa\u505A\u8FD9\u4EF6\u4E8B\u7684\u539F\u56E0\u3001Ta\u7684\u611F\u53D7\u3001Ta\u63A5\u4E0B\u6765\u6253\u7B97\u600E\u4E48\u505A\uFF0C\u5FC5\u987B\u7B26\u5408\u4EBA\u8BBE\uFF0C\u6709\u8840\u6709\u8089\u3002\n6. \u4E25\u683C\u53EA\u8F93\u51FA\u4E00\u4E2AJSON\u5BF9\u8C61\uFF08\u4E0D\u8981\u4EFB\u4F55\u89E3\u91CA\u3001\u4E0D\u8981\u4EE3\u7801\u5757\u6807\u8BB0\u3001\u4E0D\u8981\u591A\u4F59\u6587\u5B57\uFF09\uFF0C\u683C\u5F0F\u5982\u4E0B\uFF1A\n").concat(phoneSchemas[appKey], "\n\n\u89D2\u8272\u4FE1\u606F\uFF1A\n\u89D2\u8272\u4EBA\u8BBE\uFF1A").concat(char.persona || "\uFF08\u65E0\uFF09", "\n").concat(ctx.maskText, "\n").concat(ctx.mems ? "\u89D2\u8272\u8FD1\u671F\u8BB0\u5FC6\uFF1A\n" + ctx.mems : "", "\n").concat(ctx.recent ? "\u6700\u8FD1\u804A\u5929\u8BB0\u5F55\uFF1A\n" + ctx.recent : "").concat(_wbPhone ? "\n\n" + _wbPhone : "")), [char], "online", null, null, ctx.recent || "");
+    return wbAttach(("\u8BF7\u751F\u6210".concat(char.realName, "\u624B\u673A\u91CC\u300C").concat(appName, "\u300D\u7684\u8BE6\u7EC6\u5185\u5BB9\u3002\n\u8981\u6C42\uFF1A\n1. \u5185\u5BB9\u5FC5\u987B\u9AD8\u5EA6\u8D34\u5408\u89D2\u8272\u4EBA\u8BBE\u3001\u6027\u683C\u3001\u8BB0\u5FC6\u4E0E\u6700\u8FD1\u804A\u5929\uFF0C\u80FD\u770B\u51FA\u89D2\u8272\u771F\u5B9E\u7684\u65E5\u5E38\u3001\u5FC3\u601D\u4E0E\u4E60\u60EF\uFF1B\u6D89\u53CA\u300C").concat(char.myName || "\u7528\u6237", "\u300D\u7684\u5185\u5BB9\u8981\u81EA\u7136\u4F53\u73B0\u4F60\u4EEC\u4E4B\u95F4\u7684\u771F\u5B9E\u5173\u7CFB\u3002\n2. **\u89D2\u8272\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B**\uFF1ATa\u4E0D\u662F\u53EA\u56F4\u7740\u7528\u6237\u8F6C\u7684\u4EBA\uFF0C\u6709\u81EA\u5DF1\u771F\u5B9E\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C/\u5B66\u4E1A\u3001\u5174\u8DA3\u3001\u70E6\u607C\u4E0E\u65E5\u5E38\u3002\u624B\u673A\u5185\u5BB9\u91CC\u5173\u4E8ETa\u81EA\u5DF1\u548C\u5173\u4E8E\u7528\u6237\u7684\u5360\u6BD4**\u5B8C\u5168\u968F\u673A\u81EA\u7136**\u2014\u2014Ta\u60F3\u591A\u5199\u81EA\u5DF1\u7684\u4E8B\u5C31\u591A\u5199\u3001\u60F3\u63D0\u5230\u591A\u5C11\u7528\u6237\u5C31\u63D0\u5230\u591A\u5C11\uFF0C\u4E0D\u8981\u523B\u610F\u504F\u5411\u4EFB\u4F55\u4E00\u65B9\u3002\u53EF\u80FD\u8FD9\u4E00\u9875\u5168\u662FTa\u81EA\u5DF1\u7684\u751F\u6D3B\uFF0C\u4E5F\u53EF\u80FD\u81EA\u7136\u7A7F\u63D2\u548C\u7528\u6237\u6709\u5173\u7684\u4E8B\uFF0C\u5168\u770BTa\u5F53\u4E0B\u771F\u5B9E\u7684\u72B6\u6001\u4E0E\u5FC3\u60C5\u3002\n3. \u8BED\u8A00\u81EA\u7136\u771F\u5B9E\u3001\u6709\u751F\u6D3B\u7EC6\u8282\uFF0C\u50CF\u771F\u4EBA\u7684\u804A\u5929\u8BB0\u5F55/\u8BB0\u4E8B/\u8BA2\u5355\uFF0C\u7EDD\u4E0D\u8981AI\u8154\u3001\u4E0D\u8981\u5BA2\u5957\u8BDD\u3001\u4E0D\u8981\u603B\u7ED3\u5F0F\u53E3\u543B\u3002\n4. \u5185\u5BB9\u8981\u975E\u5E38\u4E30\u5BCC\u8BE6\u7EC6\uFF1A").concat(phoneReq[appKey].split("{my}").join(char.myName || "\u7528\u6237"), "\n5. \u6240\u6709\u5E26 thought \u7684\u6761\u76EE\u90FD\u8981\u5199\u8DDF\u89D2\u8272\u6709\u5173\u7684\u4E1C\u897F\u2014\u2014\u53EF\u4EE5\u662FTa\u5F53\u65F6\u7684\u771F\u5B9E\u60F3\u6CD5\uFF08\u5FC3\u91CC\u600E\u4E48\u60F3\u7684\uFF0C\u53EF\u80FD\u9634\u6697\u3001\u53EF\u80FD\u67D4\u8F6F\uFF09\uFF0C\u4E5F\u53EF\u4EE5\u662FTa\u505A\u8FD9\u4EF6\u4E8B\u7684\u539F\u56E0\u3001Ta\u7684\u611F\u53D7\u3001Ta\u63A5\u4E0B\u6765\u6253\u7B97\u600E\u4E48\u505A\uFF0C\u5FC5\u987B\u7B26\u5408\u4EBA\u8BBE\uFF0C\u6709\u8840\u6709\u8089\u3002\n6. \u4E25\u683C\u53EA\u8F93\u51FA\u4E00\u4E2AJSON\u5BF9\u8C61\uFF08\u4E0D\u8981\u4EFB\u4F55\u89E3\u91CA\u3001\u4E0D\u8981\u4EE3\u7801\u5757\u6807\u8BB0\u3001\u4E0D\u8981\u591A\u4F59\u6587\u5B57\uFF09\uFF0C\u683C\u5F0F\u5982\u4E0B\uFF1A\n").concat(phoneSchemas[appKey], "\n\n\u89D2\u8272\u4FE1\u606F\uFF1A\n\u89D2\u8272\u4EBA\u8BBE\uFF1A").concat(char.persona || "\uFF08\u65E0\uFF09", "\n").concat(ctx.maskText, "\n").concat(ctx.mems ? "\u89D2\u8272\u8FD1\u671F\u8BB0\u5FC6\uFF1A\n" + ctx.mems : "", "\n").concat(ctx.recent ? "\u6700\u8FD1\u804A\u5929\u8BB0\u5F55\uFF1A\n" + ctx.recent : "")), [char], "online", null, null, ctx.recent || "");
   }
   function phoneGenSys() {
     return "\u4F60\u662F\u89D2\u8272\u624B\u673A\u5185\u5BB9\u751F\u6210\u5668\u3002\u4F60\u6839\u636E\u89D2\u8272\u7684\u771F\u5B9E\u4EBA\u8BBE\u3001\u8BB0\u5FC6\u4E0E\u6700\u8FD1\u804A\u5929\u8BB0\u5F55\uFF0C\u751F\u6210\u8BE5\u89D2\u8272\u624B\u673A\u91CC\u67D0\u4E2AAPP\u7684\u8BE6\u7EC6\u5185\u5BB9\u3002\u751F\u6210\u7684\u5185\u5BB9\u5FC5\u987B\u771F\u5B9E\u81EA\u7136\u3001\u5145\u6EE1\u751F\u6D3B\u7EC6\u8282\uFF0C\u4E25\u683C\u8D34\u5408\u89D2\u8272\u6027\u683C\uFF0C\u7EDD\u4E0D\u80FD\u7F16\u9020\u4E0E\u89D2\u8272\u8BBE\u5B9A\u77DB\u76FE\u7684\u5185\u5BB9\u3002\u91CD\u8981\uFF1A\u89D2\u8272\u6709\u81EA\u5DF1\u72EC\u7ACB\u7684\u751F\u6D3B\u2014\u2014\u6709\u81EA\u5DF1\u7684\u670B\u53CB\u5708\u3001\u5DE5\u4F5C\u3001\u5174\u8DA3\u3001\u70E6\u607C\u3001\u65E5\u5E38\uFF0C\u4E0D\u662F\u53EA\u56F4\u7740\u7528\u6237\u8F6C\u7684\u4EBA\u3002\u624B\u673A\u5185\u5BB9\u91CC\u5173\u4E8ETa\u81EA\u5DF1\u548C\u5173\u4E8E\u7528\u6237\u7684\u5360\u6BD4\u5B8C\u5168\u968F\u673A\u81EA\u7136\uFF0C\u4E0D\u523B\u610F\u504F\u5411\u4EFB\u4F55\u4E00\u65B9\uFF0C\u5168\u770B\u89D2\u8272\u5F53\u4E0B\u771F\u5B9E\u72B6\u6001\u3002\u6BCF\u4E2A\u6761\u76EE\u90FD\u8981\u4F53\u73B0\u8DDF\u89D2\u8272\u6709\u5173\u7684\u60F3\u6CD5\u6216\u505A\u6CD5\u3002";
