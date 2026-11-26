@@ -984,6 +984,7 @@
             border: 1px solid rgba(0,0,0,0.02);
             box-shadow: 0 1px 3px rgba(31,35,42,0.03);
         }
+        .sticker-cap { font-size: calc(var(--app-fs, 1) * 10px); line-height: 1.3; color: #8b8b96; text-align: center; margin-top: 4px; letter-spacing: .02em; }
         .message-bubble.mxg-has-html { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; max-width: min(86vw, 360px); white-space: normal; }
         .mxg-html-card { width: 100%; overflow: hidden; border-radius: 16px; }
         .mxg-html-frame { pointer-events: none; }
@@ -12267,7 +12268,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.34";
+  const APP_VERSION = "v6.3.35";
   let db = {
     characters: [],
     groups: [],
@@ -15892,7 +15893,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const t = raw.trim();
     const isDoc = /^<!doctype/i.test(t) || /^<html[\s>]/i.test(t) || /^<head[\s>]/i.test(t) || /^<body[\s>]/i.test(t);
     const isFrag = /^<(div|section|article|table|ul|ol|p|span|figure|header|footer|blockquote|h[1-6])\b/i.test(t) && /<\/[a-z]+>\s*$/i.test(t);
-    if ((isDoc || isFrag) && /<\//.test(t)) return { before: "", html: t, after: "", doc: isDoc };
+    const cssHtmlish = /^[.#@*][\w\-.#:>\s,]*\{/.test(t) || /<style[\s>]/i.test(t) || /<(div|section|table|ul|figure)\b/i.test(t);
+    if (isDoc && /<\//.test(t)) return { before: "", html: t, after: "", doc: true };
+    if ((isFrag || cssHtmlish) && /<\//.test(t)) return { before: "", html: t, after: "", doc: true };
     return null;
   }
   function mxgFillBubble(el, text) {
@@ -15911,7 +15914,7 @@ document.addEventListener("DOMContentLoaded", () => {
       frame.className = "mxg-html-frame";
       frame.setAttribute("sandbox", "allow-same-origin");
       frame.setAttribute("scrolling", "no");
-      frame.style.cssText = "width:100%;border:0;display:block;background:transparent;height:380px";
+      frame.style.cssText = "width:100%;border:0;display:block;background:transparent;height:380px;pointer-events:none";
       frame.srcdoc = mxgHtmlSanitize(sp.html).replace(/<script[\s\S]*?<\/script>/gi, "");
       frame.onload = function() {
         const fit = function() {
@@ -15938,6 +15941,48 @@ document.addEventListener("DOMContentLoaded", () => {
       post.textContent = sp.after.trim();
       el.appendChild(post);
     }
+  }
+  /* v6.3.34：模型常把一张 HTML 卡片拆成好几条消息（裸标签、裸 CSS、夹一个 [open]），
+     这里把连续的 HTML/CSS 片段就地合并成一条虚拟消息再渲染，不改动数据库。 */
+  function mxgLooksHtml(t) {
+    const s = String(t == null ? "" : t).trim();
+    if (!s) return false;
+    if (/^<(!doctype|html|head|body|style|div|section|article|table|ul|ol|figure|header|footer|span|p)\b/i.test(s)) return true;
+    if (/^[.#@*][\w\-.#:>\s,]*\{[\s\S]*\}/.test(s)) return true;
+    if (/^<\/[a-z]/.test(s)) return true; /* 被拆出去的收尾片段，并回上一张卡片 */
+    return false;
+  }
+  function mxgIsTinyBracket(t) {
+    return /^\[\s*[\w\u4e00-\u9fa5\-]{1,14}\s*\]\s*$/.test(String(t || "").trim());
+  }
+  function mxgMergeHtmlRuns(view) {
+    const out = [];
+    let i = 0;
+    while (i < view.length) {
+      const m = view[i];
+      const c = String((m && m.content) || "");
+      if (!m || !mxgLooksHtml(c)) { out.push(m); i++; continue; }
+      let buf = c;
+      let j = i + 1, guard = 0, done = /<\/html>|<\/body>/.test(buf);
+      while (!done && j < view.length && guard++ < 8) {
+        const nm = view[j];
+        const n = String((nm && nm.content) || "");
+        if (!nm || nm.type === "action" || nm.type === "call_end") break;
+        if (mxgIsTinyBracket(n)) { j++; continue; }
+        if (mxgLooksHtml(n)) {
+          buf += "\n" + n;
+          if (/<\/html>|<\/body>/.test(n)) done = true;
+          j++;
+        } else break;
+      }
+      if (j > i + 1) {
+        out.push(Object.assign({}, m, { content: buf, id: m.id || ("merge-" + i), __merged: true }));
+        i = j;
+      } else {
+        out.push(m); i++;
+      }
+    }
+    return out;
   }
   function renderBubbleContent(text) {
     const qm = String(text).match(/【引用】([\s\S]*?)【\/引用】/);
@@ -16217,7 +16262,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!chat || !chat.history) return;
     const oldScrollHeight = messageArea.scrollHeight;
     /* v6.3.31：同一条消息偶尔被写入两次（流式完成与落库各追加一次），这里按 id 去重，避免重复气泡 */
-    const __raw = chatHistoryView(chat);
+    const __raw = mxgMergeHtmlRuns(chatHistoryView(chat));
     const __seen = new Set();
     const __view = __raw.filter(function(m) {
       if (!m) return false;
@@ -16498,7 +16543,16 @@ document.addEventListener("DOMContentLoaded", () => {
           stickerSrc = "https://i.postimg.cc/".concat(finalPath);
         }
       }
-      bubbleElement.innerHTML = '<img src="'.concat(stickerSrc, '" alt="\u8868\u60C5\u5305">');
+      const stickerName = (function(){
+        try {
+          const raw = isSent ? String((sentStickerMatch && sentStickerMatch[1]) || "").trim()
+                             : String((receivedStickerMatch && receivedStickerMatch[1]) || "").trim();
+          const nm = raw.replace(/^.*\//, "").replace(/\.[a-z0-9]+$/i, "");
+          const rec = (db.myStickers || []).find(function(st){ return st && (st.name === raw || st.id === raw); });
+          return (rec && rec.name) || nm || "";
+        } catch (e) { return ""; }
+      })();
+      bubbleElement.innerHTML = '<img src="'.concat(stickerSrc, '" alt="\u8868\u60C5\u5305">').concat(stickerName ? '<div class="sticker-cap">'.concat(escapeHtml(stickerName), '</div>') : '');
     } else if (pddCardMatch) {
       const isMine = isSent;
       const pddM = pddShareMatch || pddPinMatch || pddPinHFMatch || pddKanMatch;
