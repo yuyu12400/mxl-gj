@@ -11888,6 +11888,11 @@ document.addEventListener("DOMContentLoaded", () => {
     window.__stgBusy = true;
     try {
       __mxgTrace("import:start");
+      var dbOpenOk = await __mxgRace(
+        (dataStorage.db.isOpen() ? Promise.resolve(true) : dataStorage.db.open().then(function () { return true; }).catch(function () { return false; })),
+        10000, false);
+      __mxgTrace(dbOpenOk ? "import:db-ok" : "import:db-fail");
+      if (!dbOpenOk) throw new Error("本地数据库打不开（IDB 未就绪），请先在数据页点「数据库打不开？重建本地库」，再重新导入");
       await __mxgWaitReady(8000);
       __mxgTrace("import:ready");
       if (file.size > 10 * 1024 * 1024) {
@@ -11967,6 +11972,31 @@ document.addEventListener("DOMContentLoaded", () => {
           var ks = await caches.keys();
           for (var j = 0; j < ks.length; j++) { try { await caches.delete(ks[j]); } catch (e3) {} }
         } catch (e4) {}
+        location.replace(location.pathname + "?fresh=" + Date.now());
+      })();
+      return;
+    }
+    var dRebuild = ev.target.closest && ev.target.closest("#stg-diag-rebuild");
+    if (dRebuild) {
+      ev.preventDefault();
+      (async function () {
+        var hasChars = !!(db && Array.isArray(db.characters) && db.characters.length);
+        var okGo = await uiConfirm(hasChars
+          ? "当前内存里有角色数据，重建会清空本地库（包括已存的分片）。建议先导出备份再重建。确定继续？"
+          : "会删掉这个浏览器里打不开的本地数据库并重建一个空的，然后需要重新导入备份。确定继续？", "重建", true);
+        if (!okGo) return;
+        showToast("正在重建本地库…");
+        try { dataStorage.db.close(); } catch (e1) {}
+        await new Promise(function (resolve) {
+          var done = false;
+          var finish = function () { if (!done) { done = true; resolve(); } };
+          try {
+            var req = indexedDB.deleteDatabase("\u9EBB\u8FA3\u9999\u9505\u9E21DB");
+            req.onsuccess = finish; req.onerror = finish; req.onblocked = finish;
+            setTimeout(finish, 10000);
+          } catch (e2) { finish(); }
+        });
+        try { localStorage.removeItem("mxg-core-text"); } catch (e3) {}
         location.replace(location.pathname + "?fresh=" + Date.now());
       })();
       return;
@@ -12069,6 +12099,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <button type="button" class="dta-tool" id="stg-diag-clear">清缓存</button>
           <button type="button" class="dta-tool" id="stg-diag-err">上次错误</button>
         </div>
+        <button type="button" class="dta-tool" id="stg-diag-rebuild" style="width:100%;margin-top:8px;min-height:40px;color:#8a3b2e;border-color:#f0d9d4;background:#fff7f5;">数据库打不开？重建本地库</button>
       </div>
 
       <div class="dta-note">导出内容：聊天、角色、面具、群聊、世界书、记忆、线下、论坛、情侣空间、钱包、手机、音乐、商城和全部设置。</div>
@@ -12569,6 +12600,12 @@ document.addEventListener("DOMContentLoaded", () => {
         window.__mxgMainBytes = sumBytes;
       } catch (eSz) {}
       __mxgTrace("load:shards");
+      try {
+        if (!dataStorage.db.isOpen()) {
+          __mxgTrace("load:idb-closed");
+          try { showToast("本地数据库没有打开，数据读不出来：请到 设置 → 数据 点「重建本地库」"); } catch (eT) {}
+        }
+      } catch (eChk) {}
     }
     window.__mxgMainHasChars = coreHasChars || !!(data && Array.isArray(data.characters) && data.characters.length);
     __mxgMaybeDropLegacy();
