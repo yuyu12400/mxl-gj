@@ -11379,8 +11379,6 @@ document.addEventListener("DOMContentLoaded", () => {
           });
         });
       });
-      var exp = document.getElementById("stg-export-json");
-      if (exp) exp.addEventListener("click", exportBackupJSON);
       var imp = document.getElementById("import-data-input");
       if (imp) imp.addEventListener("change", function (ev) { importBackupFile(ev.target.files && ev.target.files[0], ev.target); });
       var wc = document.getElementById("stg-wall-clear");
@@ -11445,8 +11443,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
   async function importBackupFile(file, inputEl) {
-    if (!file || window.__stgBusy) { if (inputEl) inputEl.value = null; return; }
-    var ok = await uiConfirm("此操作将覆盖当前所有聊天记录和设置。此操作不可撤销。确定要继续吗？", "继续", true);
+    /* 这里以前是静默 return：没拿到文件或上一次操作没结束时，用户会看到“点了没反应”。
+       现在每一步都给提示，避免再出现无反馈。 */
+    if (!file) {
+      showToast("没有读到备份文件，请重新点一次「导入 JSON」再选文件。");
+      if (inputEl) inputEl.value = null;
+      return;
+    }
+    if (window.__stgBusy) {
+      showToast("上一次导入/导出还没结束，请等几秒再试。");
+      if (inputEl) inputEl.value = null;
+      return;
+    }
+    showToast("已选择：" + (file.name || "备份文件") + "（" + (file.size / 1024 / 1024).toFixed(1) + " MB），正在读取…");
+    var ok = false;
+    try {
+      ok = await uiConfirm("此操作将覆盖当前所有聊天记录和设置。此操作不可撤销。确定要继续吗？", "继续", true);
+    } catch (confirmErr) {
+      console.error("导入确认框失败:", confirmErr);
+      showToast("确认框没有打开，请刷新页面后再试。");
+      if (inputEl) inputEl.value = null;
+      return;
+    }
     if (!ok) { if (inputEl) inputEl.value = null; return; }
     window.__stgBusy = true;
     try {
@@ -11535,6 +11553,25 @@ document.addEventListener("DOMContentLoaded", () => {
       if (inputEl) inputEl.value = null;
     }
   }
+  /* 用事件委托兜底：设置页 DOM 被重绘或 Edge 不认 label/for 时，导出导入仍然能点。 */
+  document.addEventListener("click", function (ev) {
+    var expBtn = ev.target.closest && ev.target.closest("#stg-export-json");
+    if (expBtn) { ev.preventDefault(); exportBackupJSON(); return; }
+    var impBtn = ev.target.closest && ev.target.closest("#stg-import-json");
+    if (impBtn) {
+      ev.preventDefault();
+      var input = document.getElementById("import-data-input");
+      showToast("正在打开文件选择器…");
+      try {
+        if (input) { input.value = ""; input.click(); }
+        else showToast("页面里没有找到文件输入框，请刷新后再试。");
+      } catch (pickErr) {
+        console.error("打开文件选择器失败:", pickErr);
+        showToast("文件选择器没有打开：" + (pickErr.message || "浏览器拦截了"));
+      }
+      return;
+    }
+  });
   window.exportBackupJSON = exportBackupJSON;
   window.importBackupFile = importBackupFile;
   window.buildBackupPayload = buildBackupPayload;
@@ -11593,7 +11630,7 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
       <div class="stg-actions">
         <button type="button" class="stg-primary" id="stg-export-json">导出 JSON</button>
-        <label for="import-data-input" class="stg-ghost">导入 JSON</label>
+        <button type="button" class="stg-ghost" id="stg-import-json">导入 JSON</button>
       </div>
       <div class="stg-warn"><b>导出内容：</b>聊天、角色、面具、群聊、世界书、记忆、线下、论坛、情侣空间、钱包、手机、音乐、商城和全部设置；也包含时空邮局、十字路口、书城与书城钱包。JSON 内有 API Key，请勿外传。<br><b>导入提醒：</b>会整体覆盖当前数据，不可撤销。</div>
     </section>
@@ -11731,7 +11768,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.14";
+  const APP_VERSION = "v6.3.15";
   let db = {
     characters: [],
     groups: [],
@@ -13233,6 +13270,7 @@ document.addEventListener("DOMContentLoaded", () => {
       showToast("数据加载失败，请打开恢复页导出或恢复。");
     }
     try { await __mxgRequestPersist(); } catch (e) {}
+    window.addEventListener("pageshow", function () { window.__stgBusy = false; });
     try { migrateMaskScope(); } catch (err) { console.warn("面具迁移失败", err); }
     document.body.addEventListener("click", (e) => {
       if (e.target.closest(".context-menu")) {
