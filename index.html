@@ -10406,11 +10406,11 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     p.classList.remove('in'); p.classList.add('out');
     setTimeout(function(){ p.hidden=true; p.classList.remove('out'); },220);
   }
-  window.__mxgBanner=function(title, text, tap){
+  window.__mxgBanner=function(title, text, tap, force){
     try{
       var cur=document.querySelector('.screen.active');
       var inChat=cur && cur.id==='chat-room-screen';
-      if(inChat && !document.hidden) return;
+      if(inChat && !document.hidden && !force) return;
       var n=node(); if(!n) return;
       var t=n.querySelector('.mb-t'), s2=n.querySelector('.mb-s');
       if(t) t.textContent=String(title||'');
@@ -10447,6 +10447,39 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
       try{ Notification.requestPermission(); }catch(e){}
     }
   }
+  var seen = {};
+  window.__mxgMarkSeen = function (key, ts) {
+    if (!key) return;
+    if (!seen[key] || ts > seen[key]) seen[key] = ts;
+  };
+  function scanNew() {
+    try {
+      if (!window.db) return;
+      var cur = "";
+      try { cur = window.__mxgCurChatId ? window.__mxgCurChatId() : ""; } catch (e0) {}
+      var act = (document.querySelector(".screen.active") || {}).id || "";
+      var lists = [];
+      (db.characters || []).forEach(function (c) { lists.push({ key: c.id, type: "private", o: c }); });
+      (db.groups || []).forEach(function (g) { lists.push({ key: g.id, type: "group", o: g }); });
+      lists.forEach(function (a) {
+        var h = (a.o.history || []).filter(function (m) { return m && m.role === "assistant" && m.content && m.type !== "system" && !m.loading && !m.revoked; });
+        var last = h[h.length - 1];
+        if (!last) return;
+        var ts = Number(last.timestamp || last.ts || 0);
+        if (!ts) return;
+        if (seen[a.key] === undefined) { seen[a.key] = ts; return; }
+        if (ts <= seen[a.key]) return;
+        seen[a.key] = ts;
+        var here = act === "chat-room-screen" && !document.hidden && cur && cur === a.key;
+        if (here) return;
+        var nm = a.o.remarkName || a.o.realName || a.o.nickname || a.o.name || "新消息";
+        var txt = String(last.content).replace(/<[^>]*>/g, " ").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " ").trim();
+        if (txt && window.__mxgBanner) window.__mxgBanner(nm, txt.slice(0, 90), { chatType: a.type, chatId: a.key }, true);
+      });
+    } catch (e) {}
+  }
+  setInterval(scanNew, 7000);
+  setTimeout(scanNew, 2500);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();
 })();
@@ -12637,7 +12670,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.17";
+  const APP_VERSION = "v6.4.18";
   let db = {
     characters: [],
     groups: [],
@@ -12991,7 +13024,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.17：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.18：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
@@ -17354,17 +17387,22 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       if (window.__mxgBanner && message && message.role === "assistant" && message.content && !message.loading && !message.revoked) {
         var __act = (document.querySelector(".screen.active") || {}).id || "";
-        var __here = __act === "chat-room-screen" && !document.hidden;
+        var __mid = message.chatId || message.charId || "";
+        var __cur = currentChatId || "";
+        /* 只有“正停在这个人的聊天页”才不弹；在别的页面、别人的聊天页，都要弹 */
+        var __here = __act === "chat-room-screen" && !document.hidden && (!__mid || __mid === __cur);
         if (!__here) {
           var __c = null;
           try {
+            var __lookId = __mid || __cur;
             __c = currentChatType === "group"
-              ? (db.groups || []).find(function (g) { return g.id === currentChatId; })
-              : (db.characters || []).find(function (x) { return x.id === currentChatId; });
+              ? (db.groups || []).find(function (g) { return g.id === __lookId; })
+              : (db.characters || []).find(function (x) { return x.id === __lookId; });
           } catch (e0) {}
           var __nm = (__c && (__c.remarkName || __c.realName || __c.nickname || __c.name)) || "新消息";
           var __txt = String(message.content).replace(/```[^`]*```/g, " ").replace(/<[^>]*>/g, " ").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " ").trim();
-          if (__txt) window.__mxgBanner(__nm, __txt.slice(0, 90), { chatType: currentChatType, chatId: currentChatId });
+          if (__txt) window.__mxgBanner(__nm, __txt.slice(0, 90), { chatType: currentChatType, chatId: __mid || __cur }, true);
+          try { if (window.__mxgMarkSeen) window.__mxgMarkSeen(__mid || __cur, Number(message.timestamp || message.ts || Date.now())); } catch (eMS) {}
         }
       }
     } catch (eB) {}
@@ -17633,6 +17671,8 @@ document.addEventListener("DOMContentLoaded", () => {
     try { renderChatList(); } catch (e) {}
     return true;
   };
+
+  try { window.__mxgCurChatId = function () { return currentChatId || ""; }; } catch (eCC) {}
 
   window.__mxgPromptFc = async function () {
     if (!currentChatId) { showToast("先进一个聊天再发"); return; }
