@@ -42504,6 +42504,7 @@ window.bsRoomAI = bsRoomAI;
 #asset-screen .as-cat .as-cat-t { display:block; font-size:calc(var(--app-fs,1) * 12.5px); letter-spacing:1.6px; color:#101010; }
 #asset-screen .as-cat .as-cat-n { display:block; margin-top:6px; font-family:var(--font-family, serif); font-size:calc(var(--app-fs,1) * 26px); line-height:1; color:#101010; }
 #asset-screen .as-cat .as-cat-c { position:absolute; right:10px; top:10px; font-size:calc(var(--app-fs,1) * 8.5px); letter-spacing:2px; color:#B08A4F; }
+#asset-screen .as-cat.tall { grid-column:span 2; }
 #asset-screen .as-cat.wide { grid-row:span 2; display:flex; flex-direction:column; justify-content:space-between; }
 #asset-screen .as-cat.wide .as-cat-n { font-size:calc(var(--app-fs,1) * 40px); }
 
@@ -45466,8 +45467,7 @@ function wb2DeleteEntry() {
 
   function headHtml(){
     var ch=charNow();
-    var nm=ch?(ch.remarkName||ch.realName||''):'';
-    return '<div class="as-cap"><b>'+esc(nm||'资产')+'</b><span>PRIVATE LEDGER / 404</span></div><div class="as-rule"></div>';
+    return '<div class="as-cap"><b>账册</b><span>PRIVATE LEDGER / 404</span></div><div class="as-rule"></div>';
   }
 
   function overviewHtml(char, r){
@@ -45483,7 +45483,8 @@ function wb2DeleteEntry() {
     var catGrid='';
     CATS.forEach(function(c,i){
       var wide=(i===0);
-      catGrid+='<div class="as-cat'+(wide?' wide':'')+'" data-cat="'+esc(c.k)+'"><span class="as-cat-c">'+esc(c.en)+'</span><span class="as-cat-t">'+esc(c.k)+'</span><span class="as-cat-n">'+String(counts[c.k]).padStart(2,'0')+'</span></div>';
+      var tall=(i===CATS.length-1);
+      catGrid+='<div class="as-cat'+(wide?' wide':'')+(tall?' tall':'')+'" data-cat="'+esc(c.k)+'"><span class="as-cat-c">'+esc(c.en)+'</span><span class="as-cat-t">'+esc(c.k)+'</span><span class="as-cat-n">'+String(counts[c.k]).padStart(2,'0')+'</span></div>';
     });
 
     var moves=(r.ledger||[]).slice(0,3).map(function(x){
