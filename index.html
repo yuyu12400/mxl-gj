@@ -3328,6 +3328,10 @@
             white-space: pre-wrap;
             word-break: break-word;
         }
+/* 线下气泡里的 HTML 卡片：与正文共存，卡片自适应高度 */
+.obc-body.mxg-has-html { white-space: normal; }
+.obc-body .mxg-html-card { margin: 6px 0; border-radius: 12px; }
+.obc-body .mxg-html-frame { border-radius: 12px; }
         .obc-body .save-writing {
             font-size: calc(var(--app-fs, 1) * 11px);
             color: #999;
@@ -12301,7 +12305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.42";
+  const APP_VERSION = "v6.4.0";
   let db = {
     characters: [],
     groups: [],
@@ -15948,6 +15952,23 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
       .replace(/javascript:/gi, "");
   }
+  /* 线下宽松拆分：模型常把卡片 html 和正文混在一条里，或裸标签开头 */
+  function mxgSplitHtmlLoose(text) {
+    const raw = String(text == null ? "" : text);
+    const fence = raw.match(/```(?:html)?\s*([\s\S]*?)```/i);
+    if (fence && /<[a-z][\s\S]*>/i.test(fence[1])) {
+      return { before: raw.slice(0, fence.index), html: fence[1].trim(), after: raw.slice(fence.index + fence[0].length) };
+    }
+    const open = raw.search(/<(?:div|section|article|table|ul|ol|figure|header|footer|style|svg|form)\b/i);
+    if (open < 0) return null;
+    const closeIdx = raw.lastIndexOf("</");
+    if (closeIdx < open) return null;
+    const end = raw.indexOf(">", closeIdx);
+    if (end < 0) return null;
+    const html = raw.slice(open, end + 1);
+    if (!/<\/[a-z]/i.test(html)) return null;
+    return { before: raw.slice(0, open), html: html, after: raw.slice(end + 1) };
+  }
   function mxgSplitHtml(text) {
     const raw = String(text == null ? "" : text);
     const fence = raw.match(/```(?:html)?\s*([\s\S]*?)```/i);
@@ -15977,8 +15998,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   } catch (e) {}
-  function mxgFillBubble(el, text) {
-    const sp = mxgSplitHtml(text);
+  function mxgFillBubble(el, text, presetSplit) {
+    const sp = presetSplit || mxgSplitHtml(text);
     if (!sp) { el.textContent = String(text == null ? "" : text); return; }
     el.classList.add("mxg-has-html");
     el.textContent = "";
@@ -15996,10 +16017,23 @@ document.addEventListener("DOMContentLoaded", () => {
     frame.setAttribute("scrolling", "no");
     frame.style.cssText = "width:100%;border:0;display:block;background:transparent;height:400px";
     const sid = JSON.stringify(cid);
-    const heightScript = "<script>(function(){var id=" + sid + ";function post(){try{parent.postMessage({mxgCard:id,h:Math.max(document.documentElement.scrollHeight,document.body?document.body.scrollHeight:0)},'*')}catch(e){}}window.addEventListener('load',post);setTimeout(post,200);setTimeout(post,600);setTimeout(post,1200);try{new MutationObserver(function(){setTimeout(post,80)}).observe(document.documentElement,{childList:true,subtree:true,attributes:true})}catch(e){}document.addEventListener('click',function(){setTimeout(post,120)});document.addEventListener('input',function(){setTimeout(post,120)});})();<\/script>";
+    const heightScript = "<script>(function(){var id=" + sid + ";function post(){try{parent.postMessage({mxgCard:id,h:(document.body?Math.max(document.body.scrollHeight,document.body.offsetHeight):document.documentElement.scrollHeight)},'*')}catch(e){}}window.addEventListener('load',post);setTimeout(post,200);setTimeout(post,600);setTimeout(post,1200);try{new MutationObserver(function(){setTimeout(post,80)}).observe(document.documentElement,{childList:true,subtree:true,attributes:true})}catch(e){}document.addEventListener('click',function(){setTimeout(post,120)});document.addEventListener('input',function(){setTimeout(post,120)});})();<\/script>";
+    let _cardFont = "";
+    try { _cardFont = getComputedStyle(document.body).fontFamily || ""; } catch (e) {}
+    let _furl = "";
+    try { _furl = (db && db.fontUrl) || ""; } catch (e) {}
+    let _fontCss = "";
+    if (_furl) {
+      _fontCss = "@font-face{font-family:'MxgCardFont';src:url('" + String(_furl).replace(/'/g, "") + "');}html,body{font-family:'MxgCardFont'," + (_cardFont || "system-ui,sans-serif") + "!important;}";
+    } else if (_cardFont) {
+      _fontCss = "html,body{font-family:" + _cardFont.replace(/"/g, "'") + ";}";
+    }
     let doc = String(sp.html);
     if (!/<html[\s>]/i.test(doc) && !/^\s*<!doctype/i.test(doc)) {
-      doc = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>html,body{margin:0;padding:0;background:transparent}</style></head><body>" + doc + "</body></html>";
+      doc = "<!DOCTYPE html><html><head><meta name='viewport' content='width=device-width,initial-scale=1'><style>html,body{margin:0;padding:0;background:transparent;height:auto}" + _fontCss + "</style></head><body>" + doc + "</body></html>";
+    } else if (_fontCss) {
+      if (/<head[^>]*>/i.test(doc)) doc = doc.replace(/<head([^>]*)>/i, "<head$1><style>" + _fontCss + "</style>");
+      else doc = doc.replace(/<html([^>]*)>/i, "<html$1><head><style>" + _fontCss + "</style></head>");
     }
     if (/<\/body>/i.test(doc)) doc = doc.replace(/<\/body>/i, heightScript + "</body>");
     else if (/<body[^>]*>/i.test(doc)) doc = doc.replace(/<body([^>]*)>/i, "<body$1>" + heightScript);
@@ -19590,9 +19624,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (fontUrl) {
       const fontName = "CustomGlobalFont";
-      styleElement.innerHTML = "@font-face { font-family: '".concat(fontName, "'; src: url('").concat(fontUrl, "'); } :root { --font-family: '").concat(fontName, "', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }");
+      styleElement.innerHTML = "@font-face { font-family: '".concat(fontName, "'; src: url('").concat(fontUrl, "'); font-display: swap; } :root { --font-family: '").concat(fontName, "', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; } html, body, body * { font-family: '").concat(fontName, "', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; } input, textarea, select, button { font-family: inherit !important; }");
     } else {
-      styleElement.innerHTML = ":root { --font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', 'Hiragino Mincho ProN', 'Yu Mincho', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; }";
+      styleElement.innerHTML = ":root { --font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Sans', 'Yu Gothic', 'Hiragino Mincho ProN', 'Yu Mincho', 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; } html, body, body * { font-family: var(--font-family) !important; } input, textarea, select, button { font-family: inherit !important; }";
     }
   }
   function setupWorldBookApp() {
@@ -25016,7 +25050,18 @@ document.addEventListener("DOMContentLoaded", () => {
       card.className = "offline-bubble-card " + (isUser ? "sent" : "received");
       if (h.loading) card.dataset.loadingTs = String(h.ts);
       const saveLink = h.writableId ? ' <span class="save-writing" data-id="'.concat(h.writableId, '">\u6536\u85CF</span>') : "";
-      card.innerHTML = '\n                    <div class="obc-head">\n                        <img class="obc-avatar" src="'.concat(escapeHtml(avatarSrc), '" alt="">\n                        <div class="obc-info">\n                            <div class="obc-name">').concat(escapeHtml(displayName), '</div>\n                            <div class="obc-meta">').concat(escapeHtml(metaText)).concat(saveLink, '</div>\n                        </div>\n                    </div>\n                    <hr class="obc-divider">\n                    <div class="obc-body">').concat(h.loading ? '<span class="typing-placeholder">\u6B63\u5728\u56DE\u590D\u2026</span>' : escapeHtml(cleanBubbleText(stripSideNote(h.content))), "</div>\n                    ").concat(h.chain ? '<div class="obc-chain"><div class="obc-chain-toggle" data-chain-toggle="1">\u67E5\u770B\u601D\u8003\u8FC7\u7A0B \u25B8</div><div class="obc-chain-body" style="display:none;">'.concat(escapeHtml(h.chain), "</div></div>") : "", '\n                    <div class="obc-toolbar">\n                        <button class="obc-tool obc-pen" data-ts="').concat(h.ts, '" data-op="menu" title="\u64CD\u4F5C">\n                            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>\n                        </button>\n                    </div>\n                    <div class="obc-actions" data-ts="').concat(h.ts, '">\n                        <button class="obc-act" data-op="roll" data-ts="').concat(h.ts, '">\u91CDroll</button>\n                        <button class="obc-act" data-op="edit" data-ts="').concat(h.ts, '">\u7F16\u8F91</button>\n                        <button class="obc-act danger" data-op="del" data-ts="').concat(h.ts, '">\u5220\u9664</button>\n                    </div>');
+      card.innerHTML = '\n                    <div class="obc-head">\n                        <img class="obc-avatar" src="'.concat(escapeHtml(avatarSrc), '" alt="">\n                        <div class="obc-info">\n                            <div class="obc-name">').concat(escapeHtml(displayName), '</div>\n                            <div class="obc-meta">').concat(escapeHtml(metaText)).concat(saveLink, '</div>\n                        </div>\n                    </div>\n                    <hr class="obc-divider">\n                    <div class="obc-body"></div>\n                    ').concat(h.chain ? '<div class="obc-chain"><div class="obc-chain-toggle" data-chain-toggle="1">\u67E5\u770B\u601D\u8003\u8FC7\u7A0B \u25B8</div><div class="obc-chain-body" style="display:none;">'.concat(escapeHtml(h.chain), "</div></div>") : "", '\n                    <div class="obc-toolbar">\n                        <button class="obc-tool obc-pen" data-ts="').concat(h.ts, '" data-op="menu" title="\u64CD\u4F5C">\n                            <svg viewBox="0 0 24 24"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>\n                        </button>\n                    </div>\n                    <div class="obc-actions" data-ts="').concat(h.ts, '">\n                        <button class="obc-act" data-op="roll" data-ts="').concat(h.ts, '">\u91CDroll</button>\n                        <button class="obc-act" data-op="edit" data-ts="').concat(h.ts, '">\u7F16\u8F91</button>\n                        <button class="obc-act danger" data-op="del" data-ts="').concat(h.ts, '">\u5220\u9664</button>\n                    </div>');
+      const bodyEl = card.querySelector(".obc-body");
+      if (bodyEl) {
+        if (h.loading) {
+          bodyEl.innerHTML = '<span class="typing-placeholder">\u6B63\u5728\u56DE\u590D\u2026</span>';
+        } else {
+          const bodyText = cleanBubbleText(stripSideNote(h.content));
+          const capHtml = mxgSplitHtmlLoose(bodyText);
+          if (capHtml) mxgFillBubble(bodyEl, bodyText, capHtml);
+          else bodyEl.textContent = bodyText;
+        }
+      }
       area.appendChild(card);
     });
   }
@@ -26566,6 +26611,7 @@ function setupPhoneSystem() {
       prompt += "格式：第一行【思维链】+推理；第二行【正文】+正式正文。\n";
     }
     prompt += "【篇幅】目标 " + g.minChars + "–" + g.maxChars + " 字。用动作、对话、感官细节和人物反应推进，不要把记忆逐条复述、不要排比堆砌、不要用总结凑字数。\n";
+prompt += "【HTML 卡片】如果想给出一张卡片，直接输出完整的 HTML 代码即可，系统会自动渲染成卡片，不需要额外说明。卡片代码不计入上面的正文字数：正文单独写够篇幅，卡片另算。\n";
     prompt += "【结尾】不要用总结、告别、收束句结束；让最后一拍停在一个正在发生的动作、一句没说完的话或一种还在延续的情绪上。若场景自然发生在睡前，可以写晚安，但不要写成“故事到此结束”。\n";
     prompt += g.chainEnabled ? "【输出格式】只输出【思维链】和【正文】两个标记段，不要额外解释或开头说明。" : "【输出格式】只输出正文，不要额外解释或开头说明。";
     return prompt;
@@ -28414,6 +28460,7 @@ function setupPhoneSystem() {
       prompt += "格式：第一行【思维链】+推理；第二行【正文】+正式正文。\n";
     }
     prompt += "【篇幅】目标 " + g.minChars + "–" + g.maxChars + " 字。用动作、对话、感官细节和人物反应推进，不要把记忆逐条复述、不要排比堆砌、不要用总结凑字数。\n";
+prompt += "【HTML 卡片】如果想给出一张卡片，直接输出完整的 HTML 代码即可，系统会自动渲染成卡片，不需要额外说明。卡片代码不计入上面的正文字数：正文单独写够篇幅，卡片另算。\n";
     prompt += "【结尾】不要用总结、告别、收束句结束；让最后一拍停在一个正在发生的动作、一句没说完的话或一种还在延续的情绪上。若场景自然发生在睡前，可以写晚安，但不要写成“故事到此结束”。\n";
     prompt += g.chainEnabled ? "【输出格式】只输出【思维链】和【正文】两个标记段，不要额外解释或开头说明。" : "【输出格式】只输出正文，不要额外解释或开头说明。";
     return prompt;
