@@ -12302,7 +12302,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.43";
+  const APP_VERSION = "v6.3.44";
   let db = {
     characters: [],
     groups: [],
@@ -15384,9 +15384,10 @@ document.addEventListener("DOMContentLoaded", () => {
       let lastMessageText = "\u5F00\u59CB\u804A\u5929\u5427...";
       if (chat.history && chat.history.length > 0) {
         const invisibleRegex = /\[.*?(?:接收|退回).*?的转账\]|\[.*?更新状态为：.*?\]|\[.*?已接收礼物\]|\[system:.*?\]|\[.*?邀请.*?加入了群聊\]|\[.*?修改群名为：.*?\]|\[system-display:.*?\]/;
-        const visibleHistory = chat.history.filter((msg) => !invisibleRegex.test(msg.content));
+        const visibleHistory = chat.history.filter(function (msg) { return msg && !invisibleRegex.test(String(msg.content == null ? "" : msg.content)); });
         if (visibleHistory.length > 0) {
           const lastMsg = visibleHistory[visibleHistory.length - 1];
+          const lastContent = String(lastMsg.content == null ? "" : lastMsg.content);
           const urlRegex = /^(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg)|data:image\/[a-z]+;base64,)/i;
           const imageRecogRegex = /\[.*?发来了一张图片：\]/;
           const voiceRegex = /\[.*?的语音：.*?\]/;
@@ -15394,38 +15395,39 @@ document.addEventListener("DOMContentLoaded", () => {
           const transferRegex = /\[.*?的转账：.*?元.*?\]|\[.*?给你转账：.*?元.*?\]|\[.*?向.*?转账：.*?元.*?\]/;
           const stickerRegex = /\[.*?的表情包：.*?\]|\[.*?发送的表情包：.*?\]/;
           const giftRegex = /\[.*?送来的礼物：.*?\]|\[.*?向.*?送来了礼物：.*?\]/;
-          if (giftRegex.test(lastMsg.content)) {
+          if (giftRegex.test(lastContent)) {
             lastMessageText = "[\u793C\u7269]";
-          } else if (stickerRegex.test(lastMsg.content)) {
+          } else if (stickerRegex.test(lastContent)) {
             lastMessageText = "[\u8868\u60C5\u5305]";
-          } else if (voiceRegex.test(lastMsg.content)) {
+          } else if (voiceRegex.test(lastContent)) {
             lastMessageText = "[\u8BED\u97F3]";
-          } else if (photoVideoRegex.test(lastMsg.content)) {
+          } else if (photoVideoRegex.test(lastContent)) {
             lastMessageText = "[\u7167\u7247/\u89C6\u9891]";
-          } else if (transferRegex.test(lastMsg.content)) {
+          } else if (transferRegex.test(lastContent)) {
             lastMessageText = "[\u8F6C\u8D26]";
-          } else if (imageRecogRegex.test(lastMsg.content) || lastMsg.parts && lastMsg.parts.some((p) => p.type === "image")) {
+          } else if (imageRecogRegex.test(lastContent) || lastMsg.parts && lastMsg.parts.some(function (p) { return p && p.type === "image"; })) {
             lastMessageText = "[\u56FE\u7247]";
-          } else if (lastMsg.parts && lastMsg.parts.some((p) => p.type === "html")) {
-            lastMessageText = mxgHtmlLabel((lastMsg.parts.find((p) => p.type === "html") || {}).text || lastMsg.content) || "[\u4E92\u52A8]";
-          } else if (mxgHtmlLabel(lastMsg.content)) {
-            lastMessageText = mxgHtmlLabel(lastMsg.content);
+          } else if (lastMsg.parts && lastMsg.parts.some(function (p) { return p && p.type === "html"; })) {
+            lastMessageText = mxgHtmlLabel((lastMsg.parts.find(function (p) { return p && p.type === "html"; }) || {}).text || lastContent) || "[\u4E92\u52A8]";
+          } else if (mxgHtmlLabel(lastContent)) {
+            lastMessageText = mxgHtmlLabel(lastContent);
           } else {
-            const textMatch = lastMsg.content.match(/\[.*?的消息：([\s\S]+)\]/);
-            let text = textMatch ? textMatch[1].trim() : lastMsg.content.trim();
+            const textMatch = lastContent.match(/\[.*?的消息：([\s\S]+)\]/);
+            let text = textMatch ? String(textMatch[1] || "").trim() : lastContent.trim();
             lastMessageText = urlRegex.test(text) ? "[\u56FE\u7247]" : text;
           }
         } else {
-          const lastEverMsg = chat.history[chat.history.length - 1];
+          const lastEverMsg = chat.history[chat.history.length - 1] || {};
+          const lastEverContent = String(lastEverMsg.content == null ? "" : lastEverMsg.content);
           const inviteRegex = /\[(.*?)邀请(.*?)加入了群聊\]/;
           const renameRegex = /\[.*?修改群名为：.*?\]/;
           const timeSkipRegex = /\[system-display:([\s\S]+?)\]/;
-          const timeSkipMatch = lastEverMsg.content.match(timeSkipRegex);
+          const timeSkipMatch = lastEverContent.match(timeSkipRegex);
           if (timeSkipMatch) {
             lastMessageText = timeSkipMatch[1];
-          } else if (inviteRegex.test(lastEverMsg.content)) {
+          } else if (inviteRegex.test(lastEverContent)) {
             lastMessageText = "\u65B0\u6210\u5458\u52A0\u5165\u4E86\u7FA4\u804A";
-          } else if (renameRegex.test(lastEverMsg.content)) {
+          } else if (renameRegex.test(lastEverContent)) {
             lastMessageText = "\u7FA4\u804A\u540D\u79F0\u5DF2\u4FEE\u6539";
           }
         }
@@ -16206,7 +16208,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const message = chat.history.find((m) => sameMsgId(m.id, messageId));
     if (!message) return;
     const match = message.content.match(/\[.*?的消息：([\s\S]+)\]/);
-    const contentToEdit = match ? match[1].trim() : message.content;
+    const contentToEdit = String(match ? (match[1] || "") : (message && message.content != null ? message.content : "")).trim();
     messageEditInput.value = contentToEdit;
     messageInputDefault.style.display = "none";
     messageEditBar.style.display = "flex";
@@ -16499,7 +16501,18 @@ document.addEventListener("DOMContentLoaded", () => {
       return fw;
     }
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
-    const { role, content, timestamp, id, transferStatus, giftStatus, stickerData, senderId } = message;
+    const { role, content: __rawContent, timestamp, id, transferStatus, giftStatus, stickerData, senderId } = message;
+    const content = (function () {
+      const base = __rawContent == null ? "" : String(__rawContent);
+      if (base) return base;
+      try {
+        if (Array.isArray(message.parts)) {
+          const joined = message.parts.map(function (p) { return p && p.text != null ? String(p.text) : ""; }).filter(Boolean).join("\n");
+          if (joined) return joined;
+        }
+      } catch (e) {}
+      return "";
+    })();
     const timeSkipRegex = /\[system-display:([\s\S]+?)\]/;
     const inviteRegex = /\[(.*?)邀请(.*?)加入了群聊\]/;
     const renameRegex = /\[(.*?)修改群名为：(.*?)\]/;
@@ -16513,7 +16526,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const forumFwdRegex = /\[.*?转发了一个论坛帖[：:]([\s\S]+?)\]|\[.*?转发了一个帖子[：:]([\s\S]+?)\]/;
     const forumFwdMatch = content.match(forumFwdRegex);
     if (forumFwdMatch && role !== "user") {
-      const fwdTxt = forumFwdMatch[1].trim();
+      const fwdTxt = String(forumFwdMatch[1] || forumFwdMatch[2] || "").trim();
       const fw = document.createElement("div");
       fw.className = "message-wrapper invite-wrap received";
       fw.dataset.id = id || "";
@@ -16794,7 +16807,7 @@ document.addEventListener("DOMContentLoaded", () => {
         giftText = isSent ? "\u60A8\u6709\u4E00\u4EFD\u793C\u7269\uFF5E" : "\u60A8\u6709\u4E00\u4EFD\u793C\u7269\uFF5E";
       }
       bubbleElement.innerHTML = '<img src="https://i.postimg.cc/rp0Yg31K/chan-75.png" alt="gift" class="gift-card-icon"><div class="gift-card-text">'.concat(giftText, '</div><div class="gift-card-received-stamp">\u5DF2\u67E5\u6536</div>');
-      const description = groupGiftMatch ? groupGiftMatch[3].trim() : match[1].trim();
+      const description = String(groupGiftMatch ? (groupGiftMatch[3] || "") : (match[1] || "")).trim();
       const descriptionDiv = document.createElement("div");
       descriptionDiv.className = "gift-card-description";
       descriptionDiv.textContent = description;
@@ -16809,10 +16822,10 @@ document.addEventListener("DOMContentLoaded", () => {
       bubbleElement.innerHTML = '<svg class="play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg><span class="duration">'.concat(calculateVoiceDuration(voiceMatch[1].trim()), '"</span>');
       const transcriptDiv = document.createElement("div");
       transcriptDiv.className = "voice-transcript";
-      transcriptDiv.textContent = voiceMatch[1].trim();
+      transcriptDiv.textContent = String(voiceMatch[1] || "").trim();
       wrapper.appendChild(transcriptDiv);
     } else if (photoVideoMatch) {
-      const pvDesc2 = photoVideoMatch[1].trim();
+      const pvDesc2 = String(photoVideoMatch[1] || "").trim();
       const imgGenOn2 = !!(db.apiSettings && db.apiSettings.imgGenEnabled);
       const pvHasImg = !!(message && message.imgUrl);
       const pvWillGen = !isSent && imgGenOn2 && !pvHasImg;
@@ -17443,8 +17456,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const p = stripSummaryMarks(part);
       if (!p) return;
       const m = p.match(/^([^：:｜|]{1,8})\s*[：:｜|]\s*(.+)$/);
-      let label = m ? m[1].trim() : "事件";
-      let body = m ? m[2].trim() : p;
+      let label = m ? String(m[1] || "").trim() : "事件";
+      let body = m ? String(m[2] || "").trim() : p;
       if (!body || body.length < 3) return;
       let type = "episodic";
       Object.keys(SUMMARY_TYPE_MAP).forEach(function (k) { if (label.indexOf(k) >= 0) type = SUMMARY_TYPE_MAP[k]; });
