@@ -9791,7 +9791,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <div class="sn-history-list" id="sn-history-list"></div>
         </div>
     </div>
-    <input type="file" id="image-upload-input" accept="image/*" style="display:none;">
+    <input type="file" id="image-upload-input" accept="image/*" multiple style="display:none;">
     <div id="add-char-modal" class="modal-overlay">
         <div class="modal-window">
             <h3>创建新角色</h3>
@@ -10774,7 +10774,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <button class="icon-btn" id="offline-send-btn" style="background-color:var(--primary-color); color:#fff;">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
-            <button class="icon-btn" id="offline-img-btn" title="发图片" style="background-color:#fff; color:#111; border:1px solid #d8d8d8;">
+            <button class="icon-btn" id="offline-img-btn" title="识图 · 可多选" style="background-color:#fff; color:#111; border:1px solid #d8d8d8;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5L6 19"/></svg>
             </button>
             <button class="icon-btn" id="offline-fc-btn" title="亲属卡" style="background-color:#fff; color:#B08A4F; border:1px solid #C9A961;">
@@ -12394,7 +12394,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.10";
+  const APP_VERSION = "v6.4.11";
   let db = {
     characters: [],
     groups: [],
@@ -19458,23 +19458,20 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       imageUploadInput.click();
     });
-    imageUploadInput.addEventListener("change", async (e) => {
-      const file = e.target.files[0];
-      if (file) {
+        imageUploadInput.addEventListener("change", async (e) => {
+      const files = Array.from(e.target.files || []);
+      e.target.value = null;
+      if (!files.length) return;
+      showToast("\u8BC6\u56FE \u00D7" + files.length);
+      for (const file of files) {
         try {
-          const compressedUrl = await compressImage(file, {
-            quality: 0.8,
-            maxWidth: 1024,
-            maxHeight: 1024
-          });
-          sendImageForRecognition(compressedUrl);
+          const compressedUrl = await compressImage(file, { quality: 0.8, maxWidth: 1024, maxHeight: 1024 });
+          if (compressedUrl) await sendImageForRecognition(compressedUrl);
         } catch (error) {
           console.error("Image compression failed:", error);
-          showToast("\u56FE\u7247\u5904\u7406\u5931\u8D25\uFF0C\u8BF7\u91CD\u8BD5");
-        } finally {
-          e.target.value = null;
         }
       }
+      if (files.length > 1) showToast("\u5DF2\u53D1\u51FA " + files.length + " \u5F20");
     });
   }
   async function setupStickerSystem() {
@@ -26398,28 +26395,32 @@ function setupPhoneSystem() {
     if (area) area.scrollTop = area.scrollHeight;
   }
   function mxgShrinkImg(file, cb){
+    var done=false, raw="";
+    function fire(u){ if(done) return; done=true; cb(u||raw||""); }
     try{
       const fr = new FileReader();
       fr.onload = function(){
+        raw = String(fr.result || "");
+        setTimeout(function(){ if(!done) fire(raw); }, 3200);
         const img = new Image();
         img.onload = function(){
           try{
-            const m = 1280, w = img.naturalWidth, h = img.naturalHeight;
+            const m = 1100, w = img.naturalWidth, h = img.naturalHeight;
             const sc = Math.min(1, m / Math.max(w, h));
             const cv = document.createElement("canvas");
             cv.width = Math.max(1, Math.round(w * sc)); cv.height = Math.max(1, Math.round(h * sc));
             const cx = cv.getContext("2d");
             cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height);
             cx.drawImage(img, 0, 0, cv.width, cv.height);
-            cb(cv.toDataURL("image/jpeg", 0.86));
-          }catch(e){ cb(String(fr.result || "")); }
+            fire(cv.toDataURL("image/jpeg", 0.84) || raw);
+          }catch(e){ fire(raw); }
         };
-        img.onerror = function(){ cb(""); };
-        img.src = String(fr.result || "");
+        img.onerror = function(){ fire(raw); };
+        img.src = raw;
       };
-      fr.onerror = function(){ cb(""); };
+      fr.onerror = function(){ fire(""); };
       fr.readAsDataURL(file);
-    }catch(e){ cb(""); }
+    }catch(e){ fire(""); }
   }
 
   async function offlineSendImages(files){
@@ -26431,7 +26432,7 @@ function setupPhoneSystem() {
       let done = false;
       const fire = (u) => { if (!done) { done = true; res(u || ""); } };
       mxgShrinkImg(f, fire);
-      setTimeout(() => fire(""), 6000);
+      setTimeout(() => fire(""), 9000);
     })));
     const imgs = results.filter(Boolean);
     if (!imgs.length) { showToast("图片读取失败"); return; }
@@ -28677,6 +28678,7 @@ prompt += "【正文长度·硬性】HTML 卡片与 ```html 代码块完全不�
     if (_wbOffS.before) prompt = _wbOffS.before + "\n\n" + prompt;
     if (wbTextS) prompt += "以下是已经成立的人和事；标了只属于你的，就只在你自己身上体现：\n" + wbTextS + "\n\n";
     if (_wbOffS.after) prompt += "\n" + _wbOffS.after + "\n\n";
+    prompt += "【你们之间的小工具】转账、礼物、亲属卡都是这个平台真实存在的功能。亲属卡是你给对方的一张卡：额度你自己定，每月从你的钱里出。要不要给、给多少，完全按你的性格、处境和你们的关系决定；不想给就不给，但不要说\"平台没有这个功能\"之类的话。\n";
     prompt += "【表达与关系】叙述要有具体动作、对话、感官细节和情绪层次，像真人随手写下的文字，允许口语、停顿、说一半又改口，不要每段都工整漂亮或写成作文腔。表达克制、具体、有边界：不肉麻、不油腻、不说教、不摆爹味，不靠空泛夸赞和情绪价值撑场面；语气由你的人设决定，不要千人一面。对方是独立的人，不评判、不操控、不道德绑架。\n";
     prompt += "【用户输入怎么处理】用户每条输入都是「" + userName + "」此刻亲口说的话或亲手做的事。正文必须先把这条输入按当前人称自然转述进场景（当前人称下称「" + userRef + "」），再写你的反应；不能当作没发生、不能原样复读、不能曲解。\n";
     if (g.steal) {
@@ -46535,7 +46537,7 @@ function wb2DeleteEntry() {
       if(has) return;
       var r=window.__mxgRec?window.__mxgRec(char.id):null;
       var fc=r&&r.familyCard;
-      if(fc&&fc.issue===false) return;
+      var allowAsk=(!fc)||fc.issue===false||!fc.sent;
       if(fc&&fc.issue&&!fc.sent){
         fc.sent=true; fc.status='pending';
         oc.history.push({ role:'assistant', charId:char.id, type:'family_card', ts:Date.now(),
@@ -46544,8 +46546,9 @@ function wb2DeleteEntry() {
         persist();
         return;
       }
-      if(fc&&fc.sent) return;
-      /* 没有资产档案：独立判定一次，结果缓存在角色身上 */
+      if(fc&&fc.sent&&fc.issue) return;
+      /* 没有档案、或档案判定为不发：按人设独立再判一次 */
+      if(!allowAsk) return;
       if(char.__fcAsked) return;
       char.__fcAsked=true;
       aiCall('你只输出严格 JSON。',
