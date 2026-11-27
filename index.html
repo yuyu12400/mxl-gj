@@ -10320,6 +10320,57 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
 
     <div id="fc-modal" hidden><div class="fcm" id="fc-body"></div></div>
 
+<div id="mxg-banner" class="mxg-banner" hidden>
+  <div class="mb-ico"></div>
+  <div class="mb-tx"><div class="mb-t"></div><div class="mb-s"></div></div>
+  <div class="mb-x">×</div>
+</div>
+
+<script id="banner-script">
+(function(){
+  var el=null, timer=null, onTap=null;
+  function node(){
+    if(el && el.isConnected) return el;
+    el=document.getElementById('mxg-banner');
+    return el;
+  }
+  window.__mxgBanner=function(title, text, tap){
+    try{
+      var cur=document.querySelector('.screen.active');
+      var inChat=cur && (cur.id==='offline-chat-screen'||cur.id==='chat-room-screen');
+      if(inChat && !document.hidden) return;
+      var n=node(); if(!n) return;
+      var t=n.querySelector('.mb-t'), s2=n.querySelector('.mb-s');
+      if(t) t.textContent=String(title||'');
+      if(s2) s2.textContent=String(text||'').slice(0,80);
+      onTap=tap||null;
+      n.hidden=false;
+      n.classList.remove('out');
+      clearTimeout(timer);
+      timer=setTimeout(function(){ n.classList.add('out'); setTimeout(function(){ n.hidden=true; },260); }, 4200);
+      try{
+        if(window.Notification && Notification.permission==='granted'){
+          new Notification(String(title||'新消息'), { body:String(text||'').slice(0,80), silent:true });
+        }
+      }catch(e){}
+    }catch(e){}
+  };
+  function bind(){
+    var n=node(); if(!n) return;
+    n.onclick=function(e){
+      if(e.target && e.target.classList && e.target.classList.contains('mb-x')){ n.hidden=true; return; }
+      n.hidden=true;
+      try{ if(onTap) onTap(); }catch(e){}
+    };
+    if(window.Notification && Notification.permission==='default'){
+      try{ Notification.requestPermission(); }catch(e){}
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind);
+  else bind();
+})();
+</script>
+
 <script id="imgstack-script">
 (function(){
   function hhmm(ts){ var d=new Date(ts||Date.now()); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
@@ -10368,24 +10419,76 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     return card;
   };
 
-  var input=null;
-  function ensureInput(){
-    if(input) return input;
-    input=document.createElement('input');
-    input.type='file'; input.accept='image/*'; input.multiple=true; input.style.display='none';
-    input.onchange=function(){
-      var files=[];
-      try{ files=Array.prototype.slice.call(input.files||[]); }catch(e){ files=[]; }
-      setTimeout(function(){ try{ input.value=''; }catch(e){} }, 60);
-      if(files.length && typeof window.__mxgSendImages==='function') window.__mxgSendImages(files);
-    };
-    document.body.appendChild(input);
-    return input;
+  var attach=[];
+  var strip=null;
+  function ensureStrip(){
+    if(strip && strip.isConnected) return strip;
+    var bar=document.querySelector('#offline-chat-screen .offline-chat-input-bar');
+    if(!bar||!bar.parentNode) return null;
+    strip=document.createElement('div');
+    strip.id='offline-attach-strip';
+    strip.className='o-attach-strip';
+    strip.hidden=true;
+    bar.parentNode.insertBefore(strip, bar);
+    return strip;
   }
+  function renderStrip(){
+    var el=ensureStrip(); if(!el) return;
+    if(!attach.length){ el.hidden=true; el.innerHTML=''; return; }
+    el.hidden=false;
+    el.innerHTML='<div class="oa-l">待发 '+attach.length+' 张 · 点发送一起送出</div>'
+      +'<div class="oa-row">'+attach.map(function(f,i){
+          return '<div class="oa-th" data-i="'+i+'"><img src="'+(f.__u||'')+'" alt=""><span class="oa-x">×</span></div>';
+        }).join('')+'</div>';
+    el.querySelectorAll('.oa-th').forEach(function(n){
+      n.onclick=function(){
+        var i=Number(n.getAttribute('data-i'));
+        try{ if(attach[i]&&attach[i].__u) URL.revokeObjectURL(attach[i].__u); }catch(e){}
+        attach.splice(i,1); renderStrip();
+      };
+    });
+  }
+  function addFiles(files){
+    Array.prototype.slice.call(files||[]).forEach(function(f){
+      if(attach.length>=9) return;
+      try{ f.__u=URL.createObjectURL(f); }catch(e){ f.__u=''; }
+      attach.push(f);
+    });
+    renderStrip();
+  }
+
+  function bindAll(){
   try{
+    var inp=document.getElementById('offline-img-input');
+    if(inp){
+      inp.onchange=function(){
+        var files=null;
+        try{ files=Array.prototype.slice.call(inp.files||[]); }catch(e){ files=null; }
+        setTimeout(function(){ try{ inp.value=''; }catch(e){} }, 80);
+        if(files&&files.length) addFiles(files);
+      };
+    }
     var b=document.getElementById('offline-img-btn');
-    if(b) b.onclick=function(e){ e.preventDefault(); ensureInput().click(); };
+    if(b) b.onclick=function(e){ e.preventDefault(); var i2=document.getElementById('offline-img-input'); if(i2) i2.click(); };
+    var send=document.getElementById('offline-send-btn');
+    if(send){
+      send.addEventListener('click', function(e){
+        if(!attach.length) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        var files=attach.slice();
+        attach.length=0; renderStrip();
+        var ta=document.getElementById('offline-chat-input');
+        var txt=ta?ta.value.trim():'';
+        if(ta) ta.value='';
+        if(typeof window.__mxgSendImages==='function') window.__mxgSendImages(files, txt);
+      }, true);
+    }
   }catch(e){}
+  }
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded', bindAll);
+    setTimeout(bindAll, 0);
+  } else bindAll();
 })();
 </script>
 
@@ -10774,6 +10877,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <button class="icon-btn" id="offline-send-btn" style="background-color:var(--primary-color); color:#fff;">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
+            <input type="file" id="offline-img-input" accept="image/*" multiple style="display:none">
             <button class="icon-btn" id="offline-img-btn" title="识图 · 可多选" style="background-color:#fff; color:#111; border:1px solid #d8d8d8;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5L6 19"/></svg>
             </button>
@@ -12394,7 +12498,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.11";
+  const APP_VERSION = "v6.4.12";
   let db = {
     characters: [],
     groups: [],
@@ -26423,7 +26527,7 @@ function setupPhoneSystem() {
     }catch(e){ fire(""); }
   }
 
-  async function offlineSendImages(files){
+  async function offlineSendImages(files, note){
     const list = Array.from(files || []).slice(0, 9);
     if (!list.length) return;
     if (!currentOfflineCharIds.length) { showToast("请先选择角色"); return; }
@@ -26438,7 +26542,7 @@ function setupPhoneSystem() {
     if (!imgs.length) { showToast("图片读取失败"); return; }
     const oc = getOfflineChat(currentOfflineSessionId);
     const char = db.characters.find((c) => c.id === currentOfflineCharIds[0]);
-    oc.history.push({ role: "user", type: "images", imgs: imgs, ts: Date.now(), content: "[图片 ×" + imgs.length + "]" });
+    oc.history.push({ role: "user", type: "images", imgs: imgs, note: (note || "").toString().slice(0, 140), ts: Date.now(), content: "[图片 ×" + imgs.length + "]" + (note ? " " + String(note).slice(0, 40) : "") });
     await saveData();
     renderOfflineBubbles(oc, char);
     const area = document.getElementById("offline-chat-area");
@@ -26609,6 +26713,11 @@ function setupPhoneSystem() {
     const area2 = document.getElementById("offline-chat-area");
     if (area2) area2.scrollTop = area2.scrollHeight;
     enableBtn();
+    try{
+      const nm = mainChar.remarkName || mainChar.realName || "对方";
+      const plain = cleanBubbleText(stripSideNote(content)).replace(/\n/g, " ").slice(0, 90);
+      if (window.__mxgBanner) window.__mxgBanner(nm, plain, function(){ try{ openOfflineChat(oc); }catch(e){} });
+    }catch(e){}
     if (oc.type !== "side" && oc.summaryEnabled && oc.rounds >= (oc.summaryRounds || 6)) {
       if (chars.length > 1) {
         await summarizeOfflineMulti(chars, oc);
@@ -28678,7 +28787,7 @@ prompt += "【正文长度·硬性】HTML 卡片与 ```html 代码块完全不�
     if (_wbOffS.before) prompt = _wbOffS.before + "\n\n" + prompt;
     if (wbTextS) prompt += "以下是已经成立的人和事；标了只属于你的，就只在你自己身上体现：\n" + wbTextS + "\n\n";
     if (_wbOffS.after) prompt += "\n" + _wbOffS.after + "\n\n";
-    prompt += "【你们之间的小工具】转账、礼物、亲属卡都是这个平台真实存在的功能。亲属卡是你给对方的一张卡：额度你自己定，每月从你的钱里出。要不要给、给多少，完全按你的性格、处境和你们的关系决定；不想给就不给，但不要说\"平台没有这个功能\"之类的话。\n";
+    prompt += "【你们之间的小工具】转账、礼物、亲属卡都是这个平台真实存在、对方能真的收到的功能。亲属卡是你给对方的一张卡：额度你自己定，每月从你的钱里出，它会以一张卡片出现在对方聊天里，不是转账。要不要给、给多少，完全按你的性格、处境和你们的关系决定；不想给就不给，可以直接说不想，但绝对不要说\"平台没有这个功能\"\"我发不了\"这类话，也不要用转账代替亲属卡。\n";
     prompt += "【表达与关系】叙述要有具体动作、对话、感官细节和情绪层次，像真人随手写下的文字，允许口语、停顿、说一半又改口，不要每段都工整漂亮或写成作文腔。表达克制、具体、有边界：不肉麻、不油腻、不说教、不摆爹味，不靠空泛夸赞和情绪价值撑场面；语气由你的人设决定，不要千人一面。对方是独立的人，不评判、不操控、不道德绑架。\n";
     prompt += "【用户输入怎么处理】用户每条输入都是「" + userName + "」此刻亲口说的话或亲手做的事。正文必须先把这条输入按当前人称自然转述进场景（当前人称下称「" + userRef + "」），再写你的反应；不能当作没发生、不能原样复读、不能曲解。\n";
     if (g.steal) {
@@ -42830,8 +42939,11 @@ window.bsRoomAI = bsRoomAI;
 #asset-screen .as-bank .bk-no { font-size:calc(var(--app-fs,1) * 10px); margin-top:4px; }
 #asset-screen .as-bank .bk-bal { font-size:calc(var(--app-fs,1) * 17px); margin-top:10px; }
 #asset-screen .as-bank .bk-chip { width:20px; height:14px; margin-top:10px; }
-#asset-screen .as-stack .as-bank.de1 { opacity:.72; }
-#asset-screen .as-stack .as-bank.de2 { opacity:.5; }
+#asset-screen .as-stack .as-bank.de1 { opacity:.86; }
+#asset-screen .as-stack .as-bank.de2 { opacity:.72; }
+#asset-screen .as-stack .as-bank.off::after { content:''; position:absolute; inset:0; z-index:5; border-radius:inherit; pointer-events:none; backdrop-filter:brightness(2.1) saturate(.4); -webkit-backdrop-filter:brightness(2.1) saturate(.4); }
+#asset-screen .as-stack .as-bank.de1::after { background:rgba(255,255,255,.34); }
+#asset-screen .as-stack .as-bank.de2::after { background:rgba(255,255,255,.52); }
 
 #asset-screen .as-cathero { display:flex; align-items:center; gap:14px; padding:6px 0 14px; }
 #asset-screen .as-cathero-t { flex:1; min-width:0; }
@@ -42867,7 +42979,7 @@ window.bsRoomAI = bsRoomAI;
 
 /* ===== v4：卡居中 / 非圆形换图位 / 竖向展开 ===== */
 #asset-screen .as-stack { padding-top:6px; }
-#asset-screen .as-stack .as-bank { left:50%; right:auto; width:262px; height:166px; margin-left:-118px; }
+#asset-screen .as-stack .as-bank { left:50%; right:auto; width:248px; height:157px; margin-left:-124px; }
 #asset-screen .as-cover .cv-round { border-radius:14px; width:112px; height:148px; top:16px; right:16px; }
 #asset-screen .as-cover .cv-round img { filter:grayscale(1); }
 #asset-screen .as-cathero-img { border-radius:12px; width:104px; height:70px; }
@@ -42876,6 +42988,33 @@ window.bsRoomAI = bsRoomAI;
 .o-img-card.expanded .is-stack { display:flex; flex-direction:column; gap:8px; height:auto; overflow:visible; }
 .o-img-card.expanded .is-stack .is-item { width:100%; height:auto; }
 .o-img-card.expanded .is-stack .is-item img { width:100%; height:auto; display:block; }
+
+/* ===== 404 待发图条 ===== */
+.o-attach-strip { display:flex; flex-direction:column; gap:6px; padding:8px 14px; background:#fff; border-top:1px solid #eee; }
+.o-attach-strip[hidden] { display:none; }
+.o-attach-strip .oa-l { font-size:11px; letter-spacing:2px; color:#B08A4F; }
+.o-attach-strip .oa-row { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; }
+.o-attach-strip .oa-row::-webkit-scrollbar { display:none; }
+.o-attach-strip .oa-th { position:relative; flex:0 0 58px; width:58px; height:58px; border-radius:10px; overflow:hidden; border:1px solid #e6e6e6; background:#f6f6f6; }
+.o-attach-strip .oa-th img { width:100%; height:100%; object-fit:cover; display:block; }
+.o-attach-strip .oa-x { position:absolute; right:0; top:0; width:18px; height:18px; line-height:17px; text-align:center; font-size:12px; color:#fff; background:rgba(17,17,17,.72); border-bottom-left-radius:8px; }
+
+/* ===== 消息横幅 ===== */
+.mxg-banner { position:fixed; left:50%; top:12px; transform:translateX(-50%) translateY(0); width:calc(100% - 24px); max-width:420px; z-index:10060; display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; background:rgba(17,17,18,.94); color:#fff; box-shadow:0 14px 34px rgba(16,16,18,.28); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); transition:transform .26s cubic-bezier(.2,.9,.2,1), opacity .26s; }
+.mxg-banner[hidden] { display:none; }
+.mxg-banner.out { transform:translateX(-50%) translateY(-16px); opacity:0; }
+.mxg-banner .mb-ico { flex:0 0 34px; width:34px; height:34px; border-radius:50%; background:radial-gradient(circle at 30% 30%, #C9A961, #8a6a2e); }
+.mxg-banner .mb-tx { flex:1; min-width:0; }
+.mxg-banner .mb-t { font-size:13px; letter-spacing:1px; color:#fff; }
+.mxg-banner .mb-s { margin-top:3px; font-size:11px; line-height:1.6; color:rgba(255,255,255,.72); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
+.mxg-banner .mb-x { flex:0 0 20px; text-align:center; font-size:15px; color:rgba(255,255,255,.55); }
+
+#asset-screen .as-fcbox { position:relative; margin-top:16px; padding:20px 18px 18px; border-radius:18px; background:#fff; color:#101010; border:1px solid #EFE6D6; box-shadow:0 1px 0 rgba(16,16,18,.02); overflow:hidden; }
+#asset-screen .as-fcbox::after { content:'FAMILY'; position:absolute; right:-10px; bottom:-14px; font-size:calc(var(--app-fs,1) * 46px); letter-spacing:2px; color:rgba(201,169,97,.10); pointer-events:none; }
+#asset-screen .as-fcbox .fcb-top { display:flex; justify-content:space-between; font-size:calc(var(--app-fs,1) * 9px); letter-spacing:2.4px; color:#B08A4F; }
+#asset-screen .as-fcbox .fcb-v { margin-top:12px; font-family:var(--font-family, serif); font-size:calc(var(--app-fs,1) * 30px); letter-spacing:.5px; color:#101010; }
+#asset-screen .as-fcbox .fcb-v em { font-style:normal; font-size:calc(var(--app-fs,1) * 15px); color:#B08A4F; margin-right:4px; }
+#asset-screen .as-fcbox .fcb-s { margin-top:10px; font-size:calc(var(--app-fs,1) * 10px); line-height:1.8; color:#8a8a8a; letter-spacing:.4px; }
 
 #asset-screen .as-foot { margin-top:26px; text-align:center; font-size:calc(var(--app-fs,1) * 8.5px); letter-spacing:3px; color:#c6c6c6; }
 
@@ -45925,6 +46064,7 @@ function wb2DeleteEntry() {
       + '<div class="as-links">'
       + '<div class="as-link" data-go="cards"><span class="lt">钱包</span><span class="ln">CARDS / '+String((r.cards||[]).length).padStart(2,'0')+'</span><span class="lv">¥ '+money((r.cards||[]).reduce(function(a,b){return a+(Number(b.balance)||0);},0))+'</span></div>'
       + '<div class="as-link" data-go="ledger"><span class="lt">变动</span><span class="ln">LEDGER / '+String((r.ledger||[]).length).padStart(2,'0')+'</span><span class="lv">›</span></div>'
+      + '<div class="as-link" data-go="fc"><span class="lt">亲属卡</span><span class="ln">FAMILY CARD</span><span class="lv">'+((r.familyCard&&r.familyCard.limit)?('¥ '+money(r.familyCard.limit)):'—')+'</span></div>'
       + '</div>'
       + '<div class="as-tools"><button class="as-tool" id="as-float">按现值浮动</button><button class="as-tool solid" id="as-recast">重铸</button></div>'
       + '<div class="as-wm">MADE IN 404 · 你的字 / 他的物</div>'
@@ -46046,6 +46186,24 @@ function wb2DeleteEntry() {
     }).join('');
   }
 
+  function fcHtml(char, r){
+    var f=(r&&r.familyCard)||{};
+    var st=f.issue? (f.sent? (f.status==='accepted'?'已收下':(f.status==='declined'?'已退回':'待你决定')) :'还没发出来') : '他没打算给';
+    return '<div class="as-cap"><b>亲属卡</b><span>FAMILY CARD / 404</span></div><div class="as-rule"></div>'
+      + '<div class="as-fcbox">'
+      +   '<div class="fcb-top"><span>他给你的</span><span>'+esc(st)+'</span></div>'
+      +   '<div class="fcb-v"><em>¥</em>'+money(f.limit||0)+'</div>'
+      +   '<div class="fcb-s">额度每月从他的钱包里出。收不收，在 404 聊天里那张卡上点。</div>'
+      + '</div>'
+      + '<div class="as-fcbox">'
+      +   '<div class="fcb-top"><span>你给他的</span><span>'+esc((r&&r.myFc&&r.myFc.limit)?'已递过':'还没递过')+'</span></div>'
+      +   '<div class="fcb-v"><em>¥</em>'+(r&&r.myFc&&r.myFc.limit?money(r.myFc.limit):'—')+'</div>'
+      +   '<div class="fcb-s">在 404 聊天输入栏那张金色卡片按钮里，填个额度递过去；他收不收由他自己决定。</div>'
+      + '</div>'
+      + '<div class="as-acts"><button class="as-tool solid" id="as-fc-go">去 404 聊天里处理</button></div>'
+      + '<div class="as-foot">FAMILY CARD · 404</div>';
+  }
+
   function loadingHtml(txt){
     return '<div class="as-load"><div class="k">ASSESSING</div><div class="m">'+esc(txt||'正在清点他名下有什么…')+'</div><div class="bar"><i></i></div></div>';
   }
@@ -46062,6 +46220,7 @@ function wb2DeleteEntry() {
     else if(A.view==='detail'){ var it=r.items.find(function(x){return x.id===A.itemId;}); if(crumb) crumb.textContent='OBJECT'; main.innerHTML=detailHtml(char,r,it); }
     else if(A.view==='ledger'){ if(crumb) crumb.textContent='REVALUATION'; main.innerHTML=ledgerHtml(char,r); }
     else if(A.view==='cards'){ if(crumb) crumb.textContent='WALLET'; main.innerHTML=cardsHtml(char,r); }
+    else if(A.view==='fc'){ if(crumb) crumb.textContent='FAMILY CARD'; main.innerHTML=fcHtml(char,r); }
     bind();
   }
 
@@ -46149,6 +46308,8 @@ function wb2DeleteEntry() {
       var cur=recOf(A.charId).items.find(function(x){ return x.id===A.itemId; });
       if(cur && !cur.story && cur.story!==false){ setTimeout(function(){ writeStory(cur); },180); }
     }
+    var fcg=main.querySelector('#as-fc-go');
+    if(fcg) fcg.onclick=function(){ try{ switchScreen('offline-home-screen'); }catch(e){} };
     var back=main.querySelector('#as-backcat');
     if(back) back.onclick=function(){ A.view='cat'; render(); };
     var more=main.querySelector('#as-more-story');
@@ -46174,12 +46335,12 @@ function wb2DeleteEntry() {
       var els=stack.querySelectorAll('.as-bank');
       var lay=function(){
         var n=els.length;
-        stack.style.height='196px';
+        stack.style.height='206px';
         var front=[];
         if(els[cur]) front.push(els[cur]);
         for(var i=0;i<n;i++){ if(i!==cur) front.push(els[i]); }
         front.forEach(function(el,k){
-          el.style.transform='translate3d('+(k*18)+'px,'+(k*10)+'px,0) scale('+(1-k*0.03)+')';
+          el.style.transform='translate3d('+(k*15)+'px,'+(k*9)+'px,0) scale('+(1-k*0.035)+')';
           el.style.zIndex=String(100-k);
           el.classList.toggle('on', k===0);
           el.classList.toggle('off', k!==0);
@@ -46580,6 +46741,11 @@ function wb2DeleteEntry() {
     var msg={ role:'user', type:'family_card', dir:'out', ts:Date.now(),
       content:'[亲属卡（我给的）：'+money(limit)+']',
       fc:{ limit:limit, from:'我', status:'waiting' } };
+    try{
+      var cid=(oc.charIds||[])[0];
+      var rr=cid&&window.__mxgRec?window.__mxgRec(cid):null;
+      if(rr){ rr.myFc={ limit:limit, ts:Date.now() }; if(window.__mxgSaveLocal) window.__mxgSaveLocal(); }
+    }catch(e){}
     oc.history.push(msg);
     persist();
     try{
