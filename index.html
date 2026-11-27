@@ -10560,6 +10560,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         out.push(a.type + " " + (a.o.remarkName || a.o.realName || a.o.name || a.key) + " · 条数 " + src.length + " · 对方消息 " + h.length + " · 进度=" + (sn ? (sn.c + "～" + String(sn.s || "").length) : "无") + " · 已记录=" + (noted[sig] ? "是" : "否") + " · 初始化=" + (inited[a.key] ? "是" : "否") + (last ? (" · 末条=" + String(last.content).slice(0, 12)) : ""));
       });
       out.push("最近判定：" + window.__mxgNotifyLog.slice(-8).map(function (x) { return new Date(x.t).toLocaleTimeString() + " " + String(x.k).slice(-6) + ":" + x.v; }).join(" | "));
+      out.push("渲染消息：" + ((window.__mxgBubbleLog || []).slice(-6).map(function (x) { return new Date(x.t).toLocaleTimeString() + " 页面=" + x.act + " 会话=" + String(x.mid || x.cur).slice(-6) + " 同页=" + (x.here ? "是" : "否") + " " + x.len + "字"; }).join(" | ") || "还没渲染过"));
       out.push("横幅记录：" + ((window.__mxgBannerLog || []).slice(-5).map(function (x) { return new Date(x.t).toLocaleTimeString() + " 《" + x.title + "》" + x.len + "字 显示=" + (x.h ? "否" : "是"); }).join(" | ") || "还没弹过"));
     } catch (e) { out.push("诊断出错:" + e.message); }
     var box = document.getElementById("ntf-diag-out");
@@ -12783,7 +12784,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.25";
+  const APP_VERSION = "v6.4.26";
   let db = {
     characters: [],
     groups: [],
@@ -13138,7 +13139,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.25：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.26：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
@@ -16869,6 +16870,8 @@ document.addEventListener("DOMContentLoaded", () => {
     renderMessages(false, true);
     switchScreen("chat-room-screen");
   }
+  window.__mxgOpenChatRoom = function (id, type) { try { openChatRoom(id, type || "private"); } catch (e) {} };
+
   function renderMessages(isLoadMore = false, forceScrollToBottom = false) {
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
     if (!chat || !chat.history) return;
@@ -17504,6 +17507,7 @@ document.addEventListener("DOMContentLoaded", () => {
           } catch (e0) {}
           var __nm = (__c && (__c.remarkName || __c.realName || __c.nickname || __c.name)) || "新消息";
           var __txt = String(message.content).replace(/```[^`]*```/g, " ").replace(/<[^>]*>/g, " ").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " ").trim();
+          try { window.__mxgBubbleLog = (window.__mxgBubbleLog || []).concat([{ t: Date.now(), act: __act, mid: String(__mid || ""), cur: String(__cur || ""), here: !!__here, len: String(message.content || "").length }]); if (window.__mxgBubbleLog.length > 12) window.__mxgBubbleLog.shift(); } catch (eLB) {}
           if (__txt) window.__mxgBanner(__nm, __txt.slice(0, 90), { chatType: currentChatType, chatId: __mid || __cur }, true);
           try { if (window.__mxgMarkSeen) window.__mxgMarkSeen(__mid || __cur, window.__mxgSig ? window.__mxgSig(message) : ""); } catch (eMS) {}
         }
@@ -46861,7 +46865,13 @@ function wb2DeleteEntry() {
       if(cur && !cur.story && cur.story!==false){ setTimeout(function(){ writeStory(cur); },180); }
     }
     var fcg=main.querySelector('#as-fc-go');
-    if(fcg) fcg.onclick=function(){ try{ switchScreen('offline-home-screen'); }catch(e){} };
+    if(fcg) fcg.onclick=function(){
+      try{
+        var id=A.charId||(charNow()&&charNow().id);
+        if(id&&window.__mxgOpenChatRoom){ window.__mxgOpenChatRoom(id,"private"); return; }
+        switchScreen("chat-room-screen");
+      }catch(e){}
+    };
     var back=main.querySelector('#as-backcat');
     if(back) back.onclick=function(){ A.view='cat'; render(); };
     var more=main.querySelector('#as-more-story');
