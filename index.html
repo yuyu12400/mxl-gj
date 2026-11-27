@@ -10457,6 +10457,58 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
   function hhmm(ts){ var d=new Date(ts||Date.now()); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
   function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+  window.__mxgImgStack=function(h){
+    var imgs=(h.imgs||[]).slice(0,9);
+    var box=document.createElement('div');
+    box.className='imgstack';
+    var st=document.createElement('div');
+    st.className='is-stack';
+    imgs.forEach(function(u,i){
+      var it=document.createElement('div');
+      it.className='is-item';
+      it.setAttribute('data-i',String(i));
+      it.innerHTML='<img src="'+esc(u)+'" alt="">';
+      st.appendChild(it);
+    });
+    box.appendChild(st);
+    var foot=document.createElement('div');
+    foot.className='is-foot';
+    foot.innerHTML='<span class="is-count">1 / '+imgs.length+'</span>'+(imgs.length>1?'<button type="button" class="is-toggle">展开</button>':'');
+    box.appendChild(foot);
+    var idx=0, items=st.querySelectorAll('.is-item'), cnt=foot.querySelector('.is-count'), tg=foot.querySelector('.is-toggle');
+    function layout(){
+      items.forEach(function(it,i){
+        var d=(i-idx+items.length)%items.length;
+        it.style.zIndex=String(20-d*5);
+        it.style.transform='translate('+(d*7)+'px,'+(d*9)+'px) scale('+(1-d*0.05)+')';
+        it.style.opacity=String(d===0?1:(d===1?0.66:0.34));
+      });
+      if(cnt) cnt.textContent=(idx+1)+' / '+items.length;
+    }
+    layout();
+    var sx=0;
+    st.addEventListener('touchstart',function(e){ sx=e.touches[0].clientX; },{passive:true});
+    st.addEventListener('touchend',function(e){
+      if(box.classList.contains('expanded')) return;
+      var dx=e.changedTouches[0].clientX-sx;
+      if(Math.abs(dx)<26) return;
+      idx=(dx<0?(idx+1):(idx-1+items.length))%items.length; layout();
+    },{passive:true});
+    st.addEventListener('click',function(e){
+      if(box.classList.contains('expanded')) return;
+      var it=e.target.closest?e.target.closest('.is-item'):null;
+      if(!it) return;
+      var i=Number(it.getAttribute('data-i'))||0;
+      if(i===idx) return;
+      idx=i; layout();
+    });
+    if(tg) tg.onclick=function(){
+      var ex=!box.classList.contains('expanded');
+      box.classList.toggle('expanded',ex);
+      tg.textContent=ex?'收起':'展开';
+    };
+    return box;
+  };
   window.__mxgImgCard=function(h){
     var imgs=(h.imgs||[]).slice(0,9);
     var card=document.createElement('div');
@@ -12585,7 +12637,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.16";
+  const APP_VERSION = "v6.4.17";
   let db = {
     characters: [],
     groups: [],
@@ -12939,7 +12991,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.16：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.17：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
@@ -16770,8 +16822,8 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       return ww;
     }
-    if (message && message.type === "images" && Array.isArray(message.imgs) && message.imgs.length > 1 && typeof window.__mxgImgCard === "function") {
-      const iw0 = window.__mxgImgCard({ imgs: message.imgs, ts: message.timestamp || message.ts });
+    if (message && message.type === "images" && Array.isArray(message.imgs) && message.imgs.length > 1 && typeof window.__mxgImgStack === "function") {
+      const iw0 = window.__mxgImgStack({ imgs: message.imgs });
       iw0.dataset.msgId2 = message.id || "";
       return iw0;
     }
@@ -17284,6 +17336,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function pinChatToBottom() {
     if (!messageArea) return;
+    /* 用户已经往上翻看记录时，不要强行拉回底部 */
+    try {
+      const gap = messageArea.scrollHeight - messageArea.scrollTop - messageArea.clientHeight;
+      if (gap > 140) return;
+    } catch (e) {}
     messageArea.scrollTop = messageArea.scrollHeight;
     requestAnimationFrame(() => {
       messageArea.scrollTop = messageArea.scrollHeight;
@@ -43207,6 +43264,18 @@ window.bsRoomAI = bsRoomAI;
 .o-img-card.expanded .is-stack { display:flex; flex-direction:column; gap:8px; height:auto; overflow:visible; }
 .o-img-card.expanded .is-stack .is-item { width:100%; height:auto; }
 .o-img-card.expanded .is-stack .is-item img { width:100%; height:auto; display:block; }
+
+/* ===== 聊天内裸堆叠（我发出的，无气泡） ===== */
+.imgstack { width:172px; margin-left:auto; background:none; border:0; padding:0; }
+.imgstack .is-stack { position:relative; width:100%; height:225px; }
+.imgstack .is-item { position:absolute; left:0; top:0; width:100%; height:100%; border-radius:10px; overflow:hidden; box-shadow:0 5px 16px rgba(17,17,17,.12); transition:transform .18s ease, opacity .18s; background:#f2f2f3; }
+.imgstack .is-item img { width:100%; height:100%; object-fit:cover; display:block; }
+.imgstack .is-foot { display:flex; align-items:center; justify-content:space-between; padding:6px 2px 0; }
+.imgstack .is-count { font-size:10px; letter-spacing:1.4px; color:#8c8c8c; }
+.imgstack .is-toggle { border:0; background:none; padding:0; font-family:inherit; font-size:10px; letter-spacing:1.4px; color:#111; border-bottom:1px solid #111; }
+.imgstack.expanded .is-stack { height:auto; display:flex; flex-direction:column; gap:6px; }
+.imgstack.expanded .is-item { position:relative; height:auto; transform:none!important; opacity:1!important; box-shadow:none; }
+.imgstack.expanded .is-item img { height:auto; object-fit:contain; }
 
 /* ===== 聊天内亲属卡 ===== */
 .chat-fc-card { width:min(240px,72vw); padding:16px 16px 14px; border-radius:16px; background:#fff; color:#111; border:1px solid #111; box-shadow:0 6px 18px rgba(17,17,17,.08); position:relative; overflow:hidden; }
