@@ -18,21 +18,8 @@
     /* ===== Service Worker 注册（PWA 离线缓存）：页面加载后注册，新版经 skipWaiting/clients.claim 自动接管 ===== */
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("./sw.js").then(function(reg){
+        navigator.serviceWorker.register("./sw.js").then(function(){
           try { navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({type:'noop'}); } catch(e){}
-          try { reg && reg.update && reg.update(); } catch(e){}
-          /* 已有控制器时，若后台换上新的 shell，自动重载一次，避免一直跑旧缓存版本 */
-          if (navigator.serviceWorker.controller) {
-            navigator.serviceWorker.addEventListener("controllerchange", function () {
-              if (window.__mxgSwReloading) return;
-              var last = 0;
-              try { last = parseInt(sessionStorage.getItem("__mxgSwReloadAt") || "0", 10) || 0; } catch (e) {}
-              if (Date.now() - last < 300000) return;
-              try { sessionStorage.setItem("__mxgSwReloadAt", String(Date.now())); } catch (e) {}
-              window.__mxgSwReloading = true;
-              setTimeout(function () { location.reload(); }, 200);
-            });
-          }
         }).catch(function (err) {
           console.warn("Service Worker 注册失败：", err);
         });
@@ -7565,8 +7552,6 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
 .dta-card .stg-statline .pc{font-size:9px;color:#9a9aa1;min-width:38px;text-align:right;}
 .dta-card .stg-track{height:2px;background:#f1f1f4;border-radius:2px;margin-top:7px;overflow:hidden;}
 .dta-card .stg-track i{display:block;height:100%;border-radius:2px;}
-
-/* 表情包未命中 → 文字胶囊（不再是图片占位框） */
 </style>
 </head>
 
@@ -12316,7 +12301,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.54";
+  const APP_VERSION = "v6.3.42";
   let db = {
     characters: [],
     groups: [],
@@ -15398,10 +15383,9 @@ document.addEventListener("DOMContentLoaded", () => {
       let lastMessageText = "\u5F00\u59CB\u804A\u5929\u5427...";
       if (chat.history && chat.history.length > 0) {
         const invisibleRegex = /\[.*?(?:接收|退回).*?的转账\]|\[.*?更新状态为：.*?\]|\[.*?已接收礼物\]|\[system:.*?\]|\[.*?邀请.*?加入了群聊\]|\[.*?修改群名为：.*?\]|\[system-display:.*?\]/;
-        const visibleHistory = chat.history.filter(function (msg) { return msg && !invisibleRegex.test(String(msg.content == null ? "" : msg.content)); });
+        const visibleHistory = chat.history.filter((msg) => !invisibleRegex.test(msg.content));
         if (visibleHistory.length > 0) {
           const lastMsg = visibleHistory[visibleHistory.length - 1];
-          const lastContent = String(lastMsg.content == null ? "" : lastMsg.content);
           const urlRegex = /^(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg)|data:image\/[a-z]+;base64,)/i;
           const imageRecogRegex = /\[.*?发来了一张图片：\]/;
           const voiceRegex = /\[.*?的语音：.*?\]/;
@@ -15409,39 +15393,38 @@ document.addEventListener("DOMContentLoaded", () => {
           const transferRegex = /\[.*?的转账：.*?元.*?\]|\[.*?给你转账：.*?元.*?\]|\[.*?向.*?转账：.*?元.*?\]/;
           const stickerRegex = /\[.*?的表情包：.*?\]|\[.*?发送的表情包：.*?\]/;
           const giftRegex = /\[.*?送来的礼物：.*?\]|\[.*?向.*?送来了礼物：.*?\]/;
-          if (giftRegex.test(lastContent)) {
+          if (giftRegex.test(lastMsg.content)) {
             lastMessageText = "[\u793C\u7269]";
-          } else if (stickerRegex.test(lastContent)) {
+          } else if (stickerRegex.test(lastMsg.content)) {
             lastMessageText = "[\u8868\u60C5\u5305]";
-          } else if (voiceRegex.test(lastContent)) {
+          } else if (voiceRegex.test(lastMsg.content)) {
             lastMessageText = "[\u8BED\u97F3]";
-          } else if (photoVideoRegex.test(lastContent)) {
+          } else if (photoVideoRegex.test(lastMsg.content)) {
             lastMessageText = "[\u7167\u7247/\u89C6\u9891]";
-          } else if (transferRegex.test(lastContent)) {
+          } else if (transferRegex.test(lastMsg.content)) {
             lastMessageText = "[\u8F6C\u8D26]";
-          } else if (imageRecogRegex.test(lastContent) || lastMsg.parts && lastMsg.parts.some(function (p) { return p && p.type === "image"; })) {
+          } else if (imageRecogRegex.test(lastMsg.content) || lastMsg.parts && lastMsg.parts.some((p) => p.type === "image")) {
             lastMessageText = "[\u56FE\u7247]";
-          } else if (lastMsg.parts && lastMsg.parts.some(function (p) { return p && p.type === "html"; })) {
-            lastMessageText = mxgHtmlLabel((lastMsg.parts.find(function (p) { return p && p.type === "html"; }) || {}).text || lastContent) || "[\u4E92\u52A8]";
-          } else if (mxgHtmlLabel(lastContent)) {
-            lastMessageText = mxgHtmlLabel(lastContent);
+          } else if (lastMsg.parts && lastMsg.parts.some((p) => p.type === "html")) {
+            lastMessageText = mxgHtmlLabel((lastMsg.parts.find((p) => p.type === "html") || {}).text || lastMsg.content) || "[\u4E92\u52A8]";
+          } else if (mxgHtmlLabel(lastMsg.content)) {
+            lastMessageText = mxgHtmlLabel(lastMsg.content);
           } else {
-            const textMatch = lastContent.match(/\[.*?的消息：([\s\S]+)\]/);
-            let text = textMatch ? String(textMatch[1] || "").trim() : lastContent.trim();
+            const textMatch = lastMsg.content.match(/\[.*?的消息：([\s\S]+)\]/);
+            let text = textMatch ? textMatch[1].trim() : lastMsg.content.trim();
             lastMessageText = urlRegex.test(text) ? "[\u56FE\u7247]" : text;
           }
         } else {
-          const lastEverMsg = chat.history[chat.history.length - 1] || {};
-          const lastEverContent = String(lastEverMsg.content == null ? "" : lastEverMsg.content);
+          const lastEverMsg = chat.history[chat.history.length - 1];
           const inviteRegex = /\[(.*?)邀请(.*?)加入了群聊\]/;
           const renameRegex = /\[.*?修改群名为：.*?\]/;
           const timeSkipRegex = /\[system-display:([\s\S]+?)\]/;
-          const timeSkipMatch = lastEverContent.match(timeSkipRegex);
+          const timeSkipMatch = lastEverMsg.content.match(timeSkipRegex);
           if (timeSkipMatch) {
             lastMessageText = timeSkipMatch[1];
-          } else if (inviteRegex.test(lastEverContent)) {
+          } else if (inviteRegex.test(lastEverMsg.content)) {
             lastMessageText = "\u65B0\u6210\u5458\u52A0\u5165\u4E86\u7FA4\u804A";
-          } else if (renameRegex.test(lastEverContent)) {
+          } else if (renameRegex.test(lastEverMsg.content)) {
             lastMessageText = "\u7FA4\u804A\u540D\u79F0\u5DF2\u4FEE\u6539";
           }
         }
@@ -16222,7 +16205,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const message = chat.history.find((m) => sameMsgId(m.id, messageId));
     if (!message) return;
     const match = message.content.match(/\[.*?的消息：([\s\S]+)\]/);
-    const contentToEdit = String(match ? (match[1] || "") : (message && message.content != null ? message.content : "")).trim();
+    const contentToEdit = match ? match[1].trim() : message.content;
     messageEditInput.value = contentToEdit;
     messageInputDefault.style.display = "none";
     messageEditBar.style.display = "flex";
@@ -16351,9 +16334,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!chat || !chat.history) return;
     const oldScrollHeight = messageArea.scrollHeight;
     /* v6.3.31：同一条消息偶尔被写入两次（流式完成与落库各追加一次），这里按 id 去重，避免重复气泡 */
-    let __raw;
-    try { __raw = mxgMergeHtmlRuns(chatHistoryView(chat)); }
-    catch (eM) { console.warn("[渲染] 历史预处理失败，使用原始历史：", eM && eM.message); __raw = Array.isArray(chat.history) ? chat.history.slice() : []; }
+    const __raw = mxgMergeHtmlRuns(chatHistoryView(chat));
     const __seen = new Set();
     const __view = __raw.filter(function(m) {
       if (!m) return false;
@@ -16384,11 +16365,7 @@ document.addEventListener("DOMContentLoaded", () => {
           lastDateKey = dateKey;
         }
       }
-      let bubble = null;
-      try { bubble = createMessageBubbleElement(msg); } catch (eR) {
-        console.warn("[渲染] 单条消息渲染失败，已跳过该条：", eR && eR.message);
-        bubble = null;
-      }
+      const bubble = createMessageBubbleElement(msg);
       if (bubble) {
         bubble.dataset.ts = String(msg.timestamp || msg.ts || Date.now());
         fragment.appendChild(bubble);
@@ -16411,6 +16388,17 @@ document.addEventListener("DOMContentLoaded", () => {
       loadMoreButton.textContent = "\u52A0\u8F7D\u66F4\u65E9\u7684\u6D88\u606F";
       messageArea.prepend(loadMoreButton);
     }
+    /* v6.3.31：渲染后自检——气泡数少于应有条数时补渲染一次（吞消息的兜底，只重试一次） */
+    if (!isLoadMore && !window.__mxgReRendering) {
+      try {
+        const expect = messagesToRender.filter(function(m){ return m && m.type !== "system_note"; }).length;
+        const got = messageArea.querySelectorAll(".message-wrapper").length;
+        if (got < expect) {
+          window.__mxgReRendering = true;
+          setTimeout(function(){ window.__mxgReRendering = false; try { renderMessages(false, !!forceScrollToBottom); } catch (e) {} }, 60);
+        }
+      } catch (e) {}
+    }
     if (forceScrollToBottom) {
       setTimeout(() => {
         pinChatToBottom();
@@ -16425,22 +16413,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function calculateVoiceDuration(text) {
     return Math.max(1, Math.min(60, Math.ceil(text.length / 3.5)));
-  }
-  function mxgLooseKey(v) {
-    try { return String(v || "").replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "").toLowerCase(); } catch (e) { return ""; }
-  }
-  function mxgStickerKey(raw) {
-    try {
-      let t = String(raw || "").trim();
-      t = t.replace(/^[\\/"'「」『』【】]+|[\\/"'「」『』【】]+$/g, "");
-      t = t.replace(/[（(][^）)]*[）)]/g, "");
-      t = t.replace(/^.*\//, "");
-      t = t.replace(/\.(jpg|jpeg|png|gif|webp)$/i, "");
-      t = t.replace(/表情包|发送的/g, "");
-      t = t.replace(/[\s_\-·,，。:：!！?？~～]+/g, "");
-      t = t.replace(/的/g, "");
-      return t.toLowerCase();
-    } catch (e) { return String(raw || "").toLowerCase(); }
   }
   function createMessageBubbleElement(message) {
     if (message && (message.status === "revoked" || message.withdrawn)) {
@@ -16513,18 +16485,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return fw;
     }
     const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
-    const { role, content: __rawContent, timestamp, id, transferStatus, giftStatus, stickerData, senderId } = message;
-    const content = (function () {
-      const base = __rawContent == null ? "" : String(__rawContent);
-      if (base) return base;
-      try {
-        if (Array.isArray(message.parts)) {
-          const joined = message.parts.map(function (p) { return p && p.text != null ? String(p.text) : ""; }).filter(Boolean).join("\n");
-          if (joined) return joined;
-        }
-      } catch (e) {}
-      return "";
-    })();
+    const { role, content, timestamp, id, transferStatus, giftStatus, stickerData, senderId } = message;
     const timeSkipRegex = /\[system-display:([\s\S]+?)\]/;
     const inviteRegex = /\[(.*?)邀请(.*?)加入了群聊\]/;
     const renameRegex = /\[(.*?)修改群名为：(.*?)\]/;
@@ -16538,7 +16499,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const forumFwdRegex = /\[.*?转发了一个论坛帖[：:]([\s\S]+?)\]|\[.*?转发了一个帖子[：:]([\s\S]+?)\]/;
     const forumFwdMatch = content.match(forumFwdRegex);
     if (forumFwdMatch && role !== "user") {
-      const fwdTxt = String(forumFwdMatch[1] || forumFwdMatch[2] || "").trim();
+      const fwdTxt = forumFwdMatch[1].trim();
       const fw = document.createElement("div");
       fw.className = "message-wrapper invite-wrap received";
       fw.dataset.id = id || "";
@@ -16597,7 +16558,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : (senderNickname || "TA"));
     let bubbleElement;
     const urlRegex = /^(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg)|data:image\/[a-z]+;base64,)/i;
-    const sentStickerRegex = /\[(?:.+?)的表情包：(.+?)\]/i;
+    const sentStickerRegex = /\[(?:.+?)的表情包：.+?\]/i;
     const receivedStickerRegex = /\[(?:.+?)发送的表情包：([\s\S]+?)\]/i;
     const voiceRegex = /\[(?:.+?)的语音：([\s\S]+?)\]/;
     const photoVideoRegex = /\[(?:.+?)发来的照片\/视频：([\s\S]+?)\]/;
@@ -16636,73 +16597,41 @@ document.addEventListener("DOMContentLoaded", () => {
     const pddCardMatch = pddShareMatch || pddPinMatch || pddPinHFMatch || pddKanMatch;
     const locationMatch = content.match(locationRegex);
     const textMatch = content.match(textRegex);
-    if (isSent && sentStickerMatch && stickerData || !isSent && receivedStickerMatch || isSent && sentStickerMatch) {
+    if (isSent && sentStickerMatch && stickerData || !isSent && receivedStickerMatch) {
       const stickerBox = document.createElement("div");
       stickerBox.className = "sticker-block";
       bubbleElement = document.createElement("div");
       bubbleElement.className = "image-bubble";
-      const rawName = String(((isSent ? (sentStickerMatch && sentStickerMatch[1]) : (receivedStickerMatch && receivedStickerMatch[1])) || "").trim());
-      const keyName = mxgStickerKey(rawName);
-      const findSticker = function () {
-        const list = db.myStickers || [];
-        const pick = function (fn) { for (let i = 0; i < list.length; i++) { if (list[i] && fn(list[i])) return list[i]; } return null; };
-        return pick(function (st) { return String(st.name || "") === rawName || String(st.id || "") === rawName; }) ||
-          pick(function (st) { return (st.name && mxgStickerKey(st.name) === keyName) || (st.id && mxgStickerKey(st.id) === keyName); }) ||
-          pick(function (st) { const k = mxgStickerKey(st.name); return !!k && !!keyName && (k.indexOf(keyName) >= 0 || keyName.indexOf(k) >= 0); }) ||
-          pick(function (st) { const d = mxgStickerKey(st.desc); return !!d && !!keyName && (d.indexOf(keyName) >= 0 || keyName.indexOf(d) >= 0); }) ||
-          pick(function (st) { const lk = mxgLooseKey(st.name), lr = mxgLooseKey(rawName); return !!lk && !!lr && (lk === lr || lk.indexOf(lr) >= 0 || lr.indexOf(lk) >= 0); }) ||
-          null;
-      };
-      const rec = findSticker();
       let stickerSrc = "";
-      if (isSent && stickerData) stickerSrc = stickerData;
-      if (!stickerSrc && rec && rec.data) stickerSrc = rec.data;
-      if (!stickerSrc && !isSent) {
-        const rawPath = String(receivedStickerMatch[1] || "").trim();
-        const pathExtractionRegex = /[a-zA-Z0-9]+\/.*$/;
-        const extractedPathMatch = rawPath.match(pathExtractionRegex);
-        if (extractedPathMatch) stickerSrc = "https://i.postimg.cc/".concat(extractedPathMatch[0]);
+      if (isSent) {
+        stickerSrc = stickerData;
+      } else {
+        const rawPath = receivedStickerMatch[1].trim();
+        const uploadedSticker = (db.myStickers || []).find((st) => st.name === rawPath || st.id === rawPath);
+        if (uploadedSticker) {
+          stickerSrc = uploadedSticker.data;
+        } else {
+          const pathExtractionRegex = /[a-zA-Z0-9]+\/.*$/;
+          const extractedPathMatch = rawPath.match(pathExtractionRegex);
+          const finalPath = extractedPathMatch ? extractedPathMatch[0] : rawPath;
+          stickerSrc = "https://i.postimg.cc/".concat(finalPath);
+        }
       }
-      const stickerName = (function () {
+      const stickerName = (function(){
         try {
-          const clean = function (v) { return String(v || "").replace(/^.*\//, "").replace(/\.(jpg|jpeg|png|gif|webp)$/i, "").replace(/（[^）]*）/g, "").replace(/\([^)]*\)/g, "").trim(); };
-          return clean(rawName) || (rec && clean(rec.name)) || "";
+          const raw = isSent ? String((sentStickerMatch && sentStickerMatch[1]) || "").trim()
+                             : String((receivedStickerMatch && receivedStickerMatch[1]) || "").trim();
+          const nm = raw.replace(/^.*\//, "").replace(/\.[a-z0-9]+$/i, "");
+          const rec = (db.myStickers || []).find(function(st){ return st && (st.name === raw || st.id === raw); });
+          return (rec && rec.name) || nm || "";
         } catch (e) { return ""; }
       })();
-      if (stickerSrc) {
-        const img = document.createElement("img");
-        img.alt = stickerName || "表情包";
-        let _retry = 0;
-        img.addEventListener("error", function () {
-          if (_retry === 0) {
-            _retry = 1;
-            setTimeout(function () {
-              try {
-                const sep = String(stickerSrc).indexOf("?") >= 0 ? "&" : "?";
-                img.src = String(stickerSrc) + sep + "r=" + Date.now();
-              } catch (e) {}
-            }, 1200);
-            return;
-          }
-          console.warn("[表情包] 图片加载失败：", stickerName, String(stickerSrc).slice(0, 80));
-          bubbleElement.className = "image-bubble mxg-sticker-fallback";
-          bubbleElement.innerHTML = "";
-          bubbleElement.textContent = (rawName || stickerName || "表情包");
-        });
-        img.src = stickerSrc;
-        bubbleElement.appendChild(img);
-      } else {
-        try {
-          console.warn("[表情包] 库里没找到对应的图：", rawName, "| 库内名字：", (db.myStickers || []).map(function (st) { return st && st.name; }).join("、"));
-        } catch (e) {}
-        bubbleElement.className = "image-bubble mxg-sticker-fallback";
-        bubbleElement.textContent = (rawName || stickerName || "表情包");
-      }
+      bubbleElement.innerHTML = '<img src="'.concat(stickerSrc, '" alt="\u8868\u60C5\u5305">');
       stickerBox.appendChild(bubbleElement);
       if (stickerName) {
         const capEl = document.createElement("div");
         capEl.className = "sticker-cap";
-        capEl.textContent = rawName || stickerName;
+        capEl.textContent = stickerName;
         stickerBox.appendChild(capEl);
       }
       bubbleElement = stickerBox;
@@ -16836,7 +16765,7 @@ document.addEventListener("DOMContentLoaded", () => {
         giftText = isSent ? "\u60A8\u6709\u4E00\u4EFD\u793C\u7269\uFF5E" : "\u60A8\u6709\u4E00\u4EFD\u793C\u7269\uFF5E";
       }
       bubbleElement.innerHTML = '<img src="https://i.postimg.cc/rp0Yg31K/chan-75.png" alt="gift" class="gift-card-icon"><div class="gift-card-text">'.concat(giftText, '</div><div class="gift-card-received-stamp">\u5DF2\u67E5\u6536</div>');
-      const description = String(groupGiftMatch ? (groupGiftMatch[3] || "") : (match[1] || "")).trim();
+      const description = groupGiftMatch ? groupGiftMatch[3].trim() : match[1].trim();
       const descriptionDiv = document.createElement("div");
       descriptionDiv.className = "gift-card-description";
       descriptionDiv.textContent = description;
@@ -16851,10 +16780,10 @@ document.addEventListener("DOMContentLoaded", () => {
       bubbleElement.innerHTML = '<svg class="play-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg><span class="duration">'.concat(calculateVoiceDuration(voiceMatch[1].trim()), '"</span>');
       const transcriptDiv = document.createElement("div");
       transcriptDiv.className = "voice-transcript";
-      transcriptDiv.textContent = String(voiceMatch[1] || "").trim();
+      transcriptDiv.textContent = voiceMatch[1].trim();
       wrapper.appendChild(transcriptDiv);
     } else if (photoVideoMatch) {
-      const pvDesc2 = String(photoVideoMatch[1] || "").trim();
+      const pvDesc2 = photoVideoMatch[1].trim();
       const imgGenOn2 = !!(db.apiSettings && db.apiSettings.imgGenEnabled);
       const pvHasImg = !!(message && message.imgUrl);
       const pvWillGen = !isSent && imgGenOn2 && !pvHasImg;
@@ -17485,8 +17414,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const p = stripSummaryMarks(part);
       if (!p) return;
       const m = p.match(/^([^：:｜|]{1,8})\s*[：:｜|]\s*(.+)$/);
-      let label = m ? String(m[1] || "").trim() : "事件";
-      let body = m ? String(m[2] || "").trim() : p;
+      let label = m ? m[1].trim() : "事件";
+      let body = m ? m[2].trim() : p;
       if (!body || body.length < 3) return;
       let type = "episodic";
       Object.keys(SUMMARY_TYPE_MAP).forEach(function (k) { if (label.indexOf(k) >= 0) type = SUMMARY_TYPE_MAP[k]; });
@@ -18102,7 +18031,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (_cat.length) {
         prompt += "可用表情包目录（名称｜画面/文字线索）：\n" + _cat.join("\n") + "\n";
         prompt += "选择规则：只从目录里原样选名称，不要编造；优先选画面文字或含义最贴合当前场景的那一个。没有合适的就干脆不发，这很正常。\n";
-
       }
     } else {
       prompt += "（目前没有可用表情包，不要凭空编造名称。）\n";
