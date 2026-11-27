@@ -11,6 +11,8 @@
     <meta name="theme-color" content="#f6dbe4">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="./icon.png">
     <link rel="apple-touch-icon" href="./icon.png">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js"></script>
@@ -10318,6 +10320,74 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
 
     <div id="fc-modal" hidden><div class="fcm" id="fc-body"></div></div>
 
+<script id="imgstack-script">
+(function(){
+  function hhmm(ts){ var d=new Date(ts||Date.now()); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+  function esc(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+  window.__mxgImgCard=function(h){
+    var imgs=(h.imgs||[]).slice(0,9);
+    var card=document.createElement('div');
+    card.className='offline-bubble-card sent o-img-card';
+    card.dataset.ts=String(h.ts||'');
+    var body='<div class="is-stack">'+imgs.map(function(u,i){
+      var dep=i===0?'':(i===1?' de1':(i===2?' de2':' de3'));
+      return '<div class="is-item'+(i===0?' on':dep)+'" data-i="'+i+'"><img src="'+esc(u)+'" alt=""></div>';
+    }).join('')+'</div>'
+    +'<div class="is-foot"><span class="is-count">1 / '+imgs.length+'</span><button type="button" class="is-toggle">展开 '+imgs.length+' 张</button></div>';
+    card.innerHTML='<div class="obc-head"><div class="obc-info"><div class="obc-name">我</div><div class="obc-meta">'+esc(hhmm(h.ts))+'</div></div></div><hr class="obc-divider"><div class="obc-body">'+body+'</div>';
+    var idx=0, stack=card.querySelector('.is-stack'), items=card.querySelectorAll('.is-item'), cnt=card.querySelector('.is-count'), tg=card.querySelector('.is-toggle');
+    function layout(){
+      items.forEach(function(it,i){
+        var d=(i-idx+items.length)%items.length;
+        it.className='is-item'+(d===0?' on':(d===1?' de1':(d===2?' de2':' de3')));
+      });
+      if(cnt) cnt.textContent=(idx+1)+' / '+items.length;
+    }
+    var sx=0, sy=0;
+    stack.addEventListener('touchstart',function(e){ var t=e.touches[0]; sx=t.clientX; sy=t.clientY; },{passive:true});
+    stack.addEventListener('touchend',function(e){
+      if(card.classList.contains('expanded')) return;
+      var t=e.changedTouches[0]; var dx=t.clientX-sx, dy=t.clientY-sy;
+      if(Math.abs(dx)<26||Math.abs(dy)>Math.abs(dx)*1.5) return;
+      idx=(dx<0?(idx+1):(idx-1+items.length))%items.length; layout();
+    },{passive:true});
+    stack.addEventListener('click',function(e){
+      if(card.classList.contains('expanded')) return;
+      var it=e.target.closest?e.target.closest('.is-item'):null;
+      if(!it) return;
+      var i=Number(it.getAttribute('data-i'))||0;
+      if(i===idx) return;
+      idx=i; layout();
+    });
+    if(tg) tg.onclick=function(){
+      var ex=!card.classList.contains('expanded');
+      card.classList.toggle('expanded',ex);
+      tg.textContent=ex?('收起 '+imgs.length+' 张'):('展开 '+imgs.length+' 张');
+    };
+    return card;
+  };
+
+  var input=null;
+  function ensureInput(){
+    if(input) return input;
+    input=document.createElement('input');
+    input.type='file'; input.accept='image/*'; input.multiple=true; input.style.display='none';
+    input.onchange=function(){
+      var files=input.files?Array.prototype.slice.call(input.files):[];
+      input.value='';
+      if(files.length && typeof window.__mxgSendImages==='function') window.__mxgSendImages(files);
+    };
+    document.body.appendChild(input);
+    return input;
+  }
+  try{
+    var b=document.getElementById('offline-img-btn');
+    if(b) b.onclick=function(e){ e.preventDefault(); ensureInput().click(); };
+  }catch(e){}
+})();
+</script>
+
     <!-- ===== 用户面具 ===== -->
     <div id="mask-screen" class="screen">
         <header class="app-header">
@@ -10702,6 +10772,9 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <textarea id="offline-chat-input" placeholder="说说线下发生的事..."></textarea>
             <button class="icon-btn" id="offline-send-btn" style="background-color:var(--primary-color); color:#fff;">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </button>
+            <button class="icon-btn" id="offline-img-btn" title="发图片" style="background-color:#fff; color:#111; border:1px solid #d8d8d8;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5L6 19"/></svg>
             </button>
             <button class="icon-btn" id="offline-fc-btn" title="亲属卡" style="background-color:#fff; color:#B08A4F; border:1px solid #C9A961;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#B08A4F" stroke-width="1.3" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>
@@ -12320,7 +12393,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.8";
+  const APP_VERSION = "v6.4.9";
   let db = {
     characters: [],
     groups: [],
@@ -25119,6 +25192,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     oc.history.forEach((h) => {
       if (h && h.type === "sys_note" && window.__mxgSysNode) { area.appendChild(window.__mxgSysNode(h)); return; }
+      if (h && h.type === "images" && window.__mxgImgCard) { area.appendChild(window.__mxgImgCard(h)); return; }
       if (h && h.type === "family_card" && window.__mxgFcNode) { area.appendChild(window.__mxgFcNode(h)); return; }
       const isUser = h.role === "user";
       let displayName = "";
@@ -26322,6 +26396,53 @@ function setupPhoneSystem() {
     const area = document.getElementById("offline-chat-area");
     if (area) area.scrollTop = area.scrollHeight;
   }
+  function mxgShrinkImg(file, cb){
+    try{
+      const fr = new FileReader();
+      fr.onload = function(){
+        const img = new Image();
+        img.onload = function(){
+          try{
+            const m = 1280, w = img.naturalWidth, h = img.naturalHeight;
+            const sc = Math.min(1, m / Math.max(w, h));
+            const cv = document.createElement("canvas");
+            cv.width = Math.max(1, Math.round(w * sc)); cv.height = Math.max(1, Math.round(h * sc));
+            const cx = cv.getContext("2d");
+            cx.fillStyle = "#fff"; cx.fillRect(0, 0, cv.width, cv.height);
+            cx.drawImage(img, 0, 0, cv.width, cv.height);
+            cb(cv.toDataURL("image/jpeg", 0.86));
+          }catch(e){ cb(String(fr.result || "")); }
+        };
+        img.onerror = function(){ cb(""); };
+        img.src = String(fr.result || "");
+      };
+      fr.onerror = function(){ cb(""); };
+      fr.readAsDataURL(file);
+    }catch(e){ cb(""); }
+  }
+
+  async function offlineSendImages(files){
+    const list = Array.from(files || []).slice(0, 9);
+    if (!list.length) return;
+    if (!currentOfflineCharIds.length) { showToast("请先选择角色"); return; }
+    showToast("正在压缩 " + list.length + " 张图片…");
+    const imgs = [];
+    for (const f of list){
+      const u = await new Promise((res) => mxgShrinkImg(f, res));
+      if (u) imgs.push(u);
+    }
+    if (!imgs.length) { showToast("图片读取失败"); return; }
+    const oc = getOfflineChat(currentOfflineSessionId);
+    const char = db.characters.find((c) => c.id === currentOfflineCharIds[0]);
+    oc.history.push({ role: "user", type: "images", imgs: imgs, ts: Date.now(), content: "[图片 ×" + imgs.length + "]" });
+    await saveData();
+    renderOfflineBubbles(oc, char);
+    const area = document.getElementById("offline-chat-area");
+    if (area) area.scrollTop = area.scrollHeight;
+    showToast("已发出 " + imgs.length + " 张");
+  }
+  window.__mxgSendImages = offlineSendImages;
+
   async function generateOfflineTitle(content, chars, oc) {
     const names = chars.map((c) => c.remarkName || c.realName).join("\u3001");
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
@@ -26374,7 +26495,15 @@ function setupPhoneSystem() {
     if (!chars.length) return;
     const mainChar = chars[0];
     const contextDepth = Math.min(100, Math.max(1, getOfflineGlobalConfig().contextDepth || 40));
-    const history = (oc.history || []).slice(-contextDepth).map((h) => ({ role: h.role === "user" ? "user" : "assistant", content: h.content }));
+    const history = (oc.history || []).slice(-contextDepth).map((h) => {
+      const role = h.role === "user" ? "user" : "assistant";
+      if (h && h.type === "images" && Array.isArray(h.imgs) && h.imgs.length) {
+        const segs = [{ type: "text", text: "（发来 " + h.imgs.length + " 张照片）" }];
+        h.imgs.slice(0, 6).forEach((u) => { segs.push({ type: "image_url", image_url: { url: String(u) } }); });
+        return { role, content: segs };
+      }
+      return { role, content: String(h && h.content != null ? h.content : "") };
+    });
     const maxChars = getOfflineGlobalConfig().maxChars;
     const minChars = getOfflineGlobalConfig().minChars;
     const replyMaxTokens = Math.max((maxChars || 1200) * 2, 4e3);
@@ -42647,6 +42776,90 @@ window.bsRoomAI = bsRoomAI;
 .o-fc-card.out .fcf { color:#7a7a7a; }
 .o-fc-card.out .fcv { color:#B08A4F; }
 
+/* ===== 资产 · v3 覆盖（去实色块 / 圆图换图 / 正常卡比例 / 堆叠渐隐） ===== */
+#asset-screen .as-net { background:transparent; color:#101010; padding:16px 0 8px; border-radius:0; }
+#asset-screen .as-net-num { color:#101010; }
+#asset-screen .as-net-num i { color:#B08A4F; }
+#asset-screen .as-net-sub { color:#8c8c8c; }
+#asset-screen .as-net-sub span.up { color:#B08A4F; }
+
+#asset-screen .as-cover { height:200px; border-radius:22px; background:#f4f4f5; overflow:hidden; position:relative; }
+#asset-screen .as-cover .cv-round { position:absolute; right:18px; top:18px; width:104px; height:104px; border-radius:50%; overflow:hidden; background:#fff; display:flex; align-items:center; justify-content:center; box-shadow:0 8px 20px rgba(16,16,18,.08); }
+#asset-screen .as-cover .cv-round img { width:100%; height:100%; object-fit:cover; filter:grayscale(1); }
+#asset-screen .as-cover .cv-round svg { width:78%; height:78%; opacity:.5; }
+#asset-screen .as-cover .cv-script { position:absolute; left:20px; top:22px; font-size:calc(var(--app-fs,1) * 30px); color:#101010; opacity:1; font-style:italic; letter-spacing:2px; }
+#asset-screen .as-cover .cv-sub { position:absolute; left:22px; top:calc(22px + 74px); color:#B08A4F; letter-spacing:4px; }
+#asset-screen .as-cover .cv-note { position:absolute; left:22px; bottom:18px; right:96px; font-size:calc(var(--app-fs,1) * 9.5px); line-height:1.8; color:#8a8a8a; letter-spacing:.6px; }
+#asset-screen .as-cover .cv-fx { right:18px; bottom:14px; left:auto; color:#B08A4F; border:0; border-bottom:1px solid #C9A961; padding:0 0 2px; background:transparent; }
+#asset-screen .as-cover .cv-vt, #asset-screen .as-cover .cv-tag { display:none; }
+
+#asset-screen .as-banner { background:transparent; border:1px solid #efefef; border-radius:16px; box-shadow:none; }
+#asset-screen .as-banner .bn-t { font-style:normal; }
+#asset-screen .as-seal { background:#fff; border:1px solid #C9A961; color:#B08A4F; border-radius:50%; }
+
+#asset-screen .as-cat { background:#fff; border:1px solid #f0f0f0; }
+#asset-screen .as-cat.wide { background:#fff; border-color:#f0f0f0; }
+#asset-screen .as-cat.wide .as-cat-t, #asset-screen .as-cat.wide .as-cat-n { color:#101010; }
+#asset-screen .as-cat.wide .as-cat-c { color:#B08A4F; }
+#asset-screen .as-cat.wide .as-ico svg { stroke:#101010; }
+#asset-screen .as-cat:active { background:#f7f7f8; border-color:#ececec; }
+#asset-screen .as-cat:active .as-cat-t, #asset-screen .as-cat:active .as-cat-n { color:#101010; }
+
+#asset-screen .as-plate { height:auto; border:0; background:transparent; border-radius:0; padding:0; overflow:visible; display:none; }
+#asset-screen .as-detail-top { position:relative; gap:14px; padding-top:6px; }
+#asset-screen .as-d-thumb { flex:0 0 96px; width:96px; height:96px; border-radius:50%; overflow:hidden; background:#f4f4f5; display:flex; align-items:center; justify-content:center; position:relative; }
+#asset-screen .as-d-thumb img { width:100%; height:100%; object-fit:cover; filter:grayscale(1); }
+#asset-screen .as-d-thumb svg { width:76%; height:76%; opacity:.45; }
+#asset-screen .as-d-thumb .fx { position:absolute; left:0; right:0; bottom:0; text-align:center; font-size:calc(var(--app-fs,1) * 7px); letter-spacing:1.6px; color:#B08A4F; background:rgba(255,255,255,.88); padding:2px 0; }
+
+#asset-screen .as-grid2 { gap:7px; }
+#asset-screen .as-cell { background:#fafafa; border:1px solid #f2f2f2; }
+#asset-screen .as-mem-i { background:#fafafa; border:1px solid #f2f2f2; }
+#asset-screen .as-mem-i .mn { background:#fff; color:#B08A4F; border:1px solid #C9A961; }
+#asset-screen .as-rel-c { background:#fafafa; border:1px solid #f2f2f2; }
+
+#asset-screen .as-bank { border-radius:16px; background:#101114; padding:14px 16px 15px; }
+#asset-screen .as-stack { padding-right:0; }
+#asset-screen .as-stack .as-bank { left:0; right:auto; width:calc(100% - 78px); max-width:268px; height:172px; }
+#asset-screen .as-bank .bk-name { font-size:calc(var(--app-fs,1) * 15px); margin-top:8px; }
+#asset-screen .as-bank .bk-no { font-size:calc(var(--app-fs,1) * 10px); margin-top:4px; }
+#asset-screen .as-bank .bk-bal { font-size:calc(var(--app-fs,1) * 17px); margin-top:10px; }
+#asset-screen .as-bank .bk-chip { width:20px; height:14px; margin-top:10px; }
+#asset-screen .as-stack .as-bank.de1 { opacity:.72; }
+#asset-screen .as-stack .as-bank.de2 { opacity:.5; }
+
+#asset-screen .as-cathero { display:flex; align-items:center; gap:14px; padding:6px 0 14px; }
+#asset-screen .as-cathero-t { flex:1; min-width:0; }
+#asset-screen .as-cathero-t .en { display:block; font-size:calc(var(--app-fs,1) * 8.5px); letter-spacing:4px; color:#B08A4F; }
+#asset-screen .as-cathero-t b { display:block; margin-top:6px; font-family:var(--font-family, serif); font-size:calc(var(--app-fs,1) * 25px); letter-spacing:1.5px; color:#101010; font-weight:700; }
+#asset-screen .as-cathero-t i { display:block; margin-top:6px; font-style:normal; font-size:calc(var(--app-fs,1) * 9px); letter-spacing:2px; color:#9a9a9a; }
+#asset-screen .as-cathero-img { flex:0 0 84px; width:84px; height:84px; border-radius:50%; overflow:hidden; background:#f4f4f5; display:flex; align-items:center; justify-content:center; }
+#asset-screen .as-cathero-img img { width:100%; height:100%; object-fit:cover; filter:grayscale(1); }
+#asset-screen .as-cathero-img svg { width:76%; height:76%; opacity:.42; }
+#asset-screen .as-wallethero { display:flex; align-items:center; gap:12px; margin:14px 0 6px; }
+#asset-screen .as-wallethero .wm { flex:1; font-family:var(--font-family, serif); font-style:italic; font-size:calc(var(--app-fs,1) * 15px); color:#9a9a9a; letter-spacing:1px; }
+#asset-screen .as-wallethero-img { flex:0 0 56px; width:56px; height:56px; border-radius:50%; overflow:hidden; background:#f4f4f5; display:flex; align-items:center; justify-content:center; }
+#asset-screen .as-wallethero-img img { width:100%; height:100%; object-fit:cover; filter:grayscale(1); }
+#asset-screen .as-wallethero-img svg { width:70%; height:70%; opacity:.4; }
+
+/* ===== 404 聊天 · 多图堆叠卡片 ===== */
+.o-img-card .is-stack { position:relative; height:250px; margin:2px 0 6px; }
+.o-img-card .is-stack .is-item { position:absolute; left:50%; top:0; width:186px; height:238px; margin-left:-93px; border-radius:14px; overflow:hidden; background:#f2f2f3; box-shadow:0 10px 22px rgba(16,16,18,.16); transition:transform .36s cubic-bezier(.2,.9,.2,1), opacity .3s; }
+.o-img-card .is-stack .is-item img { width:100%; height:100%; object-fit:cover; display:block; }
+.o-img-card .is-stack .is-item.de1 { transform:rotate(-6deg) translate(-30px,8px) scale(.94); opacity:.78; }
+.o-img-card .is-stack .is-item.de2 { transform:rotate(7deg) translate(30px,14px) scale(.9); opacity:.6; }
+.o-img-card .is-stack .is-item.de3 { transform:rotate(-2deg) translate(58px,20px) scale(.86); opacity:.45; }
+.o-img-card .is-stack .is-item.on { transform:rotate(0deg) translate(0,0) scale(1); opacity:1; z-index:9; }
+.o-img-card .is-foot { display:flex; align-items:center; justify-content:space-between; font-size:11px; letter-spacing:2px; color:rgba(255,255,255,.72); }
+.o-img-card.expanded .is-foot { color:#6a6a6a; }
+.o-img-card .is-count { color:#B08A4F; }
+.o-img-card .is-toggle { border:0; background:transparent; font-family:inherit; font-size:11px; letter-spacing:2px; color:#fff; padding:4px 0; border-bottom:1px solid rgba(255,255,255,.5); }
+.o-img-card.expanded .is-toggle { color:#111; border-bottom-color:#111; }
+.o-img-card.expanded .is-stack { display:flex; gap:8px; height:auto; overflow-x:auto; padding-bottom:6px; }
+.o-img-card.expanded .is-stack .is-item { position:relative; left:auto; top:auto; margin:0; flex:0 0 auto; transform:none!important; opacity:1!important; }
+.o-img-card.expanded .is-stack { scrollbar-width:none; }
+.o-img-card.expanded .is-stack::-webkit-scrollbar { display:none; }
+
 #asset-screen .as-foot { margin-top:26px; text-align:center; font-size:calc(var(--app-fs,1) * 8.5px); letter-spacing:3px; color:#c6c6c6; }
 
 #asset-screen .as-list { margin-top:12px; }
@@ -45560,8 +45773,8 @@ function wb2DeleteEntry() {
     return '你在为一个人建立他私下持有的资产档案。这份档案要足够具体，像真的有人一件件经手过。\n'+ctxOf(char)+'\n\n规则：\n'+
       '1) 只归类到这八个大类：'+CATS.map(function(c){return c.k;}).join('、')+'。\n'+
       '2) 具体有没有、有几件、什么牌子/什么地段/什么型号，全部按这个人的人设、身份、收入、处境自己判断。穷困的人可能一辆车一间铺都没有，只剩几件旧物；有钱的人铺得开。绝对不要凑数，绝对不要人人都有房有车。\n'+
-      '3) 每个大类 0~4 件，允许整类为空。金额用人民币整数，量级必须符合处境。\n'+
-      '4) 每件给 note（一句硬事实：哪来的、什么时候用、谁经手，不煽情），再给 3 段 story（这件东西记得的事）。story 每段 45~90 字：第一段是它怎么来的；第二段是关键一次使用/被谁看见/那天的天气与细节；第三段是它现在留下的痕迹（划痕、褪色、夹在里面的东西）。要用具体动词和物件细节，不要空泛抒情，不要写成他的心理独白。\n'+
+      '3) 每个大类 0~6 件，允许整类为空；总数尽量在 12~26 件之间（穷的人可以只有 8~12 件小东西，但也要具体：旧表、旧碗、旧自行车、一沓票据、一件改过的外套）。金额用人民币整数，量级必须符合处境——穷的人单件几百到几千也算资产，不要因为小就不写。\n'+
+      '4) 每件给 note（一句硬事实：哪来的、什么时候用、谁经手，不煽情），再给 3~4 段 story（这件东西记得的事）。每段 50~100 字：第一段是它怎么来的；第二段是关键一次使用（谁在场、什么天气、一个动作）；第三段是它被别人碰过/借走过的那次；第四段是它现在留下的痕迹（划痕、褪色、夹在里面的东西、少了一只）。要有具体动词、品牌印字、地点名、价格，不要空泛抒情，不要写他的心理独白。\n'+
       '5) 另给 1~3 张银行卡（余额与处境一致，穷的可能只有一张储蓄卡），每张给 3~5 条往来：label 是什么消费/进账，amt 为负表示支出。\n'+
       '6) 再判断他会不会给最亲近的人办一张亲属卡：只有性格愿意且有余力时才 issue=true，额度按财力给；不愿意或不宽裕就 issue=false、limit=0。\n'+
       '只输出严格 JSON：{"items":[{"name":"","cat":"八类之一","value":0,"bought":"年份","from":"自购/继承/赠予/抵押所得","state":"使用中/闲置/出租/典当/维修","place":"城市","note":"","story":[{"title":"四到六字的小标题","text":"正文"}]}],"cards":[{"bank":"","name":"","no4":"四位","balance":0,"tx":[{"label":"","amt":-128}]}],"familyCard":{"issue":false,"limit":0}}';
@@ -45630,14 +45843,15 @@ function wb2DeleteEntry() {
   }
 
   function coverHtml(r){
-    var bg=r.cover?('<div class="cv-img" style="background-image:url('+r.cover+')"></div>'):('<div class="cv-art">'+artRing((r.items||[]).length+7,true)+'</div>');
-    var nm=(function(){ var ch=charNow(); return ch?(ch.remarkName||ch.realName||''):''; })();
-    return '<div class="as-cover">'+bg
-      +'<div class="cv-script">'+(nm||'私人')+'<br>账册</div>'
+    var ch=charNow();
+    var nm=ch?(ch.remarkName||ch.realName||''):'';
+    var art=r.cover?('<img src="'+r.cover+'" alt="">'):artRing((r.items||[]).length+7,false);
+    return '<div class="as-cover">'
+      +'<div class="cv-script">'+esc(nm||'私人')+'<br>账册</div>'
       +'<div class="cv-sub">PRIVATE LEDGER · 404</div>'
-      +'<div class="cv-vt">帐</div>'
-      +'<div class="cv-tag">EST. 404 · 私藏之物</div>'
-      +'<div class="cv-fx" data-cover="1">'+(r.cover?'换图':'换封面图')+'</div></div>';
+      +'<div class="cv-round" data-cover="1">'+art+'</div>'
+      +'<div class="cv-note">'+ (r.items&&r.items.length? ('共 '+r.items.length+' 件，其中 '+r.items.slice(0,3).map(function(x){return x.name;}).join('、')+' …') : '这一册还空着。点下面重铸，他名下有什么会一次列全。') +'</div>'
+      +'<div class="cv-fx" data-cover="1">'+(r.cover?'换这张图':'放一张图')+'</div></div>';
   }
 
   function overviewHtml(char, r){
@@ -45710,7 +45924,9 @@ function wb2DeleteEntry() {
         +'<div class="mid"><div class="nm">'+esc(it.name)+'</div><div class="sm">'+esc([it.place,it.bought?('购于 '+it.bought):'',it.from].filter(Boolean).join(' · '))+'</div></div>'
         +'<div class="val">¥ '+money(it.value)+'</div>'+st+'</div>';
     }).join('');
-    return '<div class="as-cap"><b>'+ico(cat)+'<span style="display:inline-block;width:6px"></span>'+esc(cat)+'</b><span>'+esc(c.en||'')+' / '+String(items.length).padStart(2,'0')+'</span></div><div class="as-rule"></div>'
+    var cc=(r.catCover&&r.catCover[cat])||'';
+    return '<div class="as-cathero"><div class="as-cathero-t"><span class="en">'+esc(c.en||'')+'</span><b>'+esc(cat)+'</b><i>'+String(items.length).padStart(2,'0')+' 件</i></div>'
+      +'<div class="as-cathero-img" data-catcover="'+esc(cat)+'">'+(cc?('<img src="'+cc+'" alt="">'):artRing(cat.length*3+items.length,false))+'</div></div>'
       + (items.length?('<div class="as-sum" style="margin-top:8px;margin-bottom:6px"><span>这一类共 '+items.length+' 件</span><span>合计 ¥ '+money(sum)+'</span></div><div class="as-list">'+rows+'</div>')
                      :('<div class="as-empty">这一类暂时是空的。<br>他这样的人，也可能本就没有。</div>'))
       + '<div class="as-acts"><button class="as-tool" data-go="overview">返回总览</button></div>'
@@ -45748,9 +45964,9 @@ function wb2DeleteEntry() {
     var rel=sibs.concat(others).slice(0,4).map(function(x){
       return '<div class="as-rel-c" data-open="'+esc(x.id)+'"><em>'+esc(x.cat)+'</em><b>'+esc(x.name)+'</b><s>¥ '+money(x.value)+' · '+esc(x.state||'使用中')+'</s></div>';
     }).join('');
+    var thumb='<div class="as-d-thumb" data-plate="1">'+(it.img?('<img src="'+it.img+'" alt="">'):artRing((it.name||'').length+(Number(it.value||0)%89),false))+'<span class="fx">'+(it.img?'换图':'放图')+'</span></div>';
     return '<div class="as-cap"><b>'+esc(it.cat)+'</b><span>'+esc(c.en||'')+' / '+String(idx).padStart(2,'0')+'</span></div><div class="as-rule"></div>'
-      + plateHtml(it)
-      + '<div class="as-detail-top"><div class="as-vert">'+(c.en||'OBJECT')+' · 档案<span class="g">◆</span></div>'
+      + '<div class="as-detail-top"><div class="as-vert">'+(c.en||'OBJECT')+' · 档案<span class="g">◆</span></div>'+thumb
       + '<div class="as-dbody"><div class="as-flour" style="font-family:var(--font-family, serif);font-style:italic;font-size:calc(var(--app-fs,1) * 11px);letter-spacing:1px;color:#B08A4F;opacity:.85">'+esc((c.en||'object').toLowerCase())+' · no.'+String(idx).padStart(2,'0')+'</div><h2>'+esc(it.name)+'</h2><div class="dv">¥ '+money(it.value)+'</div>'
       + '<div class="as-grid2">'
       + '<div class="as-cell"><em>购置</em><b>'+esc(it.bought||'—')+'</b></div>'
@@ -45796,7 +46012,9 @@ function wb2DeleteEntry() {
         +'<div class="bk-hit"></div>'
         +'</div>';
     }).join('');
+    var wc=r.walletCover||'';
     return '<div class="as-cap"><b>钱包</b><span>CARDS / '+String(cards.length).padStart(2,'0')+'</span></div><div class="as-rule"></div>'
+      + '<div class="as-wallethero"><div class="wm">he pays<br>with these.</div><div class="as-wallethero-img" data-walletcover="1">'+(wc?('<img src="'+wc+'" alt="">'):artRing(11,false))+'</div></div>'
       + '<div class="as-stack" id="as-stack">'+strip+'</div>'
       + '<div class="as-stack-hint">Swipe to flip · 点一下换到最上面</div>'
       + '<div class="as-cap" style="margin-top:16px"><b>这张卡的往来</b><span>STATEMENT</span></div>'
@@ -45893,6 +46111,16 @@ function wb2DeleteEntry() {
         if(!it.story) writeStory(it);
       };
     }
+    main.querySelectorAll('[data-catcover]').forEach(function(el){
+      el.onclick=function(e){
+        e.stopPropagation();
+        var cat=el.getAttribute('data-catcover');
+        pickImg(function(u){ var r=recOf(A.charId); r.catCover=r.catCover||{}; r.catCover[cat]=u; persist(); render(); });
+      };
+    });
+    main.querySelectorAll('[data-walletcover]').forEach(function(el){
+      el.onclick=function(){ pickImg(function(u){ var r=recOf(A.charId); r.walletCover=u; persist(); render(); }); };
+    });
     main.querySelectorAll('[data-cover]').forEach(function(el){
       el.onclick=function(){ pickImg(function(u){ var r=recOf(A.charId); r.cover=u; persist(); render(); }); };
     });
@@ -45932,15 +46160,17 @@ function wb2DeleteEntry() {
       var els=stack.querySelectorAll('.as-bank');
       var lay=function(){
         var n=els.length;
-        stack.style.height='188px';
+        stack.style.height='196px';
         var front=[];
         if(els[cur]) front.push(els[cur]);
         for(var i=0;i<n;i++){ if(i!==cur) front.push(els[i]); }
         front.forEach(function(el,k){
-          el.style.transform='translate3d('+(k*34)+'px,'+(k*8)+'px,0) scale('+(1-k*0.03)+')';
+          el.style.transform='translate3d('+(k*32)+'px,'+(k*9)+'px,0) scale('+(1-k*0.03)+')';
           el.style.zIndex=String(100-k);
           el.classList.toggle('on', k===0);
           el.classList.toggle('off', k!==0);
+          el.classList.toggle('de1', k===1);
+          el.classList.toggle('de2', k>=2);
           el.style.filter='none';
           el.style.boxShadow=k===0?'0 12px 26px rgba(16,16,18,.20)':'0 4px 12px rgba(16,16,18,.10)';
         });
