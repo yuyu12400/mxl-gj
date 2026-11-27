@@ -1017,6 +1017,7 @@
         }
         .sticker-block { display: flex; flex-direction: column; align-items: center; gap: 5px; margin: 0 8px; max-width: 230px; }
         .sticker-block .image-bubble { margin: 0 !important; }
+        .image-bubble.mxg-sticker-fallback { display: flex; align-items: center; justify-content: center; min-width: 118px; min-height: 118px; padding: 14px; background: #f3f3f6; border-radius: 16px; color: #6c6c75; font-size: calc(var(--app-fs, 1) * 13px); line-height: 1.4; text-align: center; word-break: break-word; }
         .sticker-cap { font-size: calc(var(--app-fs, 1) * 10px); line-height: 1.3; color: #8b8b96; text-align: center; margin-top: 4px; letter-spacing: .02em; }
         .message-bubble.mxg-has-html { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; max-width: min(94vw, 460px); width: min(94vw, 460px); white-space: normal; }
         .mxg-html-card { width: 100%; overflow: hidden; border-radius: 16px; }
@@ -12301,7 +12302,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.42";
+  const APP_VERSION = "v6.3.43";
   let db = {
     characters: [],
     groups: [],
@@ -16414,6 +16415,19 @@ document.addEventListener("DOMContentLoaded", () => {
   function calculateVoiceDuration(text) {
     return Math.max(1, Math.min(60, Math.ceil(text.length / 3.5)));
   }
+  function mxgStickerKey(raw) {
+    try {
+      let t = String(raw || "").trim();
+      t = t.replace(/^[\\/"'「」『』【】]+|[\\/"'「」『』【】]+$/g, "");
+      t = t.replace(/[（(][^）)]*[）)]/g, "");
+      t = t.replace(/^.*\//, "");
+      t = t.replace(/\.(jpg|jpeg|png|gif|webp)$/i, "");
+      t = t.replace(/表情包|发送的/g, "");
+      t = t.replace(/[\s_\-·,，。:：!！?？~～]+/g, "");
+      t = t.replace(/的/g, "");
+      return t.toLowerCase();
+    } catch (e) { return String(raw || "").toLowerCase(); }
+  }
   function createMessageBubbleElement(message) {
     if (message && (message.status === "revoked" || message.withdrawn)) {
       const ww = document.createElement("div");
@@ -16597,36 +16611,51 @@ document.addEventListener("DOMContentLoaded", () => {
     const pddCardMatch = pddShareMatch || pddPinMatch || pddPinHFMatch || pddKanMatch;
     const locationMatch = content.match(locationRegex);
     const textMatch = content.match(textRegex);
-    if (isSent && sentStickerMatch && stickerData || !isSent && receivedStickerMatch) {
+    if (isSent && sentStickerMatch && stickerData || !isSent && receivedStickerMatch || isSent && sentStickerMatch) {
       const stickerBox = document.createElement("div");
       stickerBox.className = "sticker-block";
       bubbleElement = document.createElement("div");
       bubbleElement.className = "image-bubble";
+      const rawName = String((isSent ? (sentStickerMatch && sentStickerMatch[1]) : (receivedStickerMatch && receivedStickerMatch[1]) || "").trim());
+      const keyName = mxgStickerKey(rawName);
+      const findSticker = function () {
+        const list = db.myStickers || [];
+        const pick = function (fn) { for (let i = 0; i < list.length; i++) { if (list[i] && list[i].name && fn(list[i])) return list[i]; } return null; };
+        return pick(function (st) { return st.name === rawName || st.id === rawName; }) ||
+          pick(function (st) { return mxgStickerKey(st.name) === keyName || mxgStickerKey(st.id) === keyName; }) ||
+          pick(function (st) { const k = mxgStickerKey(st.name); return !!k && !!keyName && (k.indexOf(keyName) >= 0 || keyName.indexOf(k) >= 0); }) ||
+          null;
+      };
+      const rec = findSticker();
       let stickerSrc = "";
-      if (isSent) {
-        stickerSrc = stickerData;
-      } else {
-        const rawPath = receivedStickerMatch[1].trim();
-        const uploadedSticker = (db.myStickers || []).find((st) => st.name === rawPath || st.id === rawPath);
-        if (uploadedSticker) {
-          stickerSrc = uploadedSticker.data;
-        } else {
-          const pathExtractionRegex = /[a-zA-Z0-9]+\/.*$/;
-          const extractedPathMatch = rawPath.match(pathExtractionRegex);
-          const finalPath = extractedPathMatch ? extractedPathMatch[0] : rawPath;
-          stickerSrc = "https://i.postimg.cc/".concat(finalPath);
-        }
+      if (isSent && stickerData) stickerSrc = stickerData;
+      if (!stickerSrc && rec && rec.data) stickerSrc = rec.data;
+      if (!stickerSrc && !isSent) {
+        const rawPath = String(receivedStickerMatch[1] || "").trim();
+        const pathExtractionRegex = /[a-zA-Z0-9]+\/.*$/;
+        const extractedPathMatch = rawPath.match(pathExtractionRegex);
+        if (extractedPathMatch) stickerSrc = "https://i.postimg.cc/".concat(extractedPathMatch[0]);
       }
-      const stickerName = (function(){
+      const stickerName = (function () {
         try {
-          const raw = isSent ? String((sentStickerMatch && sentStickerMatch[1]) || "").trim()
-                             : String((receivedStickerMatch && receivedStickerMatch[1]) || "").trim();
-          const nm = raw.replace(/^.*\//, "").replace(/\.[a-z0-9]+$/i, "");
-          const rec = (db.myStickers || []).find(function(st){ return st && (st.name === raw || st.id === raw); });
-          return (rec && rec.name) || nm || "";
+          if (rec && rec.name) return rec.name;
+          const nm = rawName.replace(/^.*\//, "").replace(/\.[a-z0-9]+$/i, "").replace(/（[^）]*）/g, "").replace(/\([^)]*\)/g, "").trim();
+          return nm || "";
         } catch (e) { return ""; }
       })();
-      bubbleElement.innerHTML = '<img src="'.concat(stickerSrc, '" alt="\u8868\u60C5\u5305">');
+      if (stickerSrc) {
+        const img = document.createElement("img");
+        img.src = stickerSrc;
+        img.alt = stickerName || "表情包";
+        img.addEventListener("error", function () {
+          bubbleElement.className = "image-bubble mxg-sticker-fallback";
+          bubbleElement.textContent = "🙂 " + (stickerName || "表情包");
+        });
+        bubbleElement.appendChild(img);
+      } else {
+        bubbleElement.className = "image-bubble mxg-sticker-fallback";
+        bubbleElement.textContent = "🙂 " + (stickerName || "表情包");
+      }
       stickerBox.appendChild(bubbleElement);
       if (stickerName) {
         const capEl = document.createElement("div");
