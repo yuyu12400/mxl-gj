@@ -1,7 +1,7 @@
 /* 麻辣香锅鸡 Service Worker：离线缓存应用外壳（所有资源内联在 index.html）
    缓存策略改为 network-first：每次打开都优先取最新版，网络失败才回退缓存
    解决"部署新版后浏览器一直返回旧版缓存"的问题 */
-const CACHE_NAME = 'mxl-gj-shell-v99x';
+const CACHE_NAME = 'mxl-gj-shell-v99y';
 const APP_SHELL = ['./manifest.json', './icon.png', './icon-192.png', './icon-maskable.png']; /* 不再预缓存 3.5MB 的 index.html */
 
 self.addEventListener('install', (e) => {
