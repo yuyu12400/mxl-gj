@@ -12316,7 +12316,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.52";
+  const APP_VERSION = "v6.3.53";
   let db = {
     characters: [],
     groups: [],
@@ -16596,7 +16596,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : (senderNickname || "TA"));
     let bubbleElement;
     const urlRegex = /^(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg)|data:image\/[a-z]+;base64,)/i;
-    const sentStickerRegex = /\[(?:.+?)的表情包：.+?\]/i;
+    const sentStickerRegex = /\[(?:.+?)的表情包：(.+?)\]/i;
     const receivedStickerRegex = /\[(?:.+?)发送的表情包：([\s\S]+?)\]/i;
     const voiceRegex = /\[(?:.+?)的语音：([\s\S]+?)\]/;
     const photoVideoRegex = /\[(?:.+?)发来的照片\/视频：([\s\S]+?)\]/;
@@ -16640,7 +16640,7 @@ document.addEventListener("DOMContentLoaded", () => {
       stickerBox.className = "sticker-block";
       bubbleElement = document.createElement("div");
       bubbleElement.className = "image-bubble";
-      const rawName = String((isSent ? (sentStickerMatch && sentStickerMatch[1]) : (receivedStickerMatch && receivedStickerMatch[1]) || "").trim());
+      const rawName = String(((isSent ? (sentStickerMatch && sentStickerMatch[1]) : (receivedStickerMatch && receivedStickerMatch[1])) || "").trim());
       const keyName = mxgStickerKey(rawName);
       const findSticker = function () {
         const list = db.myStickers || [];
