@@ -10450,9 +10450,13 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     }
   }
   var seen = {};
-  window.__mxgMarkSeen = function (key, ts) {
-    if (!key) return;
-    if (!seen[key] || ts > seen[key]) seen[key] = ts;
+  window.__mxgSig = function (m) {
+    if (!m) return "";
+    return String(m.id || "") + "#" + Number(m.timestamp || m.ts || 0) + "#" + String(m.content || "").length + "#" + String(m.content || "").slice(0, 40);
+  };
+  window.__mxgMarkSeen = function (key, sig) {
+    if (!key || !sig) return;
+    seen[key] = sig;
   };
   function scanNew() {
     try {
@@ -10468,10 +10472,10 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         var last = h[h.length - 1];
         if (!last) return;
         var ts = Number(last.timestamp || last.ts || 0);
-        if (!ts) return;
-        if (seen[a.key] === undefined) { seen[a.key] = ts; return; }
-        if (ts <= seen[a.key]) return;
-        seen[a.key] = ts;
+        var sig = window.__mxgSig(last);
+        if (seen[a.key] === undefined) { seen[a.key] = sig; return; }
+        if (seen[a.key] === sig) return;
+        seen[a.key] = sig;
         var here = act === "chat-room-screen" && !document.hidden && cur && cur === a.key;
         if (here) return;
         var nm = a.o.remarkName || a.o.realName || a.o.nickname || a.o.name || "新消息";
@@ -10480,6 +10484,14 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
       });
     } catch (e) {}
   }
+  window.__mxgTestBanner = function () {
+    try {
+      var names = [];
+      (db.characters || []).forEach(function (c) { names.push(c.remarkName || c.realName || c.name || ""); });
+      var nm = names.filter(Boolean)[0] || "新消息";
+      window.__mxgBanner(nm, "如果你看到这条横幅，说明通知本身是通的。", null, true);
+    } catch (e) {}
+  };
   window.__mxgNotifyScan = scanNew;
   setInterval(scanNew, 4000);
   setTimeout(scanNew, 2500);
@@ -12540,6 +12552,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <button type="button" class="dta-tool" id="stg-diag-err">上次错误</button>
         </div>
         <button type="button" class="dta-tool" id="stg-diag-rebuild" style="width:100%;margin-top:8px;min-height:40px;color:#8a3b2e;border-color:#f0d9d4;background:#fff7f5;">数据库打不开？重建本地库</button>
+        <button type="button" class="dta-tool" id="stg-diag-banner" style="width:100%;margin-top:8px;min-height:40px;" onclick="window.__mxgTestBanner&&window.__mxgTestBanner()">测试消息横幅通知</button>
       </div>
 
       <div class="dta-note">导出内容：聊天、角色、面具、群聊、世界书、记忆、线下、论坛、情侣空间、钱包、手机、音乐、商城和全部设置。</div>
@@ -12678,7 +12691,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.20";
+  const APP_VERSION = "v6.4.21";
   let db = {
     characters: [],
     groups: [],
@@ -13033,7 +13046,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.20：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.21：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
@@ -17400,7 +17413,7 @@ document.addEventListener("DOMContentLoaded", () => {
           var __nm = (__c && (__c.remarkName || __c.realName || __c.nickname || __c.name)) || "新消息";
           var __txt = String(message.content).replace(/```[^`]*```/g, " ").replace(/<[^>]*>/g, " ").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " ").trim();
           if (__txt) window.__mxgBanner(__nm, __txt.slice(0, 90), { chatType: currentChatType, chatId: __mid || __cur }, true);
-          try { if (window.__mxgMarkSeen) window.__mxgMarkSeen(__mid || __cur, Number(message.timestamp || message.ts || Date.now())); } catch (eMS) {}
+          try { if (window.__mxgMarkSeen) window.__mxgMarkSeen(__mid || __cur, window.__mxgSig ? window.__mxgSig(message) : ""); } catch (eMS) {}
         }
       }
     } catch (eB) {}
