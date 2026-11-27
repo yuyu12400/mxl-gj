@@ -12305,7 +12305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.3";
+  const APP_VERSION = "v6.4.4";
   let db = {
     characters: [],
     groups: [],
@@ -43403,6 +43403,75 @@ window.bsRoomAI = bsRoomAI;
     return lines.map(function(x,i){ return '<div class="'+(picks.indexOf(i)>=0?'fade-line':'')+'">'+esc(x)+'</div>'; }).join('');
   }
 
+var buildEnv=function(l,th){
+  var conv=th&&th.conv?th.conv:[];
+  var stateText=th&&th.state==='done'?'尘埃落定':'';
+  var tags='<span class="cr-tag">'+(l.echo?'回音':'十字路口')+'</span>'+(l.fromChar?'<span class="cr-tag cr-char">熟悉的人</span>':'')+(l.crack?'<span class="cr-tag cr-crack">裂隙</span>':'')+(l.pair?'<span class="cr-tag cr-pair">双歧路共信</span>':'')+(l.anchorEcho?'<span class="cr-tag cr-anchor">锚点回响</span>':'')+(th&&th.immMap&&Object.keys(th.immMap).some(function(k){return th.immMap[k]&&(th.immMap[k].opening||(th.immMap[k].turns||[]).length);})?'<span class="cr-tag cr-imm-tag">到过那里</span>':'')+(th&&th.sleepUntil?'<span class="cr-tag cr-sleep">搁置中</span>':'');
+  var fcls=(l.lang==='ja')?'foreign foreign-ja':((l.lang==='ru')?'foreign foreign-ru':'foreign');
+  var body='', salute='', rest='';
+  if(l.pair){
+    body='<div class="cr-pair-block"><div class="who">A · '+esc(l.nameA||'一人')+'</div><div class="body-text">'+esc(l.textA||'')+'</div></div>'+
+         '<div class="cr-pair-block"><div class="who">B · '+esc(l.nameB||'另一人')+'</div><div class="body-text">'+esc(l.textB||'')+'</div></div>';
+  } else if(l.lang!=='zh'&&l.foreign){
+    body='<div class="'+fcls+'">'+(l.crack?crackLines(l.foreign):esc(l.foreign))+'</div><div class="trans">'+esc(l.text)+'</div>';
+  } else {
+    salute=l.text?'<div class="salute">'+esc(l.text.split('\n')[0])+'</div>':'';
+    rest=l.text?l.text.split('\n').slice(1).join('\n'):'';
+    body='<div class="body-text">'+(l.crack?crackLines(rest):esc(rest))+'</div>';
+  }
+  var optsHTML='';
+  if(l.pair){
+    var opts=[['A',l.optionA],['B',l.optionB],['C',l.optionC],['D',l.optionD]].filter(function(x){return x[1];});
+    optsHTML=opts.length?'<div class="cr-opts">'+opts.map(function(x){return '<div class="cr-opt" data-opt="'+x[0]+'" data-lid="'+esc(l.id)+'">'+x[0]+' · '+esc(x[1])+'</div>';}).join('')+'</div>':'<div class="cr-opts"><div class="cr-open-note">两人都没给出选项，只想听听别人怎么说。</div></div>';
+  } else if(!l.open && (l.optionA||l.optionB)){
+    optsHTML='<div class="cr-opts">'+(l.optionA?'<div class="cr-opt" data-opt="A" data-lid="'+esc(l.id)+'">A · '+esc(l.optionA)+'</div>':'')+(l.optionB?'<div class="cr-opt" data-opt="B" data-lid="'+esc(l.id)+'">B · '+esc(l.optionB)+'</div>':'')+(l.crack&&!(l.optionA&&l.optionB)?'<div class="cr-open-note">（裂隙让其中一条路的字迹模糊了）</div>':'')+'</div>';
+  } else {
+    optsHTML='<div class="cr-opts"><div class="cr-open-note">TA 没给出选项，只想听听别人怎么说。</div></div>';
+  }
+  var itemLine=l.item?'<div class="item-line">附：'+esc(l.item)+'</div>':'';
+  var convHTML=conv.length?conv.map(function(c,ci){
+    var meta='';
+    if(c.role==='them'){ meta='<div class="cr-meta"><span class="k">回信 · '+esc(c.era||l.era)+'</span>（对方那边已过去 '+esc(c.interval||'不明')+'）</div>'+(c.progress?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(c.progress)+'</div>':''); }
+    var who=c.role==='them'?(c.who?(esc(l.name)+'（'+esc(c.who)+'）'):esc(l.name)):'我';
+    var kk='c'+ci;
+    var immBtn='<button class="cr-conv-imm" data-act="imm" data-key="'+kk+'" data-lid="'+esc(l.id)+'">◈ '+((th&&th.immMap&&th.immMap[kk]&&th.immMap[kk].opening)?'回到那天':'身临其境 · 回到这封信的时候')+'</button>';
+    return '<div class="cr-conv"><div class="w">'+who+'</div><div class="t">'+esc(c.text)+'</div>'+meta+immBtn+'</div>';
+  }).join(''):'';
+  var actRow='';
+  var epiBtn='<button class="act-btn" data-act="epilogue" data-lid="'+esc(l.id)+'">'+((th&&th.epilogue)?'回看后来':'后来听说')+'</button>';
+  var parBtn=st.settings.parallel?'<button class="act-btn" data-act="parallel" data-lid="'+esc(l.id)+'">另一条时间线</button>':'';
+  if(th&&th.state==='done'){
+    var btns=epiBtn+parBtn;
+    btns+='<button class="act-btn act-imm" data-act="imm" data-key="'+immLatestKey(th)+'" data-lid="'+esc(l.id)+'">'+((th&&th.immMap&&th.immMap[immLatestKey(th)]&&th.immMap[immLatestKey(th)].opening)?'回到那天':'身临其境')+'</button>';
+    btns+='<button class="act-btn" data-act="fade" data-lid="'+esc(l.id)+'">'+(th.faded?'恢复':'褪色')+'</button>';
+    if(st.settings.anchor) btns+='<button class="act-btn" data-act="anchor" data-lid="'+esc(l.id)+'">'+(th.anchor?'锚点已埋下':'种下锚点')+'</button>';
+    actRow='<div class="act-row">'+btns+'</div>';
+  } else {
+    actRow='<div class="cr-advice"><textarea data-adv="'+esc(l.id)+'" placeholder="写下你的建议，直接回给这个时空的人…"></textarea><div class="row"><input data-aitem="'+esc(l.id)+'" placeholder="附物（可空）"><button data-send="'+esc(l.id)+'">送出建议</button></div></div>'+
+      '<div class="act-row">'+epiBtn+parBtn+'<button class="act-btn act-imm" data-act="imm" data-key="'+immLatestKey(th)+'" data-lid="'+esc(l.id)+'">'+((th&&th.immMap&&th.immMap[immLatestKey(th)]&&th.immMap[immLatestKey(th)].opening)?'回到那天':'身临其境')+'</button></div>'+
+      ((th&&th.conv&&th.conv.length)?'<div class="act-row"><button class="act-btn" data-act="sleep" data-lid="'+esc(l.id)+'">'+(th.sleepUntil?'唤醒':'封存搁置')+'</button></div>':'');
+  }
+  var envCls=(th&&th.faded)?'envelope faded':'envelope';
+  return '<div class="'+envCls+'" data-env="'+esc(l.id)+'">'+
+    '<div class="env-head">'+
+      '<div class="env-to">'+esc(l.to||'捡到信的人')+'</div>'+
+      '<div class="env-from">'+esc(l.name)+(l.pair?'（共 '+esc(l.nameA||'')+' 与 '+esc(l.nameB||'')+'）':'')+'</div>'+
+      '<div class="env-meta">'+tags+esc(l.era)+' · '+esc(l.place)+' · '+esc(l.who)+(stateText?' · '+stateText:'')+'</div>'+
+      '<button class="env-imm" data-act="imm" data-key="'+immLatestKey(th)+'" data-lid="'+esc(l.id)+'">◈ '+((th&&th.immMap&&th.immMap[immLatestKey(th)]&&th.immMap[immLatestKey(th)].opening)?'回到那天':'身临其境')+'</button>'+
+      '<div class="env-postmark">歧路</div>'+
+      '<div class="env-stamp">✉</div>'+
+      '<div class="env-caret">▾</div>'+
+    '</div>'+
+    '<div class="env-body" hidden>'+
+      (l.echo&&l.echoText?'<div class="cr-echo-src">关于你投出的那封信：'+esc(l.echoText)+'</div>':'')+
+      '<div class="sheet">'+salute+body+itemLine+'<div class="sign">'+esc(l.name)+'</div><div class="date-line">'+esc(l.date||l.era)+'</div></div>'+
+      optsHTML+
+      convHTML+
+      actRow+
+    '</div>'+
+  '</div>';
+};
+
   function renderLift(){
     var box=$('cr-list'); if(!box)return;
     (st.threads||[]).forEach(function(t){ if(t.sleepUntil && Date.now()>t.sleepUntil){ delete t.sleepUntil; save(); log('「'+t.name+'」搁置到期，自动醒来'); } });
@@ -43411,74 +43480,8 @@ window.bsRoomAI = bsRoomAI;
     if(!list||!list.length){ box.innerHTML=''; $('cr-relift').hidden=true; return; }
     $('cr-relift').hidden=false;
     var thById=function(id){ return st.threads.find(function(t){return t.id===id;}); };
-    box.innerHTML=list.map(function(l){
-      var th=thById(l.id);
-      var conv=th&&th.conv?th.conv:[];
-      var stateText=th&&th.state==='done'?'尘埃落定':'';
-      var tags='<span class="cr-tag">'+(l.echo?'回音':'十字路口')+'</span>'+(l.fromChar?'<span class="cr-tag cr-char">熟悉的人</span>':'')+(l.crack?'<span class="cr-tag cr-crack">裂隙</span>':'')+(l.pair?'<span class="cr-tag cr-pair">双歧路共信</span>':'')+(l.anchorEcho?'<span class="cr-tag cr-anchor">锚点回响</span>':'')+(th&&th.immMap&&Object.keys(th.immMap).some(function(k){return th.immMap[k]&&(th.immMap[k].opening||(th.immMap[k].turns||[]).length);})?'<span class="cr-tag cr-imm-tag">到过那里</span>':'')+(th&&th.sleepUntil?'<span class="cr-tag cr-sleep">搁置中</span>':'');
-      var fcls=(l.lang==='ja')?'foreign foreign-ja':((l.lang==='ru')?'foreign foreign-ru':'foreign');
-      var body='', salute='', rest='';
-      if(l.pair){
-        body='<div class="cr-pair-block"><div class="who">A · '+esc(l.nameA||'一人')+'</div><div class="body-text">'+esc(l.textA||'')+'</div></div>'+
-             '<div class="cr-pair-block"><div class="who">B · '+esc(l.nameB||'另一人')+'</div><div class="body-text">'+esc(l.textB||'')+'</div></div>';
-      } else if(l.lang!=='zh'&&l.foreign){
-        body='<div class="'+fcls+'">'+(l.crack?crackLines(l.foreign):esc(l.foreign))+'</div><div class="trans">'+esc(l.text)+'</div>';
-      } else {
-        salute=l.text?'<div class="salute">'+esc(l.text.split('\n')[0])+'</div>':'';
-        rest=l.text?l.text.split('\n').slice(1).join('\n'):'';
-        body='<div class="body-text">'+(l.crack?crackLines(rest):esc(rest))+'</div>';
-      }
-      var optsHTML='';
-      if(l.pair){
-        var opts=[['A',l.optionA],['B',l.optionB],['C',l.optionC],['D',l.optionD]].filter(function(x){return x[1];});
-        optsHTML=opts.length?'<div class="cr-opts">'+opts.map(function(x){return '<div class="cr-opt" data-opt="'+x[0]+'" data-lid="'+esc(l.id)+'">'+x[0]+' · '+esc(x[1])+'</div>';}).join('')+'</div>':'<div class="cr-opts"><div class="cr-open-note">两人都没给出选项，只想听听别人怎么说。</div></div>';
-      } else if(!l.open && (l.optionA||l.optionB)){
-        optsHTML='<div class="cr-opts">'+(l.optionA?'<div class="cr-opt" data-opt="A" data-lid="'+esc(l.id)+'">A · '+esc(l.optionA)+'</div>':'')+(l.optionB?'<div class="cr-opt" data-opt="B" data-lid="'+esc(l.id)+'">B · '+esc(l.optionB)+'</div>':'')+(l.crack&&!(l.optionA&&l.optionB)?'<div class="cr-open-note">（裂隙让其中一条路的字迹模糊了）</div>':'')+'</div>';
-      } else {
-        optsHTML='<div class="cr-opts"><div class="cr-open-note">TA 没给出选项，只想听听别人怎么说。</div></div>';
-      }
-      var itemLine=l.item?'<div class="item-line">附：'+esc(l.item)+'</div>':'';
-      var convHTML=conv.length?conv.map(function(c,ci){
-        var meta='';
-        if(c.role==='them'){ meta='<div class="cr-meta"><span class="k">回信 · '+esc(c.era||l.era)+'</span>（对方那边已过去 '+esc(c.interval||'不明')+'）</div>'+(c.progress?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(c.progress)+'</div>':''); }
-        var who=c.role==='them'?(c.who?(esc(l.name)+'（'+esc(c.who)+'）'):esc(l.name)):'我';
-        var kk='c'+ci;
-        var immBtn='<button class="cr-conv-imm" data-act="imm" data-key="'+kk+'" data-lid="'+esc(l.id)+'">◈ '+((th&&th.immMap&&th.immMap[kk]&&th.immMap[kk].opening)?'回到那天':'身临其境 · 回到这封信的时候')+'</button>';
-        return '<div class="cr-conv"><div class="w">'+who+'</div><div class="t">'+esc(c.text)+'</div>'+meta+immBtn+'</div>';
-      }).join(''):'';
-      var actRow='';
-      if(th&&th.state==='done'){
-        var btns='<button class="act-btn" data-act="epilogue" data-lid="'+esc(l.id)+'">'+(th.epilogue?'回看后来':'后来听说')+'</button>';
-        if(st.settings.parallel) btns+='<button class="act-btn" data-act="parallel" data-lid="'+esc(l.id)+'">另一条时间线</button>';
-        btns+='<button class="act-btn act-imm" data-act="imm" data-key="'+immLatestKey(th)+'" data-lid="'+esc(l.id)+'">'+((th&&th.immMap&&th.immMap[immLatestKey(th)]&&th.immMap[immLatestKey(th)].opening)?'回到那天':'身临其境')+'</button>';
-        btns+='<button class="act-btn" data-act="fade" data-lid="'+esc(l.id)+'">'+(th.faded?'恢复':'褪色')+'</button>';
-        if(st.settings.anchor) btns+='<button class="act-btn" data-act="anchor" data-lid="'+esc(l.id)+'">'+(th.anchor?'锚点已埋下':'种下锚点')+'</button>';
-        actRow='<div class="act-row">'+btns+'</div>';
-      } else {
-        actRow='<div class="cr-advice"><textarea data-adv="'+esc(l.id)+'" placeholder="写下你的建议，直接回给这个时空的人…"></textarea><div class="row"><input data-aitem="'+esc(l.id)+'" placeholder="附物（可空）"><button data-send="'+esc(l.id)+'">送出建议</button></div></div>'+
-          '<div class="act-row"><button class="act-btn act-imm" data-act="imm" data-key="'+immLatestKey(th)+'" data-lid="'+esc(l.id)+'">'+((th&&th.immMap&&th.immMap[immLatestKey(th)]&&th.immMap[immLatestKey(th)].opening)?'回到那天':'身临其境')+'</button></div>'+
-          ((th&&th.conv&&th.conv.length)?'<div class="act-row"><button class="act-btn" data-act="sleep" data-lid="'+esc(l.id)+'">'+(th.sleepUntil?'唤醒':'封存搁置')+'</button></div>':'');
-      }
-      var envCls=(th&&th.faded)?'envelope faded':'envelope';
-      return '<div class="'+envCls+'" data-env="'+esc(l.id)+'">'+
-        '<div class="env-head">'+
-          '<div class="env-to">'+esc(l.to||'捡到信的人')+'</div>'+
-          '<div class="env-from">'+esc(l.name)+(l.pair?'（共 '+esc(l.nameA||'')+' 与 '+esc(l.nameB||'')+'）':'')+'</div>'+
-          '<div class="env-meta">'+tags+esc(l.era)+' · '+esc(l.place)+' · '+esc(l.who)+(stateText?' · '+stateText:'')+'</div>'+
-          '<button class="env-imm" data-act="imm" data-key="'+immLatestKey(th)+'" data-lid="'+esc(l.id)+'">◈ '+((th&&th.immMap&&th.immMap[immLatestKey(th)]&&th.immMap[immLatestKey(th)].opening)?'回到那天':'身临其境')+'</button>'+
-          '<div class="env-postmark">歧路</div>'+
-          '<div class="env-stamp">✉</div>'+
-          '<div class="env-caret">▾</div>'+
-        '</div>'+
-        '<div class="env-body" hidden>'+
-          (l.echo&&l.echoText?'<div class="cr-echo-src">关于你投出的那封信：'+esc(l.echoText)+'</div>':'')+
-          '<div class="sheet">'+salute+body+itemLine+'<div class="sign">'+esc(l.name)+'</div><div class="date-line">'+esc(l.date||l.era)+'</div></div>'+
-          optsHTML+
-          convHTML+
-          actRow+
-        '</div>'+
-      '</div>';
-    }).join('');
+
+    box.innerHTML=list.map(function(l){ return buildEnv(l, thById(l.id)); }).join('');
     bindLift(box,list);
   }
 
@@ -43652,13 +43655,14 @@ window.bsRoomAI = bsRoomAI;
   }
 
   async function askParallel(id){
-    var l=getLetter(id); if(!l||busy) return;
-    busy=true;
+    var l=getLetter(id); if(!l) return;
+    if(busy){ toast('上一件事还在处理，稍等一下'); return; }
+    busy=true; toast('正在写给另一条时间线…');
     var prompt='下面是「'+l.name+'」在'+l.era+'（'+l.place+'）遇到的抉择：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」\nTA 当初给出的两条路：A：'+(l.optionA||'（未给出）')+' ／ B：'+(l.optionB||'（未给出）')+'\n\n现在请写"另一条时间线"：假设拾信人当初给出的是相反的建议，事情会走向什么结局。\n只输出严格 JSON 单对象：\n{"text":"这一段平行结局的叙述（第三人称或片段式均可，篇幅自由）","era":"那个时空的纪年","interval":"从寄出求助信到结局过去多久","progress":"这条时间线里事件的最终状态","trend":"done|up|down"}';
-    var raw=await callAI('你是一个只会输出严格 JSON 的信件生成器。', prompt);
+    var raw=null;
+    try{ raw=await callAI('你是一个只会输出严格 JSON 的信件生成器。', prompt); }finally{ busy=false; }
     var o=parseObj(raw);
-    busy=false;
-    if(!o){ toast('另一条时间线没能接通'); return; }
+    if(!o){ toast('另一条时间线没能接通 · 检查 API 设置'); return; }
     var m=$('cr-modal'), sh=$('cr-msheet');
     sh.classList.remove('burn');
     sh.innerHTML='<div class="mhead">另一条时间线 · '+esc(l.name)+'</div>'+
@@ -43758,6 +43762,26 @@ window.bsRoomAI = bsRoomAI;
     showDriftReplies(p,arr);
   }
 
+  /* 卷宗里点信件：就地展开，不跳到打捞页 */
+  function openThreadInFile(id){
+    var view=$('cr-file-view'); if(!view) return;
+    var th=st.threads.find(function(x){return x.id===id;});
+    var l=(st.current||[]).find(function(x){return x.id===id;}) || th;
+    if(!l) return;
+    var box=$('cr-file-detail');
+    if(!box){ box=document.createElement('div'); box.id='cr-file-detail'; box.className='cr-file-detail'; view.appendChild(box); }
+    if(box.getAttribute('data-cur')===id){ box.innerHTML=''; box.removeAttribute('data-cur'); return; }
+    box.setAttribute('data-cur', id);
+    box.innerHTML=buildEnv(l, th);
+    bindLift(box, [l]);
+    var env=box.querySelector('[data-env]');
+    if(env){
+      var bd=env.querySelector('.env-body'); if(bd) bd.hidden=false;
+      var ca=env.querySelector('.env-caret'); if(ca) ca.textContent='\u25b4';
+      box.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+  }
+
   function renderFile(){
     var box=$('cr-file-list'); if(!box) return;
     if(!st.threads.length){ box.innerHTML='<div class="empty">卷宗还空着。<br>捞一封抉择信，才会留下一条路。</div>'; return; }
@@ -43789,7 +43813,7 @@ window.bsRoomAI = bsRoomAI;
       var extras=(t.fromChar?' · 角色来信':'')+(t.pair?' · 共信':'')+(t.anchor?' · 锚点':'')+(t.faded?' · 已褪色':'');
       return '<div class="cr-item'+(t.faded?' faded':'')+'" data-tid="'+esc(t.id)+'"><div class="n">'+esc(t.name)+' · '+esc(t.era)+'<span class="state">'+(t.state==='done'?'尘埃落定':'等待回信')+(t.sleepUntil?' · 搁置中':'')+'</span></div><div class="m">'+esc(t.who)+' · '+(t.conv||[]).length+' 封往来'+extras+'</div></div>';
     }).join('');
-    box.querySelectorAll('[data-tid]').forEach(function(el){ el.onclick=function(){ openThread(el.getAttribute('data-tid')); }; });
+    box.querySelectorAll('[data-tid]').forEach(function(el){ el.onclick=function(){ openThreadInFile(el.getAttribute('data-tid')); }; });
   }
   function renderLog(){
     var box=$('cr-log-list'); if(!box) return;
@@ -44335,14 +44359,14 @@ window.bsRoomAI = bsRoomAI;
   async function showEpilogue(id){
     var th=st.threads.find(function(x){return x.id===id;}); if(!th) return;
     if(th.epilogue){ renderEpilogue(th, th.epilogue); return; }
-    if(busy) return;
-    busy=true;
+    if(busy){ toast('上一件事还在处理，稍等一下'); return; }
+    busy=true; toast('正在打听后来…');
     var lines=(th.conv||[]).map(function(c){ return (c.role==='them'?th.name:'我')+'：'+c.text; }).join('\n');
     var prompt='你是一个只在事后路过的旁观者，不参与任何往来。\n「'+th.name+'」生活在'+(th.era||'')+'，'+(th.place||'')+'，身份是'+(th.who||'')+'。\nTA 当年卡在一个抉择里，写下这封求助信：\n「'+(th.foreign&&th.lang!=='zh'?th.foreign:th.text)+'」\n后来发生的往来：\n'+(lines||'（没有留下更多往来）')+'\n\n请写一段「后来听说」：那件事过去很久之后，留下了什么。\n只输出严格 JSON 单对象，不要 markdown：\n{"text":"旁观者转述或第三人称片段，只写后事与回声，篇幅自由","era":"你听说这些时的纪年","elapsed":"距那件事过去了多久"}\n不要续写对话，不要新增往来，不要给出新的选择。';
-    var raw=await callAI('你是一个只在事后路过的旁观者。',prompt);
-    busy=false;
+    var raw=null;
+    try{ raw=await callAI('你是一个只在事后路过的旁观者。',prompt); }finally{ busy=false; }
     var o=parseObj(raw);
-    if(!o||!o.text){ toast('没有打听到后来 · 检查 API'); return; }
+    if(!o||!o.text){ toast('没有打听到后来 · 检查 API 设置'); return; }
     th.epilogue={text:o.text,era:o.era||'',elapsed:o.elapsed||'',ts:Date.now()};
     save(); log('打听了「'+th.name+'」的后来');
     renderEpilogue(th, th.epilogue);
