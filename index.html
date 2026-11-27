@@ -12305,7 +12305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.4";
+  const APP_VERSION = "v6.4.5";
   let db = {
     characters: [],
     groups: [],
@@ -43512,13 +43512,13 @@ var buildEnv=function(l,th){
       b.onclick=function(e){ e.stopPropagation(); sendAdvice(b.getAttribute('data-send')); };
     });
     box.querySelectorAll('[data-act="parallel"]').forEach(function(b){
-      b.onclick=function(e){ e.stopPropagation(); askParallel(b.getAttribute('data-lid')); };
+      b.onclick=function(e){ e.stopPropagation(); askParallel(b.getAttribute('data-lid'), b); };
     });
     box.querySelectorAll('[data-act="sleep"]').forEach(function(b){
       b.onclick=function(e){ e.stopPropagation(); toggleSleep(b.getAttribute('data-lid')); };
     });
     box.querySelectorAll('[data-act="epilogue"]').forEach(function(b){
-      b.onclick=function(e){ e.stopPropagation(); showEpilogue(b.getAttribute('data-lid')); };
+      b.onclick=function(e){ e.stopPropagation(); showEpilogue(b.getAttribute('data-lid'), b); };
     });
     box.querySelectorAll('[data-act="fade"]').forEach(function(b){
       b.onclick=function(e){ e.stopPropagation(); toggleFade(b.getAttribute('data-lid')); };
@@ -43654,18 +43654,49 @@ var buildEnv=function(l,th){
     };
   }
 
-  async function askParallel(id){
+  function parallelOpts(l){
+    var raw=(l&&l.pair)?[['A',l.optionA],['B',l.optionB],['C',l.optionC],['D',l.optionD]]:[['A',l.optionA],['B',l.optionB]];
+    return raw.filter(function(x){ return x[1]; });
+  }
+  function askParallel(id, btn){
     var l=getLetter(id); if(!l) return;
     if(busy){ toast('上一件事还在处理，稍等一下'); return; }
-    busy=true; toast('正在写给另一条时间线…');
-    var prompt='下面是「'+l.name+'」在'+l.era+'（'+l.place+'）遇到的抉择：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」\nTA 当初给出的两条路：A：'+(l.optionA||'（未给出）')+' ／ B：'+(l.optionB||'（未给出）')+'\n\n现在请写"另一条时间线"：假设拾信人当初给出的是相反的建议，事情会走向什么结局。\n只输出严格 JSON 单对象：\n{"text":"这一段平行结局的叙述（第三人称或片段式均可，篇幅自由）","era":"那个时空的纪年","interval":"从寄出求助信到结局过去多久","progress":"这条时间线里事件的最终状态","trend":"done|up|down"}';
+    var opts=parallelOpts(l);
+    if(opts.length>=2){ pickParallel(l, opts, btn); return; }
+    runParallel(l, opts.length?opts[0]:['',''], btn);
+  }
+  function pickParallel(l, opts, btn){
+    var m=$('cr-modal'), sh=$('cr-msheet');
+    sh.classList.remove('burn'); sh.style.background=st.paper;
+    sh.innerHTML='<div class="mhead">另一条时间线 · '+esc(l.name)+'</div>'+
+      '<div class="mtext">要看哪一条路走下去的样子？</div>'+
+      '<div class="cr-opts">'+opts.map(function(x){ return '<div class="cr-opt" data-pickp="'+x[0]+'">'+x[0]+' · '+esc(x[1])+'</div>'; }).join('')+'</div>'+
+      '<div class="mrow"><button class="tp-mburn" id="cr-pcancel">取消</button></div>';
+    m.hidden=false;
+    $('cr-pcancel').onclick=function(){ m.hidden=true; };
+    sh.querySelectorAll('[data-pickp]').forEach(function(el){
+      el.onclick=function(){
+        var k=el.getAttribute('data-pickp');
+        var pick=opts.filter(function(x){ return x[0]===k; })[0] || ['',''];
+        m.hidden=true;
+        runParallel(l, pick, btn);
+      };
+    });
+  }
+  async function runParallel(l, pick, btn){
+    if(busy){ toast('上一件事还在处理，稍等一下'); return; }
+    busy=true;
+    if(btn){ btn.dataset.old=btn.textContent; btn.textContent='正在写这条时间线…'; }
+    var vein=(pick&&pick[1])?('选的这条路：'+pick[0]+' · '+pick[1]):'TA 没有给出固定选项，只是诉说困境';
+    var prompt='下面是「'+l.name+'」在'+l.era+'（'+l.place+'）遇到的抉择：\n「'+(l.foreign&&l.lang!=='zh'?l.foreign:l.text)+'」\n'+vein+'\n\n现在请写"另一条时间线"：假设拾信人当初给出的建议正是这条路，事情会走向什么结局。不要写"收到建议的那段对话"，只写这条线走下去的经过与归宿。\n只输出严格 JSON 单对象：\n{"text":"这一段平行结局的叙述（第三人称或片段式均可，篇幅自由）","era":"那个时空的纪年","interval":"从寄出求助信到结局过去多久","progress":"这条时间线里事件的最终状态","trend":"done|up|down"}';
     var raw=null;
     try{ raw=await callAI('你是一个只会输出严格 JSON 的信件生成器。', prompt); }finally{ busy=false; }
+    if(btn){ btn.textContent=(btn.dataset.old||'另一条时间线'); }
     var o=parseObj(raw);
     if(!o){ toast('另一条时间线没能接通 · 检查 API 设置'); return; }
     var m=$('cr-modal'), sh=$('cr-msheet');
     sh.classList.remove('burn');
-    sh.innerHTML='<div class="mhead">另一条时间线 · '+esc(l.name)+'</div>'+
+    sh.innerHTML='<div class="mhead">另一条时间线 · '+esc(l.name)+(pick&&pick[1]?('（'+esc(pick[0])+' · '+esc(pick[1])+'）'):'')+'</div>'+
       '<div class="mtext">'+esc(o.text||'')+'</div>'+
       '<div class="cr-meta" style="margin-top:14px"><span class="k">'+esc(o.era||l.era)+'</span>（那条线上，已过去 '+esc(o.interval||'不明')+'）</div>'+
       (o.progress?'<div class="cr-meta"><span class="k">事件进度</span>：'+esc(o.progress)+'</div>':'')+
@@ -44356,15 +44387,17 @@ var buildEnv=function(l,th){
       setTimeout(function(){ showEpilogue(th.id); },200);
     };
   }
-  async function showEpilogue(id){
+  async function showEpilogue(id, btn){
     var th=st.threads.find(function(x){return x.id===id;}); if(!th) return;
     if(th.epilogue){ renderEpilogue(th, th.epilogue); return; }
     if(busy){ toast('上一件事还在处理，稍等一下'); return; }
-    busy=true; toast('正在打听后来…');
+    busy=true;
+    if(btn){ btn.dataset.old=btn.textContent; btn.textContent='正在打听后来…'; }
     var lines=(th.conv||[]).map(function(c){ return (c.role==='them'?th.name:'我')+'：'+c.text; }).join('\n');
     var prompt='你是一个只在事后路过的旁观者，不参与任何往来。\n「'+th.name+'」生活在'+(th.era||'')+'，'+(th.place||'')+'，身份是'+(th.who||'')+'。\nTA 当年卡在一个抉择里，写下这封求助信：\n「'+(th.foreign&&th.lang!=='zh'?th.foreign:th.text)+'」\n后来发生的往来：\n'+(lines||'（没有留下更多往来）')+'\n\n请写一段「后来听说」：那件事过去很久之后，留下了什么。\n只输出严格 JSON 单对象，不要 markdown：\n{"text":"旁观者转述或第三人称片段，只写后事与回声，篇幅自由","era":"你听说这些时的纪年","elapsed":"距那件事过去了多久"}\n不要续写对话，不要新增往来，不要给出新的选择。';
     var raw=null;
     try{ raw=await callAI('你是一个只在事后路过的旁观者。',prompt); }finally{ busy=false; }
+    if(btn){ btn.textContent=(btn.dataset.old||'后来听说'); }
     var o=parseObj(raw);
     if(!o||!o.text){ toast('没有打听到后来 · 检查 API 设置'); return; }
     th.epilogue={text:o.text,era:o.era||'',elapsed:o.elapsed||'',ts:Date.now()};
