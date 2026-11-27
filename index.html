@@ -10374,8 +10374,9 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     input=document.createElement('input');
     input.type='file'; input.accept='image/*'; input.multiple=true; input.style.display='none';
     input.onchange=function(){
-      var files=input.files?Array.prototype.slice.call(input.files):[];
-      input.value='';
+      var files=[];
+      try{ files=Array.prototype.slice.call(input.files||[]); }catch(e){ files=[]; }
+      setTimeout(function(){ try{ input.value=''; }catch(e){} }, 60);
       if(files.length && typeof window.__mxgSendImages==='function') window.__mxgSendImages(files);
     };
     document.body.appendChild(input);
@@ -12393,7 +12394,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.9";
+  const APP_VERSION = "v6.4.10";
   let db = {
     characters: [],
     groups: [],
@@ -26426,11 +26427,13 @@ function setupPhoneSystem() {
     if (!list.length) return;
     if (!currentOfflineCharIds.length) { showToast("请先选择角色"); return; }
     showToast("正在压缩 " + list.length + " 张图片…");
-    const imgs = [];
-    for (const f of list){
-      const u = await new Promise((res) => mxgShrinkImg(f, res));
-      if (u) imgs.push(u);
-    }
+    const results = await Promise.all(list.map((f) => new Promise((res) => {
+      let done = false;
+      const fire = (u) => { if (!done) { done = true; res(u || ""); } };
+      mxgShrinkImg(f, fire);
+      setTimeout(() => fire(""), 6000);
+    })));
+    const imgs = results.filter(Boolean);
     if (!imgs.length) { showToast("图片读取失败"); return; }
     const oc = getOfflineChat(currentOfflineSessionId);
     const char = db.characters.find((c) => c.id === currentOfflineCharIds[0]);
@@ -42860,6 +42863,18 @@ window.bsRoomAI = bsRoomAI;
 .o-img-card.expanded .is-stack { scrollbar-width:none; }
 .o-img-card.expanded .is-stack::-webkit-scrollbar { display:none; }
 
+/* ===== v4：卡居中 / 非圆形换图位 / 竖向展开 ===== */
+#asset-screen .as-stack { padding-top:6px; }
+#asset-screen .as-stack .as-bank { left:50%; right:auto; width:262px; height:166px; margin-left:-118px; }
+#asset-screen .as-cover .cv-round { border-radius:14px; width:112px; height:148px; top:16px; right:16px; }
+#asset-screen .as-cover .cv-round img { filter:grayscale(1); }
+#asset-screen .as-cathero-img { border-radius:12px; width:104px; height:70px; }
+#asset-screen .as-d-thumb { border-radius:12px; width:88px; height:116px; flex:0 0 88px; }
+#asset-screen .as-wallethero-img { border-radius:10px; width:64px; height:64px; }
+.o-img-card.expanded .is-stack { display:flex; flex-direction:column; gap:8px; height:auto; overflow:visible; }
+.o-img-card.expanded .is-stack .is-item { width:100%; height:auto; }
+.o-img-card.expanded .is-stack .is-item img { width:100%; height:auto; display:block; }
+
 #asset-screen .as-foot { margin-top:26px; text-align:center; font-size:calc(var(--app-fs,1) * 8.5px); letter-spacing:3px; color:#c6c6c6; }
 
 #asset-screen .as-list { margin-top:12px; }
@@ -45773,7 +45788,7 @@ function wb2DeleteEntry() {
     return '你在为一个人建立他私下持有的资产档案。这份档案要足够具体，像真的有人一件件经手过。\n'+ctxOf(char)+'\n\n规则：\n'+
       '1) 只归类到这八个大类：'+CATS.map(function(c){return c.k;}).join('、')+'。\n'+
       '2) 具体有没有、有几件、什么牌子/什么地段/什么型号，全部按这个人的人设、身份、收入、处境自己判断。穷困的人可能一辆车一间铺都没有，只剩几件旧物；有钱的人铺得开。绝对不要凑数，绝对不要人人都有房有车。\n'+
-      '3) 每个大类 0~6 件，允许整类为空；总数尽量在 12~26 件之间（穷的人可以只有 8~12 件小东西，但也要具体：旧表、旧碗、旧自行车、一沓票据、一件改过的外套）。金额用人民币整数，量级必须符合处境——穷的人单件几百到几千也算资产，不要因为小就不写。\n'+
+      '3) 每一个大类都必须给 3 件（允许极穷的角色某个类少 1 件，但尽量不要空着）。合计 20~24 件。金额用人民币整数，量级必须符合处境——穷的人单件几十到几千也算，不要因为小就不写。东西要杂：证件、旧衣、工具、票据、书、首饰、二手家电都可以算。\n'+
       '4) 每件给 note（一句硬事实：哪来的、什么时候用、谁经手，不煽情），再给 3~4 段 story（这件东西记得的事）。每段 50~100 字：第一段是它怎么来的；第二段是关键一次使用（谁在场、什么天气、一个动作）；第三段是它被别人碰过/借走过的那次；第四段是它现在留下的痕迹（划痕、褪色、夹在里面的东西、少了一只）。要有具体动词、品牌印字、地点名、价格，不要空泛抒情，不要写他的心理独白。\n'+
       '5) 另给 1~3 张银行卡（余额与处境一致，穷的可能只有一张储蓄卡），每张给 3~5 条往来：label 是什么消费/进账，amt 为负表示支出。\n'+
       '6) 再判断他会不会给最亲近的人办一张亲属卡：只有性格愿意且有余力时才 issue=true，额度按财力给；不愿意或不宽裕就 issue=false、limit=0。\n'+
@@ -45929,7 +45944,6 @@ function wb2DeleteEntry() {
       +'<div class="as-cathero-img" data-catcover="'+esc(cat)+'">'+(cc?('<img src="'+cc+'" alt="">'):artRing(cat.length*3+items.length,false))+'</div></div>'
       + (items.length?('<div class="as-sum" style="margin-top:8px;margin-bottom:6px"><span>这一类共 '+items.length+' 件</span><span>合计 ¥ '+money(sum)+'</span></div><div class="as-list">'+rows+'</div>')
                      :('<div class="as-empty">这一类暂时是空的。<br>他这样的人，也可能本就没有。</div>'))
-      + '<div class="as-acts"><button class="as-tool" data-go="overview">返回总览</button></div>'
       + '<div class="as-wm">SECTION '+esc(c.en||'')+' · 404</div>'
       + '<div class="as-foot">这一页只记他名下的'+esc(cat)+'</div>';
   }
@@ -45960,7 +45974,7 @@ function wb2DeleteEntry() {
       storyHtml='<div class="as-empty" style="padding:26px 0">'+(A.busy?'正在替它想起这些事…':'这件东西还没被写下过记忆。点下面的按钮，让它想起来。')+'</div>';
     }
     var sibs=r.items.filter(function(x){ return x.cat===it.cat && x.id!==it.id; }).slice(0,2);
-    var others=r.items.filter(function(x){ return x.cat!==it.cat && Math.abs((x.value||0)-(it.value||0))<Math.max(it.value||0,1)*1.2; }).slice(0,2-Math.min(sibs.length,2));
+    var others=r.items.filter(function(x){ return x.cat===it.cat && Math.abs((x.value||0)-(it.value||0))<Math.max(it.value||0,1)*1.2; }).slice(0,2-Math.min(sibs.length,2));
     var rel=sibs.concat(others).slice(0,4).map(function(x){
       return '<div class="as-rel-c" data-open="'+esc(x.id)+'"><em>'+esc(x.cat)+'</em><b>'+esc(x.name)+'</b><s>¥ '+money(x.value)+' · '+esc(x.state||'使用中')+'</s></div>';
     }).join('');
@@ -45979,7 +45993,7 @@ function wb2DeleteEntry() {
       + (it.note?'<div class="as-hd" style="border-left-color:#101010;margin-top:16px"><div class="as-hd-h"><span>来历</span></div><div class="as-hd-b" style="padding-top:2px">'+esc(it.note)+'</div></div>':'')
       + '<div class="as-sec-t"><i>◆</i>它记得的事<u></u></div>'
       + storyHtml
-      + (rel?'<div class="as-sec-t" style="margin-top:22px"><i>◇</i>和它摆在一起<u></u></div><div class="as-rel">'+rel+'</div>':'')
+      + (rel?'<div class="as-sec-t" style="margin-top:22px"><i>◇</i>同门类里还有<u></u></div><div class="as-rel">'+rel+'</div>':'')
       + '<div class="as-acts"><button class="as-tool" id="as-backcat">返回 '+esc(it.cat)+'</button><button class="as-tool solid" id="as-more-story">'+(story.length?'重新想起':'让它想起来')+'</button></div>'
       + '<div class="as-foot">OBJECT '+esc((it.id||'').slice(-6).toUpperCase())+' · 404</div>';
   }
@@ -45995,7 +46009,6 @@ function wb2DeleteEntry() {
       + '<div class="as-net-sub"><span>当前净值</span><span>共 '+((r.ledger||[]).length)+' 条记录</span></div></div>'
       + '<div class="as-gold-rule"></div>'
       + (rows?('<div class="as-tl">'+rows+'</div>'):'<div class="as-empty">还没有变动。第一次建好之后，它会在一天里自己慢慢浮一次。</div>')
-      + '<div class="as-acts"><button class="as-tool" data-go="overview">返回总览</button></div>'
       + '<div class="as-foot">与 404 钱包同步</div>';
   }
 
@@ -46019,7 +46032,6 @@ function wb2DeleteEntry() {
       + '<div class="as-stack-hint">Swipe to flip · 点一下换到最上面</div>'
       + '<div class="as-cap" style="margin-top:16px"><b>这张卡的往来</b><span>STATEMENT</span></div>'
       + '<div class="as-tx" id="as-tx"></div>'
-      + '<div class="as-acts"><button class="as-tool" data-go="overview">返回总览</button></div>'
       + '<div class="as-foot">CHIP · 404 WALLET</div>';
   }
 
@@ -46165,7 +46177,7 @@ function wb2DeleteEntry() {
         if(els[cur]) front.push(els[cur]);
         for(var i=0;i<n;i++){ if(i!==cur) front.push(els[i]); }
         front.forEach(function(el,k){
-          el.style.transform='translate3d('+(k*32)+'px,'+(k*9)+'px,0) scale('+(1-k*0.03)+')';
+          el.style.transform='translate3d('+(k*18)+'px,'+(k*10)+'px,0) scale('+(1-k*0.03)+')';
           el.style.zIndex=String(100-k);
           el.classList.toggle('on', k===0);
           el.classList.toggle('off', k!==0);
@@ -46344,7 +46356,13 @@ function wb2DeleteEntry() {
 
   try{
     var ab=document.getElementById('as-back');
-    if(ab) ab.onclick=function(){ try{ switchScreen('char-profile-screen'); renderCharProfile(); }catch(e){} };
+    if(ab) ab.onclick=function(){
+      try{
+        if(A.view==='detail'){ A.view='cat'; render(); return; }
+        if(A.view!=='overview'){ A.view='overview'; render(); return; }
+        switchScreen('char-profile-screen'); renderCharProfile();
+      }catch(e){}
+    };
     var ai_=document.getElementById('as-idx');
     if(ai_) ai_.textContent='◆';
   }catch(e){}
