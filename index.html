@@ -7567,6 +7567,10 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
 .dta-card .stg-statline .pc{font-size:9px;color:#9a9aa1;min-width:38px;text-align:right;}
 .dta-card .stg-track{height:2px;background:#f1f1f4;border-radius:2px;margin-top:7px;overflow:hidden;}
 .dta-card .stg-track i{display:block;height:100%;border-radius:2px;}
+
+/* 表情包未命中 → 文字胶囊（不再是图片占位框） */
+.mxg-sticker-text{display:inline-flex !important;align-items:center;gap:6px;width:auto !important;max-width:230px !important;min-width:0 !important;height:auto !important;aspect-ratio:auto !important;padding:9px 13px !important;border-radius:14px !important;background:rgba(255,255,255,.92) !important;border:1px solid rgba(0,0,0,.18) !important;box-shadow:none !important;color:#333 !important;font-size:14px !important;line-height:1.35 !important;word-break:break-all !important;overflow:hidden !important;}
+#chat-room-screen .mxg-sticker-text{width:auto !important;max-width:230px !important;height:auto !important;aspect-ratio:auto !important;background:rgba(255,255,255,.92) !important;}
 </style>
 </head>
 
@@ -12316,7 +12320,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.46";
+  const APP_VERSION = "v6.3.47";
   let db = {
     characters: [],
     groups: [],
@@ -16682,7 +16686,8 @@ document.addEventListener("DOMContentLoaded", () => {
         img.alt = stickerName || "表情包";
         img.addEventListener("error", function () {
           console.warn("[表情包] 图片加载失败：", stickerName, String(stickerSrc).slice(0, 80));
-          bubbleElement.className = "image-bubble mxg-sticker-fallback";
+          window.__mxgStickerMiss = { name: rawName, ts: Date.now() };
+          bubbleElement.className = "mxg-sticker-text";
           bubbleElement.textContent = "🙂 " + (stickerName || "表情包");
         });
         bubbleElement.appendChild(img);
@@ -16690,11 +16695,12 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           console.warn("[表情包] 库里没找到对应的图：", rawName, "| 库内名字：", (db.myStickers || []).map(function (st) { return st && st.name; }).join("、"));
         } catch (e) {}
-        bubbleElement.className = "image-bubble mxg-sticker-fallback";
+        window.__mxgStickerMiss = { name: rawName, ts: Date.now() };
+        bubbleElement.className = "mxg-sticker-text";
         bubbleElement.textContent = "🙂 " + (stickerName || "表情包");
       }
       stickerBox.appendChild(bubbleElement);
-      if (stickerName) {
+      if (stickerName && stickerSrc) {
         const capEl = document.createElement("div");
         capEl.className = "sticker-cap";
         capEl.textContent = stickerName;
@@ -18096,7 +18102,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }).filter(Boolean);
       if (_cat.length) {
         prompt += "可用表情包目录（名称｜画面/文字线索）：\n" + _cat.join("\n") + "\n";
-        prompt += "选择规则：只从目录里原样选名称，不要编造；优先选画面文字或含义最贴合当前场景的那一个。没有合适的就干脆不发，这很正常。\n";
+        prompt += "选择规则：只从目录里原样选名称，一个字都不要改，也不要自己拼名字；优先选画面文字或含义最贴合当前场景的那一个。没有合适的就干脆不发，这很正常。\n";
+        try {
+          const _miss = window.__mxgStickerMiss;
+          if (_miss && _miss.name && Date.now() - _miss.ts < 6 * 3600 * 1000) {
+            const inLib = (db.myStickers || []).some(function (st) { return st && mxgStickerKey(st.name) === mxgStickerKey(_miss.name); });
+            if (!inLib) prompt += "注意：你上一次用的表情名「" + _miss.name + "」不在目录里，那条消息没能显示成图。这次只能用上面目录里存在的名称。\n";
+          }
+        } catch (e) {}
+
       }
     } else {
       prompt += "（目前没有可用表情包，不要凭空编造名称。）\n";
