@@ -12559,7 +12559,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.13";
+  const APP_VERSION = "v6.4.14";
   let db = {
     characters: [],
     groups: [],
@@ -12913,14 +12913,34 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 8000, null); } catch (e0) {}
+    /* v6.4.14：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
+      try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
+      if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
+    }
     __mxgTrace("load:core-read");
+    if (!coreItem) {
+      var __coreExists = false;
+      try { var __keys0 = await __mxgRace(dataStorage.db.storage.toCollection().primaryKeys(), 9000, []); __coreExists = (__keys0 || []).indexOf(MXG_CORE_KEY) >= 0; } catch (eK) {}
+      if (__coreExists) {
+        var __rl = 0; try { __rl = Number(sessionStorage.getItem("mxg-load-retry") || 0); } catch (eRL) {}
+        if (__rl < 2) {
+          try { sessionStorage.setItem("mxg-load-retry", String(__rl + 1)); } catch (eRL2) {}
+          console.warn("[存储] core 读取超时，自动重载第 " + (__rl + 1) + " 次");
+          location.reload();
+          throw new Error("reload-for-core-timeout");
+        }
+        window.__mxgLoadFail = true;
+        throw new Error("数据库读取超时：core 存在但读不出来（数据仍在本机，先不要做任何保存/重建操作）");
+      }
+    }
     var coreRaw = coreItem && typeof coreItem.value === "string" ? coreItem.value : "";
     var dbTs = coreItem ? (Number(coreItem.timestamp) || 0) : 0;
         var data = null, coreBad = false;
     if (coreRaw) {
       try { data = JSON.parse(coreRaw); } catch (e1) { coreBad = true; console.error("core 解析失败：", e1); }
     }
+    var coreItemRawExisted = !!coreRaw;
     var coreHasChars = /"characters"\s*:\s*\[\s*\{/.test(coreRaw);
     window.__mxgCoreText = coreRaw || null;
     coreRaw = null;
@@ -12961,6 +12981,11 @@ document.addEventListener("DOMContentLoaded", () => {
     let effectiveTs = dbTs;
     const hasCharacters = function (x) {
       return !!(x && Array.isArray(x.characters) && x.characters.length);
+    }
+    if ((coreBad || (coreItemRawExisted && !data)) && !hasCharacters(data)) {
+      /* core 在但解析不出来：宁可停在这一步，也不要以空库启动把真实数据覆盖掉 */
+      window.__mxgLoadFail = true;
+      throw new Error("本地主库存在但解析失败，已停止启动以免覆盖数据");
     }
     window.__mxgLoadSource = hasCharacters(data) ? "shards" : "empty";
     if (data) db = data;
@@ -13118,6 +13143,7 @@ document.addEventListener("DOMContentLoaded", () => {
       __trimTail(db.memories && db.memories.log, 300);
       if (db.feedSettings && db.feedSettings.log) __trimTail(db.feedSettings.log, 300);
     } catch (eTrim) {}
+    try { sessionStorage.removeItem("mxg-load-retry"); } catch (eRS) {}
     window.__mxgLoadDone = true;
     try { window.dispatchEvent(new CustomEvent("mxg-data-ready")); } catch (e7) {}
     return Promise.resolve();
