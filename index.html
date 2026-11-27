@@ -1030,8 +1030,6 @@
         }
         .sticker-block { display: flex; flex-direction: column; align-items: center; gap: 5px; margin: 0 8px; max-width: 230px; }
         .sticker-block .image-bubble { margin: 0 !important; }
-        .image-bubble.mxg-sticker-fallback { display: flex; align-items: center; justify-content: center; width: auto; max-width: 190px; min-width: 118px; min-height: 84px; padding: 14px 16px; background: #f3f3f6; border-radius: 16px; color: #6c6c75; font-size: calc(var(--app-fs, 1) * 13px); line-height: 1.4; text-align: center; word-break: break-word; aspect-ratio: auto; }
-        #chat-room-screen .image-bubble.mxg-sticker-fallback { width: auto; max-width: 190px; min-height: 84px; aspect-ratio: auto; padding: 14px 16px; background: #f3f3f6; border: 1px solid #e4e4e6; }
         .sticker-cap { font-size: calc(var(--app-fs, 1) * 10px); line-height: 1.3; color: #8b8b96; text-align: center; margin-top: 4px; letter-spacing: .02em; }
         .message-bubble.mxg-has-html { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; max-width: min(94vw, 460px); width: min(94vw, 460px); white-space: normal; }
         .mxg-html-card { width: 100%; overflow: hidden; border-radius: 16px; }
@@ -7569,8 +7567,6 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
 .dta-card .stg-track i{display:block;height:100%;border-radius:2px;}
 
 /* 表情包未命中 → 文字胶囊（不再是图片占位框） */
-.mxg-sticker-text{display:inline-flex !important;align-items:center;gap:6px;width:auto !important;max-width:230px !important;min-width:0 !important;height:auto !important;aspect-ratio:auto !important;padding:9px 13px !important;border-radius:14px !important;background:rgba(255,255,255,.92) !important;border:1px solid rgba(0,0,0,.18) !important;box-shadow:none !important;color:#333 !important;font-size:14px !important;line-height:1.35 !important;word-break:break-all !important;overflow:hidden !important;}
-#chat-room-screen .mxg-sticker-text{width:auto !important;max-width:230px !important;height:auto !important;aspect-ratio:auto !important;background:rgba(255,255,255,.92) !important;}
 </style>
 </head>
 
@@ -12320,7 +12316,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.47";
+  const APP_VERSION = "v6.3.48";
   let db = {
     characters: [],
     groups: [],
@@ -16686,8 +16682,7 @@ document.addEventListener("DOMContentLoaded", () => {
         img.alt = stickerName || "表情包";
         img.addEventListener("error", function () {
           console.warn("[表情包] 图片加载失败：", stickerName, String(stickerSrc).slice(0, 80));
-          window.__mxgStickerMiss = { name: rawName, ts: Date.now() };
-          bubbleElement.className = "mxg-sticker-text";
+          bubbleElement.className = "image-bubble mxg-sticker-fallback";
           bubbleElement.textContent = "🙂 " + (stickerName || "表情包");
         });
         bubbleElement.appendChild(img);
@@ -16695,12 +16690,11 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
           console.warn("[表情包] 库里没找到对应的图：", rawName, "| 库内名字：", (db.myStickers || []).map(function (st) { return st && st.name; }).join("、"));
         } catch (e) {}
-        window.__mxgStickerMiss = { name: rawName, ts: Date.now() };
-        bubbleElement.className = "mxg-sticker-text";
+        bubbleElement.className = "image-bubble mxg-sticker-fallback";
         bubbleElement.textContent = "🙂 " + (stickerName || "表情包");
       }
       stickerBox.appendChild(bubbleElement);
-      if (stickerName && stickerSrc) {
+      if (stickerName) {
         const capEl = document.createElement("div");
         capEl.className = "sticker-cap";
         capEl.textContent = stickerName;
@@ -18102,14 +18096,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }).filter(Boolean);
       if (_cat.length) {
         prompt += "可用表情包目录（名称｜画面/文字线索）：\n" + _cat.join("\n") + "\n";
-        prompt += "选择规则：只从目录里原样选名称，一个字都不要改，也不要自己拼名字；优先选画面文字或含义最贴合当前场景的那一个。没有合适的就干脆不发，这很正常。\n";
-        try {
-          const _miss = window.__mxgStickerMiss;
-          if (_miss && _miss.name && Date.now() - _miss.ts < 6 * 3600 * 1000) {
-            const inLib = (db.myStickers || []).some(function (st) { return st && mxgStickerKey(st.name) === mxgStickerKey(_miss.name); });
-            if (!inLib) prompt += "注意：你上一次用的表情名「" + _miss.name + "」不在目录里，那条消息没能显示成图。这次只能用上面目录里存在的名称。\n";
-          }
-        } catch (e) {}
+        prompt += "选择规则：只从目录里原样选名称，不要编造；优先选画面文字或含义最贴合当前场景的那一个。没有合适的就干脆不发，这很正常。\n";
 
       }
     } else {
