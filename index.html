@@ -12316,7 +12316,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.53";
+  const APP_VERSION = "v6.3.54";
   let db = {
     characters: [],
     groups: [],
@@ -16426,8 +16426,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function calculateVoiceDuration(text) {
     return Math.max(1, Math.min(60, Math.ceil(text.length / 3.5)));
   }
-  /* 全局占位图（与 _APP_DEFAULT_IMG 同源）：表情包查不到/加载失败时用它 */
-  const MXG_STICKER_PLACEHOLDER = "https://media.doubao.com/space/api/box/stream/download/all_by_mount_point/CuG9b40mloFiA1x2jDVcrgXNnmg";
+  function mxgLooseKey(v) {
+    try { return String(v || "").replace(/[^\u4e00-\u9fa5a-zA-Z0-9]/g, "").toLowerCase(); } catch (e) { return ""; }
+  }
   function mxgStickerKey(raw) {
     try {
       let t = String(raw || "").trim();
@@ -16649,6 +16650,7 @@ document.addEventListener("DOMContentLoaded", () => {
           pick(function (st) { return (st.name && mxgStickerKey(st.name) === keyName) || (st.id && mxgStickerKey(st.id) === keyName); }) ||
           pick(function (st) { const k = mxgStickerKey(st.name); return !!k && !!keyName && (k.indexOf(keyName) >= 0 || keyName.indexOf(k) >= 0); }) ||
           pick(function (st) { const d = mxgStickerKey(st.desc); return !!d && !!keyName && (d.indexOf(keyName) >= 0 || keyName.indexOf(d) >= 0); }) ||
+          pick(function (st) { const lk = mxgLooseKey(st.name), lr = mxgLooseKey(rawName); return !!lk && !!lr && (lk === lr || lk.indexOf(lr) >= 0 || lr.indexOf(lk) >= 0); }) ||
           null;
       };
       const rec = findSticker();
@@ -16667,26 +16669,35 @@ document.addEventListener("DOMContentLoaded", () => {
           return clean(rawName) || (rec && clean(rec.name)) || "";
         } catch (e) { return ""; }
       })();
-      const img = document.createElement("img");
-      img.alt = stickerName || "表情包";
-      img.addEventListener("error", function () {
-        if (img.dataset.ph === "1") return;
-        img.dataset.ph = "1";
-        console.warn("[表情包] 图片加载失败，改用占位图：", stickerName, String(img.getAttribute("data-src") || "").slice(0, 80));
-        img.src = MXG_STICKER_PLACEHOLDER;
-        img.classList.add("is-placeholder");
-      });
       if (stickerSrc) {
-        img.setAttribute("data-src", stickerSrc);
+        const img = document.createElement("img");
+        img.alt = stickerName || "表情包";
+        let _retry = 0;
+        img.addEventListener("error", function () {
+          if (_retry === 0) {
+            _retry = 1;
+            setTimeout(function () {
+              try {
+                const sep = String(stickerSrc).indexOf("?") >= 0 ? "&" : "?";
+                img.src = String(stickerSrc) + sep + "r=" + Date.now();
+              } catch (e) {}
+            }, 1200);
+            return;
+          }
+          console.warn("[表情包] 图片加载失败：", stickerName, String(stickerSrc).slice(0, 80));
+          bubbleElement.className = "image-bubble mxg-sticker-fallback";
+          bubbleElement.innerHTML = "";
+          bubbleElement.textContent = (rawName || stickerName || "表情包");
+        });
         img.src = stickerSrc;
+        bubbleElement.appendChild(img);
       } else {
         try {
           console.warn("[表情包] 库里没找到对应的图：", rawName, "| 库内名字：", (db.myStickers || []).map(function (st) { return st && st.name; }).join("、"));
         } catch (e) {}
-        img.src = MXG_STICKER_PLACEHOLDER;
-        img.classList.add("is-placeholder");
+        bubbleElement.className = "image-bubble mxg-sticker-fallback";
+        bubbleElement.textContent = (rawName || stickerName || "表情包");
       }
-      bubbleElement.appendChild(img);
       stickerBox.appendChild(bubbleElement);
       if (stickerName) {
         const capEl = document.createElement("div");
