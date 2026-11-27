@@ -12305,7 +12305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.0";
+  const APP_VERSION = "v6.4.1";
   let db = {
     characters: [],
     groups: [],
@@ -15952,6 +15952,13 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/\son[a-z]+\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/gi, "")
       .replace(/javascript:/gi, "");
   }
+  function mxgHtmlToText(h) {
+    try {
+      const d = document.createElement("div");
+      d.innerHTML = mxgHtmlSanitize(String(h || "").replace(/<(style|script)[\s\S]*?<\/(style|script)>/gi, ""));
+      return String(d.textContent || "").replace(/\s+/g, " ").trim();
+    } catch (e) { return ""; }
+  }
   /* 线下宽松拆分：模型常把卡片 html 和正文混在一条里，或裸标签开头 */
   function mxgSplitHtmlLoose(text) {
     const raw = String(text == null ? "" : text);
@@ -17841,11 +17848,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const hasHtml = (books || []).some(function(b){ return /```html|<(div|section|table|article|figure|header|footer|ul|ol|blockquote)[\s>]/i.test(String(b.content || "")); });
       if (hasHtml) out += "【HTML 卡片·模板 · 必须遵守】条目里给出的 HTML 是模板，不是成品。要按当前情境把模板里的占位内容换成真实内容（占位符通常是 {{字段}}、[[字段]]、{字段}，或明显的提示文字如“名字/价格/时间”），再输出由 ```html 开头、``` 结尾的完整 HTML。整张卡片必须在同一条消息里完整输出：从第一个标签到最后一个闭合标签不许拆开，中间不许插 [open] 这类方括号标记，也不许插别的话。标签结构、class 与内联样式保持不动，只替换内容，列表处按实际条数增删。卡片发完之后，可以再另起一条消息正常说话，但不要在卡片里解释它。\n";
       const p = Math.max(0, Math.min(100, parseInt((db.worldBookSettings || {}).htmlRandom, 10) || 0));
+      const _limit = "【每轮数量·硬性】一轮回复最多只能发一张 HTML 卡片，绝对不许一轮发两张或更多。\n";
       if (p >= 100) {
-        out += "【HTML 卡片·本轮必发 · 强制】无论本轮内容是否需要，都必须先发一张与当前情境相关的 HTML 卡片：用 ```html 开头、``` 结尾，一条消息完整装下整张卡片，中间不许拆开、不许插话，内容由当前剧情主题决定，贴合此刻的人、地点、物品或事件（名片、票据、歌单、天气、订单、相册封面等），不要套用固定模板。卡片发完之后，可以再另起一条正常的对话，但不要在卡片里解释它。\n";
+        out += "【HTML 卡片·本轮必发 · 强制】无论本轮内容是否需要，都必须先发一张与当前情境相关的 HTML 卡片：用 ```html 开头、``` 结尾，一条消息完整装下整张卡片，中间不许拆开、不许插话，内容由当前剧情主题决定，贴合此刻的人、地点、物品或事件（名片、票据、歌单、天气、订单、相册封面等），不要套用固定模板。卡片发完之后，可以再另起一条正常的对话，但不要在卡片里解释它。" + _limit;
       } else if (p > 0 && Math.random() * 100 < p) {
-        out += "【HTML 卡片·允许】这一轮可以额外发一张与当前情境相关的 HTML 卡片，用 ```html 开头、``` 结尾，一条消息完整装下整张卡片，中间不许拆开，内容贴合此刻的人、地点、物品或事件；卡片之后可以再发一条正常的对话，不必每轮都发。\n";
+        out += "【HTML 卡片·允许】这一轮可以额外发一张与当前情境相关的 HTML 卡片，用 ```html 开头、``` 结尾，一条消息完整装下整张卡片，中间不许拆开，内容贴合此刻的人、地点、物品或事件；卡片之后可以再发一条正常的对话，不必每轮都发。" + _limit;
       }
+      if (!out) out += "【HTML 卡片·本轮不发】这一轮不要输出任何 HTML 卡片，把想表达的都用正常对话写出来；只有目录里另有明确要求时才例外。\n";
       if (out) out += "【卡片形态 · 优先可互动】只要题材允许，就把卡片做成可互动的：至少一个可点击按钮、可展开的折叠块、可切换的标签页或滑块，用内联 <script> 或 onclick 实现，不依赖外部资源；确实不适合互动时才退回静态卡片。互动要有真实反馈——点了要变、切了要换，不要做成按了没反应的假按钮。\n";
       return out;
     } catch (e) { return ""; }
@@ -25017,6 +25026,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   function renderOfflineBubbles(oc, char) {
     char = offlineIdentityFor(char, oc);
+    const __offlineCardRounds = {};
     const area = document.getElementById("offline-chat-area");
     if (!area) return;
     area.innerHTML = "";
@@ -25058,8 +25068,17 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
           const bodyText = cleanBubbleText(stripSideNote(h.content));
           const capHtml = mxgSplitHtmlLoose(bodyText);
-          if (capHtml) mxgFillBubble(bodyEl, bodyText, capHtml);
-          else bodyEl.textContent = bodyText;
+          if (capHtml) {
+            const roundKey = String(h.roundLabel || (h.charId || "x") + "|" + Math.floor((h.ts || 0) / 60000));
+            if (__offlineCardRounds[roundKey]) {
+              /* 同一轮已经发过一张卡片：这一条只保留正文，卡片不再渲染 */
+              const rest = [capHtml.before, capHtml.after, mxgHtmlToText(capHtml.html)].map(function (x) { return String(x || "").trim(); }).filter(Boolean).join("\n");
+              bodyEl.textContent = rest || bodyText;
+            } else {
+              __offlineCardRounds[roundKey] = 1;
+              mxgFillBubble(bodyEl, bodyText, capHtml);
+            }
+          } else bodyEl.textContent = bodyText;
         }
       }
       area.appendChild(card);
@@ -26440,7 +26459,15 @@ function setupPhoneSystem() {
     };
   }
   function getOfflineWorldBookText(chars) {
-    return wbTextFor(chars, "offline");
+    try {
+      const books = wbBooksFor(chars, "offline");
+      const text = books.map(function(b) { return wbBookContent(b); }).filter(Boolean).join("\n\n");
+      const rule = wbConstantRuleFor(books);
+      const html = wbHtmlHint(books);
+      return [text, rule, html].filter(Boolean).join("\n\n");
+    } catch (e) {
+      return wbTextFor(chars, "offline");
+    }
   }
   function getActiveOfflinePresetText() {
     const g = db.offlineGlobal || {};
@@ -26611,7 +26638,7 @@ function setupPhoneSystem() {
       prompt += "格式：第一行【思维链】+推理；第二行【正文】+正式正文。\n";
     }
     prompt += "【篇幅】目标 " + g.minChars + "–" + g.maxChars + " 字。用动作、对话、感官细节和人物反应推进，不要把记忆逐条复述、不要排比堆砌、不要用总结凑字数。\n";
-prompt += "【HTML 卡片】如果想给出一张卡片，直接输出完整的 HTML 代码即可，系统会自动渲染成卡片，不需要额外说明。卡片代码不计入上面的正文字数：正文单独写够篇幅，卡片另算。\n";
+prompt += "【正文长度·硬性】HTML 卡片与 ```html 代码块完全不计入正文字数。即使这一轮发了卡片，正文也必须单独写满 " + g.minChars + "–" + g.maxChars + " 字；严禁用卡片替代正文，严禁因为发了卡片就把正文写短。\n";
     prompt += "【结尾】不要用总结、告别、收束句结束；让最后一拍停在一个正在发生的动作、一句没说完的话或一种还在延续的情绪上。若场景自然发生在睡前，可以写晚安，但不要写成“故事到此结束”。\n";
     prompt += g.chainEnabled ? "【输出格式】只输出【思维链】和【正文】两个标记段，不要额外解释或开头说明。" : "【输出格式】只输出正文，不要额外解释或开头说明。";
     return prompt;
@@ -28460,7 +28487,7 @@ prompt += "【HTML 卡片】如果想给出一张卡片，直接输出完整的 
       prompt += "格式：第一行【思维链】+推理；第二行【正文】+正式正文。\n";
     }
     prompt += "【篇幅】目标 " + g.minChars + "–" + g.maxChars + " 字。用动作、对话、感官细节和人物反应推进，不要把记忆逐条复述、不要排比堆砌、不要用总结凑字数。\n";
-prompt += "【HTML 卡片】如果想给出一张卡片，直接输出完整的 HTML 代码即可，系统会自动渲染成卡片，不需要额外说明。卡片代码不计入上面的正文字数：正文单独写够篇幅，卡片另算。\n";
+prompt += "【正文长度·硬性】HTML 卡片与 ```html 代码块完全不计入正文字数。即使这一轮发了卡片，正文也必须单独写满 " + g.minChars + "–" + g.maxChars + " 字；严禁用卡片替代正文，严禁因为发了卡片就把正文写短。\n";
     prompt += "【结尾】不要用总结、告别、收束句结束；让最后一拍停在一个正在发生的动作、一句没说完的话或一种还在延续的情绪上。若场景自然发生在睡前，可以写晚安，但不要写成“故事到此结束”。\n";
     prompt += g.chainEnabled ? "【输出格式】只输出【思维链】和【正文】两个标记段，不要额外解释或开头说明。" : "【输出格式】只输出正文，不要额外解释或开头说明。";
     return prompt;
