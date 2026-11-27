@@ -12305,7 +12305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.1";
+  const APP_VERSION = "v6.4.2";
   let db = {
     characters: [],
     groups: [],
@@ -17063,6 +17063,9 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         const bubbleElement = createMessageBubbleElement(message);
         if (bubbleElement) {
+          const __dup = message.id ? messageArea.querySelector('[data-msg-id="' + message.id + '"]') : null;
+          if (__dup) return;
+          if (message.id) bubbleElement.setAttribute("data-msg-id", message.id);
           bubbleElement.classList.add("msg-pop");
           maybeDateSep();
           bubbleElement.dataset.ts = String(message.timestamp || message.ts || Date.now());
@@ -17074,6 +17077,9 @@ document.addEventListener("DOMContentLoaded", () => {
     } else {
       const bubbleElement = createMessageBubbleElement(message);
       if (bubbleElement) {
+        const __dup2 = message.id ? messageArea.querySelector('[data-msg-id="' + message.id + '"]') : null;
+        if (__dup2) return;
+        if (message.id) bubbleElement.setAttribute("data-msg-id", message.id);
         maybeDateSep();
         bubbleElement.dataset.ts = String(message.timestamp || message.ts || Date.now());
         bubbleElement.classList.add("msg-pop");
@@ -18561,11 +18567,11 @@ document.addEventListener("DOMContentLoaded", () => {
     // 房间模式下流式内容只进房间 UI（播放页气泡/聊天室），不写主聊天页
     const isPrivateStream = _genType === "private" && !roomLive;
     let area = null;
-    let acc = "", renderedCount = 0, queueBusy = false, tailEl = null;
+    let acc = "", renderedCount = 0, queueBusy = false, tailEl = null, streamEnded = false;
     const bubbleQueue = [];
     const clean = (t) => String(t).replace(/\[REVOKE_LAST\]|\[REVOKE:[A-Za-z0-9_\-\.]+\]/g, "").replace(/【心声】[\s\S]*$/m, "").replace(/\[BLOCK_USER\]|\[UNBLOCK_USER\]/g, "");
     const pump = () => {
-      if (queueBusy || bubbleQueue.length === 0) return;
+      if (streamEnded || queueBusy || bubbleQueue.length === 0) return;
       queueBusy = true;
       const { b } = bubbleQueue.shift();
       const character = db.characters.find((c) => c.id === currentChatId);
@@ -18825,15 +18831,23 @@ document.addEventListener("DOMContentLoaded", () => {
       for (let qi = 0; qi < 20 && queueBusy; qi++) await waitT();
     }
     if (fullResponse) {
+      /* 收尾前先掐断流式气泡队列，防止异步 pump 在重绘之后又追加临时气泡（重复渲染） */
+      streamEnded = true;
+      bubbleQueue.length = 0;
       await finalizeChatReply(fullResponse, chat, { skipBubbles: isPrivateStream, chatType: _genType });
       /* 私聊流式气泡是临时节点，ID 不在 history 里，长按只能走“复制”兜底。
          收尾后用落盘后的真实消息重绘一次，把所有临时版本换成可操作真实气泡。 */
       if (isPrivateStream && _isCur()) {
         if (tailEl && tailEl.parentNode) tailEl.parentNode.removeChild(tailEl);
         tailEl = null;
+        try {
+          document.querySelectorAll('#message-area [data-stream-temp="1"]').forEach(function (n) { n.remove(); });
+        } catch (e) {}
         renderMessages(false, true);
       }
     } else if (isPrivateStream && _isCur()) {
+      streamEnded = true;
+      bubbleQueue.length = 0;
       /* 空回复/被中断：清掉临时气泡，按真实历史重绘，避免留下只有“复制”的假消息 */
       if (tailEl && tailEl.parentNode) tailEl.parentNode.removeChild(tailEl);
       tailEl = null;
@@ -19103,8 +19117,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const ma = document.getElementById("message-area");
       if (ma) {
-        const sArea = ma.querySelector(".streaming-area");
-        if (sArea) sArea.remove();
+        ma.querySelectorAll(".streaming-area").forEach(function (n) { n.remove(); });
       }
     } catch (e) {
     }
