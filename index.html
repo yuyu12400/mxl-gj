@@ -12316,7 +12316,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.49";
+  const APP_VERSION = "v6.3.50";
   let db = {
     characters: [],
     groups: [],
@@ -16410,17 +16410,6 @@ document.addEventListener("DOMContentLoaded", () => {
       loadMoreButton.className = "load-more-btn";
       loadMoreButton.textContent = "\u52A0\u8F7D\u66F4\u65E9\u7684\u6D88\u606F";
       messageArea.prepend(loadMoreButton);
-    }
-    /* v6.3.31：渲染后自检——气泡数少于应有条数时补渲染一次（吞消息的兜底，只重试一次） */
-    if (!isLoadMore && !window.__mxgReRendering) {
-      try {
-        const expect = messagesToRender.filter(function(m){ return m && m.type !== "system_note"; }).length;
-        const got = messageArea.querySelectorAll(".message-wrapper").length;
-        if (got < expect) {
-          window.__mxgReRendering = true;
-          setTimeout(function(){ window.__mxgReRendering = false; try { renderMessages(false, !!forceScrollToBottom); } catch (e) {} }, 60);
-        }
-      } catch (e) {}
     }
     if (forceScrollToBottom) {
       setTimeout(() => {
