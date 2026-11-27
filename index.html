@@ -10451,6 +10451,8 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
   }
   var noted = {};
   var inited = {};
+  var bootAt = Date.now();
+  window.__mxgNotifyLog = [];
   window.__mxgSig = function (m) {
     if (!m) return "";
     return String(m.id || "") + "#" + Number(m.timestamp || m.ts || 0) + "#" + String(m.content || "").length + "#" + String(m.content || "").slice(0, 40);
@@ -10470,23 +10472,37 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
       (db.characters || []).forEach(function (c) { lists.push({ key: c.id, type: "private", o: c }); });
       (db.groups || []).forEach(function (g) { lists.push({ key: g.id, type: "group", o: g }); });
       lists.forEach(function (a) {
-        var h = (a.o.history || []).filter(function (m) { return m && m.role === "assistant" && m.content && m.type !== "system" && !m.loading && !m.revoked; });
+        var src = a.o.history || a.o.messages || [];
+        var h = src.filter(function (m) { return m && m.role !== "user" && m.content && m.type !== "system" && m.type !== "system_note" && !m.loading && !m.revoked; });
         var here = act === "chat-room-screen" && !document.hidden && cur && cur === a.key;
         if (here) {
           h.forEach(function (m) { noted[window.__mxgSig(m)] = 1; });
           inited[a.key] = 1;
+          window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "room" });
           return;
         }
         if (!inited[a.key]) {
-          h.forEach(function (m) { noted[window.__mxgSig(m)] = 1; });
+          h.forEach(function (m) {
+            var ts = Number(m.timestamp || m.ts || 0);
+            if (ts && ts >= bootAt - 2000) return;
+            noted[window.__mxgSig(m)] = 1;
+          });
           inited[a.key] = 1;
-          return;
+          window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "init" });
+          if (window.__mxgNotifyLog.length > 40) window.__mxgNotifyLog.shift();
+          if (!h.length) return;
         }
         var last = h[h.length - 1];
         if (!last) return;
         var sig = window.__mxgSig(last);
-        if (noted[sig]) return;
+        if (noted[sig]) {
+          window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "seen" });
+          if (window.__mxgNotifyLog.length > 40) window.__mxgNotifyLog.shift();
+          return;
+        }
         noted[sig] = 1;
+        window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "pop" });
+        if (window.__mxgNotifyLog.length > 40) window.__mxgNotifyLog.shift();
         var nm = a.o.remarkName || a.o.realName || a.o.nickname || a.o.name || "新消息";
         var txt = String(last.content).replace(/<[^>]*>/g, " ").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " ").trim();
         if (txt && window.__mxgBanner) window.__mxgBanner(nm, txt.slice(0, 90), { chatType: a.type, chatId: a.key }, true);
@@ -10500,6 +10516,29 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
       var nm = names.filter(Boolean)[0] || "新消息";
       window.__mxgBanner(nm, "如果你看到这条横幅，说明通知本身是通的。", null, true);
     } catch (e) {}
+  };
+  window.__mxgNotifyDebug = function () {
+    var out = [];
+    try {
+      var act = (document.querySelector(".screen.active") || {}).id || "none";
+      var cur = "";
+      try { cur = window.__mxgCurChatId ? window.__mxgCurChatId() : ""; } catch (e0) {}
+      out.push("页面=" + act + "  当前会话=" + (cur || "空") + "  后台=" + (document.hidden ? "是" : "否") + "  加载完成=" + (window.__mxgLoadDone ? "是" : "否"));
+      var lists = [];
+      (db.characters || []).forEach(function (c) { lists.push({ key: c.id, o: c, type: "私聊" }); });
+      (db.groups || []).forEach(function (g) { lists.push({ key: g.id, o: g, type: "群聊" }); });
+      lists.slice(0, 8).forEach(function (a) {
+        var src = a.o.history || a.o.messages || [];
+        var h = src.filter(function (m) { return m && m.role !== "user" && m.content && !m.loading && !m.revoked; });
+        var last = h[h.length - 1];
+        var sig = last ? window.__mxgSig(last) : "";
+        out.push(a.type + " " + (a.o.remarkName || a.o.realName || a.o.name || a.key) + " · 条数 " + src.length + " · 对方消息 " + h.length + (last ? (" · 已记录=" + (noted[sig] ? "是" : "否") + " · 初始化=" + (inited[a.key] ? "是" : "否")) : " · 无对方消息"));
+      });
+      out.push("最近判定：" + window.__mxgNotifyLog.slice(-8).map(function (x) { return new Date(x.t).toLocaleTimeString() + " " + String(x.k).slice(-6) + ":" + x.v; }).join(" | "));
+    } catch (e) { out.push("诊断出错:" + e.message); }
+    var box = document.getElementById("ntf-diag-out");
+    if (box) box.textContent = out.join("\n");
+    return out.join("\n");
   };
   window.__mxgNotifyScan = scanNew;
   setInterval(scanNew, 4000);
@@ -12562,6 +12601,8 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <button type="button" class="dta-tool" id="stg-diag-rebuild" style="width:100%;margin-top:8px;min-height:40px;color:#8a3b2e;border-color:#f0d9d4;background:#fff7f5;">数据库打不开？重建本地库</button>
         <button type="button" class="dta-tool" id="stg-diag-banner" style="width:100%;margin-top:8px;min-height:40px;" onclick="window.__mxgTestBanner&&window.__mxgTestBanner()">测试消息横幅通知</button>
+        <button type="button" class="dta-tool" id="stg-diag-ntf" style="width:100%;margin-top:8px;min-height:40px;" onclick="window.__mxgNotifyDebug&&window.__mxgNotifyDebug()">通知诊断</button>
+        <div id="ntf-diag-out" style="margin-top:8px;font-size:11px;line-height:1.8;color:#555;white-space:pre-wrap;word-break:break-all;"></div>
       </div>
 
       <div class="dta-note">导出内容：聊天、角色、面具、群聊、世界书、记忆、线下、论坛、情侣空间、钱包、手机、音乐、商城和全部设置。</div>
@@ -12700,7 +12741,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.22";
+  const APP_VERSION = "v6.4.23";
   let db = {
     characters: [],
     groups: [],
@@ -13055,7 +13096,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.22：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.23：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
