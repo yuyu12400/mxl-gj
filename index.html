@@ -10703,6 +10703,9 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <button class="icon-btn" id="offline-send-btn" style="background-color:var(--primary-color); color:#fff;">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
+            <button class="icon-btn" id="offline-fc-btn" title="亲属卡" style="background-color:#fff; color:#B08A4F; border:1px solid #C9A961;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#B08A4F" stroke-width="1.3" stroke-linecap="round"><rect x="3" y="6" width="18" height="12" rx="3"/><path d="M3 10h18"/><path d="M7 15h4"/></svg>
+            </button>
             <button class="icon-btn" id="offline-reply-btn" style="background-color:#e8e8ea; color:#333;">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12,2A10,10 0 1,0 22,12A10,10 0 0,0 12,2M12,20A8,8 0 1,1 20,12A8,8 0 0,1 12,20M16.24,7.76C15.07,6.58 13.53,6 12,6V12L7.76,16.24C10.1,18.58 13.9,18.58 16.24,16.24C18.58,13.9 18.58,10.1 16.24,7.76Z"/></svg>
             </button>
@@ -12317,7 +12320,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.7";
+  const APP_VERSION = "v6.4.8";
   let db = {
     characters: [],
     groups: [],
@@ -42463,7 +42466,8 @@ window.bsRoomAI = bsRoomAI;
 }
 
 /* ===== 资产（纯白 / 墨黑 / 香槟金，冷调，不含任何米色） ===== */
-#asset-screen { background:#fff; color:#101010; display:flex; flex-direction:column; overflow:hidden; }
+#asset-screen { background:#fff; color:#101010; flex-direction:column; overflow:hidden; }
+#asset-screen.active { display:flex; }
 #asset-screen .as-bar { flex:0 0 auto; }
 #asset-screen .as-main { flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y; }
 #asset-screen .as-bar { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:10px; padding:14px 16px 12px; background:#fff; border-bottom:1px solid #101010; }
@@ -42576,11 +42580,73 @@ window.bsRoomAI = bsRoomAI;
 #asset-screen .as-wm { margin:14px 0 2px; font-size:calc(var(--app-fs,1) * 8px); letter-spacing:4px; color:#cfcfcf; text-align:right; }
 
 #asset-screen .as-stack { position:relative; margin-top:14px; min-height:176px; }
-#asset-screen .as-stack .as-bank { position:absolute; left:0; right:0; top:0; margin:0; width:auto; transform-origin:50% 0; transition:transform .42s cubic-bezier(.2,.9,.2,1), opacity .3s, filter .3s; will-change:transform; }
+#asset-screen .as-stack .as-bank { position:absolute; left:0; right:78px; top:0; height:168px; margin:0; width:auto; transform-origin:0 50%; transition:transform .46s cubic-bezier(.2,.9,.2,1), opacity .3s; contain:paint; }
+#asset-screen .as-stack { contain:layout paint; }
 #asset-screen .as-stack .as-bank .bk-hit { position:absolute; inset:0; }
 #asset-screen .as-stack .as-bank.off { pointer-events:auto; }
 #asset-screen .as-stack .as-bank.on { pointer-events:auto; }
 #asset-screen .as-stack-hint { margin-top:8px; text-align:right; font-size:calc(var(--app-fs,1) * 8px); letter-spacing:2.4px; color:#b9b9b9; }
+/* ===== 资产 · 形态改版（圆角 / 实色块 / 花体，弱化硬线条） ===== */
+#asset-screen { background:#fff; }
+#asset-screen .as-cover { height:186px; margin:-6px 0 20px; border:0; border-radius:22px; background:#111214; overflow:hidden; }
+#asset-screen .as-cover .cv-img { filter:grayscale(1) contrast(1.05); opacity:.62; }
+#asset-screen .as-cover .cv-art { opacity:.9; }
+#asset-screen .as-cover .cv-vt { color:#fff; opacity:.55; letter-spacing:8px; font-size:calc(var(--app-fs,1) * 13px); right:16px; top:16px; }
+#asset-screen .as-cover .cv-tag { left:16px; bottom:16px; background:transparent; border:0; border-left:2px solid #C9A961; color:#fff; opacity:.8; padding:0 0 0 8px; letter-spacing:3px; }
+#asset-screen .as-cover .cv-fx { right:14px; bottom:14px; border:0; border-bottom:1px solid #C9A961; color:#C9A961; padding:0 0 2px; background:transparent; letter-spacing:2px; }
+#asset-screen .as-cover .cv-script { position:absolute; left:16px; top:16px; font-family:var(--font-family, serif); font-style:italic; font-size:calc(var(--app-fs,1) * 27px); line-height:1.1; color:#fff; opacity:.95; letter-spacing:1px; }
+#asset-screen .as-cover .cv-sub { position:absolute; left:18px; top:calc(16px + 66px); font-size:calc(var(--app-fs,1) * 8.5px); letter-spacing:4px; color:#C9A961; opacity:.9; }
+
+#asset-screen .as-net { margin-top:4px; padding:18px 18px 16px; border-radius:20px; background:#111214; color:#fff; }
+#asset-screen .as-net-num { color:#fff; font-size:calc(var(--app-fs,1) * 38px); }
+#asset-screen .as-net-num i { color:#C9A961; }
+#asset-screen .as-net-sub { color:rgba(255,255,255,.55); }
+#asset-screen .as-net-sub span.up { color:#C9A961; }
+#asset-screen .as-gold-rule { display:none; }
+
+#asset-screen .as-banner { border:0; border-radius:18px; background:#f4f4f5; padding:18px 16px 16px; }
+#asset-screen .as-banner .bn-art { opacity:.10; right:-18px; top:-16px; width:110px; height:110px; }
+#asset-screen .as-banner .bn-t { font-style:italic; font-size:calc(var(--app-fs,1) * 18px); }
+#asset-screen .as-banner .bn-k { color:#B08A4F; }
+#asset-screen .as-seal { border:0; border-radius:50%; background:#111214; color:#C9A961; transform:rotate(-8deg); font-size:calc(var(--app-fs,1) * 7px); }
+
+#asset-screen .as-cats { gap:9px; }
+#asset-screen .as-cat { border:1px solid #ececec; border-radius:16px; background:#fafafa; padding:13px 13px 12px; }
+#asset-screen .as-cat.wide { background:#111214; border-color:#111214; }
+#asset-screen .as-cat.wide .as-cat-t, #asset-screen .as-cat.wide .as-cat-n { color:#fff; }
+#asset-screen .as-cat.wide .as-cat-c { color:#C9A961; }
+#asset-screen .as-cat.wide .as-ico svg { stroke:#fff; }
+#asset-screen .as-cat.tall { background:#fff; }
+#asset-screen .as-cat:active { background:#111214; border-color:#111214; }
+#asset-screen .as-cat:active .as-cat-t, #asset-screen .as-cat:active .as-cat-n { color:#fff; }
+#asset-screen .as-cat:active .as-ico svg { stroke:#fff; }
+
+#asset-screen .as-plate { height:180px; border:0; border-radius:20px; background:#f4f4f5; }
+#asset-screen .as-plate .pl-cn { border:0; background:transparent; color:#B08A4F; }
+#asset-screen .as-plate .pl-fx { display:none; }
+#asset-screen .as-grid2 { margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:8px; border:0; }
+#asset-screen .as-cell { border:0; border-radius:12px; background:#f6f6f7; padding:10px 12px; }
+#asset-screen .as-cell em { color:#9c9c9c; }
+#asset-screen .as-hd { border:0; border-radius:14px; background:#f6f6f7; border-left:3px solid #C9A961; }
+#asset-screen .as-mem-i { border-left:0; border-radius:14px; background:#f7f7f8; padding:14px 14px 12px; margin-bottom:10px; }
+#asset-screen .as-mem-i .mn { display:inline-block; color:#fff; background:#111214; border-radius:8px; padding:2px 7px; font-size:calc(var(--app-fs,1) * 12px); letter-spacing:2px; }
+#asset-screen .as-mem-i .mt { margin-top:9px; font-size:calc(var(--app-fs,1) * 12px); }
+#asset-screen .as-rel-c { border:0; border-radius:14px; background:#f6f6f7; }
+#asset-screen .as-bank { border:0; border-radius:20px; background:linear-gradient(160deg,#17171a 0%,#232327 55%,#33333a 100%); padding:18px 20px 20px; }
+#asset-screen .as-bank::after { content:""; position:absolute; right:-40px; top:-60px; width:170px; height:170px; border-radius:50%; background:radial-gradient(circle,rgba(201,169,97,.16),rgba(201,169,97,0) 68%); pointer-events:none; }
+#asset-screen .as-bank.on { box-shadow:0 16px 34px rgba(16,16,18,.24); }
+#asset-screen .as-stack { margin-top:16px; padding-right:26px; }
+#asset-screen .as-stack .as-bank { left:0; right:0; border-radius:20px; }
+#asset-screen .as-stack-hint { color:#b08a4f; }
+#asset-screen .as-tool { border-radius:12px; }
+#asset-screen .as-tool.solid { border-radius:12px; }
+
+.o-fc-card.out { border-color:#C9A961; background:#fff; }
+.o-fc-card.out .fct { color:#B08A4F; }
+.o-fc-card.out .fcn { color:#101010; }
+.o-fc-card.out .fcf { color:#7a7a7a; }
+.o-fc-card.out .fcv { color:#B08A4F; }
+
 #asset-screen .as-foot { margin-top:26px; text-align:center; font-size:calc(var(--app-fs,1) * 8.5px); letter-spacing:3px; color:#c6c6c6; }
 
 #asset-screen .as-list { margin-top:12px; }
@@ -45544,16 +45610,17 @@ function wb2DeleteEntry() {
     var d=ICO[k]||ICO['特殊'];
     return '<span class="as-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg></span>';
   }
-  function artRing(seed){
+  function artRing(seed, light){
     var n=Number(seed)||0;
     var cx=50+n%7, cy=46+n%5, r=30+n%9;
-    return '<svg viewBox="0 0 100 100" fill="none" stroke="#101010" stroke-width=".7">'
-      +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-opacity=".45"/>'
+    var ink=light?'#ffffff':'#101010';
+    return '<svg viewBox="0 0 100 100" fill="none" stroke="'+ink+'" stroke-width=".7">'
+      +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-opacity="'+(light?'.38':'.45')+'"/>'
       +'<circle cx="'+cx+'" cy="'+cy+'" r="'+(r-9)+'" stroke-opacity=".22" stroke-dasharray="2 5"/>'
-      +'<circle cx="'+(cx+8)+'" cy="'+(cy-10)+'" r="6" stroke="#B08A4F" stroke-opacity=".7"/>'
-      +'<path d="M'+cx+' 4v12M'+cx+' '+(cy+r+4)+'v10" stroke-opacity=".3"/>'
-      +'<path d="M4 '+cy+'h12M'+(cx+r+4)+' '+cy+'h10" stroke-opacity=".3"/>'
-      +'<path d="M'+(cx-r)+' '+(cy+r)+'l'+(2*r)+' 0" stroke="#B08A4F" stroke-opacity=".55"/>'
+      +'<circle cx="'+(cx+8)+'" cy="'+(cy-10)+'" r="6" stroke="#C9A961" stroke-opacity=".85"/>'
+      +'<path d="M'+cx+' 4v12M'+cx+' '+(cy+r+4)+'v10" stroke-opacity=".28"/>'
+      +'<path d="M4 '+cy+'h12M'+(cx+r+4)+' '+cy+'h10" stroke-opacity=".28"/>'
+      +'<path d="M'+(cx-r)+' '+(cy+r)+'l'+(2*r)+' 0" stroke="#C9A961" stroke-opacity=".6"/>'
       +'</svg>';
   }
 
@@ -45563,10 +45630,13 @@ function wb2DeleteEntry() {
   }
 
   function coverHtml(r){
-    var bg=r.cover?('<div class="cv-img" style="background-image:url('+r.cover+')"></div>'):('<div class="cv-art">'+artRing((r.items||[]).length+7)+'</div>');
+    var bg=r.cover?('<div class="cv-img" style="background-image:url('+r.cover+')"></div>'):('<div class="cv-art">'+artRing((r.items||[]).length+7,true)+'</div>');
+    var nm=(function(){ var ch=charNow(); return ch?(ch.remarkName||ch.realName||''):''; })();
     return '<div class="as-cover">'+bg
+      +'<div class="cv-script">'+(nm||'私人')+'<br>账册</div>'
+      +'<div class="cv-sub">PRIVATE LEDGER · 404</div>'
       +'<div class="cv-vt">帐</div>'
-      +'<div class="cv-tag">EST. 404 · PRIVATE LEDGER</div>'
+      +'<div class="cv-tag">EST. 404 · 私藏之物</div>'
       +'<div class="cv-fx" data-cover="1">'+(r.cover?'换图':'换封面图')+'</div></div>';
   }
 
@@ -45681,7 +45751,7 @@ function wb2DeleteEntry() {
     return '<div class="as-cap"><b>'+esc(it.cat)+'</b><span>'+esc(c.en||'')+' / '+String(idx).padStart(2,'0')+'</span></div><div class="as-rule"></div>'
       + plateHtml(it)
       + '<div class="as-detail-top"><div class="as-vert">'+(c.en||'OBJECT')+' · 档案<span class="g">◆</span></div>'
-      + '<div class="as-dbody"><h2>'+esc(it.name)+'</h2><div class="dv">¥ '+money(it.value)+'</div>'
+      + '<div class="as-dbody"><div class="as-flour" style="font-family:var(--font-family, serif);font-style:italic;font-size:calc(var(--app-fs,1) * 11px);letter-spacing:1px;color:#B08A4F;opacity:.85">'+esc((c.en||'object').toLowerCase())+' · no.'+String(idx).padStart(2,'0')+'</div><h2>'+esc(it.name)+'</h2><div class="dv">¥ '+money(it.value)+'</div>'
       + '<div class="as-grid2">'
       + '<div class="as-cell"><em>购置</em><b>'+esc(it.bought||'—')+'</b></div>'
       + '<div class="as-cell"><em>持有</em><b>'+esc(yrs)+'</b></div>'
@@ -45763,15 +45833,36 @@ function wb2DeleteEntry() {
     bind();
   }
 
+  function shrink(file, cb){
+    var r=new FileReader();
+    r.onload=function(){
+      var img=new Image();
+      img.onload=function(){
+        try{
+          var m=1100, w=img.naturalWidth, h=img.naturalHeight;
+          var sc=Math.min(1, m/Math.max(w,h));
+          var cv=document.createElement('canvas');
+          cv.width=Math.max(1,Math.round(w*sc)); cv.height=Math.max(1,Math.round(h*sc));
+          var cx=cv.getContext('2d');
+          cx.fillStyle='#ffffff'; cx.fillRect(0,0,cv.width,cv.height);
+          cx.drawImage(img,0,0,cv.width,cv.height);
+          cb(cv.toDataURL('image/jpeg',0.82));
+        }catch(e){ cb(String(r.result||'')); }
+      };
+      img.onerror=function(){ cb(''); };
+      img.src=String(r.result||'');
+    };
+    r.onerror=function(){ cb(''); };
+    r.readAsDataURL(file);
+  }
+
   function pickImg(cb){
     var inp=document.createElement('input');
     inp.type='file'; inp.accept='image/*'; inp.style.display='none';
     inp.onchange=function(){
       var f=inp.files&&inp.files[0];
       if(!f){ inp.remove(); return; }
-      try{
-        compressImageToDataUrl(f, function(url){ try{ cb(url); }catch(e){} inp.remove(); }, 1100, 0.82);
-      }catch(e){ inp.remove(); }
+      shrink(f, function(url){ if(url){ try{ cb(url); }catch(e){} } inp.remove(); });
     };
     document.body.appendChild(inp); inp.click();
   }
@@ -45841,12 +45932,12 @@ function wb2DeleteEntry() {
       var els=stack.querySelectorAll('.as-bank');
       var lay=function(){
         var n=els.length;
-        stack.style.height=(166+(n-1)*18+22)+'px';
+        stack.style.height='188px';
         var front=[];
         if(els[cur]) front.push(els[cur]);
         for(var i=0;i<n;i++){ if(i!==cur) front.push(els[i]); }
         front.forEach(function(el,k){
-          el.style.transform='translate3d(0,'+(k*18)+'px,0) scale('+(1-k*0.045)+')';
+          el.style.transform='translate3d('+(k*34)+'px,'+(k*8)+'px,0) scale('+(1-k*0.03)+')';
           el.style.zIndex=String(100-k);
           el.classList.toggle('on', k===0);
           el.classList.toggle('off', k!==0);
@@ -45995,6 +46086,10 @@ function wb2DeleteEntry() {
   }
 
   window.__mxgOpenAsset=open;
+  window.__mxgAI=ai;
+  window.__mxgCtx=ctxOf;
+  window.__mxgRec=recOf;
+  window.__mxgRenderAsset=function(){ try{ render(); }catch(e){} };
   window.__mxgAssetMount=function(char){
     try{
       var acts=document.querySelector('#char-profile-screen .profile-actions');
@@ -46035,12 +46130,14 @@ function wb2DeleteEntry() {
 
   function cardNode(h){
     var el=document.createElement('div');
-    el.className='o-fc-card'+(h.fc&&h.fc.status&&h.fc.status!=='pending'?' done':'');
+    var out=(h.dir==='out');
+    var st=(h.fc&&h.fc.status)||'pending';
+    el.className='o-fc-card'+(out?' out':'')+((st!=='pending'&&st!=='waiting')?' done':'');
     el.innerHTML='<div class="fct">FAMILY CARD</div>'
       +'<div class="fcn">亲属卡</div>'
-      +'<div class="fcf">给你留了一张，额度他定</div>'
+      +'<div class="fcf">'+(out?'我给他办的，额度我定':'给你留了一张，额度他定')+'</div>'
       +'<div class="fcv">¥ '+money(h.fc&&h.fc.limit)+'</div>'
-      +'<div class="fcs">'+((h.fc&&h.fc.status==='accepted')?'已收下':(h.fc&&h.fc.status==='declined'?'已退回':'点击查看'))+'</div>';
+      +'<div class="fcs">'+(out?(st==='accepted'?'他收下了':(st==='declined'?'他退回来了':'等他回话')):(st==='accepted'?'已收下':(st==='declined'?'已退回':'点击查看')))+'</div>';
     el.onclick=function(){ openModal(h); };
     return el;
   }
@@ -46051,10 +46148,38 @@ function wb2DeleteEntry() {
     return el;
   }
 
+  function ctxOf(char){
+    try{ return window.__mxgCtx?window.__mxgCtx(char):''; }catch(e){ return ''; }
+  }
+
+  async function aiCall(sys, user){
+    if(!window.__mxgAI) return null;
+    try{ return await window.__mxgAI(sys,user); }catch(e){ return null; }
+  }
+
   function openModal(h){
     var m=document.getElementById('fc-modal'), b=document.getElementById('fc-body');
     if(!m||!b) return;
+    var out=(h.dir==='out');
     var st=(h.fc&&h.fc.status)||'pending';
+    if(out){
+      b.innerHTML='<div class="k">FAMILY CARD / 404</div>'
+        +'<h3>我给他的亲属卡</h3>'
+        +'<div class="who">额度 ¥'+money(h.fc&&h.fc.limit)+' · 每月从他身上出</div>'
+        +'<div class="tip">'+(st==='accepted'?'他已经收下了。':(st==='declined'?'他把这张卡退回来了。':'他还没表态。要不要问一句？'))+'</div>'
+        +'<div class="row">'
+        +(st==='waiting'||st==='pending'
+            ? '<button type="button" class="decline" id="fc-close">先放着</button><button type="button" class="accept" id="fc-ask">问问他</button>'
+            : '<button type="button" class="accept" id="fc-close">知道了</button>')
+        +'</div>';
+      m.hidden=false;
+      var close=function(){ m.hidden=true; };
+      var cl=b.querySelector('#fc-close'); if(cl) cl.onclick=close;
+      var ak=b.querySelector('#fc-ask');
+      if(ak) ak.onclick=function(){ ak.textContent='等他回话…'; judgeOut(h, close); };
+      m.onclick=function(e){ if(e.target===m) close(); };
+      return;
+    }
     b.innerHTML='<div class="k">FAMILY CARD / 404</div>'
       +'<h3>亲属卡</h3>'
       +'<div class="who">'+esc(h.fc&&h.fc.from?h.fc.from:'他')+' 给你办的</div>'
@@ -46066,14 +46191,43 @@ function wb2DeleteEntry() {
           : '<button type="button" class="accept" id="fc-close">知道了</button>')
       + '</div>';
     m.hidden=false;
-    var close=function(){ m.hidden=true; };
+    var close2=function(){ m.hidden=true; };
     if(st==='pending'){
-      b.querySelector('#fc-yes').onclick=function(){ settle(h,'accepted',close); };
-      b.querySelector('#fc-no').onclick=function(){ settle(h,'declined',close); };
+      b.querySelector('#fc-yes').onclick=function(){ settle(h,'accepted',close2); };
+      b.querySelector('#fc-no').onclick=function(){ settle(h,'declined',close2); };
     }else{
-      b.querySelector('#fc-close').onclick=close;
+      b.querySelector('#fc-close').onclick=close2;
     }
-    m.onclick=function(e){ if(e.target===m) close(); };
+    m.onclick=function(e){ if(e.target===m) close2(); };
+  }
+
+  function paintCard(h){
+    try{
+      var area=document.getElementById('offline-chat-area');
+      if(!area) return;
+      var st=(h.fc&&h.fc.status)||'pending';
+      area.querySelectorAll('.o-fc-card').forEach(function(c){
+        var s=c.querySelector('.fcs');
+        if(!s) return;
+        if(h.dir==='out'){ s.textContent=(st==='accepted'?'他收下了':(st==='declined'?'他退回来了':'等他回话')); }
+        else { s.textContent=(st==='accepted'?'已收下':(st==='declined'?'已退回':'点击查看')); }
+        if(st!=='pending'&&st!=='waiting') c.classList.add('done');
+      });
+      area.scrollTop=area.scrollHeight;
+    }catch(e){}
+  }
+
+  function pushNote(text, sub){
+    var note={ role:'system', type:'sys_note', ts:Date.now(), content:text, sub:sub||'' };
+    try{
+      var oc=window.__mxgCurOfflineChat&&window.__mxgCurOfflineChat();
+      if(oc&&oc.history) oc.history.push(note);
+    }catch(e){}
+    persist();
+    try{
+      var area=document.getElementById('offline-chat-area');
+      if(area){ area.appendChild(noteNode(note)); area.scrollTop=area.scrollHeight; }
+    }catch(e){}
   }
 
   function settle(h, verdict, done){
@@ -46087,33 +46241,127 @@ function wb2DeleteEntry() {
     }catch(e){}
     persist();
     done&&done();
-    /* 就地更新 DOM，不重排整页 */
+    paintCard(h);
     try{
       var area=document.getElementById('offline-chat-area');
-      if(area){
-        area.querySelectorAll('.o-fc-card').forEach(function(c){ c.classList.add('done'); var s=c.querySelector('.fcs'); if(s) s.textContent=(verdict==='accepted'?'已收下':'已退回'); });
-        area.appendChild(noteNode(note));
-        area.scrollTop=area.scrollHeight;
-      }
+      if(area){ area.appendChild(noteNode(note)); area.scrollTop=area.scrollHeight; }
     }catch(e){}
   }
 
-  /* 进聊天时，如果角色决定过要发亲属卡且还没发，就补一条卡片消息进历史 */
+  /* 我给他的卡：由他按人设决定收不收，一次调用 */
+  async function judgeOut(h, done){
+    done&&done();
+    var char=(function(){ try{ var oc=window.__mxgCurOfflineChat&&window.__mxgCurOfflineChat(); if(!oc) return null; var id=oc.charIds&&oc.charIds[0]; return (db.characters||[]).find(function(c){ return c.id===id; })||null; }catch(e){ return null; }})();
+    if(!char){ paintCard(h); return; }
+    var raw=await aiCall('你只输出严格 JSON，不做额外解释。',
+      '角色：\n'+ctxOf(char).slice(0,1600)
+      +'\n\n情境：对方主动给他办了一张亲属卡，每月额度 ¥'+money(h.fc&&h.fc.limit)+'，钱从他的钱包里出。\n'
+      +'按他的性格、处境、和对方的关系，判断他会不会收下；并且他想说一句很短的话（不超过 18 个字，口语，不要旁白）。\n'
+      +'只输出 JSON：{"accept":true,"line":"他说的话"}');
+    var o=null; try{ var t=String(raw||''); var a=t.indexOf('{'), bb=t.lastIndexOf('}'); o=JSON.parse(t.slice(a,bb+1)); }catch(e){ o=null; }
+    if(!o){ pushNote('他没有回应这张卡', '也许过一阵再说'); paintCard(h); return; }
+    h.fc.status = o.accept?'accepted':'declined'; h.fc.ts=Date.now();
+    persist();
+    paintCard(h);
+    var line=String(o.line||'').slice(0,30);
+    if(line){
+      try{
+        var oc=window.__mxgCurOfflineChat&&window.__mxgCurOfflineChat();
+        if(oc&&oc.history) oc.history.push({ role:'assistant', charId:char.id, content:line, ts:Date.now() });
+      }catch(e){}
+      persist();
+      try{
+        var area=document.getElementById('offline-chat-area');
+        if(area && window.__mxgFillBubble!==undefined){}
+      }catch(e){}
+    }
+    pushNote(o.accept?'他收下了这张亲属卡':'他把这张卡退回来了', line||'');
+  }
+
+  /* 进聊天时，角色按人设自己决定发不发亲属卡（不依赖资产档案是否刷过） */
   window.__mxgFcNode=cardNode; window.__mxgSysNode=noteNode;
   window.__mxgOfflineAugment=function(oc, char){
     try{
       if(!oc||!char||!oc.history) return;
-      var r=rec(char.id); if(!r||!r.familyCard||!r.familyCard.issue) return;
-      if(r.familyCard.sent) return;
-      var has=oc.history.some(function(h){ return h&&h.type==='family_card'; });
-      if(has){ r.familyCard.sent=true; return; }
-      r.familyCard.sent=true; r.familyCard.status='pending';
-      oc.history.push({ role:'assistant', charId:char.id, type:'family_card', ts:Date.now(),
-        content:'[亲属卡：'+money(r.familyCard.limit)+']',
-        fc:{ limit:r.familyCard.limit, from:(char.remarkName||char.realName||'他'), status:'pending' } });
-      persist();
+      var has=oc.history.some(function(h){ return h&&h.type==='family_card'&&h.dir!=='out'; });
+      if(has) return;
+      var r=window.__mxgRec?window.__mxgRec(char.id):null;
+      var fc=r&&r.familyCard;
+      if(fc&&fc.issue===false) return;
+      if(fc&&fc.issue&&!fc.sent){
+        fc.sent=true; fc.status='pending';
+        oc.history.push({ role:'assistant', charId:char.id, type:'family_card', ts:Date.now(),
+          content:'[亲属卡：'+money(fc.limit)+']',
+          fc:{ limit:fc.limit, from:(char.remarkName||char.realName||'他'), status:'pending' } });
+        persist();
+        return;
+      }
+      if(fc&&fc.sent) return;
+      /* 没有资产档案：独立判定一次，结果缓存在角色身上 */
+      if(char.__fcAsked) return;
+      char.__fcAsked=true;
+      aiCall('你只输出严格 JSON。',
+        '角色：\n'+ctxOf(char).slice(0,1600)
+        +'\n\n他私下会不会主动给最亲近的人办一张亲属卡（每月固定额度从他自己的钱里出）？只有性格愿意、且手头有余力才会；不愿意或拮据就不办。额度按他的财力给。\n'
+        +'只输出 JSON：{"issue":true,"limit":5000}').then(function(raw){
+        var o=null; try{ var t=String(raw||''); var a=t.indexOf('{'), bb=t.lastIndexOf('}'); o=JSON.parse(t.slice(a,bb+1)); }catch(e){ o=null; }
+        if(!o||!o.issue) return;
+        var lim=Math.max(100,Math.round(Number(o.limit)||3000));
+        var rr=window.__mxgRec?window.__mxgRec(char.id):null;
+        if(rr&&rr.familyCard&&rr.familyCard.sent) return;
+        oc.history.push({ role:'assistant', charId:char.id, type:'family_card', ts:Date.now(),
+          content:'[亲属卡：'+money(lim)+']',
+          fc:{ limit:lim, from:(char.remarkName||char.realName||'他'), status:'pending' } });
+        if(rr) rr.familyCard={ issue:true, limit:lim, sent:true, status:'pending' };
+        persist();
+        try{
+          var area=document.getElementById('offline-chat-area');
+          if(area){ area.appendChild(cardNode(oc.history[oc.history.length-1])); area.scrollTop=area.scrollHeight; }
+        }catch(e){}
+      }).catch(function(){});
     }catch(e){}
   };
+
+  /* 我主动给他发一张亲属卡 */
+  function sendOut(limit){
+    var oc=window.__mxgCurOfflineChat&&window.__mxgCurOfflineChat();
+    if(!oc||!oc.history) return;
+    var msg={ role:'user', type:'family_card', dir:'out', ts:Date.now(),
+      content:'[亲属卡（我给的）：'+money(limit)+']',
+      fc:{ limit:limit, from:'我', status:'waiting' } };
+    oc.history.push(msg);
+    persist();
+    try{
+      var area=document.getElementById('offline-chat-area');
+      if(area){ area.appendChild(cardNode(msg)); area.scrollTop=area.scrollHeight; }
+    }catch(e){}
+  }
+
+  function openSendSheet(){
+    var m=document.getElementById('fc-modal'), b=document.getElementById('fc-body');
+    if(!m||!b) return;
+    var def=3000;
+    b.innerHTML='<div class="k">FAMILY CARD / 404</div>'
+      +'<h3>给他一张亲属卡</h3>'
+      +'<div class="who">额度你定，每月从他身上出</div>'
+      +'<div class="amt"><em>额度</em><b><input id="fc-lim" type="number" inputmode="numeric" value="'+def+'" style="width:120px;border:0;border-bottom:1px solid #111;font-size:16px;text-align:right;background:transparent;font-family:inherit;"></b></div>'
+      +'<div class="tip">他不会客套，只会按自己的处境决定收还是不收。</div>'
+      +'<div class="row"><button type="button" class="decline" id="fc-cancel">算了</button><button type="button" class="accept" id="fc-do">递过去</button></div>';
+    m.hidden=false;
+    var close=function(){ m.hidden=true; };
+    b.querySelector('#fc-cancel').onclick=close;
+    b.querySelector('#fc-do').onclick=function(){
+      var inp=b.querySelector('#fc-lim');
+      var lim=Math.max(1,Math.round(Number(inp&&inp.value)||def));
+      close(); sendOut(lim);
+    };
+    m.onclick=function(e){ if(e.target===m) close(); };
+  }
+
+  try{
+    var fb=document.getElementById('offline-fc-btn');
+    if(fb) fb.onclick=function(e){ e.preventDefault(); openSendSheet(); };
+  }catch(e){}
 })();
 
 </script>
