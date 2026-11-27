@@ -10493,14 +10493,25 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     bar.parentNode.insertBefore(strip, bar);
     return strip;
   }
+  function doSend(){
+    if(!attach.length) return;
+    var files=attach.slice();
+    attach.length=0; renderStrip();
+    var ta=document.getElementById('offline-chat-input');
+    var txt=ta?ta.value.trim():'';
+    if(ta) ta.value='';
+    if(typeof window.__mxgSendImages==='function') window.__mxgSendImages(files, txt);
+  }
   function renderStrip(){
     var el=ensureStrip(); if(!el) return;
     if(!attach.length){ el.hidden=true; el.innerHTML=''; return; }
     el.hidden=false;
-    el.innerHTML='<div class="oa-l">待发 '+attach.length+' 张 · 点发送一起送出</div>'
+    el.innerHTML='<div class="oa-l"><span>已选 '+attach.length+' 张 · 可继续选，或直接点右边发送</span><button type="button" class="oa-go">发送 '+attach.length+' 张</button></div>'
       +'<div class="oa-row">'+attach.map(function(f,i){
           return '<div class="oa-th" data-i="'+i+'"><img src="'+(f.__u||'')+'" alt=""><span class="oa-x">×</span></div>';
         }).join('')+'</div>';
+    var go=el.querySelector('.oa-go');
+    if(go) go.onclick=function(){ doSend(); };
     el.querySelectorAll('.oa-th').forEach(function(n){
       n.onclick=function(){
         var i=Number(n.getAttribute('data-i'));
@@ -10536,12 +10547,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
       send.addEventListener('click', function(e){
         if(!attach.length) return;
         e.preventDefault(); e.stopImmediatePropagation();
-        var files=attach.slice();
-        attach.length=0; renderStrip();
-        var ta=document.getElementById('offline-chat-input');
-        var txt=ta?ta.value.trim():'';
-        if(ta) ta.value='';
-        if(typeof window.__mxgSendImages==='function') window.__mxgSendImages(files, txt);
+        doSend();
       }, true);
     }
   }catch(e){}
@@ -10938,7 +10944,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             <button class="icon-btn" id="offline-send-btn" style="background-color:var(--primary-color); color:#fff;">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
             </button>
-            <input type="file" id="offline-img-input" accept="image/*" multiple style="display:none">
+            <input type="file" id="offline-img-input" accept="image/*" multiple style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;left:-9999px;top:0;">
             <button class="icon-btn" id="offline-img-btn" title="识图 · 可多选" style="background-color:#fff; color:#111; border:1px solid #d8d8d8;">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="8.5" cy="10" r="1.6"/><path d="M21 16l-5-5L6 19"/></svg>
             </button>
@@ -12559,7 +12565,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.14";
+  const APP_VERSION = "v6.4.15";
   let db = {
     characters: [],
     groups: [],
@@ -12913,7 +12919,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.14：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.15：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
@@ -16783,6 +16789,14 @@ document.addEventListener("DOMContentLoaded", () => {
       iw.innerHTML = '\n                    <div class="cp-invite-bubble">\n                        <div class="cib-top">\n                            <div class="cib-ava">'.concat(cobj && cobj.avatar ? '<img src="'.concat(escapeHtml(cobj.avatar), '">') : escapeHtml((cobj && cobj.realName || "?")[0]), '</div>\n                            <div>\n                                <div class="cib-name">').concat(escapeHtml(cobj && cobj.realName || ""), '</div>\n                                <div class="cib-role">\u60C5\u4FA3\u7A7A\u95F4 \xB7 \u9080\u8BF7\u5361\u7247</div>\n                            </div>\n                        </div>\n                        <div class="cib-body">\u9080\u8BF7\u4F60\u5EFA\u7ACB\u5C5E\u4E8E\u4E24\u4E2A\u4EBA\u7684\u5C0F\u4E16\u754C\u2014\u2014\u6709\u4EA4\u6362\u65E5\u8BB0\u3001\u4FE1\u4EF6\u3001\u76F8\u518C\u3001\u5F85\u529E\u3001\u7EAA\u5FF5\u65E5\u3001\u5FC3\u60C5\u5361\u3001\u95EE\u5377\u548C\u5410\u69FD\u76D2\u3002\u56DE\u5E94\u6211\uFF0C\u6211\u4EEC\u5C31\u5F00\u59CB\u5427\u3002</div>\n                        ').concat(stateHtml, "\n                    </div>");
       return iw;
     }
+    if (message && message.type === "images" && message.imgs && message.imgs.length && window.__mxgImgCard) {
+      const iw = document.createElement("div");
+      iw.className = "message-wrapper mxg-imgwrap";
+      iw.dataset.id = message.id || "";
+      iw.dataset.ts = String(message.ts || message.timestamp || 0);
+      const ic = window.__mxgImgCard(message);
+      if (ic) { iw.appendChild(ic); return iw; }
+    }
     if (message && message.type === "music_together") {
       const c2 = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : null;
       const cid = c2 ? c2.id : (message.charId || currentChatId);
@@ -17250,6 +17264,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 90);
   }
   async function addMessageBubble(message) {
+    /* 消息横幅：只要当前不在这个聊天页面，就弹一条 */
+    try {
+      if (window.__mxgBanner && message && message.role === "assistant" && message.content && !message.loading && !message.revoked) {
+        var __act = (document.querySelector(".screen.active") || {}).id || "";
+        var __here = __act === "chat-room-screen" && !document.hidden;
+        if (!__here) {
+          var __c = null;
+          try {
+            __c = currentChatType === "group"
+              ? (db.groups || []).find(function (g) { return g.id === currentChatId; })
+              : (db.characters || []).find(function (x) { return x.id === currentChatId; });
+          } catch (e0) {}
+          var __nm = (__c && (__c.remarkName || __c.realName || __c.nickname || __c.name)) || "新消息";
+          var __txt = String(message.content).replace(/```[^`]*```/g, " ").replace(/<[^>]*>/g, " ").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " ").trim();
+          if (__txt) window.__mxgBanner(__nm, __txt.slice(0, 90), { chatType: currentChatType, chatId: currentChatId });
+        }
+      }
+    } catch (eB) {}
     const maybeDateSep = () => {
       if (!messageArea) return;
       const ws = messageArea.querySelectorAll(".message-wrapper");
@@ -17274,6 +17306,20 @@ document.addEventListener("DOMContentLoaded", () => {
       sep.textContent = dayStr + " " + pad(d.getHours()) + ":" + pad(d.getMinutes());
       messageArea.appendChild(sep);
     };
+    if (message && message.type === "images" && message.imgs && message.imgs.length && window.__mxgImgCard) {
+      maybeDateSep();
+      const __w = document.createElement("div");
+      __w.className = "message-wrapper mxg-imgwrap";
+      __w.dataset.ts = String(message.timestamp || Date.now());
+      if (message.id) __w.dataset.id = message.id;
+      const __card = window.__mxgImgCard(message);
+      if (__card) {
+        __w.appendChild(__card);
+        messageArea.appendChild(__w);
+        messageArea.scrollTop = messageArea.scrollHeight;
+        return;
+      }
+    }
     if (currentChatType === "private") {
       const character = db.characters.find((c) => c.id === currentChatId);
       const updateStatusRegex = new RegExp("\\[".concat(escRe(character.realName), "\u66F4\u65B0\u72B6\u6001\u4E3A\uFF1A(.*?)\\]"));
@@ -17451,6 +17497,30 @@ document.addEventListener("DOMContentLoaded", () => {
     if (currentChatType === "group") {
       message.senderId = "user_me";
     }
+    chat.history.push(stampMask(message, chat));
+    addMessageBubble(message);
+    await saveData();
+    renderChatList();
+  }
+  async function sendImageBatchForRecognition(urls) {
+    if (!urls || !urls.length) return;
+    if (chatGen[curChatKey()]) return;
+    const chat = currentChatType === "private" ? db.characters.find((c) => c.id === currentChatId) : db.groups.find((g) => g.id === currentChatId);
+    if (!chat) return;
+    const myName = currentChatType === "private" ? chat.myName : chat.me.nickname;
+    const textPrompt = "[".concat(myName, "发来了 ").concat(urls.length, " 张图片：]");
+    const parts = [{ type: "text", text: textPrompt }];
+    urls.forEach(function (u) { parts.push({ type: "image", data: u }); });
+    const message = {
+      id: mxgNewMsgId(),
+      role: "user",
+      type: "images",
+      imgs: urls.slice(),
+      content: textPrompt,
+      parts: parts,
+      timestamp: Date.now()
+    };
+    if (currentChatType === "group") message.senderId = "user_me";
     chat.history.push(stampMask(message, chat));
     addMessageBubble(message);
     await saveData();
@@ -19442,12 +19512,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
     try {
-      if (window.__mxgBanner && fullResponse && !skipBubbles) {
-        const __nm = chat && (chat.remarkName || chat.realName || chat.nickname || chat.name || "新消息");
-        window.__mxgBanner(String(__nm || "新消息"), String(fullResponse).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").slice(0, 90), { chatType: currentChatType, chatId: currentChatId });
-      }
-    } catch (e) {}
-    try {
       const ma = document.getElementById("message-area");
       if (ma) {
         ma.querySelectorAll(".streaming-area").forEach(function (n) { n.remove(); });
@@ -19659,16 +19723,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const files = Array.from(e.target.files || []);
       e.target.value = null;
       if (!files.length) return;
-      showToast("\u8BC6\u56FE \u00D7" + files.length);
+      showToast("识图 ×" + files.length);
+      const urls = [];
       for (const file of files) {
         try {
           const compressedUrl = await compressImage(file, { quality: 0.8, maxWidth: 1024, maxHeight: 1024 });
-          if (compressedUrl) await sendImageForRecognition(compressedUrl);
+          if (compressedUrl) urls.push(compressedUrl);
         } catch (error) {
           console.error("Image compression failed:", error);
         }
       }
-      if (files.length > 1) showToast("\u5DF2\u53D1\u51FA " + files.length + " \u5F20");
+      if (!urls.length) { showToast("图片读取失败，换几张试试"); return; }
+      if (urls.length === 1) await sendImageForRecognition(urls[0]);
+      else await sendImageBatchForRecognition(urls);
+      if (urls.length > 1) showToast("已叠成一条发出 " + urls.length + " 张");
     });
   }
   async function setupStickerSystem() {
@@ -43081,7 +43149,8 @@ window.bsRoomAI = bsRoomAI;
 /* ===== 404 待发图条 ===== */
 .o-attach-strip { display:flex; flex-direction:column; gap:6px; padding:8px 14px; background:#fff; border-top:1px solid #eee; }
 .o-attach-strip[hidden] { display:none; }
-.o-attach-strip .oa-l { font-size:11px; letter-spacing:2px; color:#B08A4F; }
+.o-attach-strip .oa-l { display:flex; align-items:center; justify-content:space-between; gap:10px; font-size:11px; letter-spacing:1.6px; color:#B08A4F; }
+.o-attach-strip .oa-go { border:0; border-radius:999px; background:#111; color:#fff; font-family:inherit; font-size:11px; letter-spacing:1.4px; padding:7px 14px; }
 .o-attach-strip .oa-row { display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; }
 .o-attach-strip .oa-row::-webkit-scrollbar { display:none; }
 .o-attach-strip .oa-th { position:relative; flex:0 0 58px; width:58px; height:58px; border-radius:10px; overflow:hidden; border:1px solid #e6e6e6; background:#f6f6f6; }
