@@ -1020,6 +1020,33 @@
         .sticker-block { display: flex; flex-direction: column; align-items: center; gap: 5px; margin: 0 8px; max-width: 230px; }
         .sticker-block .image-bubble { margin: 0 !important; }
         .sticker-cap { font-size: calc(var(--app-fs, 1) * 10px); line-height: 1.3; color: #8b8b96; text-align: center; margin-top: 4px; letter-spacing: .02em; }
+
+        /* ===== 气泡正文排版（轻量 Markdown → 黑白排版） ===== */
+        .mxg-rt { white-space: normal; word-break: break-word; text-align: left; }
+        .mxg-rt .mxg-p { white-space: pre-wrap; margin: 0; }
+        .mxg-rt .mxg-p + .mxg-p { margin-top: .42em; }
+        .mxg-rt .mxg-h { font-weight: 700; margin: .5em 0 .24em; letter-spacing: .01em; }
+        .mxg-rt .mxg-h:first-child { margin-top: 0; }
+        .mxg-rt .mxg-h1 { font-size: 1.3em; }
+        .mxg-rt .mxg-h2 { font-size: 1.17em; }
+        .mxg-rt .mxg-h3 { font-size: 1.06em; }
+        .mxg-rt .mxg-h4, .mxg-rt .mxg-h5, .mxg-rt .mxg-h6 { font-size: 1em; opacity: .9; }
+        .mxg-rt strong { font-weight: 700; }
+        .mxg-rt em { font-style: italic; opacity: .86; }
+        .mxg-rt del { opacity: .6; }
+        .mxg-rt .mxg-code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; background: rgba(0,0,0,.07); padding: 1px 4px; border-radius: 3px; font-size: .92em; }
+        .mxg-rt .mxg-pre { white-space: pre-wrap; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: .9em; background: rgba(0,0,0,.06); padding: 8px 10px; border-radius: 6px; margin: .4em 0; overflow-x: auto; }
+        .mxg-rt .mxg-ul, .mxg-rt .mxg-ol { margin: .26em 0; padding-left: 1.15em; }
+        .mxg-rt .mxg-ul { list-style: disc; }
+        .mxg-rt .mxg-ol { list-style: decimal; }
+        .mxg-rt li { margin: .1em 0; }
+        .mxg-rt .mxg-bq { margin: .34em 0; padding-left: .62em; border-left: 2px solid rgba(0,0,0,.22); opacity: .88; }
+        .mxg-rt .mxg-hr { border: 0; border-top: 1px solid rgba(0,0,0,.16); margin: .55em 0; }
+        .message-bubble.sent .mxg-rt .mxg-code,
+        .message-bubble.sent .mxg-rt .mxg-pre { background: rgba(255,255,255,.14); color: inherit; }
+        .message-bubble.sent .mxg-rt .mxg-bq { border-left-color: rgba(255,255,255,.3); }
+        .message-bubble.sent .mxg-rt .mxg-hr { border-top-color: rgba(255,255,255,.2); }
+
         .message-bubble.mxg-has-html { background: transparent !important; border: 0 !important; box-shadow: none !important; padding: 0 !important; max-width: min(94vw, 460px); width: min(94vw, 460px); white-space: normal; }
         .mxg-html-card { width: 100%; overflow: hidden; border-radius: 16px; }
         .mxg-html-frame { pointer-events: auto; }
@@ -10560,6 +10587,8 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         out.push(a.type + " " + (a.o.remarkName || a.o.realName || a.o.name || a.key) + " · 条数 " + src.length + " · 对方消息 " + h.length + " · 进度=" + (sn ? (sn.c + "～" + String(sn.s || "").length) : "无") + " · 已记录=" + (noted[sig] ? "是" : "否") + " · 初始化=" + (inited[a.key] ? "是" : "否") + (last ? (" · 末条=" + String(last.content).slice(0, 12)) : ""));
       });
       out.push("最近判定：" + window.__mxgNotifyLog.slice(-8).map(function (x) { return new Date(x.t).toLocaleTimeString() + " " + String(x.k).slice(-6) + ":" + x.v; }).join(" | "));
+      var __shardState = window.__mxgShardFail ? ("异常：" + window.__mxgShardFail) : ("正常 缺失=" + String(window.__mxgShardMissing || 0) + " 不齐=" + String(window.__mxgShardBad || 0));
+      out.push("分片完整性=" + __shardState);
       out.push("渲染消息：" + ((window.__mxgBubbleLog || []).slice(-6).map(function (x) { return new Date(x.t).toLocaleTimeString() + " 页面=" + x.act + " 会话=" + String(x.mid || x.cur).slice(-6) + " 同页=" + (x.here ? "是" : "否") + " " + x.len + "字"; }).join(" | ") || "还没渲染过"));
       out.push("横幅记录：" + ((window.__mxgBannerLog || []).slice(-5).map(function (x) { return new Date(x.t).toLocaleTimeString() + " 《" + x.title + "》" + x.len + "字 显示=" + (x.h ? "否" : "是"); }).join(" | ") || "还没弹过"));
     } catch (e) { out.push("诊断出错:" + e.message); }
@@ -12217,7 +12246,12 @@ document.addEventListener("DOMContentLoaded", () => {
       var chatKeys = (allKeys || []).filter(function (k) {
         return typeof k === "string" && k.indexOf(MXG_CHAT_PREFIX) === 0;
       });
-      var items = chatKeys.length ? await __mxgRace(dataStorage.db.storage.bulkGet(chatKeys), 8000, []) : [];
+      var items = chatKeys.length ? await __mxgRace(dataStorage.db.storage.bulkGet(chatKeys), 15000, null) : [];
+      if (chatKeys.length && !items) {
+        window.__mxgLoadFail = true;
+        window.__mxgShardFail = "bulkGet-timeout";
+        throw new Error("分片读取超时：为避免覆盖已有聊天记录，已停止启动");
+      }
       if (!window.__mxgShardTexts) window.__mxgShardTexts = {};
       (items || []).forEach(function (it) {
         if (!it || typeof it.value !== "string") return;
@@ -12232,6 +12266,18 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (e1) {}
       });
       Object.keys(want).forEach(function (pref) { if (!parsed[pref]) missing++; });
+      var __shardBad = 0;
+      Object.keys(parsed).forEach(function (pref) {
+        var total = 0;
+        parsed[pref].forEach(function (v) { if (Number(v.total) > total) total = Number(v.total); });
+        if (total && parsed[pref].length !== total) __shardBad++;
+      });
+      window.__mxgShardBad = __shardBad;
+      if (missing || __shardBad) {
+        window.__mxgLoadFail = true;
+        window.__mxgShardFail = "incomplete missing=" + missing + " bad=" + __shardBad;
+        throw new Error("分片不完整：为避免覆盖，已停止启动（数据仍在本机）");
+      }
       /* 外置的大模块（图片、动态等） */
       var modKeys = (allKeys || []).filter(function (k) { return typeof k === "string" && k.indexOf(MXG_MOD_PREFIX) === 0; });
       if (modKeys.length) {
@@ -12249,7 +12295,9 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgMergeDB(core, parsed);
     window.__mxgShardKeys = keys;
     window.__mxgShardMissing = missing;
-    /* 清掉已删除会话 / 已收缩会话留下的孤儿分片 */
+    /* 清掉已删除会话 / 已收缩会话留下的孤儿分片（仅在本轮分片读取完整、无缺失时才做，
+     否则一次超时就会把真实分片当成孤儿删掉，直接丢数据） */
+    if (window.__mxgLoadFail || window.__mxgShardFail || !keys.length) return core;
     try {
       var allKeys2 = await __mxgRace(dataStorage.db.storage.toCollection().primaryKeys(), 8000, []);
       var shadow = {};
@@ -12784,7 +12832,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.26";
+  const APP_VERSION = "v6.4.27";
   let db = {
     characters: [],
     groups: [],
@@ -13139,7 +13187,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.26：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.27：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
@@ -13170,7 +13218,12 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data) dbTs = Math.max(dbTs, Number(window.__mxgMigratedTs) || 0);
     }
     if (data && typeof data === "object" && !Array.isArray(data)) {
-      try { await __mxgLoadShards(data); } catch (eSh) { console.warn("分片读取失败", eSh); }
+      try { await __mxgLoadShards(data); } catch (eSh) {
+        console.error("分片读取失败", eSh);
+        window.__mxgLoadFail = true;
+        try { window.__mxgLoadFailMsg = String((eSh && eSh.message) || eSh); } catch (eM2) {}
+        throw eSh;
+      }
       /* 库体积 = core + 全部分片 + 全部外置模块，数据页/诊断统一用这个数 */
       try {
         var sumBytes = (window.__mxgCoreText || "").length;
@@ -16505,9 +16558,81 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   } catch (e) {}
+  /* 气泡正文的轻量排版：只吃最基本的 Markdown，转成黑白排版，不引样式库 */
+  function mxgInlineMd(x) {
+    return String(x)
+      .replace(/`([^`\n]+)`/g, '<code class="mxg-code">$1</code>')
+      .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>')
+      .replace(/__([^_\n]+)__/g, '<strong>$1</strong>')
+      .replace(/~~([^~\n]+)~~/g, '<del>$1</del>')
+      .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  }
+  function mxgEscHtml(x) {
+    return String(x).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+  }
+  function mxgFillRich(el, text) {
+    try {
+      var raw = String(text == null ? "" : text);
+      if (!raw.trim()) { el.textContent = raw; return; }
+      var lines = raw.replace(/\r/g, "").split("\n");
+      var out = [], i = 0;
+      while (i < lines.length) {
+        var ln = lines[i];
+        if (/^\s*```/.test(ln)) {
+          var lang = ln.replace(/^\s*```+/, "").trim();
+          var buf = [], j = i + 1;
+          while (j < lines.length && !/^\s*```/.test(lines[j])) { buf.push(lines[j]); j++; }
+          out.push('<pre class="mxg-pre">' + mxgEscHtml(buf.join("\n")) + "</pre>");
+          i = j + 1; continue;
+        }
+        var hm = ln.match(/^\s*(#{1,6})\s+(.*)$/);
+        if (hm) { out.push('<div class="mxg-h mxg-h' + hm[1].length + '">' + mxgInlineMd(mxgEscHtml(hm[2])) + "</div>"); i++; continue; }
+        if (/^\s*(?:---+|___+|\*\*\*+)\s*$/.test(ln)) { out.push('<hr class="mxg-hr">'); i++; continue; }
+        if (/^\s*[-*+•]\s+/.test(ln)) {
+          var ul = [];
+          while (i < lines.length && /^\s*[-*+•]\s+/.test(lines[i])) {
+            ul.push("<li>" + mxgInlineMd(mxgEscHtml(lines[i].replace(/^\s*[-*+•]\s+/, ""))) + "</li>");
+            i++;
+          }
+          out.push('<ul class="mxg-ul">' + ul.join("") + "</ul>"); continue;
+        }
+        if (/^\s*\d+[.、)]\s+/.test(ln)) {
+          var ol = [];
+          while (i < lines.length && /^\s*\d+[.、)]\s+/.test(lines[i])) {
+            ol.push("<li>" + mxgInlineMd(mxgEscHtml(lines[i].replace(/^\s*\d+[.、)]\s+/, ""))) + "</li>");
+            i++;
+          }
+          out.push('<ol class="mxg-ol">' + ol.join("") + "</ol>"); continue;
+        }
+        if (/^\s*>\s?/.test(ln)) {
+          var bq = [];
+          while (i < lines.length && /^\s*>\s?/.test(lines[i])) {
+            bq.push(mxgInlineMd(mxgEscHtml(lines[i].replace(/^\s*>\s?/, ""))));
+            i++;
+          }
+          out.push('<div class="mxg-bq">' + bq.join("<br>") + "</div>"); continue;
+        }
+        if (!ln.trim()) { i++; continue; }
+        var para = [];
+        while (i < lines.length && lines[i].trim()
+          && !/^\s*```/.test(lines[i]) && !/^\s*#{1,6}\s+/.test(lines[i])
+          && !/^\s*[-*+•]\s+/.test(lines[i]) && !/^\s*\d+[.、)]\s+/.test(lines[i])
+          && !/^\s*>\s?/.test(lines[i]) && !/^\s*(?:---+|___+|\*\*\*+)\s*$/.test(lines[i])) {
+          para.push(mxgInlineMd(mxgEscHtml(lines[i])));
+          i++;
+        }
+        out.push('<div class="mxg-p">' + para.join("<br>") + "</div>");
+      }
+      el.classList.add("mxg-rt");
+      el.innerHTML = out.join("");
+    } catch (e) { el.textContent = String(text == null ? "" : text); }
+  }
+  window.mxgFillRich = mxgFillRich;
+
   function mxgFillBubble(el, text, presetSplit) {
     const sp = presetSplit || mxgSplitHtml(text);
-    if (!sp) { el.textContent = String(text == null ? "" : text); return; }
+    if (!sp) { mxgFillRich(el, text); return; }
     el.classList.add("mxg-has-html");
     el.textContent = "";
     const pre = document.createElement("div");
