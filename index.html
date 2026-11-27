@@ -12316,7 +12316,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.51";
+  const APP_VERSION = "v6.3.52";
   let db = {
     characters: [],
     groups: [],
@@ -16426,7 +16426,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function calculateVoiceDuration(text) {
     return Math.max(1, Math.min(60, Math.ceil(text.length / 3.5)));
   }
-  const MXG_STICKER_PLACEHOLDER = "data:image/webp;base64,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";
+  /* 全局占位图（与 _APP_DEFAULT_IMG 同源）：表情包查不到/加载失败时用它 */
+  const MXG_STICKER_PLACEHOLDER = "https://media.doubao.com/space/api/box/stream/download/all_by_mount_point/CuG9b40mloFiA1x2jDVcrgXNnmg";
   function mxgStickerKey(raw) {
     try {
       let t = String(raw || "").trim();
@@ -16690,7 +16691,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (stickerName) {
         const capEl = document.createElement("div");
         capEl.className = "sticker-cap";
-        capEl.textContent = stickerName;
+        capEl.textContent = rawName || stickerName;
         stickerBox.appendChild(capEl);
       }
       bubbleElement = stickerBox;
