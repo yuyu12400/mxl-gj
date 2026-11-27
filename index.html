@@ -10420,8 +10420,9 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
       onTap=(typeof tap==='function')? tap : (tap? function(){ openPeek(tap); } : null);
       n.hidden=false;
       n.classList.remove('out');
+      try { window.__mxgBannerLog = (window.__mxgBannerLog || []).concat([{ t: Date.now(), title: String(title || ""), len: String(text || "").length, h: n.hidden }]); if (window.__mxgBannerLog.length > 20) window.__mxgBannerLog.shift(); } catch (eL) {}
       clearTimeout(timer);
-      timer=setTimeout(function(){ n.classList.add('out'); setTimeout(function(){ n.hidden=true; },240); }, 4200);
+      timer=setTimeout(function(){ n.classList.add('out'); setTimeout(function(){ n.hidden=true; },240); }, 8000);
       try{
         if(window.Notification && Notification.permission==='granted'){
           new Notification(String(title||'新消息'), { body:String(text||'').slice(0,80), silent:true });
@@ -10556,16 +10557,32 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         var last = h[h.length - 1];
         var sig = last ? window.__mxgSig(last) : "";
         var sn = snap[a.key];
-        out.push(a.type + " " + (a.o.remarkName || a.o.realName || a.o.name || a.key) + " · 条数 " + src.length + " · 对方消息 " + h.length + " · 进度=" + (sn ? sn.c : "无") + " · 已记录=" + (noted[sig] ? "是" : "否") + " · 初始化=" + (inited[a.key] ? "是" : "否") + (last ? (" · 末条=" + String(last.content).slice(0, 12)) : ""));
+        out.push(a.type + " " + (a.o.remarkName || a.o.realName || a.o.name || a.key) + " · 条数 " + src.length + " · 对方消息 " + h.length + " · 进度=" + (sn ? (sn.c + "～" + String(sn.s || "").length) : "无") + " · 已记录=" + (noted[sig] ? "是" : "否") + " · 初始化=" + (inited[a.key] ? "是" : "否") + (last ? (" · 末条=" + String(last.content).slice(0, 12)) : ""));
       });
       out.push("最近判定：" + window.__mxgNotifyLog.slice(-8).map(function (x) { return new Date(x.t).toLocaleTimeString() + " " + String(x.k).slice(-6) + ":" + x.v; }).join(" | "));
+      out.push("横幅记录：" + ((window.__mxgBannerLog || []).slice(-5).map(function (x) { return new Date(x.t).toLocaleTimeString() + " 《" + x.title + "》" + x.len + "字 显示=" + (x.h ? "否" : "是"); }).join(" | ") || "还没弹过"));
     } catch (e) { out.push("诊断出错:" + e.message); }
     var box = document.getElementById("ntf-diag-out");
     if (box) box.textContent = out.join("\n");
     return out.join("\n");
   };
+  window.__mxgSimNew = function () {
+    try {
+      var key = "";
+      try { key = window.__mxgCurChatId ? window.__mxgCurChatId() : ""; } catch (e0) {}
+      var arr = db.characters || [];
+      var c = arr.find(function (x) { return x.id === key; }) || arr[0];
+      if (!c) return "没有角色";
+      if (!c.history) c.history = [];
+      c.history.push({ id: "sim_" + Date.now(), role: "assistant", content: "这是一条模拟的新消息，用来验证横幅链路。", timestamp: Date.now() });
+      window.__mxgSaveLocal(db);
+      setTimeout(scanNew, 1500);
+      return "ok";
+    } catch (e) { return "err:" + e.message; }
+  };
   window.__mxgNotifyScan = scanNew;
   setInterval(scanNew, 4000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) setTimeout(scanNew, 300); });
   setTimeout(scanNew, 2500);
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', bind);
   else bind();
@@ -12624,6 +12641,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <button type="button" class="dta-tool" id="stg-diag-err">上次错误</button>
         </div>
         <button type="button" class="dta-tool" id="stg-diag-rebuild" style="width:100%;margin-top:8px;min-height:40px;color:#8a3b2e;border-color:#f0d9d4;background:#fff7f5;">数据库打不开？重建本地库</button>
+        <button type="button" class="dta-tool" id="stg-diag-sim" style="width:100%;margin-top:8px;min-height:40px;" onclick="window.__mxgSimNew&&window.__mxgSimNew();setTimeout(function(){window.__mxgNotifyDebug&&window.__mxgNotifyDebug();},2000);">模拟一条新消息（走真实判定）</button>
         <button type="button" class="dta-tool" id="stg-diag-banner" style="width:100%;margin-top:8px;min-height:40px;" onclick="window.__mxgTestBanner&&window.__mxgTestBanner()">测试消息横幅通知</button>
         <button type="button" class="dta-tool" id="stg-diag-ntf" style="width:100%;margin-top:8px;min-height:40px;" onclick="window.__mxgNotifyDebug&&window.__mxgNotifyDebug()">通知诊断</button>
         <div id="ntf-diag-out" style="margin-top:8px;font-size:11px;line-height:1.8;color:#555;white-space:pre-wrap;word-break:break-all;"></div>
@@ -12765,7 +12783,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.24";
+  const APP_VERSION = "v6.4.25";
   let db = {
     characters: [],
     groups: [],
@@ -13120,7 +13138,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.24：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.25：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
