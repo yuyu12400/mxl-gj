@@ -18,8 +18,17 @@
     /* ===== Service Worker 注册（PWA 离线缓存）：页面加载后注册，新版经 skipWaiting/clients.claim 自动接管 ===== */
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("./sw.js").then(function(){
+        navigator.serviceWorker.register("./sw.js").then(function(reg){
           try { navigator.serviceWorker.controller && navigator.serviceWorker.controller.postMessage({type:'noop'}); } catch(e){}
+          try { reg && reg.update && reg.update(); } catch(e){}
+          /* 已有控制器时，若后台换上新的 shell，自动重载一次，避免一直跑旧缓存版本 */
+          if (navigator.serviceWorker.controller) {
+            navigator.serviceWorker.addEventListener("controllerchange", function () {
+              if (window.__mxgSwReloading) return;
+              window.__mxgSwReloading = true;
+              setTimeout(function () { location.reload(); }, 200);
+            });
+          }
         }).catch(function (err) {
           console.warn("Service Worker 注册失败：", err);
         });
@@ -12302,7 +12311,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.44";
+  const APP_VERSION = "v6.3.45";
   let db = {
     characters: [],
     groups: [],
@@ -16337,7 +16346,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!chat || !chat.history) return;
     const oldScrollHeight = messageArea.scrollHeight;
     /* v6.3.31：同一条消息偶尔被写入两次（流式完成与落库各追加一次），这里按 id 去重，避免重复气泡 */
-    const __raw = mxgMergeHtmlRuns(chatHistoryView(chat));
+    let __raw;
+    try { __raw = mxgMergeHtmlRuns(chatHistoryView(chat)); }
+    catch (eM) { console.warn("[渲染] 历史预处理失败，使用原始历史：", eM && eM.message); __raw = Array.isArray(chat.history) ? chat.history.slice() : []; }
     const __seen = new Set();
     const __view = __raw.filter(function(m) {
       if (!m) return false;
@@ -16368,7 +16379,11 @@ document.addEventListener("DOMContentLoaded", () => {
           lastDateKey = dateKey;
         }
       }
-      const bubble = createMessageBubbleElement(msg);
+      let bubble = null;
+      try { bubble = createMessageBubbleElement(msg); } catch (eR) {
+        console.warn("[渲染] 单条消息渲染失败，已跳过该条：", eR && eR.message);
+        bubble = null;
+      }
       if (bubble) {
         bubble.dataset.ts = String(msg.timestamp || msg.ts || Date.now());
         fragment.appendChild(bubble);
