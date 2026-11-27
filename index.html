@@ -12316,7 +12316,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.3.48";
+  const APP_VERSION = "v6.3.49";
   let db = {
     characters: [],
     groups: [],
@@ -16683,7 +16683,7 @@ document.addEventListener("DOMContentLoaded", () => {
         img.addEventListener("error", function () {
           console.warn("[表情包] 图片加载失败：", stickerName, String(stickerSrc).slice(0, 80));
           bubbleElement.className = "image-bubble mxg-sticker-fallback";
-          bubbleElement.textContent = "🙂 " + (stickerName || "表情包");
+          bubbleElement.textContent = (stickerName || "表情包");
         });
         bubbleElement.appendChild(img);
       } else {
@@ -16691,7 +16691,7 @@ document.addEventListener("DOMContentLoaded", () => {
           console.warn("[表情包] 库里没找到对应的图：", rawName, "| 库内名字：", (db.myStickers || []).map(function (st) { return st && st.name; }).join("、"));
         } catch (e) {}
         bubbleElement.className = "image-bubble mxg-sticker-fallback";
-        bubbleElement.textContent = "🙂 " + (stickerName || "表情包");
+        bubbleElement.textContent = (stickerName || "表情包");
       }
       stickerBox.appendChild(bubbleElement);
       if (stickerName) {
