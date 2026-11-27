@@ -12305,7 +12305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.2";
+  const APP_VERSION = "v6.4.3";
   let db = {
     characters: [],
     groups: [],
@@ -16599,7 +16599,7 @@ document.addEventListener("DOMContentLoaded", () => {
         : (senderNickname || "TA"));
     let bubbleElement;
     const urlRegex = /^(https?:\/\/[^\s]+\.(?:jpg|jpeg|png|gif|webp|bmp|svg)|data:image\/[a-z]+;base64,)/i;
-    const sentStickerRegex = /\[(?:.+?)的表情包：.+?\]/i;
+    const sentStickerRegex = /\[(?:.+?)的表情包：(.+?)\]/i;
     const receivedStickerRegex = /\[(?:.+?)发送的表情包：([\s\S]+?)\]/i;
     const voiceRegex = /\[(?:.+?)的语音：([\s\S]+?)\]/;
     const photoVideoRegex = /\[(?:.+?)发来的照片\/视频：([\s\S]+?)\]/;
@@ -18334,6 +18334,48 @@ document.addEventListener("DOMContentLoaded", () => {
         var _mvTitle = (MV.cur && MV.cur.title) ? MV.cur.title : "一部片";
         systemPrompt += "\n【一起看电影模式】你正和对方窝在沙发上一起看《" + _mvTitle + "》，现在演到 " + Math.floor((MV.curTime||0)/60) + " 分 " + Math.floor((MV.curTime||0)%60) + " 秒。你能看到当前画面的截图（像视频通话一样），看到什么就自然聊什么：吐槽剧情、夸镜头、吐槽角色、突然凑过去说悄悄话、看到好笑一起笑、看到吓人躲一下。你是真的在陪看这部片，不是念稿。本场景严禁输出 [动作：xxx] 动作描写、方括号、卡片、格式标签或内心独白，直接像真实的人一样接话。";
       }
+      /* 图片如果存的是 http(s) 链接，模型端会去下载；图床/CDN 常 403 → 上游直接 500。
+         发出前尽力转成 base64，转不了就这张图跳过，绝不把裸链接丢给模型。 */
+      let __imgUrls = null;
+      const __collectImgs = function (list) {
+        __imgUrls = new Map();
+        list.forEach(function (m) {
+          if (m && m.parts) m.parts.forEach(function (pt) {
+            if (pt && pt.type === "image" && pt.data && /^https?:/i.test(String(pt.data))) __imgUrls.set(pt, String(pt.data));
+          });
+        });
+        return Array.from(__imgUrls.keys());
+      };
+      const __fixImgs = async function (pairs) {
+        if (!pairs.length) return;
+        const cache = (window.__mxgImgCache = window.__mxgImgCache || {});
+        await Promise.all(pairs.map(async function (pt) {
+          const u = __imgUrls.get(pt);
+          let d = cache[u];
+          if (!d) {
+            try {
+              const ctrl = new AbortController();
+              const timer = setTimeout(function () { try { ctrl.abort(); } catch (e) {} }, 8000);
+              const r = await fetch(u, { mode: "cors", signal: ctrl.signal });
+              clearTimeout(timer);
+              if (r && r.ok) {
+                const b = await r.blob();
+                if (b && b.size > 0 && b.size < 8 * 1024 * 1024) {
+                  d = await new Promise(function (res) {
+                    const fr = new FileReader();
+                    fr.onload = function () { res(String(fr.result || "")); };
+                    fr.onerror = function () { res(""); };
+                    fr.readAsDataURL(b);
+                  });
+                }
+              }
+            } catch (e) {}
+          }
+          if (d && /^data:image\//i.test(d)) cache[u] = d;
+          __imgUrls.set(pt, d || "");
+        }));
+      };
+
       let historySlice;
       if (_musicRoom) {
         historySlice = MS.roomChat.msgs.slice(-(chat.maxMemory || 20)).filter(function(m) {
@@ -18352,6 +18394,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!historySlice.length) {
         historySlice = [{ role: "user", content: "\u5BF9\u65B9\u521A\u5411\u4F60\u53D1\u51FA\u4E86\u60C5\u4FA3\u7A7A\u95F4\u9080\u8BF7\u3002" }];
       }
+      await __fixImgs(__collectImgs(historySlice));
       const timeSenseOn = db.realTimeSensing !== false;
       const timeContext = timeSenseOn ? TimeSense.build(chat, historySlice, {}) : null;
       const prefaceFor = function (idx) {
@@ -18370,7 +18413,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 prefaceUsed = true;
                 return { text: text };
               } else if (p.type === "image") {
-                const match = p.data.match(/^data:(image\/(.+));base64,(.*)$/);
+                const __g = (__imgUrls && __imgUrls.has(p)) ? __imgUrls.get(p) : p.data;
+                const match = String(__g || "").match(/^data:(image\/(.+));base64,(.*)$/);
                 if (match) {
                   return { inline_data: { mime_type: match[1], data: match[3] } };
                 }
@@ -18421,7 +18465,9 @@ document.addEventListener("DOMContentLoaded", () => {
                 prefaceUsed = true;
                 return { type: "text", text: text };
               } else if (p.type === "image") {
-                return { type: "image_url", image_url: { url: p.data } };
+                const __u = (__imgUrls && __imgUrls.has(p)) ? __imgUrls.get(p) : p.data;
+                if (!__u) return null;
+                return { type: "image_url", image_url: { url: __u } };
               }
               return null;
             }).filter((p) => p);
@@ -24250,9 +24296,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function feedVisionPart(feed) {
     const url = feed && feed.image ? String(feed.image) : "";
     if (!url) return null;
-    if (/^data:image\//i.test(url)) return { type: "image_url", image_url: { url: url } };
-    if (db.apiSettings && db.apiSettings.provider !== "gemini") return { type: "image_url", image_url: { url: url } };
-    return null;
+    if (!/^data:image\//i.test(url)) return null;
+    return { type: "image_url", image_url: { url: url } };
   }
   async function requestFeedVision(sys, feed, instruction, maxTokens) {
     const part = feedVisionPart(feed);
