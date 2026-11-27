@@ -10326,28 +10326,80 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
   <div class="mb-x">×</div>
 </div>
 
+<div id="mxg-peek" class="mxg-peek" hidden>
+  <div class="mp-panel">
+    <div class="mp-head">
+      <div class="mp-face"></div>
+      <div class="mp-t"></div>
+      <div class="mp-x">×</div>
+    </div>
+    <div class="mp-body"></div>
+    <div class="mp-foot">点右上角 × 关闭，回到刚才的页面</div>
+  </div>
+</div>
+
 <script id="banner-script">
 (function(){
-  var el=null, timer=null, onTap=null;
+  var el=null, timer=null, onTap=null, peek=null;
   function node(){
     if(el && el.isConnected) return el;
     el=document.getElementById('mxg-banner');
     return el;
   }
+  function esc2(t){ return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function chatOf(o){
+    try{
+      if(!o) return null;
+      if(o.chatType==='group') return (db.groups||[]).find(function(g){return g.id===o.chatId;});
+      return (db.characters||[]).find(function(c){return c.id===o.chatId;});
+    }catch(e){ return null; }
+  }
+  function peekEl(){
+    if(peek && peek.isConnected) return peek;
+    peek=document.getElementById('mxg-peek');
+    return peek;
+  }
+  function openPeek(o){
+    var p=peekEl(); if(!p) return;
+    var c=chatOf(o); if(!c) return;
+    var nm=c.remarkName||c.realName||c.nickname||c.name||'';
+    var face=c.avatar||c.avatarUrl||'';
+    var head=p.querySelector('.mp-t'), body=p.querySelector('.mp-body'), fbox=p.querySelector('.mp-face');
+    if(head) head.textContent=nm;
+    if(fbox) fbox.innerHTML = face? '<img src="'+esc2(face)+'" alt="">' : '<span>'+esc2(nm.slice(0,1))+'</span>';
+    var list=(c.history||[]).filter(function(m){return m && m.content && m.type!=='system' && m.status!=='revoked';}).slice(-16);
+    if(body){
+      body.innerHTML = list.length? list.map(function(m){
+        var me=m.role==='user';
+        var t=String(m.content).replace(/<[^>]*>/g,' ').replace(/\s+/g,' ').trim();
+        if(t.length>220) t=t.slice(0,220)+'…';
+        return '<div class="mp-row'+(me?' me':'')+'"><div class="mp-b">'+esc2(t)+'</div></div>';
+      }).join('') : '<div class="mp-empty">还没有消息</div>';
+      setTimeout(function(){ body.scrollTop=body.scrollHeight; },30);
+    }
+    p.hidden=false;
+    p.classList.remove('out');
+    requestAnimationFrame(function(){ p.classList.add('in'); });
+  }
+  function closePeek(){
+    var p=peekEl(); if(!p) return;
+    p.classList.remove('in'); p.classList.add('out');
+    setTimeout(function(){ p.hidden=true; p.classList.remove('out'); },220);
+  }
   window.__mxgBanner=function(title, text, tap){
     try{
       var cur=document.querySelector('.screen.active');
-      var inChat=cur && (cur.id==='offline-chat-screen'||cur.id==='chat-room-screen');
+      var inChat=cur && cur.id==='chat-room-screen';
       if(inChat && !document.hidden) return;
       var n=node(); if(!n) return;
       var t=n.querySelector('.mb-t'), s2=n.querySelector('.mb-s');
       if(t) t.textContent=String(title||'');
       if(s2) s2.textContent=String(text||'').slice(0,80);
-      onTap=tap||null;
+      onTap=(typeof tap==='function')? tap : (tap? function(){ openPeek(tap); } : null);
       n.hidden=false;
       n.classList.remove('out');
       clearTimeout(timer);
-      timer=setTimeout(function(){ n.classList.add('out'); setTimeout(function(){ n.hidden=true; },260); }, 4200);
+      timer=setTimeout(function(){ n.classList.add('out'); setTimeout(function(){ n.hidden=true; },240); }, 4200);
       try{
         if(window.Notification && Notification.permission==='granted'){
           new Notification(String(title||'新消息'), { body:String(text||'').slice(0,80), silent:true });
@@ -10355,13 +10407,22 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
       }catch(e){}
     }catch(e){}
   };
+  window.__mxgPeekClose=closePeek;
   function bind(){
-    var n=node(); if(!n) return;
-    n.onclick=function(e){
-      if(e.target && e.target.classList && e.target.classList.contains('mb-x')){ n.hidden=true; return; }
-      n.hidden=true;
-      try{ if(onTap) onTap(); }catch(e){}
-    };
+    var n=node();
+    if(n){
+      n.onclick=function(e){
+        if(e.target && e.target.classList && e.target.classList.contains('mb-x')){ n.hidden=true; return; }
+        n.hidden=true; clearTimeout(timer);
+        try{ if(onTap) onTap(); }catch(e){}
+      };
+    }
+    var p=peekEl();
+    if(p){
+      p.addEventListener('click', function(e){
+        if(e.target===p || (e.target.classList && e.target.classList.contains('mp-x')) || (e.target.closest && e.target.closest('.mp-close'))) closePeek();
+      });
+    }
     if(window.Notification && Notification.permission==='default'){
       try{ Notification.requestPermission(); }catch(e){}
     }
@@ -12498,7 +12559,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.12";
+  const APP_VERSION = "v6.4.13";
   let db = {
     characters: [],
     groups: [],
@@ -19354,6 +19415,12 @@ document.addEventListener("DOMContentLoaded", () => {
         else { chat.history.push(stampMask(simpleMessage, chat)); if (!skipBubbles) addMessageBubble(simpleMessage); }
       }
     }
+    try {
+      if (window.__mxgBanner && fullResponse && !skipBubbles) {
+        const __nm = chat && (chat.remarkName || chat.realName || chat.nickname || chat.name || "新消息");
+        window.__mxgBanner(String(__nm || "新消息"), String(fullResponse).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").slice(0, 90), { chatType: currentChatType, chatId: currentChatId });
+      }
+    } catch (e) {}
     try {
       const ma = document.getElementById("message-area");
       if (ma) {
@@ -26713,11 +26780,7 @@ function setupPhoneSystem() {
     const area2 = document.getElementById("offline-chat-area");
     if (area2) area2.scrollTop = area2.scrollHeight;
     enableBtn();
-    try{
-      const nm = mainChar.remarkName || mainChar.realName || "对方";
-      const plain = cleanBubbleText(stripSideNote(content)).replace(/\n/g, " ").slice(0, 90);
-      if (window.__mxgBanner) window.__mxgBanner(nm, plain, function(){ try{ openOfflineChat(oc); }catch(e){} });
-    }catch(e){}
+
     if (oc.type !== "side" && oc.summaryEnabled && oc.rounds >= (oc.summaryRounds || 6)) {
       if (chars.length > 1) {
         await summarizeOfflineMulti(chars, oc);
@@ -43000,14 +43063,33 @@ window.bsRoomAI = bsRoomAI;
 .o-attach-strip .oa-x { position:absolute; right:0; top:0; width:18px; height:18px; line-height:17px; text-align:center; font-size:12px; color:#fff; background:rgba(17,17,17,.72); border-bottom-left-radius:8px; }
 
 /* ===== 消息横幅 ===== */
-.mxg-banner { position:fixed; left:50%; top:12px; transform:translateX(-50%) translateY(0); width:calc(100% - 24px); max-width:420px; z-index:10060; display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; background:rgba(17,17,18,.94); color:#fff; box-shadow:0 14px 34px rgba(16,16,18,.28); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); transition:transform .26s cubic-bezier(.2,.9,.2,1), opacity .26s; }
+.mxg-banner { position:fixed; left:50%; top:12px; transform:translateX(-50%) translateY(0); width:calc(100% - 24px); max-width:420px; z-index:10060; display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; background:#fff; color:#111; border:1px solid #111; box-shadow:0 10px 26px rgba(17,17,17,.10); transition:transform .24s cubic-bezier(.2,.9,.2,1), opacity .24s; }
 .mxg-banner[hidden] { display:none; }
 .mxg-banner.out { transform:translateX(-50%) translateY(-16px); opacity:0; }
-.mxg-banner .mb-ico { flex:0 0 34px; width:34px; height:34px; border-radius:50%; background:radial-gradient(circle at 30% 30%, #C9A961, #8a6a2e); }
+.mxg-banner .mb-ico { flex:0 0 32px; width:32px; height:32px; border-radius:50%; background:#111; position:relative; }
+.mxg-banner .mb-ico::after { content:''; position:absolute; inset:9px; border-radius:50%; border:1px solid rgba(255,255,255,.85); }
 .mxg-banner .mb-tx { flex:1; min-width:0; }
-.mxg-banner .mb-t { font-size:13px; letter-spacing:1px; color:#fff; }
-.mxg-banner .mb-s { margin-top:3px; font-size:11px; line-height:1.6; color:rgba(255,255,255,.72); overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
-.mxg-banner .mb-x { flex:0 0 20px; text-align:center; font-size:15px; color:rgba(255,255,255,.55); }
+.mxg-banner .mb-t { font-size:13px; letter-spacing:1.2px; color:#111; }
+.mxg-banner .mb-s { margin-top:3px; font-size:11px; line-height:1.6; color:#6b6b6b; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; letter-spacing:.3px; }
+.mxg-banner .mb-x { flex:0 0 20px; text-align:center; font-size:15px; color:#111; }
+
+.mxg-peek { position:fixed; inset:0; z-index:10070; background:rgba(17,17,17,.28); display:flex; align-items:flex-end; justify-content:center; opacity:0; transition:opacity .22s; }
+.mxg-peek[hidden] { display:none; }
+.mxg-peek.in { opacity:1; }
+.mp-panel { width:100%; max-width:460px; height:72vh; background:#fff; border-radius:18px 18px 0 0; border-top:1px solid #111; display:flex; flex-direction:column; transform:translateY(18px); transition:transform .24s cubic-bezier(.2,.9,.2,1); }
+.mxg-peek.in .mp-panel { transform:translateY(0); }
+.mp-head { flex:0 0 auto; display:flex; align-items:center; gap:10px; padding:14px 16px 12px; border-bottom:1px solid #eee; }
+.mp-face { flex:0 0 30px; width:30px; height:30px; border-radius:50%; overflow:hidden; border:1px solid #111; display:flex; align-items:center; justify-content:center; font-size:12px; color:#111; }
+.mp-face img { width:100%; height:100%; object-fit:cover; display:block; }
+.mp-t { flex:1; font-size:13px; letter-spacing:1.4px; color:#111; }
+.mp-x { flex:0 0 24px; text-align:center; font-size:16px; color:#111; }
+.mp-body { flex:1; overflow-y:auto; padding:14px 16px 18px; display:flex; flex-direction:column; gap:8px; }
+.mp-row { display:flex; }
+.mp-row.me { justify-content:flex-end; }
+.mp-row .mp-b { max-width:82%; padding:9px 12px; border-radius:12px; font-size:12px; line-height:1.75; letter-spacing:.4px; color:#111; background:#f4f4f5; }
+.mp-row.me .mp-b { background:#111; color:#fff; border-radius:12px; }
+.mp-empty { margin:auto; font-size:11px; letter-spacing:2px; color:#9a9a9a; }
+.mp-foot { flex:0 0 auto; padding:10px 16px calc(12px + env(safe-area-inset-bottom)); border-top:1px solid #eee; font-size:10px; letter-spacing:1.6px; color:#9a9a9a; text-align:center; }
 
 #asset-screen .as-fcbox { position:relative; margin-top:16px; padding:20px 18px 18px; border-radius:18px; background:#fff; color:#101010; border:1px solid #EFE6D6; box-shadow:0 1px 0 rgba(16,16,18,.02); overflow:hidden; }
 #asset-screen .as-fcbox::after { content:'FAMILY'; position:absolute; right:-10px; bottom:-14px; font-size:calc(var(--app-fs,1) * 46px); letter-spacing:2px; color:rgba(201,169,97,.10); pointer-events:none; }
