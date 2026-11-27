@@ -12317,7 +12317,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.6";
+  const APP_VERSION = "v6.4.7";
   let db = {
     characters: [],
     groups: [],
@@ -42463,14 +42463,16 @@ window.bsRoomAI = bsRoomAI;
 }
 
 /* ===== 资产（纯白 / 墨黑 / 香槟金，冷调，不含任何米色） ===== */
-#asset-screen { background:#fff; color:#101010; }
+#asset-screen { background:#fff; color:#101010; display:flex; flex-direction:column; overflow:hidden; }
+#asset-screen .as-bar { flex:0 0 auto; }
+#asset-screen .as-main { flex:1 1 auto; min-height:0; overflow-y:auto; overflow-x:hidden; -webkit-overflow-scrolling:touch; overscroll-behavior:contain; touch-action:pan-y; }
 #asset-screen .as-bar { position:sticky; top:0; z-index:20; display:flex; align-items:center; gap:10px; padding:14px 16px 12px; background:#fff; border-bottom:1px solid #101010; }
 #asset-screen .as-back { width:26px; height:26px; border:0; background:none; color:#101010; font-size:20px; line-height:1; padding:0; }
 #asset-screen .as-ttl { flex:1; text-align:center; }
 #asset-screen .as-ttl b { display:block; font-family:var(--font-family, serif); font-size:calc(var(--app-fs,1) * 19px); letter-spacing:2px; font-weight:700; color:#101010; }
 #asset-screen .as-ttl em { display:block; margin-top:3px; font-style:normal; font-size:calc(var(--app-fs,1) * 9px); letter-spacing:3px; color:#8a8a8a; }
 #asset-screen .as-idx { width:26px; height:26px; display:flex; align-items:center; justify-content:center; border:1px solid #B08A4F; color:#B08A4F; font-size:calc(var(--app-fs,1) * 10px); letter-spacing:1px; }
-#asset-screen .as-main { padding:0 16px 40px; }
+#asset-screen .as-main { padding:0 16px calc(56px + env(safe-area-inset-bottom,0px)); }
 
 #asset-screen .as-rule { height:1px; background:#101010; margin:14px 0 0; }
 #asset-screen .as-gold-rule { height:1px; background:#B08A4F; margin:12px 0; opacity:.85; }
@@ -42519,6 +42521,66 @@ window.bsRoomAI = bsRoomAI;
 #asset-screen .as-tool { flex:1; border:1px solid #101010; background:#fff; color:#101010; padding:11px 0; font-size:calc(var(--app-fs,1) * 11px); letter-spacing:2px; }
 #asset-screen .as-tool.solid { background:#101010; color:#fff; border-color:#101010; }
 #asset-screen .as-tool[disabled] { opacity:.45; }
+/* ===== 资产 · 装饰层（封面 / 图版 / 记忆 / 关联） ===== */
+#asset-screen .as-cover { position:relative; height:158px; margin:2px 0 18px; border:1px solid #101010; background:#fff; overflow:hidden; }
+#asset-screen .as-cover .cv-img { position:absolute; inset:0; background-size:cover; background-position:center; filter:grayscale(1) contrast(1.06); }
+#asset-screen .as-cover .cv-art { position:absolute; inset:0; }
+#asset-screen .as-cover .cv-art svg { width:100%; height:100%; display:block; }
+#asset-screen .as-cover .cv-vt { position:absolute; right:12px; top:10px; writing-mode:vertical-rl; font-family:var(--font-family, serif); font-size:calc(var(--app-fs,1) * 15px); letter-spacing:6px; color:#101010; opacity:.9; }
+#asset-screen .as-cover .cv-tag { position:absolute; left:12px; bottom:11px; font-size:calc(var(--app-fs,1) * 8px); letter-spacing:3px; color:#101010; background:#fff; padding:3px 6px; border:1px solid #101010; }
+#asset-screen .as-cover .cv-fx { position:absolute; right:10px; bottom:9px; font-size:calc(var(--app-fs,1) * 8px); letter-spacing:2.4px; color:#B08A4F; border:1px solid #B08A4F; padding:3px 6px; background:#fff; }
+#asset-screen .as-cover .cv-fx:active { background:#B08A4F; color:#fff; }
+
+#asset-screen .as-ico { display:block; width:19px; height:19px; }
+#asset-screen .as-ico svg { width:100%; height:100%; display:block; }
+#asset-screen .as-cat .as-ico { margin-bottom:7px; }
+
+#asset-screen .as-bars { margin-top:18px; border-top:1px solid #101010; padding-top:12px; }
+#asset-screen .as-bars .bl { display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+#asset-screen .as-bars .bl span.nm { flex:0 0 46px; font-size:calc(var(--app-fs,1) * 9px); letter-spacing:1.4px; color:#101010; }
+#asset-screen .as-bars .bl .tr { flex:1; height:3px; background:#f0f0f0; position:relative; }
+#asset-screen .as-bars .bl .tr i { position:absolute; left:0; top:0; bottom:0; background:#101010; }
+#asset-screen .as-bars .bl .tr b { position:absolute; top:-1px; bottom:-1px; width:1px; background:#B08A4F; }
+#asset-screen .as-bars .bl .pc { flex:0 0 30px; text-align:right; font-size:calc(var(--app-fs,1) * 8.5px); color:#B08A4F; letter-spacing:1px; }
+
+#asset-screen .as-plate { position:relative; height:172px; margin:14px 0 16px; border:1px solid #101010; background:#fff; overflow:hidden; }
+#asset-screen .as-plate .pl-img { position:absolute; inset:0; background-size:cover; background-position:center; filter:grayscale(1) contrast(1.05); }
+#asset-screen .as-plate .pl-art { position:absolute; inset:0; }
+#asset-screen .as-plate .pl-art svg { width:100%; height:100%; display:block; }
+#asset-screen .as-plate .pl-cn { position:absolute; left:10px; top:10px; font-size:calc(var(--app-fs,1) * 8px); letter-spacing:2.6px; color:#B08A4F; border:1px solid #B08A4F; padding:2px 5px; background:#fff; }
+#asset-screen .as-plate .pl-fx { position:absolute; right:9px; bottom:9px; font-size:calc(var(--app-fs,1) * 8px); letter-spacing:2.2px; color:#101010; border:1px solid #101010; padding:3px 6px; background:#fff; }
+#asset-screen .as-plate .pl-fx:active { background:#101010; color:#fff; }
+
+#asset-screen .as-mem { margin-top:10px; }
+#asset-screen .as-mem-i { position:relative; padding:0 0 18px 18px; border-left:1px solid #B08A4F; }
+#asset-screen .as-mem-i:last-child { padding-bottom:4px; }
+#asset-screen .as-mem-i .mn { display:block; font-family:var(--font-family, serif); font-size:calc(var(--app-fs,1) * 16px); line-height:1; color:#B08A4F; }
+#asset-screen .as-mem-i .mt { display:block; margin-top:6px; font-size:calc(var(--app-fs,1) * 11.5px); letter-spacing:1.2px; color:#101010; }
+#asset-screen .as-mem-i .mb { margin-top:7px; font-size:calc(var(--app-fs,1) * 11px); line-height:1.9; color:#454545; letter-spacing:.35px; }
+#asset-screen .as-mem-i .mm { margin-top:7px; font-size:calc(var(--app-fs,1) * 8.5px); letter-spacing:1.8px; color:#a9a9a9; }
+
+#asset-screen .as-rel { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:10px; }
+#asset-screen .as-rel-c { border:1px solid #e4e4e4; padding:10px 11px; background:#fff; text-align:left; }
+#asset-screen .as-rel-c em { display:block; font-style:normal; font-size:calc(var(--app-fs,1) * 8px); letter-spacing:2px; color:#B08A4F; }
+#asset-screen .as-rel-c b { display:block; margin-top:5px; font-size:calc(var(--app-fs,1) * 11.5px); color:#101010; font-weight:600; }
+#asset-screen .as-rel-c s { display:block; margin-top:4px; font-size:calc(var(--app-fs,1) * 9px); color:#a5a5a5; text-decoration:none; letter-spacing:.6px; }
+
+#asset-screen .as-banner { position:relative; border:1px solid #101010; padding:17px 14px 15px; margin-bottom:18px; overflow:hidden; }
+#asset-screen .as-banner .bn-k { font-size:calc(var(--app-fs,1) * 8px); letter-spacing:3.4px; color:#B08A4F; }
+#asset-screen .as-banner .bn-t { margin-top:8px; font-family:var(--font-family, serif); font-size:calc(var(--app-fs,1) * 17px); letter-spacing:1px; color:#101010; }
+#asset-screen .as-banner .bn-s { margin-top:6px; font-size:calc(var(--app-fs,1) * 10px); line-height:1.8; color:#5a5a5a; letter-spacing:.5px; }
+#asset-screen .as-banner .bn-art { position:absolute; right:-14px; top:-10px; width:92px; height:92px; opacity:.18; }
+#asset-screen .as-banner .bn-art svg { width:100%; height:100%; display:block; }
+
+#asset-screen .as-seal { position:absolute; right:12px; top:12px; width:44px; height:44px; border:1px solid #B08A4F; color:#B08A4F; display:flex; align-items:center; justify-content:center; font-size:calc(var(--app-fs,1) * 7.5px); letter-spacing:1.4px; text-align:center; line-height:1.2; transform:rotate(-6deg); opacity:.85; }
+#asset-screen .as-wm { margin:14px 0 2px; font-size:calc(var(--app-fs,1) * 8px); letter-spacing:4px; color:#cfcfcf; text-align:right; }
+
+#asset-screen .as-stack { position:relative; margin-top:14px; min-height:176px; }
+#asset-screen .as-stack .as-bank { position:absolute; left:0; right:0; top:0; margin:0; width:auto; transform-origin:50% 0; transition:transform .42s cubic-bezier(.2,.9,.2,1), opacity .3s, filter .3s; will-change:transform; }
+#asset-screen .as-stack .as-bank .bk-hit { position:absolute; inset:0; }
+#asset-screen .as-stack .as-bank.off { pointer-events:auto; }
+#asset-screen .as-stack .as-bank.on { pointer-events:auto; }
+#asset-screen .as-stack-hint { margin-top:8px; text-align:right; font-size:calc(var(--app-fs,1) * 8px); letter-spacing:2.4px; color:#b9b9b9; }
 #asset-screen .as-foot { margin-top:26px; text-align:center; font-size:calc(var(--app-fs,1) * 8.5px); letter-spacing:3px; color:#c6c6c6; }
 
 #asset-screen .as-list { margin-top:12px; }
@@ -45429,14 +45491,14 @@ function wb2DeleteEntry() {
   }
 
   function basePrompt(char){
-    return '你在为一个人建立他私下持有的资产清单。\n'+ctxOf(char)+'\n\n规则：\n'+
+    return '你在为一个人建立他私下持有的资产档案。这份档案要足够具体，像真的有人一件件经手过。\n'+ctxOf(char)+'\n\n规则：\n'+
       '1) 只归类到这八个大类：'+CATS.map(function(c){return c.k;}).join('、')+'。\n'+
-      '2) 具体有没有、有几件、是什么牌子/什么地段/什么型号，全部由你按这个人的人设、身份、收入、处境自己判断。穷困的人可能一辆车一间铺都没有，只剩几件旧物；有钱的人才铺得开。绝对不要凑数，绝对不要人人都有房有车。\n'+
-      '3) 每个大类 0~5 件，允许整类为空。金额用人民币整数，量级必须符合他的处境（不要给穷角色几百万的房）。\n'+
-      '4) 每件给一句 note：这件东西和他之间的事实（哪来的、什么时候用、谁送的），一句话，不要煽情。\n'+
-      '5) 另给他的钱包 1~3 张银行卡（余额和处境一致，穷的可能只有一张储蓄卡）。\n'+
-      '6) 再判断他会不会给最亲近的人办一张亲属卡：只有性格愿意且有余力时才 issue=true，额度按他的财力给；不愿意或不宽裕就 issue=false、limit=0。\n'+
-      '只输出严格 JSON：{"items":[{"name":"","cat":"八类之一","value":0,"bought":"年份","from":"自购/继承/赠予/抵押所得","state":"使用中/闲置/出租/典当/维修","place":"城市","note":""}],"cards":[{"bank":"","name":"","no4":"四位","balance":0}],"familyCard":{"issue":false,"limit":0}}';
+      '2) 具体有没有、有几件、什么牌子/什么地段/什么型号，全部按这个人的人设、身份、收入、处境自己判断。穷困的人可能一辆车一间铺都没有，只剩几件旧物；有钱的人铺得开。绝对不要凑数，绝对不要人人都有房有车。\n'+
+      '3) 每个大类 0~4 件，允许整类为空。金额用人民币整数，量级必须符合处境。\n'+
+      '4) 每件给 note（一句硬事实：哪来的、什么时候用、谁经手，不煽情），再给 3 段 story（这件东西记得的事）。story 每段 45~90 字：第一段是它怎么来的；第二段是关键一次使用/被谁看见/那天的天气与细节；第三段是它现在留下的痕迹（划痕、褪色、夹在里面的东西）。要用具体动词和物件细节，不要空泛抒情，不要写成他的心理独白。\n'+
+      '5) 另给 1~3 张银行卡（余额与处境一致，穷的可能只有一张储蓄卡），每张给 3~5 条往来：label 是什么消费/进账，amt 为负表示支出。\n'+
+      '6) 再判断他会不会给最亲近的人办一张亲属卡：只有性格愿意且有余力时才 issue=true，额度按财力给；不愿意或不宽裕就 issue=false、limit=0。\n'+
+      '只输出严格 JSON：{"items":[{"name":"","cat":"八类之一","value":0,"bought":"年份","from":"自购/继承/赠予/抵押所得","state":"使用中/闲置/出租/典当/维修","place":"城市","note":"","story":[{"title":"四到六字的小标题","text":"正文"}]}],"cards":[{"bank":"","name":"","no4":"四位","balance":0,"tx":[{"label":"","amt":-128}]}],"familyCard":{"issue":false,"limit":0}}';
   }
 
   function normItem(o, i){
@@ -45450,13 +45512,16 @@ function wb2DeleteEntry() {
       cat:cat, value:Math.round(v),
       bought:String(o.bought||''), from:String(o.from||''),
       state:String(o.state||'使用中'), place:String(o.place||''),
-      note:String(o.note||''), story:null
+      note:String(o.note||''),
+      story:(o.story&&o.story.length)?{parts:o.story.slice(0,4).map(function(x){ return {title:String((x&&x.title)||''), text:String((x&&x.text)||'')}; }), ts:Date.now()}:null,
+      img:null
     };
   }
   function normCard(o,i){
     if(!o||typeof o!=='object') return null;
     var b=Number(o.balance); if(!isFinite(b)) b=0;
-    return { id:'cd_'+i+Math.floor(Math.random()*999), bank:String(o.bank||'404 BANK'), name:String(o.name||'储蓄卡'), no4:String(o.no4||'0000').slice(-4), balance:Math.round(b), tx:[] };
+    var tx=(o.tx||[]).slice(0,6).map(function(x,k){ var a=Number(x&&x.amt); if(!isFinite(a)) a=0; return { label:String((x&&x.label)||''), amt:Math.round(a), ts:Date.now()-((k+1)*36+Math.floor(Math.random()*20))*3600000 }; });
+    return { id:'cd_'+i+Math.floor(Math.random()*999), bank:String(o.bank||'404 BANK'), name:String(o.name||'储蓄卡'), no4:String(o.no4||'0000').slice(-4), balance:Math.round(b), tx:tx };
   }
 
   var A={ charId:null, view:'overview', cat:null, itemId:null, busy:false, cardId:null };
@@ -45465,9 +45530,44 @@ function wb2DeleteEntry() {
 
   function netOf(r){ return (r.items||[]).reduce(function(a,b){ return a + (Number(b.value)||0) - 0; }, 0); }
 
+  var ICO={
+    '不动产':'<path d="M3 11 12 4l9 7"/><path d="M5.5 10v9h13v-9"/><path d="M10 19v-5h4v5"/>',
+    '出行':'<path d="M4 16h16"/><path d="M6 16l1.6-6.2A2 2 0 0 1 9.5 8h5a2 2 0 0 1 1.9 1.8L18.6 16"/><circle cx="7.5" cy="18" r="1.4"/><circle cx="16.5" cy="18" r="1.4"/>',
+    '贵重':'<path d="M12 3l2.4 5.1 5.6.8-4 4 .9 5.6L12 15.8 5.1 18.5l.9-5.6-4-4 5.6-.8z"/>',
+    '金融':'<rect x="3.5" y="6" width="17" height="12"/><path d="M3.5 10h17"/><path d="M7 15h4"/>',
+    '产业':'<path d="M4 20V9l5 3V9l5 3V9l6 3v8z"/><path d="M4 20h16"/>',
+    '生活':'<path d="M6 8h3v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-9h2z"/><path d="M9 8V6a1.5 1.5 0 0 1 3 0v2"/><path d="M16 6c2 2 3 4 3 6a3 3 0 1 1-6 0c0-2 1-4 3-6z"/>',
+    '旧物':'<path d="M12 3.5a8.5 8.5 0 1 0 8.4 7.3"/><path d="M12 7v5l3.5 2.2"/><path d="M17 4.5l3.6 3.6"/>',
+    '特殊':'<path d="M12 3v5"/><path d="M12 16v5"/><path d="M4.5 7.5l4.3 2.5"/><path d="M15.2 14l4.3 2.5"/><path d="M19.5 7.5l-4.3 2.5"/><path d="M8.8 14L4.5 16.5"/>'
+  };
+  function ico(k){
+    var d=ICO[k]||ICO['特殊'];
+    return '<span class="as-ico"><svg viewBox="0 0 24 24" fill="none" stroke="#101010" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">'+d+'</svg></span>';
+  }
+  function artRing(seed){
+    var n=Number(seed)||0;
+    var cx=50+n%7, cy=46+n%5, r=30+n%9;
+    return '<svg viewBox="0 0 100 100" fill="none" stroke="#101010" stroke-width=".7">'
+      +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" stroke-opacity=".45"/>'
+      +'<circle cx="'+cx+'" cy="'+cy+'" r="'+(r-9)+'" stroke-opacity=".22" stroke-dasharray="2 5"/>'
+      +'<circle cx="'+(cx+8)+'" cy="'+(cy-10)+'" r="6" stroke="#B08A4F" stroke-opacity=".7"/>'
+      +'<path d="M'+cx+' 4v12M'+cx+' '+(cy+r+4)+'v10" stroke-opacity=".3"/>'
+      +'<path d="M4 '+cy+'h12M'+(cx+r+4)+' '+cy+'h10" stroke-opacity=".3"/>'
+      +'<path d="M'+(cx-r)+' '+(cy+r)+'l'+(2*r)+' 0" stroke="#B08A4F" stroke-opacity=".55"/>'
+      +'</svg>';
+  }
+
   function headHtml(){
     var ch=charNow();
     return '<div class="as-cap"><b>账册</b><span>PRIVATE LEDGER / 404</span></div><div class="as-rule"></div>';
+  }
+
+  function coverHtml(r){
+    var bg=r.cover?('<div class="cv-img" style="background-image:url('+r.cover+')"></div>'):('<div class="cv-art">'+artRing((r.items||[]).length+7)+'</div>');
+    return '<div class="as-cover">'+bg
+      +'<div class="cv-vt">帐</div>'
+      +'<div class="cv-tag">EST. 404 · PRIVATE LEDGER</div>'
+      +'<div class="cv-fx" data-cover="1">'+(r.cover?'换图':'换封面图')+'</div></div>';
   }
 
   function overviewHtml(char, r){
@@ -45476,16 +45576,33 @@ function wb2DeleteEntry() {
     var counts={}; CATS.forEach(function(c){ counts[c.k]=0; });
     r.items.forEach(function(it){ if(counts[it.cat]!=null) counts[it.cat]++; });
     var lastUp=(r.ledger||[])[0];
+    var ncat=r.items.length;
+
+    var banner='<div class="as-banner"><div class="bn-art">'+artRing(3)+'</div>'
+      +'<div class="bn-k">ARCHIVE · NO.404</div>'
+      +'<div class="bn-t">'+esc(char.realName||char.remarkName||'他')+' 的私人账册</div>'
+      +'<div class="bn-s">'+ (ncat? ('共 '+ncat+' 件东西，分散在 '+CATS.filter(function(c){return counts[c.k];}).length+' 个门类里。每一件都记得一点什么。')
+                                   : '这册还是空的。点下面重铸，他名下有什么，会一次列全。') +'</div>'
+      +'<div class="as-seal">私<br>藏</div></div>';
+
     var hero=top.length? top.map(function(it,i){
       return '<div class="as-hero" data-open="'+esc(it.id)+'"><div class="n">No.'+String(i+1).padStart(2,'0')+' / '+esc(it.cat)+'</div><div class="t">'+esc(it.name)+'</div><div class="v">¥ '+money(it.value)+'</div></div>';
     }).join('') : '<div class="as-hero on"><div class="n">NO.00</div><div class="t">还没有列出来</div><div class="v">—</div></div>';
 
     var catGrid='';
     CATS.forEach(function(c,i){
-      var wide=(i===0);
-      var tall=(i===CATS.length-1);
-      catGrid+='<div class="as-cat'+(wide?' wide':'')+(tall?' tall':'')+'" data-cat="'+esc(c.k)+'"><span class="as-cat-c">'+esc(c.en)+'</span><span class="as-cat-t">'+esc(c.k)+'</span><span class="as-cat-n">'+String(counts[c.k]).padStart(2,'0')+'</span></div>';
+      var wide=(i===0), tall=(i===CATS.length-1);
+      catGrid+='<div class="as-cat'+(wide?' wide':'')+(tall?' tall':'')+'" data-cat="'+esc(c.k)+'"><span class="as-cat-c">'+esc(c.en)+'</span>'
+        +ico(c.k)+'<span class="as-cat-t">'+esc(c.k)+'</span><span class="as-cat-n">'+String(counts[c.k]).padStart(2,'0')+'</span></div>';
     });
+
+    var maxv=Math.max.apply(null, CATS.map(function(c){ return r.items.filter(function(x){return x.cat===c.k;}).reduce(function(a,b){return a+(Number(b.value)||0);},0); }).concat([1]));
+    var bars=CATS.map(function(c){
+      var v=r.items.filter(function(x){return x.cat===c.k;}).reduce(function(a,b){return a+(Number(b.value)||0);},0);
+      if(!v) return '';
+      var pct=Math.max(2, Math.round(v/maxv*100));
+      return '<div class="bl"><span class="nm">'+esc(c.k)+'</span><span class="tr"><i style="width:'+pct+'%"></i></span><span class="pc">'+Math.round(v/(net||1)*100)+'%</span></div>';
+    }).join('');
 
     var moves=(r.ledger||[]).slice(0,3).map(function(x){
       var d=Number(x.delta)||0;
@@ -45493,10 +45610,13 @@ function wb2DeleteEntry() {
     }).join('') || '<div class="as-move"><span class="nm" style="color:#a9a9a9;letter-spacing:1px">还没有变动记录</span></div>';
 
     return headHtml()
+      + coverHtml(r)
       + '<div class="as-net"><div class="as-net-num"><i>¥</i>'+money(net)+'</div>'
-      + '<div class="as-net-sub"><span>净资产 · 共 '+r.items.length+' 件</span><span class="'+(lastUp&&Number(lastUp.delta)>0?'up':'')+'">'+(lastUp?('本月 '+(Number(lastUp.delta)>0?'+':'')+short(lastUp.delta)):'—')+'</span></div></div>'
+      + '<div class="as-net-sub"><span>净资产 · 共 '+ncat+' 件</span><span class="'+(lastUp&&Number(lastUp.delta)>0?'up':'')+'">'+(lastUp?('本月 '+(Number(lastUp.delta)>0?'+':'')+short(lastUp.delta)):'—')+'</span></div></div>'
       + '<div class="as-gold-rule"></div>'
+      + banner
       + '<div class="as-hero-strip">'+hero+'</div>'
+      + (bars?'<div class="as-bars">'+bars+'</div>':'')
       + '<div class="as-cap" style="margin-top:22px"><b>分类</b><span>'+String(CATS.length).padStart(2,'0')+' SECTIONS</span></div>'
       + '<div class="as-cats">'+catGrid+'</div>'
       + '<div class="as-cap" style="margin-top:24px"><b>最近变动</b><span>RECENT</span></div>'
@@ -45506,53 +45626,75 @@ function wb2DeleteEntry() {
       + '<div class="as-link" data-go="ledger"><span class="lt">变动</span><span class="ln">LEDGER / '+String((r.ledger||[]).length).padStart(2,'0')+'</span><span class="lv">›</span></div>'
       + '</div>'
       + '<div class="as-tools"><button class="as-tool" id="as-float">按现值浮动</button><button class="as-tool solid" id="as-recast">重铸</button></div>'
+      + '<div class="as-wm">MADE IN 404 · 你的字 / 他的物</div>'
       + '<div class="as-foot">EST. 404 · PRIVATE COLLECTION</div>';
   }
 
   function catHtml(char, r, cat){
     var items=r.items.filter(function(it){ return it.cat===cat; });
     var c=CATS.filter(function(x){ return x.k===cat; })[0]||{k:cat,en:''};
+    var sum=items.reduce(function(a,b){return a+(Number(b.value)||0);},0);
     var rows=items.map(function(it,i){
       var st=it.state&&it.state!=='使用中'?'<span class="as-stamp">'+esc(it.state)+'</span>':'';
       return '<div class="as-row" data-open="'+esc(it.id)+'"><div class="no">'+String(i+1).padStart(2,'0')+'</div>'
         +'<div class="mid"><div class="nm">'+esc(it.name)+'</div><div class="sm">'+esc([it.place,it.bought?('购于 '+it.bought):'',it.from].filter(Boolean).join(' · '))+'</div></div>'
         +'<div class="val">¥ '+money(it.value)+'</div>'+st+'</div>';
     }).join('');
-    var sum=items.reduce(function(a,b){return a+(Number(b.value)||0);},0);
-    return '<div class="as-cap"><b>'+esc(cat)+'</b><span>'+esc(c.en||'')+' / '+String(items.length).padStart(2,'0')+'</span></div><div class="as-rule"></div>'
-      + (items.length?('<div class="as-list">'+rows+'</div><div class="as-sum"><span>共 '+items.length+' 件</span><span>合计 ¥ '+money(sum)+'</span></div>')
+    return '<div class="as-cap"><b>'+ico(cat)+'<span style="display:inline-block;width:6px"></span>'+esc(cat)+'</b><span>'+esc(c.en||'')+' / '+String(items.length).padStart(2,'0')+'</span></div><div class="as-rule"></div>'
+      + (items.length?('<div class="as-sum" style="margin-top:8px;margin-bottom:6px"><span>这一类共 '+items.length+' 件</span><span>合计 ¥ '+money(sum)+'</span></div><div class="as-list">'+rows+'</div>')
                      :('<div class="as-empty">这一类暂时是空的。<br>他这样的人，也可能本就没有。</div>'))
       + '<div class="as-acts"><button class="as-tool" data-go="overview">返回总览</button></div>'
-      + '<div class="as-foot">SECTION '+esc(c.en||'')+' · 404</div>';
+      + '<div class="as-wm">SECTION '+esc(c.en||'')+' · 404</div>'
+      + '<div class="as-foot">这一页只记他名下的'+esc(cat)+'</div>';
+  }
+
+  function plateHtml(it){
+    var bg=it.img?('<div class="pl-img" style="background-image:url('+it.img+')"></div>')
+                 :('<div class="pl-art">'+artRing((it.name||'').length+(it.value%97))+'</div>');
+    return '<div class="as-plate">'+bg
+      +'<div class="pl-cn">PLATE · '+esc(String(it.cat||'').slice(0,2))+'</div>'
+      +'<div class="pl-fx" data-plate="1">'+(it.img?'换图':'放一张它的照片')+'</div></div>';
   }
 
   function detailHtml(char, r, it){
     if(!it) return '<div class="as-empty">找不到这件东西。</div>';
     var c=CATS.filter(function(x){ return x.k===it.cat; })[0]||{en:''};
-    var story=it.story;
+    var idx=r.items.filter(function(x){ return x.cat===it.cat; }).findIndex(function(x){ return x.id===it.id; })+1;
+    var yrs=(function(){ var y=parseInt(String(it.bought||''),10); return (y&&y<2100)?((new Date().getFullYear()-y)+' 年'):'—'; })();
+    var story=it.story&&it.story.parts?it.story.parts:[];
     var storyHtml;
-    if(story && story.parts && story.parts.length){
-      storyHtml=story.parts.map(function(p,i){
-        return '<div class="as-hd" data-hd="'+i+'"><div class="as-hd-h"><span>'+esc(p.title||('片段 '+String(i+1).padStart(2,'0')))+'</span><span class="co">'+(['I','II','III','IV','V'][i]||'')+'</span></div><div class="as-hd-b" hidden>'+esc(p.text||'').replace(/\n/g,'<br>')+'</div></div>';
-      }).join('');
-    }else if(story===false){
-      storyHtml='<div class="as-hd" data-story="1"><div class="as-hd-h"><span>它记得的事</span><span class="co">待写</span></div><div class="as-hd-b" hidden></div></div>';
+    if(story.length){
+      storyHtml='<div class="as-mem">'+story.map(function(p,i){
+        return '<div class="as-mem-i"><span class="mn">'+String(i+1).padStart(2,'0')+'</span>'
+          +'<span class="mt">'+esc(p.title||('片段 '+(i+1)))+'</span>'
+          +'<div class="mb">'+esc(p.text||'').replace(/\n/g,'<br>')+'</div>'
+          +'<div class="mm">OBJ · '+esc((it.id||'').slice(-5).toUpperCase())+' / '+esc(it.cat)+'</div></div>';
+      }).join('')+'</div>';
     }else{
-      storyHtml='<div class="as-hd" data-story="1"><div class="as-hd-h"><span>它记得的事</span><span class="co">'+ (A.busy?'书写中…':'点击展开') +'</span></div><div class="as-hd-b" hidden></div></div>';
+      storyHtml='<div class="as-empty" style="padding:26px 0">'+(A.busy?'正在替它想起这些事…':'这件东西还没被写下过记忆。点下面的按钮，让它想起来。')+'</div>';
     }
-    return '<div class="as-cap"><b>'+esc(it.cat)+'</b><span>'+esc(c.en||'')+' / 01</span></div><div class="as-rule"></div>'
+    var sibs=r.items.filter(function(x){ return x.cat===it.cat && x.id!==it.id; }).slice(0,2);
+    var others=r.items.filter(function(x){ return x.cat!==it.cat && Math.abs((x.value||0)-(it.value||0))<Math.max(it.value||0,1)*1.2; }).slice(0,2-Math.min(sibs.length,2));
+    var rel=sibs.concat(others).slice(0,4).map(function(x){
+      return '<div class="as-rel-c" data-open="'+esc(x.id)+'"><em>'+esc(x.cat)+'</em><b>'+esc(x.name)+'</b><s>¥ '+money(x.value)+' · '+esc(x.state||'使用中')+'</s></div>';
+    }).join('');
+    return '<div class="as-cap"><b>'+esc(it.cat)+'</b><span>'+esc(c.en||'')+' / '+String(idx).padStart(2,'0')+'</span></div><div class="as-rule"></div>'
+      + plateHtml(it)
       + '<div class="as-detail-top"><div class="as-vert">'+(c.en||'OBJECT')+' · 档案<span class="g">◆</span></div>'
       + '<div class="as-dbody"><h2>'+esc(it.name)+'</h2><div class="dv">¥ '+money(it.value)+'</div>'
       + '<div class="as-grid2">'
       + '<div class="as-cell"><em>购置</em><b>'+esc(it.bought||'—')+'</b></div>'
+      + '<div class="as-cell"><em>持有</em><b>'+esc(yrs)+'</b></div>'
       + '<div class="as-cell"><em>来源</em><b>'+esc(it.from||'—')+'</b></div>'
       + '<div class="as-cell"><em>状态</em><b>'+esc(it.state||'使用中')+'</b></div>'
       + '<div class="as-cell"><em>所在地</em><b>'+esc(it.place||'—')+'</b></div>'
+      + '<div class="as-cell"><em>门类</em><b>'+esc(it.cat)+'</b></div>'
       + '</div></div></div>'
       + (it.note?'<div class="as-hd" style="border-left-color:#101010;margin-top:16px"><div class="as-hd-h"><span>来历</span></div><div class="as-hd-b" style="padding-top:2px">'+esc(it.note)+'</div></div>':'')
       + '<div class="as-sec-t"><i>◆</i>它记得的事<u></u></div>'
       + storyHtml
-      + '<div class="as-acts"><button class="as-tool" id="as-backcat">返回 '+esc(it.cat)+'</button><button class="as-tool solid" id="as-more-story">再写一段</button></div>'
+      + (rel?'<div class="as-sec-t" style="margin-top:22px"><i>◇</i>和它摆在一起<u></u></div><div class="as-rel">'+rel+'</div>':'')
+      + '<div class="as-acts"><button class="as-tool" id="as-backcat">返回 '+esc(it.cat)+'</button><button class="as-tool solid" id="as-more-story">'+(story.length?'重新想起':'让它想起来')+'</button></div>'
       + '<div class="as-foot">OBJECT '+esc((it.id||'').slice(-6).toUpperCase())+' · 404</div>';
   }
 
@@ -45581,14 +45723,16 @@ function wb2DeleteEntry() {
         +'<div class="bk-name">'+esc(cd.name||'储蓄卡')+'</div>'
         +'<div class="bk-no">**** **** **** '+esc(cd.no4||'0000')+'</div>'
         +'<div class="bk-bal">¥ '+money(cd.balance)+'</div><div class="bk-bl">BALANCE</div>'
+        +'<div class="bk-hit"></div>'
         +'</div>';
     }).join('');
     return '<div class="as-cap"><b>钱包</b><span>CARDS / '+String(cards.length).padStart(2,'0')+'</span></div><div class="as-rule"></div>'
-      + '<div class="as-cards-strip" id="as-cards-strip">'+strip+'</div>'
+      + '<div class="as-stack" id="as-stack">'+strip+'</div>'
+      + '<div class="as-stack-hint">Swipe to flip · 点一下换到最上面</div>'
       + '<div class="as-cap" style="margin-top:16px"><b>这张卡的往来</b><span>STATEMENT</span></div>'
       + '<div class="as-tx" id="as-tx"></div>'
       + '<div class="as-acts"><button class="as-tool" data-go="overview">返回总览</button></div>'
-      + '<div class="as-foot">滑动切换卡片 · 404 WALLET</div>';
+      + '<div class="as-foot">CHIP · 404 WALLET</div>';
   }
 
   function txHtml(cd){
@@ -45619,6 +45763,19 @@ function wb2DeleteEntry() {
     bind();
   }
 
+  function pickImg(cb){
+    var inp=document.createElement('input');
+    inp.type='file'; inp.accept='image/*'; inp.style.display='none';
+    inp.onchange=function(){
+      var f=inp.files&&inp.files[0];
+      if(!f){ inp.remove(); return; }
+      try{
+        compressImageToDataUrl(f, function(url){ try{ cb(url); }catch(e){} inp.remove(); }, 1100, 0.82);
+      }catch(e){ inp.remove(); }
+    };
+    document.body.appendChild(inp); inp.click();
+  }
+
   function bind(){
     var main=document.getElementById('as-main');
     if(!main) return;
@@ -45645,6 +45802,20 @@ function wb2DeleteEntry() {
         if(!it.story) writeStory(it);
       };
     }
+    main.querySelectorAll('[data-cover]').forEach(function(el){
+      el.onclick=function(){ pickImg(function(u){ var r=recOf(A.charId); r.cover=u; persist(); render(); }); };
+    });
+    main.querySelectorAll('[data-plate]').forEach(function(el){
+      el.onclick=function(){
+        var r=recOf(A.charId), it=r.items.find(function(x){ return x.id===A.itemId; });
+        if(!it) return;
+        pickImg(function(u){ it.img=u; persist(); render(); });
+      };
+    });
+    if(A.view==='detail' && !A.busy){
+      var cur=recOf(A.charId).items.find(function(x){ return x.id===A.itemId; });
+      if(cur && !cur.story && cur.story!==false){ setTimeout(function(){ writeStory(cur); },180); }
+    }
     var back=main.querySelector('#as-backcat');
     if(back) back.onclick=function(){ A.view='cat'; render(); };
     var more=main.querySelector('#as-more-story');
@@ -45662,26 +45833,47 @@ function wb2DeleteEntry() {
         armed=false; clearTimeout(t); recast();
       };
     }
-    var strip=main.querySelector('#as-cards-strip');
-    if(strip){
-      var upd=function(){
-        var cards=strip.querySelectorAll('.as-bank');
-        if(!cards.length) return;
-        var center=strip.scrollLeft+strip.clientWidth/2, best=null, dist=1e9;
-        cards.forEach(function(c){ var m=c.offsetLeft+c.offsetWidth/2; var d=Math.abs(m-center); if(d<dist){ dist=d; best=c; } });
-        cards.forEach(function(c){ c.classList.toggle('on', c===best); c.classList.toggle('off', c!==best); });
-        var cd=(recOf(A.charId).cards||[]).find(function(x){ return x.id===best.getAttribute('data-cid'); });
+    var stack=main.querySelector('#as-stack');
+    if(stack){
+      var cards=recOf(A.charId).cards||[];
+      var cur=(function(){ var i=cards.findIndex(function(x){ return x.id===A.cardId; }); return i<0?0:i; })();
+      if(cards[cur]) A.cardId=cards[cur].id;
+      var els=stack.querySelectorAll('.as-bank');
+      var lay=function(){
+        var n=els.length;
+        stack.style.height=(166+(n-1)*18+22)+'px';
+        var front=[];
+        if(els[cur]) front.push(els[cur]);
+        for(var i=0;i<n;i++){ if(i!==cur) front.push(els[i]); }
+        front.forEach(function(el,k){
+          el.style.transform='translate3d(0,'+(k*18)+'px,0) scale('+(1-k*0.045)+')';
+          el.style.zIndex=String(100-k);
+          el.classList.toggle('on', k===0);
+          el.classList.toggle('off', k!==0);
+          el.style.filter='none';
+          el.style.boxShadow=k===0?'0 12px 26px rgba(16,16,18,.20)':'0 4px 12px rgba(16,16,18,.10)';
+        });
+        var cd=cards[cur];
         var tx=main.querySelector('#as-tx');
         if(tx) tx.innerHTML=txHtml(cd);
       };
-      strip.onscroll=function(){ clearTimeout(strip.__t); strip.__t=setTimeout(upd,100); };
-      upd();
-      strip.querySelectorAll('.as-bank').forEach(function(c){
-        c.onclick=function(){
-          var cd=(recOf(A.charId).cards||[]).find(function(x){ return x.id===c.getAttribute('data-cid'); });
-          if(cd){ c.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'}); }
+      els.forEach(function(el,i){
+        el.onclick=function(){
+          if(A.busy) return;
+          if(i===cur) return;
+          cur=i; A.cardId=cards[i].id; lay();
         };
       });
+      var sx=0, sy=0, moved=false;
+      stack.addEventListener('touchstart',function(e){ var t=e.touches[0]; sx=t.clientX; sy=t.clientY; moved=false; },{passive:true});
+      stack.addEventListener('touchmove',function(e){ if(Math.abs(e.touches[0].clientX-sx)>14) moved=true; },{passive:true});
+      stack.addEventListener('touchend',function(e){
+        var t=e.changedTouches[0]; var dx=t.clientX-sx, dy=t.clientY-sy;
+        if(Math.abs(dx)<30 || Math.abs(dy)>Math.abs(dx)*1.4) return;
+        var n=cards.length; if(n<2) return;
+        cur=(dx<0? (cur+1):(cur-1)+n)%n; A.cardId=cards[cur].id; lay();
+      },{passive:true});
+      lay();
     }
   }
 
@@ -45693,7 +45885,7 @@ function wb2DeleteEntry() {
     if(!o||!o.items){ return false; }
     r.items=(o.items||[]).map(normItem).filter(Boolean).slice(0,40);
     r.cards=(o.cards||[]).map(normCard).filter(Boolean).slice(0,3);
-    (r.cards||[]).forEach(function(cd,i){ cd.tx=[{label:'开卡', amt:0, ts:Date.now()-i*86400000}]; });
+    (r.cards||[]).forEach(function(cd,i){ if(!cd.tx||!cd.tx.length) cd.tx=[{label:'开卡', amt:0, ts:Date.now()-i*86400000}]; });
     r.ledger=r.ledger||[];
     r.ledger.unshift({ ts:Date.now(), delta:0, label:'建立资产档案', reason:'初次清点 · 共 '+r.items.length+' 件' });
     r.baseTs=Date.now(); r.floatTs=Date.now();
