@@ -7476,6 +7476,8 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
 .wb2-field{margin-top:13px}
 .wb2-fieldh{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
 .wb2-lab{font:8.5px/1 "DejaVu Sans Mono",monospace;letter-spacing:.1em;text-transform:uppercase;color:#666}
+.wb2-importrow{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.wb2-importrow .wb2-hint{margin-top:0}
 .wb2-hint{font-size:8.5px;color:#888;line-height:1.45;margin-top:4px}
 .wb2-input,.wb2-textarea,.wb2-select{border:1px solid #111;background:rgba(255,255,255,.9);font-size:11px;padding:9px 10px;width:100%;outline:0;border-radius:0;color:#111;font-family:inherit}
 .wb2-input.name{font-size:17px;font-weight:700;letter-spacing:-.02em;border:0;border-bottom:1px solid #111;padding:6px 0 7px;background:transparent}
@@ -12676,7 +12678,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.19";
+  const APP_VERSION = "v6.4.20";
   let db = {
     characters: [],
     groups: [],
@@ -13031,7 +13033,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.19：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.20：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
@@ -45887,12 +45889,104 @@ function wb2RenderEditor() {
   else if (wb2State.tab === "position") body.innerHTML = wb2RenderPositionTab(e);
   else body.innerHTML = wb2RenderPreviewTab(e);
 }
+window.wb2ReadDocxText = async function (file) {
+  var buf = await file.arrayBuffer();
+  var u8 = new Uint8Array(buf);
+  var dv = new DataView(u8.buffer);
+  var eocd = -1;
+  for (var i = u8.length - 22; i >= 0 && i > Math.max(0, u8.length - 66000); i--) {
+    if (u8[i] === 0x50 && u8[i+1] === 0x4b && u8[i+2] === 0x05 && u8[i+3] === 0x06) { eocd = i; break; }
+  }
+  if (eocd < 0) throw new Error("docx 不是有效的 zip");
+  var cdOff = dv.getUint32(eocd + 16, true);
+  var p = cdOff, target = null;
+  while (p + 46 <= u8.length && dv.getUint32(p, true) === 0x02014b50) {
+    var method = dv.getUint16(p + 10, true);
+    var csize = dv.getUint32(p + 20, true);
+    var nlen = dv.getUint16(p + 28, true);
+    var elen = dv.getUint16(p + 30, true);
+    var clen = dv.getUint16(p + 32, true);
+    var loff = dv.getUint32(p + 42, true);
+    var raw = new TextDecoder("utf-8").decode(u8.subarray(p + 46, p + 46 + nlen));
+    if (raw === "word/document.xml") target = { method: method, csize: csize, loff: loff };
+    p += 46 + nlen + elen + clen;
+  }
+  if (!target) throw new Error("docx 里没有正文");
+  var lnlen = dv.getUint16(target.loff + 26, true);
+  var lelen = dv.getUint16(target.loff + 28, true);
+  var dataStart = target.loff + 30 + lnlen + lelen;
+  var data = u8.subarray(dataStart, dataStart + target.csize);
+  var xmlBytes = data;
+  if (target.method !== 0) {
+    if (typeof DecompressionStream !== "function") throw new Error("这个浏览器不支持解压 docx，请另存为 txt");
+    var ds = new DecompressionStream("deflate-raw");
+    var w = ds.writable.getWriter();
+    w.write(data); w.close();
+    var ab = await new Response(ds.readable).arrayBuffer();
+    xmlBytes = new Uint8Array(ab);
+  }
+  var xml = new TextDecoder("utf-8").decode(xmlBytes);
+  xml = xml.replace(/<w:tab\/>/g, "\t").replace(/<w:br\/>/g, "\n");
+  xml = xml.replace(/<\/w:p>/g, "\n");
+  xml = xml.replace(/<w:instrText[^>]*>[\s\S]*?<\/w:instrText>/g, "");
+  xml = xml.replace(/<[^>]+>/g, "");
+  xml = xml.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&amp;/g, "&");
+  return xml;
+};
+window.wb2ImportLocal = async function (input) {
+  var files = Array.prototype.slice.call((input && input.files) || []);
+  if (!files.length) return;
+  var parts = [];
+  for (var i = 0; i < files.length; i++) {
+    var f = files[i];
+    try {
+      if (/\.docx$/i.test(f.name)) parts.push(await window.wb2ReadDocxText(f));
+      else if (/\.doc$/i.test(f.name)) { try { wb2Toast("旧版 .doc 读不了，请另存为 .docx 或 .txt"); } catch (e0) {} continue; }
+      else parts.push(await f.text());
+    } catch (err) {
+      try { wb2Toast("读取「" + f.name + "」失败：" + (err && err.message ? err.message : "格式不支持")); } catch (e1) {}
+    }
+  }
+  var text = parts.join("\n\n").replace(/\r\n/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
+  if (!text) { input.value = ""; return; }
+  var ta = document.getElementById("wb2-e-content");
+  if (ta) {
+    var cur = String(ta.value || "").replace(/\s+$/g, "");
+    if (cur && cur.indexOf(text) >= 0) {
+      try { wb2Toast("正文里已经有这份内容了，没有重复导入"); } catch (eDup) {}
+      input.value = "";
+      return;
+    }
+    ta.value = cur ? (cur + "\n\n" + text) : text;
+    ta.dispatchEvent(new Event("input", { bubbles: true }));
+    ta.scrollTop = ta.scrollHeight;
+  }
+  var nameEl = document.getElementById("wb2-e-name");
+  if (nameEl && !String(nameEl.value || "").trim()) {
+    nameEl.value = files[0].name.replace(/\.(docx?|txt|md|text)$/i, "").slice(0, 40);
+    nameEl.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  try {
+    wb2CaptureEditor();
+    if (wb2State.edit && String(wb2State.edit.name || "").trim() && String(wb2State.edit.content || "").trim()) {
+      wb2CommitEntry(true);
+      wb2Save();
+      wb2Toast("已导入 " + files.length + " 个文件");
+    } else {
+      wb2Toast("已导入正文，补上名字后会自动保存");
+    }
+  } catch (e2) {}
+  input.value = "";
+};
 function wb2RenderContentTab(e) {
   var folders = (db.worldBookFolders || []).map(function(f){ return '<option value="' + f.id + '"' + (e.folderId === f.id ? " selected" : "") + '>' + wb2Esc(f.name) + '</option>'; }).join("");
   return '<div class="wb2-field"><div class="wb2-fieldh"><span class="wb2-lab">NAME</span><span class="wb2-hint">给这条设定一个名字</span></div>'
     + '<input id="wb2-e-name" class="wb2-input name" value="' + wb2Esc(e.name || "") + '" placeholder="例如：旧城区与学生会"></div>'
     + '<div class="wb2-field"><div class="wb2-fieldh"><span class="wb2-lab">CONTENT</span><span class="wb2-hint">写给角色看的世界</span></div>'
     + '<textarea id="wb2-e-content" class="wb2-textarea" placeholder="写清楚地点、人物、规则、关系与不能违背的事实。">' + wb2Esc(e.content || "") + '</textarea>'
+    + '<div class="wb2-importrow"><button type="button" class="wb2-btnghost" onclick="var _i=document.getElementById(\'wb2-import-input\');if(_i)_i.click();">导入本地文件</button>'
+    + '<span class="wb2-hint">支持 .txt / .docx，导进正文，不改已有内容</span></div>'
+    + '<input id="wb2-import-input" type="file" accept=".txt,.docx,text/plain,application/vnd.openxmlformats-officedocument.wordprocessingml.document" multiple style="display:none" onchange="window.wb2ImportLocal&&window.wb2ImportLocal(this)">'
     + '<div class="wb2-hint">常驻条目每轮都会注入；关键词条目只在上下文命中时注入。</div></div>'
     + '<div class="wb2-field"><div class="wb2-fieldh"><span class="wb2-lab">SCOPE</span><span class="wb2-hint">全局 / 只给挂载角色</span></div>'
     + '<div class="wb2-seg">' + wb2Choice("scope","global","全局",e.scope) + wb2Choice("scope","local","局部",e.scope) + '</div></div>'
