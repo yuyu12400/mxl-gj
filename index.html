@@ -13036,7 +13036,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.41";
+  const APP_VERSION = "v6.4.42";
   let db = {
     characters: [],
     groups: [],
@@ -17356,6 +17356,18 @@ document.addEventListener("DOMContentLoaded", () => {
   function calculateVoiceDuration(text) {
     return Math.max(1, Math.min(60, Math.ceil(text.length / 3.5)));
   }
+  /* v6.4.42：模型有时把屏幕后的动作直接写成正文（没加 [动作：]），这里把它识别出来当成旁白小字显示 */
+  window.__mxgLooksNarration = function (raw) {
+    try {
+      var s = String(raw || "").replace(/\s+/g, " ").trim();
+      if (s.length < 10 || s.length > 90) return false;
+      if (/[「」“”"']/.test(s)) return false;
+      if (/[？?！!]/.test(s)) return false;
+      if (/我|你|您/.test(s)) return false;
+      if (!/^(他|她|TA|ta|单手|双手|抬手|抬眼|抬眸|垂眸|垂眼|低头|抬头|指尖|手指|嘴角|眉|眼皮|肩|叹了口气|沉默|停顿|抿|攥|握|放下|拿起|靠在|靠向|转过|侧过|撑着|支着|看着|盯着|轻轻|缓缓|微微|随后|片刻)/.test(s)) return false;
+      return /(看|盯|抬|垂|低|支|撑|靠|敲|握|攥|放|拿|抿|叹|笑|转|侧|偏|呼|松|抚|揉|按|闭|睁|点|摇|皱|停|沉默)/.test(s);
+    } catch (e) { return false; }
+  };
   function createMessageBubbleElement(message) {
     if (message && (message.status === "revoked" || message.withdrawn)) {
       const ww = document.createElement("div");
@@ -17370,6 +17382,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }
       return ww;
+    }
+    if (message && message.role !== "user" && message.type !== "action" && message.type !== "images" && message.type !== "sticker" && typeof window.__mxgLooksNarration === "function" && window.__mxgLooksNarration(message.content || "")) {
+      const nel = document.createElement("div");
+      nel.className = "message-wrapper action-tip-wrap";
+      nel.dataset.id = message.id || "";
+      nel.innerHTML = '<div class="action-tip">' + escapeHtml(String(message.content || "").trim()) + "</div>";
+      return nel;
     }
     if (message && message.type === "images" && Array.isArray(message.imgs) && message.imgs.length > 1 && typeof window.__mxgImgStack === "function") {
       const iw0 = window.__mxgImgStack({ imgs: message.imgs });
@@ -19026,7 +19045,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (character.actionDesc) {
-      prompt += "【动作描写·已开启】你的每一轮回复都必须且只能使用正确格式 [动作：xxx] 单独连续标注至少一次你的动作或神情（会以居中的系统小字显示）。动作要贴合本轮场景与你的真实心情、自然且不重复。这是硬性要求：如果整轮输出里没有任何 [动作：...] 标记，视为严重违反人设与设定。说话正文里不要用括号或星号夹带动作/心理描写。\n";
+      prompt += "【动作描写·已开启】你偶尔用 [动作：xxx] 标注一个具体的身体动作或神情（会以居中的系统小字显示）。规则：①一个动作只写一句、25字以内，必须是此刻屏幕后真实发生的具体细节（手停在键盘上、把头靠回枕头、把勺子放下），最好带上这轮场景里的东西；②禁止心理活动、想法、情绪总结、氛围渲染，禁止「沉默了一下」「细细想着怎么接话」「轻轻看了一眼」这类通用过渡句；③可以有动作，也可以这一轮完全没有，宁可不写也不要凑；④除 [动作：xxx] 之外，正文里不允许出现任何未加标记的动作、神态或环境描写，也不要用括号或星号写动作。说话正文里不要用括号或星号夹带动作/心理描写。\n";
     }
 
     prompt += "【二、线上聊天与语言】\n";
@@ -19706,6 +19725,15 @@ document.addEventListener("DOMContentLoaded", () => {
           pinChatToBottom();
           requestAnimationFrame(() => el.classList.add("active"));
         }
+      } else if (type === "text" && typeof window.__mxgLooksNarration === "function" && window.__mxgLooksNarration(contentStr)) {
+        const narEl = document.createElement("div");
+        narEl.className = "message-wrapper action-tip-wrap msg-pop-enter";
+        narEl.innerHTML = '<div class="action-tip">' + escapeHtml(String(contentStr).trim()) + "</div>";
+        if (_isCur() && msgArea) {
+          msgArea.appendChild(narEl);
+          pinChatToBottom();
+          requestAnimationFrame(function () { narEl.classList.add("active"); });
+        }
       } else {
         const message = {
           id: "msg_s" + Date.now() + "_" + Math.random(),
@@ -20100,10 +20128,7 @@ document.addEventListener("DOMContentLoaded", () => {
         actionParts.push(a.trim());
         return "";
       });
-      if (!actionParts.length && character.actionDesc && !_roomMode) {
-        const actPool = ["\u8F7B\u8F7B\u770B\u4E86\u5BF9\u65B9\u4E00\u773C", "\u5FAE\u5FAE\u504F\u4E86\u504F\u5934", "\u629A\u4E86\u629A\u5934\u53D1\uFF0C\u8138\u4E0A\u5E26\u70B9\u7B11\u610F", "\u6C89\u9ED8\u4E86\u4E00\u4E0B\uFF0C\u7EC6\u7EC6\u60F3\u7740\u600E\u4E48\u63A5\u8BDD", "\u653E\u4E0B\u624B\u91CC\u7684\u4E1C\u897F\uFF0C\u4E13\u5FC3\u542C\u5BF9\u65B9\u8BF4"];
-        actionParts.push(actPool[Math.floor(Math.random() * actPool.length)]);
-      }
+      /* v6.4.42：没有动作就让正文自己承担，不再塞随机套话（那条「沉默了一下，细细想着怎么接话」就是这里来的） */
       if (actionParts.length && !_roomMode) {
         actionParts.forEach((a) => {
           const am = { id: "msg_" + Date.now() + "_" + Math.random(), role: "assistant", type: "action", content: a, parts: [{ type: "text", text: a }], timestamp: Date.now() };
