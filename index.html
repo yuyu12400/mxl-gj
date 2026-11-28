@@ -13033,7 +13033,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.35";
+  const APP_VERSION = "v6.4.36";
   let db = {
     characters: [],
     groups: [],
@@ -23800,8 +23800,9 @@ document.addEventListener("DOMContentLoaded", () => {
           const gen = await generateCharFeed(char);
           const genText = (gen && gen.content) || String(gen || "");
           const genImgs = (gen && gen.imgs) || [];
-          const textImage = (!genImgs.length && Math.random() < 0.28) ? await generateCharTextImage(char, genText) : null;
-          db.feeds.unshift(makeCharFeedPayload(char, genText, textImage, genImgs));
+          const genStk = gen && gen.sticker ? mxgStickerByName(gen.sticker) : null;
+          const textImage = (!genImgs.length && !genStk && Math.random() < 0.28) ? await generateCharTextImage(char, genText) : null;
+          db.feeds.unshift(makeCharFeedPayload(char, genText, textImage, genStk ? [] : genImgs, genStk));
           total += 1;
         }
       }
@@ -25230,6 +25231,11 @@ document.addEventListener("DOMContentLoaded", () => {
         await saveData();
         renderFeeds();
       }
+      const stkBtn = e.target.closest(".feed-cmt-sticker");
+      if (stkBtn) {
+        openFeedStickerPicker(stkBtn.dataset.id);
+        return;
+      }
       if (commentBtn) {
         const feed = db.feeds.find((f) => f.id === commentBtn.dataset.id);
         const input = document.getElementById("feed-cmt-input-" + feed.id);
@@ -25240,18 +25246,70 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         const mask = getCurrentMask();
         const replyToName = window.__feedReplyTo && window.__feedReplyTo[feed.id];
-        feed.comments.push({ authorType: "user", authorName: mask ? mask.name : "\u6211", authorAvatar: mask ? mask.avatar : "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg", content: text, ts: Date.now(), replyTo: replyToName || null });
+        const newComment = { authorType: "user", authorName: mask ? mask.name : "我", authorAvatar: mask ? mask.avatar : "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg", content: text, ts: Date.now(), replyTo: replyToName || null };
+        feed.comments.push(newComment);
         if (window.__feedReplyTo) delete window.__feedReplyTo[feed.id];
         await saveData();
         renderFeeds();
         if (feed.authorType === "char") {
-          charReplyToComment(feed, text, replyToName);
+          charReplyToComment(feed, text, replyToName, null, newComment);
         } else if (replyToName) {
           const targetChar = db.characters.find((c) => (c.remarkName || c.realName) === replyToName);
-          if (targetChar) charReplyToComment(feed, text, replyToName, targetChar);
+          if (targetChar) charReplyToComment(feed, text, replyToName, targetChar, newComment);
         }
       }
     });
+  }
+  function openFeedStickerPicker(feedId) {
+    const prev = document.getElementById("mxg-feed-stk");
+    if (prev) prev.remove();
+    const list = (db.myStickers || []).filter(function (st) { return st && st.name && st.data; });
+    const wrap = document.createElement("div");
+    wrap.id = "mxg-feed-stk";
+    wrap.innerHTML = '<div class="fstk-mask"></div>' +
+      '<div class="fstk-sheet"><div class="fstk-head"><span>选一个表情包</span><button type="button" class="fstk-close">取消</button></div>' +
+      '<div class="fstk-grid">' + (list.length ? list.map(function (st, i) {
+        return '<div class="fstk-item" data-i="' + i + '"><img src="' + escapeHtml(String(st.data)) + '" alt=""><span>' + escapeHtml(String(st.name)) + '</span></div>';
+      }).join("") : '<div class="fstk-empty">还没有表情包，先去设置里传</div>') + '</div></div>';
+    document.body.appendChild(wrap);
+    wrap.querySelector(".fstk-mask").addEventListener("click", function () { wrap.remove(); });
+    wrap.querySelector(".fstk-close").addEventListener("click", function () { wrap.remove(); });
+    wrap.querySelectorAll(".fstk-item").forEach(function (el) {
+      el.addEventListener("click", async function () {
+        const st = list[Number(el.dataset.i)];
+        if (!st) return;
+        wrap.remove();
+        await sendFeedStickerComment(feedId, { name: st.name, data: st.data });
+      });
+    });
+    setTimeout(function () { wrap.classList.add("on"); }, 30);
+  }
+  async function sendFeedStickerComment(feedId, sticker) {
+    const feed = db.feeds.find(function (f) { return f.id === feedId; });
+    if (!feed || !sticker) return;
+    const mask = getCurrentMask();
+    const inp = document.getElementById("feed-cmt-input-" + feedId);
+    const text = inp ? String(inp.value || "").trim() : "";
+    const replyToName = (window.__feedReplyTo && window.__feedReplyTo[feedId]) || null;
+    const c = { authorType: "user", authorName: mask ? mask.name : "我", authorAvatar: mask ? mask.avatar : "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg", content: text, sticker: { name: sticker.name, data: sticker.data }, ts: Date.now(), replyTo: replyToName };
+    feed.comments.push(c);
+    if (window.__feedReplyTo) delete window.__feedReplyTo[feedId];
+    if (inp) inp.value = "";
+    await saveData();
+    renderFeeds();
+    if (feed.authorType === "char") charReplyToComment(feed, text, replyToName, null, c);
+    else if (replyToName) {
+      const targetChar = db.characters.find(function (x) { return (x.remarkName || x.realName) === replyToName; });
+      if (targetChar) charReplyToComment(feed, text, replyToName, targetChar, c);
+    }
+  }
+  function mxgExtractSticker(text) {
+    const raw = String(text || "");
+    const m = raw.match(/\[表情包[:：]\s*([^\]]+)\]/);
+    if (!m) return { text: raw, sticker: null };
+    let st = null;
+    try { st = mxgStickerByName(m[1]); } catch (e) { st = null; }
+    return { text: raw.replace(m[0], "").replace(/\s+/g, " ").trim(), sticker: st };
   }
   function feedTimeText(ts) {
     const d = new Date(ts);
@@ -25279,6 +25337,36 @@ document.addEventListener("DOMContentLoaded", () => {
     if (feed.textImage) tags.push("#草稿", "#夜晚");
     if (!tags.some((t) => t === "#404")) tags.push("#404");
     return Array.from(new Set(tags)).slice(0, 4);
+  }
+  function mxgStickerByName(name) {
+    const raw = String(name || "").trim();
+    if (!raw) return null;
+    const m = raw.match(/^#?(\d+)[\.、]?$/);
+    if (m) {
+      const list = (db.myStickers || []).filter(function (st) { return st && st.name; });
+      const hit = list[Number(m[1]) - 1];
+      if (hit) return { name: hit.name, data: hit.data };
+    }
+    let st = null;
+    try { st = mxgFindSticker(raw); } catch (e) { st = null; }
+    return st ? { name: st.name, data: st.data } : null;
+  }
+  function feedStickerSrc(st) {
+    if (!st) return "";
+    if (st.data) return String(st.data);
+    if (st.name) {
+      let hit = null;
+      try { hit = mxgFindSticker(st.name); } catch (e) { hit = null; }
+      return hit && hit.data ? String(hit.data) : "";
+    }
+    return "";
+  }
+  function feedStickerHtml(feed) {
+    const st = feed && feed.sticker;
+    if (!st) return "";
+    const src = feedStickerSrc(st);
+    if (!src) return "";
+    return '<div class="feed-sticker"><img src="' + escapeHtml(src) + '" alt="表情包"><span class="feed-sticker-name">' + escapeHtml(String(st.name || "")) + '</span></div>';
   }
   const SIM_ICO = '<svg class="sim-ico" viewBox="0 0 24 24" fill="none" stroke="#7c7c82" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M21 16l-5-5-4 4-3-3-5 5"/></svg>';
   function feedSimHtml(feed) {
@@ -25315,14 +25403,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     return hit || null;
   }
-  try { window.mxgFindSticker = mxgFindSticker; window.feedSimHtml = feedSimHtml; } catch (e0) {}
+  try { window.mxgFindSticker = mxgFindSticker; window.feedSimHtml = feedSimHtml; window.openFeedStickerPicker = openFeedStickerPicker; window.sendFeedStickerComment = sendFeedStickerComment; } catch (e0) {}
   function feedCommentAvatar(c) {
     const av = c.authorAvatar || ((c.authorType === "user" || c.authorName === "我") ? ((getCurrentMask() || {}).avatar || "") : "");
     const label = String(c.authorType === "user" ? ((getCurrentMask() || {}).name || "我") : (c.authorName || "?")).slice(0, 1);
     return '<span class="c-avwrap"><span class="c-avatar c-avatar-letter">' + escapeHtml(label) + '</span>' + (av ? '<img class="c-avatar" src="' + escapeHtml(av) + '" alt="" style="opacity:0" onload="this.style.opacity=\'\'" onerror="this.style.display=\'none\'">' : "") + '</span>';
   }
   function feedCommentHtml(feed, c) {
-    return '\n        <div class="feed-comment">\n          ' + feedCommentAvatar(c) + '\n          <div class="c-body">\n            <div class="c-top"><span class="c-name">' + escapeHtml(c.authorName || "我") + '</span>' + (c.replyTo ? '<span class="c-reply">回复</span><span class="c-name c-name-to">' + escapeHtml(c.replyTo) + '</span>' : "") + '<span class="c-reply-btn" data-feed="' + feed.id + '" data-name="' + escapeHtml(c.authorName || "") + '">回复</span></div>\n            <span class="c-time">' + (c.ts ? feedTimeText(c.ts) : "") + '</span>\n            <span class="c-text">' + escapeHtml(String(c.content || "")) + '</span>\n            <div class="c-actions"><span><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>1</span><span><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg></span><span><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg></span></div>\n          </div>\n        </div>'
+    return '\n        <div class="feed-comment">\n          ' + feedCommentAvatar(c) + '\n          <div class="c-body">\n            <div class="c-top"><span class="c-name">' + escapeHtml(c.authorName || "我") + '</span>' + (c.replyTo ? '<span class="c-reply">回复</span><span class="c-name c-name-to">' + escapeHtml(c.replyTo) + '</span>' : "") + '<span class="c-reply-btn" data-feed="' + feed.id + '" data-name="' + escapeHtml(c.authorName || "") + '">回复</span></div>\n            <span class="c-time">' + (c.ts ? feedTimeText(c.ts) : "") + '</span>\n            <span class="c-text">' + escapeHtml(String(c.content || "")) + '</span>' + (c.sticker ? '<img class="c-sticker" src="' + escapeHtml(feedStickerSrc(c.sticker)) + '" alt="表情包">' : "") + '\n            <div class="c-actions"><span><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>1</span><span><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg></span><span><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg></span></div>\n          </div>\n        </div>'
   }
   const __feedTI = {};
   function __feedWrap(ctx, text, maxW) {
@@ -25443,7 +25531,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const moreReplies = comments.length > 1
         ? '<button type="button" class="feed-more-replies" data-feed="' + feed.id + '">' + (expanded ? '收起回复' : '查看另外 ' + (comments.length - 1) + ' 条回复') + (expanded ? '' : ' <span>↗</span>') + '</button>'
         : '';
-      item.innerHTML = '\n        <div class="feed-head">\n          <div class="feed-avatar-wrap"><img class="avatar" src="' + escapeHtml(avatar) + '" alt="">' + (feed.authorType === "char" ? '<span class="feed-online-dot"></span>' : '') + '</div>\n          <div class="feed-who"><div class="f-name-row"><div class="f-name">' + escapeHtml(name) + '</div>' + (feed.pinned ? '<span class="f-pin">置顶</span>' : '') + '</div><div class="f-time">' + feedTimeText(feed.ts) + '</div></div>\n          <button type="button" class="feed-more-btn" data-id="' + feed.id + '" aria-label="动态更多操作">···</button>\n        </div>\n        ' + (feed.content ? '<div class="feed-body">' + escapeHtml(feed.content).replace(/\n/g, "<br>") + '</div>' : "") + '\n        ' + (feed.image ? '<div class="feed-media"><img class="feed-img" src="' + escapeHtml(feed.image) + '" alt=""><div class="feed-media-dots"><i></i><i></i></div><span class="feed-media-count">1 / 1</span></div>' : "") + '\n        ' + (feed.imgs && feed.imgs.length ? feedSimHtml(feed) : "") + '\n        ' + (draft ? '<div class="feed-timg"><img src="' + escapeHtml(feedTextImageSrc(feed, textImage.text, name)) + '" alt=""></div>' : "") + '\n        ' + (tags.length ? '<div class="feed-tags">' + tags.map((t) => '<span>' + escapeHtml(t) + '</span>').join("") + '</div>' : "") + '\n        <div class="feed-actions">\n          <button type="button" class="feed-action feed-like-btn ' + (liked ? "liked" : "") + '" data-id="' + feed.id + '" title="' + escapeHtml(likeTitle) + '">\n            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>\n            <span>' + (feed.likes || []).length + '</span>\n          </button>\n          <span class="feed-action"><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg><span>' + comments.length + '</span></span>\n          <button type="button" class="feed-action feed-repost-btn" data-id="' + feed.id + '" title="转发这条动态"><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg><span>0</span></button>\n          <button type="button" class="feed-action feed-share-btn" data-id="' + feed.id + '" title="复制动态文字"><svg viewBox="0 0 24 24"><path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4 18-7z"/></svg></button>\n        </div>\n        ' + (commentsHtml ? '<div class="feed-comments">' + commentsHtml + '</div>' : "") + '\n        ' + moreReplies + '\n        <div class="feed-comment-input">\n          <input id="feed-cmt-input-' + feed.id + '" placeholder="回复…">\n          <button type="button" class="feed-action feed-comment-submit" data-id="' + feed.id + '">回复</button>\n        </div>';
+      item.innerHTML = '\n        <div class="feed-head">\n          <div class="feed-avatar-wrap"><img class="avatar" src="' + escapeHtml(avatar) + '" alt="">' + (feed.authorType === "char" ? '<span class="feed-online-dot"></span>' : '') + '</div>\n          <div class="feed-who"><div class="f-name-row"><div class="f-name">' + escapeHtml(name) + '</div>' + (feed.pinned ? '<span class="f-pin">置顶</span>' : '') + '</div><div class="f-time">' + feedTimeText(feed.ts) + '</div></div>\n          <button type="button" class="feed-more-btn" data-id="' + feed.id + '" aria-label="动态更多操作">···</button>\n        </div>\n        ' + (feed.content ? '<div class="feed-body">' + escapeHtml(feed.content).replace(/\n/g, "<br>") + '</div>' : "") + '\n        ' + (feed.image ? '<div class="feed-media"><img class="feed-img" src="' + escapeHtml(feed.image) + '" alt=""><div class="feed-media-dots"><i></i><i></i></div><span class="feed-media-count">1 / 1</span></div>' : "") + '\n        ' + (feed.sticker ? feedStickerHtml(feed) : (feed.imgs && feed.imgs.length ? feedSimHtml(feed) : "")) + '\n        ' + (draft ? '<div class="feed-timg"><img src="' + escapeHtml(feedTextImageSrc(feed, textImage.text, name)) + '" alt=""></div>' : "") + '\n        ' + (tags.length ? '<div class="feed-tags">' + tags.map((t) => '<span>' + escapeHtml(t) + '</span>').join("") + '</div>' : "") + '\n        <div class="feed-actions">\n          <button type="button" class="feed-action feed-like-btn ' + (liked ? "liked" : "") + '" data-id="' + feed.id + '" title="' + escapeHtml(likeTitle) + '">\n            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>\n            <span>' + (feed.likes || []).length + '</span>\n          </button>\n          <span class="feed-action"><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg><span>' + comments.length + '</span></span>\n          <button type="button" class="feed-action feed-repost-btn" data-id="' + feed.id + '" title="转发这条动态"><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg><span>0</span></button>\n          <button type="button" class="feed-action feed-share-btn" data-id="' + feed.id + '" title="复制动态文字"><svg viewBox="0 0 24 24"><path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4 18-7z"/></svg></button>\n        </div>\n        ' + (commentsHtml ? '<div class="feed-comments">' + commentsHtml + '</div>' : "") + '\n        ' + moreReplies + '\n        <div class="feed-comment-input">\n          <input id="feed-cmt-input-' + feed.id + '" placeholder="回复…">' + '\n          <button type="button" class="feed-cmt-sticker" data-id="' + feed.id + '" title="发表情包"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a4 4 0 0 0 7 0"/><circle cx="9" cy="9.5" r=".9" fill="currentColor" stroke="none"/><circle cx="15" cy="9.5" r=".9" fill="currentColor" stroke="none"/></svg></button>' + '\n          <button type="button" class="feed-action feed-comment-submit" data-id="' + feed.id + '">回复</button>\n        </div>';
       item.querySelectorAll(".sim-card").forEach(function (sc) {
         sc.addEventListener("click", function (ev) {
           try { ev.stopPropagation(); } catch (e) {}
@@ -25476,34 +25564,48 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!/^data:image\//i.test(url)) return null;
     return { type: "image_url", image_url: { url: url } };
   }
-  async function requestFeedVision(sys, feed, instruction, maxTokens) {
-    const part = feedVisionPart(feed);
-    if (!part) return await offlineRequest(sys, [{ role: "user", content: instruction }], maxTokens, true);
+  function feedStickerPart(st) {
+    const src = feedStickerSrc(st);
+    if (!src) return null;
+    return { type: "image_url", image_url: { url: src } };
+  }
+  async function requestFeedVision(sys, feed, instruction, maxTokens, extraParts) {
+    const parts = [];
+    const fp = feedVisionPart(feed);
+    if (fp) parts.push(fp);
+    (extraParts || []).forEach(function (p) { if (p) parts.push(p); });
+    if (!parts.length) return await offlineRequest(sys, [{ role: "user", content: instruction }], maxTokens, true);
     try {
-      return await offlineRequest(sys, [{ role: "user", content: [{ type: "text", text: instruction + " 这条动态附带了真实图片，必须直接看图并引用图里的具体细节；不要假装看不到图片。" }, part] }], maxTokens, true);
+      return await offlineRequest(sys, [{ role: "user", content: [{ type: "text", text: instruction + " 附带图片请直接看画面，引用图里的具体细节；不要假装看不到图片。" }].concat(parts) }], maxTokens, true);
     } catch (e) {
       return await offlineRequest(sys, [{ role: "user", content: instruction }], maxTokens, true);
     }
   }
-  async function charReplyToComment(feed, userText, replyToName, targetChar) {
+  async function charReplyToComment(feed, userText, replyToName, targetChar, userComment) {
     const char = targetChar || db.characters.find((c) => c.id === feed.authorId);
     if (!char) return;
     const feedBrief = feedBriefOf(feed, 150);
-    const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。这是在朋友圈动态「").concat(feedBrief, "」下面，对方（").concat(replyToName || "朋友", "）回复你：「").concat(userText, "」。请以这个角色的口吻自然回复，20-60字。要求：1. 接住对方这句话，不要另起话题；2. 可以引用动态或图片里的一个具体细节；3. 不要写成总结、鸡汤或文案；4. 不要和之前的评论用同一种句式；5. 严禁承认自己是AI、人机或程序。保持活人感，像真实的人在朋友圈回复朋友一样。").concat("\n\n", TimeSense.feedBlock(char, feed.ts))), [char], "online", null, null, feedBrief + "\n" + (userText || ""));
-    const reply = await requestFeedVision(sys, feed, "请回复这条评论。", 200);
+    const _ucStk = (userComment && userComment.sticker) ? userComment.sticker : null;
+    const _userSaid = userText ? String(userText) : (_ucStk ? "（只发了一个表情包「" + _ucStk.name + "」，没有文字）" : "");
+    const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。这是在朋友圈动态「").concat(feedBrief, "」下面，对方（").concat(replyToName || "朋友", "）回复你：「").concat(_userSaid, "」。要求：1. 接住对方这句话，不要另起话题；2. 可以引用动态或图片里的一个具体细节；3. 不要写成总结、鸡汤或文案；4. 不要和之前的评论用同一种句式；5. 严禁承认自己是AI、人机或程序。保持活人感，像真实的人在朋友圈回复朋友一样。").concat(_ucStk ? "\n对方这条评论里还发了一个表情包「" + _ucStk.name + "」，你能看到它的画面，回复时要接住这个表情包的意思（可以说一句调侃、也可以顺着这个梗回，但不要描述画面、不要说「你发的表情包」这种话）。" : "").concat(mxgStickerCatalog().length ? "\n如果你觉得特别贴合，可以在回复末尾加一个 [表情包：名称]（必须从下面的列表里原样取，最多一个，别每次都加）：\n" + mxgStickerCatalog().join("\n") : "").concat("\n\n", TimeSense.feedBlock(char, feed.ts))), [char], "online", null, null, feedBrief + "\n" + (userText || ""));
+    const _extra = _ucStk ? [feedStickerPart(_ucStk)] : [];
+    const reply = await requestFeedVision(sys, feed, "请回复这条评论。", 200, _extra);
     const charName = char.remarkName || char.realName;
     const fallbackReplies = ["看到了，先记着。", "你倒是会挑重点。", "行，这次听你的。", "别急，我还没说完。", "这个细节你也注意到了。", "那下次你来。"];
-    let content = reply && reply.trim() ? reply.trim().slice(0, 200) : fallbackReplies[(charName.length + (userText || "").length) % fallbackReplies.length];
+    let content = reply && reply.trim() ? reply.trim().slice(0, 200) : fallbackReplies[(charName.length + (_userSaid || "").length) % fallbackReplies.length];
     if (content.indexOf(charName + "\uFF1A") === 0) content = content.slice((charName + "\uFF1A").length);
     if (content.indexOf("\uFF1A") === 0) content = content.slice(1);
     const myMask = getCurrentMask();
+    const _x = mxgExtractSticker(content);
+    if (_x.text) content = _x.text;
     feed.comments.push({
       authorType: "char",
       authorName: char.remarkName || char.realName,
       authorAvatar: char.avatar,
       content,
+      sticker: _x.sticker || null,
       ts: Date.now(),
-      replyTo: myMask ? myMask.name : "\u6211"
+      replyTo: myMask ? myMask.name : "我"
     });
     await saveData();
     renderFeeds();
@@ -25577,6 +25679,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function generateCharFeed(char) {
     let content = FEED_TEMPLATES[Math.floor(Math.random() * FEED_TEMPLATES.length)];
     let imgs = [];
+    let sticker = "";
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
       const _mosHits = (function () {
         try { return MemoryOS.retrieve(char.id, "今天 最近 生活 心情 工作 朋友", { limit: 6 }).map(function (h) { return h.m; }); } catch (e) { return []; }
@@ -25590,13 +25693,27 @@ document.addEventListener("DOMContentLoaded", () => {
       const recent = (char.history || []).slice(-6).map((h) => "".concat(h.role === "assistant" ? char.remarkName || char.realName : char.myName, "：").concat(String(h.content || "").slice(0, 80))).join("\n");
       const oldFeeds = (db.feeds || []).filter((f) => f.authorId === char.id).slice(0, 4).map((f) => "- " + String(f.content || (f.textImage && f.textImage.text) || "").slice(0, 60)).join("\n");
     const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你现在要发布一条朋友圈动态，内容关于你今天的真实生活、心情或见闻，30-70字，自然、有生活气息，不要像文案或鸡汤。可以结合你的记忆与最近的聊天内容，也可以自由发挥。不要重复你最近发过的动态，不要每条都用同一种句式和情绪。严禁提到自己是AI或人机。").concat("\n\n", TimeSense.feedBlock(char)).concat(memText).concat(recent ? "\n最近聊天（可选素材）：\n" + recent : "").concat(oldFeeds ? "\n最近已发过（不要重复）：\n" + oldFeeds : "")), [char], "online", null, null, (recent || "") + "\n" + (oldFeeds || ""));
-      const sys2 = sys + "\n\n输出要求：严格输出一个 JSON 对象，不要任何多余文字或代码块：{\"content\":\"动态正文，30-70字，不要包含图片描述或括号内容\",\"imgs\":[{\"ratio\":\"3:4\",\"desc\":\"这张图拍到什么画面：物体、色彩、光影、场景、构图细节，可一句可一段，必须贴合正文，严禁出现随手拍/配图/模拟图/照片/图片等说明词\"}]}。imgs 可以是 0 到 9 张，通常 1-3 张；每张 desc 必须不同；若这条动态不需要配图，imgs 给空数组。";
+      const _stkLines = (db.myStickers || []).filter(function (st) { return st && st.name; }).map(function (st) {
+        let hint = String(st.desc || "").trim();
+        if (!hint && typeof st.data === "string" && /^https?:/.test(st.data)) {
+          let tail = st.data.split("/").pop().split("?")[0];
+          try { tail = decodeURIComponent(tail); } catch (e) {}
+          tail = tail.replace(/\.(jpg|jpeg|png|gif|webp|bmp)$/i, "").replace(/[_+]/g, " ").replace(/-+/g, " ").trim();
+          if (tail && !/\d{5,}/.test(tail)) hint = tail;
+        }
+        return st.name + (hint ? "（" + hint + "）" : "");
+      });
+      const sys2 = sys + (_stkLines.length ? "\n\n你偶尔也会发一张表情包配上文字（不是每次都发，合适才发）。可用表情包：" + _stkLines.join("；") + "。如果选择发表情包，正文必须是配文，要和这张表情包表达的情绪或画面严丝合缝（比如表情包是「炸毛猫」，配文就写「它又开始了，我选择闭麦」这种感觉），15-60字，绝不能写一张表情包看不出来的事；此时 imgs 必须为空数组，表情包和模拟图不能同一条一起发。" : "") + "\n\n输出要求：严格输出一个 JSON 对象，不要任何多余文字或代码块：{\"content\":\"动态正文，30-70字，不要包含图片描述或括号内容\",\"sticker\":\"选了表情包就填目录里的名称，没选填空字符串\",\"imgs\":[{\"ratio\":\"3:4\",\"desc\":\"这张图拍到什么画面：物体、色彩、光影、场景、构图细节，可一句可一段，必须贴合正文，严禁出现随手拍/配图/模拟图/照片/图片等说明词\"}]}。imgs 可以是 0 到 9 张，通常 1-3 张；每张 desc 必须不同；若这条动态不需要配图，imgs 给空数组。";
       const gen = await offlineRequest(sys2, [{ role: "user", content: "写一条朋友圈动态，按 JSON 输出。" }], 420, true);
       if (gen && gen.trim()) {
         const parsed = mxgParseFeedJson(gen);
         if (parsed && parsed.content) {
           content = String(parsed.content).trim().slice(0, 160);
-          if (parsed.imgs && parsed.imgs.length) {
+          if (parsed.sticker) {
+            const _st = (function () { try { return mxgFindSticker(parsed.sticker); } catch (e) { return null; } })();
+            if (_st && _st.name) sticker = _st.name;
+          }
+          if (!sticker && parsed.imgs && parsed.imgs.length) {
             imgs = parsed.imgs.slice(0, 9).map(function (im) {
               return { ratio: String((im && im.ratio) || "1:1"), desc: String((im && im.desc) || "").trim().slice(0, 260) };
             }).filter(function (im) { return im.desc; });
@@ -25606,7 +25723,8 @@ document.addEventListener("DOMContentLoaded", () => {
         }
       }
     }
-    return { content: content, imgs: imgs || [] };
+    if (sticker) imgs = [];
+    return { content: content, imgs: imgs || [], sticker: sticker };
   }
   function mxgParseFeedJson(raw) {
     try {
@@ -25615,7 +25733,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (a < 0 || b <= a) return null;
       const o = JSON.parse(t.slice(a, b + 1));
       if (!o || typeof o !== "object") return null;
-      return { content: o.content || o.text || "", imgs: Array.isArray(o.imgs) ? o.imgs : [] };
+      return { content: o.content || o.text || "", imgs: Array.isArray(o.imgs) ? o.imgs : [], sticker: typeof o.sticker === "string" ? o.sticker : "" };
     } catch (e) { return null; }
   }
   async function generateCharTextImage(char, source) {
@@ -25632,7 +25750,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     return text || "有些话，留在草稿里就好。";
   }
-  function makeCharFeedPayload(char, content, textImage, imgs) {
+  function makeCharFeedPayload(char, content, textImage, imgs, sticker) {
     return {
       id: "feed_" + Date.now() + "_" + Math.random().toString(36).slice(2, 5),
       authorType: "char",
@@ -25642,6 +25760,7 @@ document.addEventListener("DOMContentLoaded", () => {
       content: textImage ? "" : content,
       image: null,
       imgs: (imgs && imgs.length) ? imgs : null,
+      sticker: sticker || null,
       maskIds: (char.maskIds || []).slice(),
       textImage: textImage ? { text: textImage, ts: Date.now() } : null,
       likes: [],
@@ -25695,7 +25814,7 @@ document.addEventListener("DOMContentLoaded", () => {
       let content = fallback[i % fallback.length];
       if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
         const otherComments = existing.slice(-4).join("\n") || "暂无";
-    const sys = wbAttach(("你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。你的朋友（" + (mask ? mask.name : char.myName) + "）发了一条动态，原文与图片信息如下：「" + feedBrief + "」。现在你要评论这条动态。要求：1. 只从以下角度写：" + angle + " 2. 必须落到原文或图片里的一个具体细节，不能只写空泛感受；3. 严禁与其他人的评论相似或重复，已出现的评论是：\n" + otherComments + "\n4. 用你自己的口吻，20-50字，像真实的人在朋友圈随手评论；5. 不要总结整条动态，不要写成鸡汤或文案；6. 严禁承认自己是AI或人机。"), [char], "online", null, null, feedBrief + "\n" + otherComments);
+    const sys = wbAttach(("你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。你的朋友（" + (mask ? mask.name : char.myName) + "）发了一条动态，原文与图片信息如下：「" + feedBrief + "」。现在你要评论这条动态。要求：1. 只从以下角度写：" + angle + " 2. 必须落到原文或图片里的一个具体细节，不能只写空泛感受；3. 严禁与其他人的评论相似或重复，已出现的评论是：\n" + otherComments + "\n4. 用你自己的口吻，20-50字，像真实的人在朋友圈随手评论；5. 不要总结整条动态，不要写成鸡汤或文案；6. 严禁承认自己是AI或人机。" + (mxgStickerCatalog().length ? "\n如果这条动态的情绪正好能用一个表情包接住，可以在评论末尾再加一个 [表情包：名称]（只能从下面原样取，最多一个，不必每条都加）：\n" + mxgStickerCatalog().join("\n") : "")), [char], "online", null, null, feedBrief + "\n" + otherComments);
         let _mosCm = "";
         try { _mosCm = MemoryOS.context(char.id, feedBrief, "comment", 900); } catch (e) {}
         try {
@@ -25706,9 +25825,11 @@ document.addEventListener("DOMContentLoaded", () => {
           console.warn("[动态评论] 生成失败，改用兜底文案：", eC && eC.message);
         }
       }
+      const _xc = mxgExtractSticker(content);
+      if (_xc.text) content = _xc.text;
       const normalized = content.replace(/\s+/g, "");
       if (existing.includes(normalized)) content = fallback[(i + 3) % fallback.length];
-      feed.comments.push({ authorType: "char", authorName: char.remarkName || char.realName, authorAvatar: char.avatar, content, ts: Date.now() });
+      feed.comments.push({ authorType: "char", authorName: char.remarkName || char.realName, authorAvatar: char.avatar, content, sticker: _xc.sticker || null, ts: Date.now() });
       existing.push(normalized);
       try { pushMemory(char.id, "online", "（朋友圈）".concat(mask ? mask.name : char.myName, "发过一条动态：「").concat(feedBrief, "」，我看过并评论了。"), "fact"); } catch (eM) {}
       if (Math.random() < 0.3) {
@@ -25748,9 +25869,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const gen = await generateCharFeed(char);
       const content = (gen && gen.content) || String(gen || "");
       const genImgs = (gen && gen.imgs) || [];
+      const genStk = gen && gen.sticker ? mxgStickerByName(gen.sticker) : null;
       let textImage = null;
-      if (!genImgs.length && Math.random() < 0.28) textImage = await generateCharTextImage(char, content);
-      db.feeds.unshift(makeCharFeedPayload(char, content, textImage, genImgs));
+      if (!genImgs.length && !genStk && Math.random() < 0.28) textImage = await generateCharTextImage(char, content);
+      db.feeds.unshift(makeCharFeedPayload(char, content, textImage, genStk ? [] : genImgs, genStk));
       db.feedSettings.lastPostTs = now;
       await saveData();
       if (document.getElementById("dynamic-screen").classList.contains("active")) renderFeeds();
@@ -44097,6 +44219,25 @@ window.bsRoomAI = bsRoomAI;
 #dynamic-screen .sim-desc { position:absolute; inset:0; background:rgba(12,14,18,.84); color:#eef0f3; display:none; z-index:2; }
 #dynamic-screen .sim-card.show .sim-desc { display:block; }
 #dynamic-screen .sim-desc-in { height:100%; box-sizing:border-box; overflow-y:auto; padding:12px; font-size:12.5px; line-height:1.65; white-space:pre-wrap; word-break:break-word; -webkit-overflow-scrolling:touch; }
+#dynamic-screen .feed-sticker { margin:10px 0 0 46px; }
+#dynamic-screen .feed-sticker img { display:block; max-width:148px; max-height:148px; border-radius:10px; border:1px solid #ececef; background:#fff; }
+#dynamic-screen .feed-sticker-name { display:block; margin-top:4px; font-size:10.5px; color:#9a9aa0; letter-spacing:.01em; }
+#dynamic-screen .c-sticker { display:block; max-width:96px; max-height:96px; margin-top:5px; border-radius:8px; border:1px solid #ececef; background:#fff; }
+#dynamic-screen .feed-cmt-sticker { border:none; background:none; padding:0 6px; color:#8e8e93; display:flex; align-items:center; }
+#dynamic-screen .feed-cmt-sticker svg { width:19px; height:19px; }
+#mxg-feed-stk { position:fixed; inset:0; z-index:1200; display:flex; flex-direction:column; justify-content:flex-end; }
+#mxg-feed-stk .fstk-mask { position:absolute; inset:0; background:rgba(0,0,0,.28); opacity:0; transition:opacity .2s; }
+#mxg-feed-stk.on .fstk-mask { opacity:1; }
+#mxg-feed-stk .fstk-sheet { position:relative; background:#fff; border-radius:18px 18px 0 0; padding:12px 14px calc(18px + env(safe-area-inset-bottom)); transform:translateY(100%); transition:transform .26s cubic-bezier(.22,1,.36,1); max-height:62vh; display:flex; flex-direction:column; }
+#mxg-feed-stk.on .fstk-sheet { transform:none; }
+#mxg-feed-stk .fstk-head { display:flex; align-items:center; justify-content:space-between; font-size:13.5px; font-weight:600; color:#1a1a1c; padding-bottom:10px; }
+#mxg-feed-stk .fstk-close { border:none; background:none; font-size:12.5px; color:#9a9aa0; }
+#mxg-feed-stk .fstk-sheet { width:100%; max-width:560px; margin:0 auto; box-sizing:border-box; }
+#mxg-feed-stk .fstk-grid { overflow-y:auto; display:grid; grid-template-columns:repeat(4,1fr); gap:10px; padding:2px 0 6px; }
+#mxg-feed-stk .fstk-item { display:flex; flex-direction:column; align-items:center; gap:4px; }
+#mxg-feed-stk .fstk-item img { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:10px; border:1px solid #ececef; background:#fafafa; }
+#mxg-feed-stk .fstk-item span { font-size:10.5px; color:#8e8e93; max-width:100%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#mxg-feed-stk .fstk-empty { grid-column:1/-1; text-align:center; color:#9a9aa0; font-size:12.5px; padding:26px 0; }
 #dynamic-screen .feed-timg { margin:11px 0 0 46px; border-radius:14px; overflow:hidden; border:1px solid #ececee; background:#fbfbfb; max-width:480px; }
 #dynamic-screen .feed-timg img { display:block; width:100%; height:auto; }
 .mxg-peek.kb .mp-panel { height:calc(100% - 300px); min-height:340px; transition:height .22s ease, transform .44s cubic-bezier(.22,1.02,.36,1); }
