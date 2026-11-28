@@ -10368,10 +10368,15 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     <div class="mp-head">
       <div class="mp-face"></div>
       <div class="mp-t"></div>
+      <div class="mp-open" title="进入完整聊天室">↗</div>
       <div class="mp-x">×</div>
     </div>
     <div class="mp-body"></div>
-    <div class="mp-foot"><button class="mp-enter" type="button">进入完整聊天室</button></div>
+    <div class="mp-input">
+      <input class="mp-in" type="text" placeholder="发消息…" autocomplete="off">
+      <button class="mp-reply" type="button">回复</button>
+      <button class="mp-send" type="button">发送</button>
+    </div>
   </div>
 </div>
 
@@ -10575,12 +10580,51 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     }
     var p=peekEl();
     if(p){
+      var pIn=p.querySelector('.mp-in');
+      if(pIn){
+        pIn.addEventListener('focus', function(){ try{ p.classList.add('kb'); }catch(e){}
+          setTimeout(function(){ try{ var bd=p.querySelector('.mp-body'); if(bd) bd.scrollTop=bd.scrollHeight; }catch(e){} }, 260);
+        });
+        pIn.addEventListener('blur', function(){ try{ setTimeout(function(){ p.classList.remove('kb'); }, 60); }catch(e){} });
+        pIn.addEventListener('keydown', function(e){
+          if(e.key==='Enter'){ e.preventDefault(); try{ p.querySelector('.mp-send').click(); }catch(e){} }
+        });
+      }
       p.addEventListener('click', function(e){
         var et=e.target;
-        if(et && et.closest && et.closest('.mp-enter')){
+        if(et && et.closest && et.closest('.mp-open')){
           var tpv=peekTap;
           closePeek();
           if(tpv && tpv.chatId && window.__mxgOpenChatRoom) window.__mxgOpenChatRoom(tpv.chatId, tpv.chatType==='group'?'group':'private');
+          return;
+        }
+        if(et && et.closest && et.closest('.mp-send')){
+          var inp=p.querySelector('.mp-in'); var box=p.querySelector('.mp-body');
+          var tx=inp? String(inp.value||'').trim() : '';
+          if(!tx || !peekTap || !peekTap.chatId) return;
+          inp.value='';
+          var ty=(peekTap.chatType==='group')?'group':'private';
+          try{
+            Promise.resolve(window.__mxgPeekSend(peekTap.chatId, ty, tx)).then(function(msg){
+              if(msg && box && window.__mxgAppendBubble) window.__mxgAppendBubble(msg, box, peekTap.chatId, ty);
+            });
+          }catch(eS){}
+          return;
+        }
+        if(et && et.closest && et.closest('.mp-reply')){
+          var bt=et.closest('.mp-reply'); var bx=p.querySelector('.mp-body');
+          if(!peekTap || !peekTap.chatId || bt.disabled) return;
+          var ty2=(peekTap.chatType==='group')?'group':'private';
+          var cid=peekTap.chatId;
+          bt.disabled=true; bt.textContent='回复中…';
+          try{
+            var tip=document.createElement('div'); tip.className='mp-typing'; tip.textContent='正在输入中…';
+            if(bx){ bx.appendChild(tip); bx.scrollTop=bx.scrollHeight; }
+            Promise.resolve(window.__mxgPeekReply(cid, ty2)).then(function(){
+              if(bx && window.__mxgRenderChatInto) window.__mxgRenderChatInto(cid, ty2, bx, 24);
+              bt.disabled=false; bt.textContent='回复';
+            }).catch(function(){ bt.disabled=false; bt.textContent='回复'; if(tip.parentNode) tip.parentNode.removeChild(tip); });
+          }catch(eR){ bt.disabled=false; bt.textContent='回复'; }
           return;
         }
         if(e.target===p || (e.target.classList && e.target.classList.contains('mp-x')) || (e.target.closest && e.target.closest('.mp-close'))) closePeek();
@@ -10639,7 +10683,10 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
           var _hero = document.getElementById("chat-hero-avatar");
           openId = (_hero && _hero.getAttribute("data-chat-id")) || "";
         } catch (eH) {}
-        var here = act === "chat-room-screen" && !document.hidden && (openId ? openId === a.key : (cur && cur === a.key));
+        var pkEl = null;
+        try { pkEl = document.getElementById('mxg-peek'); } catch (ePK) {}
+        var pkOpen = !!(pkEl && !pkEl.hidden && peekTap && peekTap.chatId);
+        var here = (act === "chat-room-screen" && !document.hidden && (openId ? openId === a.key : (cur && cur === a.key))) || (pkOpen && peekTap.chatId === a.key);
         if (here) {
           snap[a.key] = { c: n, s: sig };
           try { delete pending[a.key]; } catch (ePd) {}
@@ -12984,7 +13031,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.32";
+  const APP_VERSION = "v6.4.33";
   let db = {
     characters: [],
     groups: [],
@@ -13339,7 +13386,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.32：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.33：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
@@ -17152,6 +17199,38 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (ePin) {}
   }
   window.__mxgOpenChatRoom = function (id, type) { try { openChatRoom(id, type || "private"); } catch (e) {} };
+  window.__mxgPeekSend = async function (id, type, text) {
+    const isGroup = type === "group";
+    const chat = isGroup ? db.groups.find((g) => g.id === id) : db.characters.find((c) => c.id === id);
+    if (!chat || !text) return null;
+    const myName = isGroup ? ((chat.me && chat.me.nickname) || "我") : (chat.myName || "我");
+    const content = "[" + myName + "的消息：" + text + "]";
+    const message = { id: mxgNewMsgId(), role: "user", content: content, parts: [{ type: "text", text: content }], timestamp: Date.now() };
+    if (isGroup) message.senderId = "user_me";
+    else if (chat.blockedByChar) message.blockedByChar = true;
+    chat.history.push(stampMask(message, chat));
+    try { TimeSense.recordCommitments(chat, text, message.timestamp, "user"); } catch (e) {}
+    try { await saveData(); } catch (e) {}
+    try { renderChatList(); } catch (e) {}
+    return message;
+  };
+  window.__mxgAppendBubble = function (message, box, id, type) {
+    try {
+      if (!message || !box) return null;
+      const sI = currentChatId, sT = currentChatType;
+      currentChatId = id || sI; currentChatType = (type === "group" ? "group" : "private") || sT;
+      const b = createMessageBubbleElement(message);
+      if (b) { box.appendChild(b); box.scrollTop = box.scrollHeight; }
+      currentChatId = sI; currentChatType = sT;
+      return b;
+    } catch (e) { window.__mxgAppendErr = String((e && e.message) || e); return null; }
+  };
+  window.__mxgPeekReply = async function (id, type) {
+    const sI = currentChatId, sT = currentChatType;
+    currentChatId = id; currentChatType = (type === "group" ? "group" : "private");
+    try { await getAiReply(); } catch (e) { window.__mxgPeekReplyErr = String((e && e.message) || e); }
+    currentChatId = sI; currentChatType = sT;
+  };
 
   window.__mxgRenderChatInto = function (id, type, box, limit) {
     try {
@@ -43823,9 +43902,15 @@ window.bsRoomAI = bsRoomAI;
 .mp-row.me .mp-b.mxg-rt .mxg-code, .mp-row.me .mp-b.mxg-rt .mxg-pre { background:rgba(255,255,255,.16); }
 .mp-row.me .mp-b.mxg-rt .mxg-bq { border-left-color:rgba(255,255,255,.32); }
 .mp-empty { margin:auto; font-size:11px; letter-spacing:2px; color:#9a9a9a; }
-.mp-foot { flex:0 0 auto; padding:9px 14px 10px; border-top:1px solid #eee; background:#fff; }
-.mp-enter { width:100%; height:42px; border-radius:14px; border:1px solid #111; background:#111; color:#fff; font-size:14px; letter-spacing:.6px; font-weight:600; }
-.mpx-head-close { }
+.mp-input { flex:0 0 auto; display:flex; align-items:center; gap:8px; padding:9px 12px calc(9px + env(safe-area-inset-bottom,0px)); border-top:1px solid #ececec; background:#fff; }
+.mp-in { flex:1 1 auto; min-width:0; height:40px; border-radius:20px; border:1px solid #e8e8ea; background:#f6f6f7; padding:0 14px; font-size:14px; color:#111; outline:none; -webkit-appearance:none; }
+.mp-in:focus { border-color:#c9c9cc; background:#fff; }
+.mp-reply { flex:0 0 auto; height:40px; padding:0 13px; border-radius:20px; border:1px solid #111; background:#fff; color:#111; font-size:13px; }
+.mp-send { flex:0 0 auto; height:40px; padding:0 17px; border-radius:20px; border:1px solid #111; background:#111; color:#fff; font-size:13.5px; font-weight:600; }
+.mp-send:disabled, .mp-reply:disabled { opacity:.45; }
+.mp-open { flex:0 0 30px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:15px; color:#111; }
+.mp-typing { margin:6px 0 10px; padding-left:4px; font-size:12px; letter-spacing:.5px; color:#9a9a9a; }
+.mxg-peek.kb .mp-panel { height:calc(100% - 300px); min-height:340px; transition:height .22s ease, transform .44s cubic-bezier(.22,1.02,.36,1); }
 
 #asset-screen .as-fcbox { position:relative; margin-top:16px; padding:20px 18px 18px; border-radius:18px; background:#fff; color:#101010; border:1px solid #EFE6D6; box-shadow:0 1px 0 rgba(16,16,18,.02); overflow:hidden; }
 #asset-screen .as-fcbox::after { content:'FAMILY'; position:absolute; right:-10px; bottom:-14px; font-size:calc(var(--app-fs,1) * 46px); letter-spacing:2px; color:rgba(201,169,97,.10); pointer-events:none; }
