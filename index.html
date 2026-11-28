@@ -10354,9 +10354,13 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     <div id="fc-modal" hidden><div class="fcm" id="fc-body"></div></div>
 
 <div id="mxg-banner" class="mxg-banner" hidden>
-  <div class="mb-ico"></div>
-  <div class="mb-tx"><div class="mb-t"></div><div class="mb-s"></div></div>
-  <div class="mb-x">×</div>
+  <div class="mb-head">
+    <div class="mb-ico"><img src="./icon-192.png" alt=""></div>
+    <div class="mb-app">麻辣香锅鸡</div>
+    <div class="mb-now">现在</div>
+  </div>
+  <div class="mb-body"><div class="mb-t"></div><div class="mb-s"></div></div>
+  <div class="mb-x"></div>
 </div>
 
 <div id="mxg-peek" class="mxg-peek" hidden>
@@ -10435,6 +10439,14 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
     p.classList.remove('in'); p.classList.add('out');
     setTimeout(function(){ p.hidden=true; p.classList.remove('out'); },220);
   }
+  function bannerText(c){
+    var t=String(c==null?'':c);
+    var m=t.match(/\[[^\]]*?的消息：([\s\S]*)\]\s*$/);
+    if(m) t=m[1];
+    t=t.replace(/```[\s\S]*?```/g,' ').replace(/<[^>]*>/g,' ').replace(/\*\*|__|~~/g,'').replace(/[*_`#>|]/g,' ').replace(/\s+/g,' ').trim();
+    return t;
+  }
+  window.__mxgBannerText=bannerText;
   window.__mxgBanner=function(title, text, tap, force){
     try{
       var cur=document.querySelector('.screen.active');
@@ -10443,13 +10455,17 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
       var n=node(); if(!n) return;
       var t=n.querySelector('.mb-t'), s2=n.querySelector('.mb-s');
       if(t) t.textContent=String(title||'');
-      if(s2) s2.textContent=String(text||'').slice(0,80);
+      if(s2) s2.textContent=bannerText(text).slice(0,120);
       onTap=(typeof tap==='function')? tap : (tap? function(){ openPeek(tap); } : null);
       n.hidden=false;
       n.classList.remove('out');
+      n.classList.remove('on');
+      void n.offsetWidth;
+      requestAnimationFrame(function(){ requestAnimationFrame(function(){ n.classList.add('on'); }); });
+      n.style.transform='';
       try { window.__mxgBannerLog = (window.__mxgBannerLog || []).concat([{ t: Date.now(), title: String(title || ""), len: String(text || "").length, h: n.hidden }]); if (window.__mxgBannerLog.length > 20) window.__mxgBannerLog.shift(); } catch (eL) {}
       clearTimeout(timer);
-      timer=setTimeout(function(){ n.classList.add('out'); setTimeout(function(){ n.hidden=true; },240); }, 8000);
+      timer=setTimeout(function(){ hideBanner(n); }, 4200);
       try{
         if(window.Notification && Notification.permission==='granted'){
           new Notification(String(title||'新消息'), { body:String(text||'').slice(0,80), silent:true });
@@ -10457,15 +10473,43 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
       }catch(e){}
     }catch(e){}
   };
+  function hideBanner(n){
+    try{ n.classList.remove('on'); n.classList.add('out'); n.style.transform=''; }catch(e){}
+    setTimeout(function(){ try{ if(!n.classList.contains('on')) n.hidden=true; }catch(e){} }, 320);
+  }
+  window.__mxgHideBanner=hideBanner;
   window.__mxgPeekClose=closePeek;
   function bind(){
     var n=node();
     if(n){
       n.onclick=function(e){
-        if(e.target && e.target.classList && e.target.classList.contains('mb-x')){ n.hidden=true; return; }
-        n.hidden=true; clearTimeout(timer);
+        clearTimeout(timer);
+        if(e.target && e.target.classList && e.target.classList.contains('mb-x')){ hideBanner(n); return; }
+        hideBanner(n);
         try{ if(onTap) onTap(); }catch(e){}
       };
+      /* 上滑关闭（iOS 手感） */
+      var sy=0, sdy=0, dragging=false;
+      n.addEventListener('touchstart', function(e){
+        try{ sy=e.touches[0].clientY; sdy=0; dragging=true; n.style.transition='none'; }catch(e0){}
+      }, {passive:true});
+      n.addEventListener('touchmove', function(e){
+        if(!dragging) return;
+        try{
+          var dy=e.touches[0].clientY-sy;
+          sdy=dy;
+          if(dy<0){ n.style.transform='translateX(-50%) translateY('+dy*0.9+'px) scale('+(1+dy/2600)+')'; n.style.opacity=String(Math.max(0, 1+dy/140)); }
+        }catch(e1){}
+      }, {passive:true});
+      n.addEventListener('touchend', function(){
+        if(!dragging) return;
+        dragging=false;
+        n.style.transition='';
+        try{
+          if(sdy<-30){ clearTimeout(timer); hideBanner(n); }
+          else { n.style.transform=''; n.style.opacity=''; }
+        }catch(e2){}
+      }, {passive:true});
     }
     var p=peekEl();
     if(p){
@@ -10564,7 +10608,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
           if (pd && last && pd.s === sig && pd.c === n && (Date.now() - pd.t) < 300000) {
             delete pending[a.key];
             var nmd = a.o.remarkName || a.o.realName || a.o.nickname || a.o.name || "新消息";
-            var txd = String(last.content).replace(/<[^>]*>/g, " ").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " ").trim();
+            var txd = (window.__mxgBannerText ? window.__mxgBannerText(last.content) : String(last.content));
             window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "defer/" + n });
             if (window.__mxgNotifyLog.length > 40) window.__mxgNotifyLog.shift();
             if (txd && window.__mxgBanner) window.__mxgBanner(nmd, txd.slice(0, 90), { chatType: a.type, chatId: a.key }, true);
@@ -10578,7 +10622,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
               noted[sig] = 1;
               markSeenAt(a.key, lt);
               var nmt = a.o.remarkName || a.o.realName || a.o.nickname || a.o.name || "新消息";
-              var txt2 = String(last.content).replace(/<[^>]*>/g, " ").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " ").trim();
+              var txt2 = (window.__mxgBannerText ? window.__mxgBannerText(last.content) : String(last.content));
               window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "ts/" + n });
               if (window.__mxgNotifyLog.length > 40) window.__mxgNotifyLog.shift();
               if (txt2 && window.__mxgBanner) window.__mxgBanner(nmt, txt2.slice(0, 90), { chatType: a.type, chatId: a.key }, true);
@@ -10602,7 +10646,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "pop/" + n });
         if (window.__mxgNotifyLog.length > 40) window.__mxgNotifyLog.shift();
         var nm = a.o.remarkName || a.o.realName || a.o.nickname || a.o.name || "新消息";
-        var txt = String(last.content).replace(/<[^>]*>/g, " ").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " ").trim();
+        var txt = (window.__mxgBannerText ? window.__mxgBannerText(last.content) : String(last.content));
         if (txt && window.__mxgBanner) window.__mxgBanner(nm, txt.slice(0, 90), { chatType: a.type, chatId: a.key }, true);
       });
     } catch (e) {}
@@ -12881,7 +12925,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.29";
+  const APP_VERSION = "v6.4.30";
   let db = {
     characters: [],
     groups: [],
@@ -13236,7 +13280,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.29：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.30：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
@@ -17694,7 +17738,7 @@ document.addEventListener("DOMContentLoaded", () => {
               : (db.characters || []).find(function (x) { return x.id === __lookId; });
           } catch (e0) {}
           var __nm = (__c && (__c.remarkName || __c.realName || __c.nickname || __c.name)) || "新消息";
-          var __txt = String(message.content).replace(/```[^`]*```/g, " ").replace(/<[^>]*>/g, " ").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " ").trim();
+          var __txt = (window.__mxgBannerText ? window.__mxgBannerText(message.content) : String(message.content));
           try { window.__mxgBubbleLog = (window.__mxgBubbleLog || []).concat([{ t: Date.now(), act: __act, mid: String(__mid || ""), cur: String(__cur || ""), here: !!__here, len: String(message.content || "").length }]); if (window.__mxgBubbleLog.length > 12) window.__mxgBubbleLog.shift(); } catch (eLB) {}
           if (__txt) window.__mxgBanner(__nm, __txt.slice(0, 90), { chatType: currentChatType, chatId: __mid || __cur }, true);
           try { if (window.__mxgMarkSeen) window.__mxgMarkSeen(__mid || __cur, window.__mxgSig ? window.__mxgSig(message) : ""); } catch (eMS) {}
@@ -43633,15 +43677,23 @@ window.bsRoomAI = bsRoomAI;
 .o-attach-strip .oa-x { position:absolute; right:0; top:0; width:18px; height:18px; line-height:17px; text-align:center; font-size:12px; color:#fff; background:rgba(17,17,17,.72); border-bottom-left-radius:8px; }
 
 /* ===== 消息横幅 ===== */
-.mxg-banner { position:fixed; left:50%; top:12px; transform:translateX(-50%) translateY(0); width:calc(100% - 24px); max-width:420px; z-index:10160; display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:16px; background:#fff; color:#111; border:1px solid #111; box-shadow:0 10px 26px rgba(17,17,17,.10); transition:transform .24s cubic-bezier(.2,.9,.2,1), opacity .24s; }
+.mxg-banner { position:fixed; left:50%; top:calc(env(safe-area-inset-top, 0px) + 8px); width:calc(100% - 20px); max-width:420px; z-index:10160; padding:10px 12px 12px; border-radius:22px; background:rgba(249,249,251,.82); color:#111; border:1px solid rgba(255,255,255,.6); box-shadow:0 14px 36px rgba(0,0,0,.16), 0 1px 3px rgba(0,0,0,.06); -webkit-backdrop-filter:saturate(180%) blur(24px); backdrop-filter:saturate(180%) blur(24px); transform:translateX(-50%) translateY(-140%) scale(.94); opacity:0; pointer-events:none; will-change:transform, opacity; transition:transform .46s cubic-bezier(.22,1.02,.36,1), opacity .28s ease-out; }
 .mxg-banner[hidden] { display:none; }
-.mxg-banner.out { transform:translateX(-50%) translateY(-16px); opacity:0; }
-.mxg-banner .mb-ico { flex:0 0 32px; width:32px; height:32px; border-radius:50%; background:#111; position:relative; }
-.mxg-banner .mb-ico::after { content:''; position:absolute; inset:9px; border-radius:50%; border:1px solid rgba(255,255,255,.85); }
-.mxg-banner .mb-tx { flex:1; min-width:0; }
-.mxg-banner .mb-t { font-size:13px; letter-spacing:1.2px; color:#111; }
-.mxg-banner .mb-s { margin-top:3px; font-size:11px; line-height:1.6; color:#6b6b6b; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; letter-spacing:.3px; }
-.mxg-banner .mb-x { flex:0 0 20px; text-align:center; font-size:15px; color:#111; }
+.mxg-banner.on { transform:translateX(-50%) translateY(0) scale(1); opacity:1; pointer-events:auto; }
+.mxg-banner.out { transform:translateX(-50%) translateY(-140%) scale(.96); opacity:0; pointer-events:none; transition:transform .34s cubic-bezier(.4,0,.92,.42), opacity .26s ease-in; }
+.mxg-banner .mb-head { display:flex; align-items:center; gap:7px; height:20px; }
+.mxg-banner .mb-ico { width:20px; height:20px; border-radius:5px; background:#111; position:relative; flex:0 0 auto; overflow:hidden; }
+.mxg-banner .mb-ico img { width:100%; height:100%; object-fit:cover; display:block; }
+.mxg-banner .mb-ico::after { content:''; position:absolute; inset:0; border-radius:5px; box-shadow:inset 0 0 0 .5px rgba(255,255,255,.35); pointer-events:none; }
+.mxg-banner .mb-app { flex:1; min-width:0; font-size:12px; letter-spacing:.2px; color:#3c3c43; opacity:.78; text-transform:uppercase; }
+.mxg-banner .mb-now { font-size:12px; color:#3c3c43; opacity:.45; }
+.mxg-banner .mb-body { margin-top:6px; padding-right:26px; }
+.mxg-banner .mb-t { font-size:15.5px; font-weight:600; letter-spacing:.1px; color:#0a0a0a; line-height:1.25; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.mxg-banner .mb-s { margin-top:2px; font-size:14px; line-height:1.35; color:#2c2c2e; opacity:.92; overflow:hidden; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; word-break:break-word; }
+.mxg-banner .mb-x { position:absolute; right:10px; bottom:12px; width:22px; height:22px; border-radius:50%; background:rgba(120,120,128,.14); display:flex; align-items:center; justify-content:center; }
+.mxg-banner .mb-x::before, .mxg-banner .mb-x::after { content:''; position:absolute; width:10px; height:1.4px; background:#6c6c70; border-radius:1px; }
+.mxg-banner .mb-x::before { transform:rotate(45deg); }
+.mxg-banner .mb-x::after { transform:rotate(-45deg); }
 
 .mxg-peek { position:fixed; inset:0; z-index:10180; background:rgba(17,17,17,.28); display:flex; align-items:flex-end; justify-content:center; opacity:0; transition:opacity .22s; }
 .mxg-peek[hidden] { display:none; }
