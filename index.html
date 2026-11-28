@@ -13033,7 +13033,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.34";
+  const APP_VERSION = "v6.4.35";
   let db = {
     characters: [],
     groups: [],
@@ -17570,7 +17570,7 @@ document.addEventListener("DOMContentLoaded", () => {
         stickerSrc = stickerData;
       } else {
         const rawPath = receivedStickerMatch[1].trim();
-        const uploadedSticker = (db.myStickers || []).find((st) => st.name === rawPath || st.id === rawPath);
+        const uploadedSticker = mxgFindSticker(rawPath);
         if (uploadedSticker) {
           stickerSrc = uploadedSticker.data;
         } else {
@@ -17585,7 +17585,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const raw = isSent ? String((sentStickerMatch && sentStickerMatch[1]) || "").trim()
                              : String((receivedStickerMatch && receivedStickerMatch[1]) || "").trim();
           const nm = raw.replace(/^.*\//, "").replace(/\.[a-z0-9]+$/i, "");
-          const rec = (db.myStickers || []).find(function(st){ return st && (st.name === raw || st.id === raw); });
+          const rec = mxgFindSticker(raw);
           return (rec && rec.name) || nm || "";
         } catch (e) { return ""; }
       })();
@@ -19108,13 +19108,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!st || !st.name) return "";
         let hint = String(st.desc || "").trim();
         if (!hint && typeof st.data === "string" && /^https?:/.test(st.data)) {
-          hint = st.data.split("/").pop().split("?")[0].replace(/\.(jpg|jpeg|png|gif|webp)$/i, "");
+          let tail = st.data.split("/").pop().split("?")[0];
+          try { tail = decodeURIComponent(tail); } catch (e) {}
+          tail = tail.replace(/\.(jpg|jpeg|png|gif|webp|bmp)$/i, "").replace(/[_+]/g, " ").replace(/-+/g, " ").trim();
+          if (tail && !/\d{5,}/.test(tail)) hint = tail;
         }
         return st.name + (hint ? "（" + hint + "）" : "");
       }).filter(Boolean);
       if (_cat.length) {
-        prompt += "可用表情包目录（名称｜画面/文字线索）：\n" + _cat.join("\n") + "\n";
-        prompt += "选择规则：只从目录里原样选名称，不要编造；优先选画面文字或含义最贴合当前场景的那一个。没有合适的就干脆不发，这很正常。\n";
+        prompt += "可用表情包目录（共 " + _cat.length + " 个，全部可选，名称｜画面/文字线索）：\n" + _cat.map(function (x, i) { return (i + 1) + ". " + x; }).join("\n") + "\n";
+        prompt += "选择规则：只从目录里原样选名称，不要编造，不要改成URL或文件名；目录里每一个都可用，包括最新的，不要总是只挑同几个、也不要按顺序反复用前几条；先按情绪/场景含义挑最贴合的，再在含义相近的几个里换着用。没有合适的就不发，这很正常。\n";
       }
     } else {
       prompt += "（目前没有可用表情包，不要凭空编造名称。）\n";
@@ -23795,8 +23798,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!char) continue;
         for (let i = 0; i < count; i++) {
           const gen = await generateCharFeed(char);
-          const textImage = Math.random() < 0.28 ? await generateCharTextImage(char, gen) : null;
-          db.feeds.unshift(makeCharFeedPayload(char, gen, textImage));
+          const genText = (gen && gen.content) || String(gen || "");
+          const genImgs = (gen && gen.imgs) || [];
+          const textImage = (!genImgs.length && Math.random() < 0.28) ? await generateCharTextImage(char, genText) : null;
+          db.feeds.unshift(makeCharFeedPayload(char, genText, textImage, genImgs));
           total += 1;
         }
       }
@@ -25275,6 +25280,42 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tags.some((t) => t === "#404")) tags.push("#404");
     return Array.from(new Set(tags)).slice(0, 4);
   }
+  const SIM_ICO = '<svg class="sim-ico" viewBox="0 0 24 24" fill="none" stroke="#7c7c82" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.6"/><path d="M21 16l-5-5-4 4-3-3-5 5"/></svg>';
+  function feedSimHtml(feed) {
+    const arr = (feed.imgs || []).slice(0, 9);
+    const n = arr.length;
+    if (!n) return "";
+    const cls = n === 1 ? "sim-single" : n === 2 ? "sim-two" : "sim-grid";
+    const cells = arr.map(function (im, i) {
+      const desc = String((im && im.desc) || "");
+      return '<div class="sim-card" data-i="' + i + '">' + SIM_ICO +
+        '<span class="sim-ratio">' + escapeHtml(String((im && im.ratio) || "1:1")) + '</span>' +
+        '<span class="sim-count">' + (i + 1) + "/" + n + '</span>' +
+        '<div class="sim-desc"><div class="sim-desc-in">' + escapeHtml(desc) + '</div></div>' +
+        '</div>';
+    }).join("");
+    return '<div class="sim-wrap ' + cls + '">' + cells + '</div>';
+  }
+  function mxgNormStickerName(x) {
+    return String(x || "").trim().toLowerCase().replace(/^.*\//, "").replace(/\.(jpg|jpeg|png|gif|webp|bmp)$/i, "").replace(/[\s_·・]+/g, "");
+  }
+  function mxgFindSticker(raw) {
+    const list = db.myStickers || [];
+    const r = String(raw || "").trim();
+    const n = mxgNormStickerName(r);
+    let hit = list.find(function (st) { return st && (st.name === r || st.id === r || st.data === r); });
+    if (!hit && n) {
+      hit = list.find(function (st) { return st && (mxgNormStickerName(st.name) === n || mxgNormStickerName(st.id) === n); });
+    }
+    if (!hit && n) {
+      hit = list.find(function (st) { return st && typeof st.data === "string" && mxgNormStickerName(st.data.split("/").pop()) === n; });
+    }
+    if (!hit && r) {
+      hit = list.find(function (st) { return st && st.name && (String(st.name).indexOf(r) >= 0 || r.indexOf(String(st.name)) >= 0); });
+    }
+    return hit || null;
+  }
+  try { window.mxgFindSticker = mxgFindSticker; window.feedSimHtml = feedSimHtml; } catch (e0) {}
   function feedCommentAvatar(c) {
     const av = c.authorAvatar || ((c.authorType === "user" || c.authorName === "我") ? ((getCurrentMask() || {}).avatar || "") : "");
     const label = String(c.authorType === "user" ? ((getCurrentMask() || {}).name || "我") : (c.authorName || "?")).slice(0, 1);
@@ -25402,7 +25443,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const moreReplies = comments.length > 1
         ? '<button type="button" class="feed-more-replies" data-feed="' + feed.id + '">' + (expanded ? '收起回复' : '查看另外 ' + (comments.length - 1) + ' 条回复') + (expanded ? '' : ' <span>↗</span>') + '</button>'
         : '';
-      item.innerHTML = '\n        <div class="feed-head">\n          <div class="feed-avatar-wrap"><img class="avatar" src="' + escapeHtml(avatar) + '" alt="">' + (feed.authorType === "char" ? '<span class="feed-online-dot"></span>' : '') + '</div>\n          <div class="feed-who"><div class="f-name-row"><div class="f-name">' + escapeHtml(name) + '</div>' + (feed.pinned ? '<span class="f-pin">置顶</span>' : '') + '</div><div class="f-time">' + feedTimeText(feed.ts) + '</div></div>\n          <button type="button" class="feed-more-btn" data-id="' + feed.id + '" aria-label="动态更多操作">···</button>\n        </div>\n        ' + (feed.content ? '<div class="feed-body">' + escapeHtml(feed.content).replace(/\n/g, "<br>") + '</div>' : "") + '\n        ' + (feed.image ? '<div class="feed-media"><img class="feed-img" src="' + escapeHtml(feed.image) + '" alt=""><div class="feed-media-dots"><i></i><i></i></div><span class="feed-media-count">1 / 1</span></div>' : "") + '\n        ' + (draft ? '<div class="feed-timg"><img src="' + escapeHtml(feedTextImageSrc(feed, textImage.text, name)) + '" alt=""></div>' : "") + '\n        ' + (tags.length ? '<div class="feed-tags">' + tags.map((t) => '<span>' + escapeHtml(t) + '</span>').join("") + '</div>' : "") + '\n        <div class="feed-actions">\n          <button type="button" class="feed-action feed-like-btn ' + (liked ? "liked" : "") + '" data-id="' + feed.id + '" title="' + escapeHtml(likeTitle) + '">\n            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>\n            <span>' + (feed.likes || []).length + '</span>\n          </button>\n          <span class="feed-action"><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg><span>' + comments.length + '</span></span>\n          <button type="button" class="feed-action feed-repost-btn" data-id="' + feed.id + '" title="转发这条动态"><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg><span>0</span></button>\n          <button type="button" class="feed-action feed-share-btn" data-id="' + feed.id + '" title="复制动态文字"><svg viewBox="0 0 24 24"><path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4 18-7z"/></svg></button>\n        </div>\n        ' + (commentsHtml ? '<div class="feed-comments">' + commentsHtml + '</div>' : "") + '\n        ' + moreReplies + '\n        <div class="feed-comment-input">\n          <input id="feed-cmt-input-' + feed.id + '" placeholder="回复…">\n          <button type="button" class="feed-action feed-comment-submit" data-id="' + feed.id + '">回复</button>\n        </div>';
+      item.innerHTML = '\n        <div class="feed-head">\n          <div class="feed-avatar-wrap"><img class="avatar" src="' + escapeHtml(avatar) + '" alt="">' + (feed.authorType === "char" ? '<span class="feed-online-dot"></span>' : '') + '</div>\n          <div class="feed-who"><div class="f-name-row"><div class="f-name">' + escapeHtml(name) + '</div>' + (feed.pinned ? '<span class="f-pin">置顶</span>' : '') + '</div><div class="f-time">' + feedTimeText(feed.ts) + '</div></div>\n          <button type="button" class="feed-more-btn" data-id="' + feed.id + '" aria-label="动态更多操作">···</button>\n        </div>\n        ' + (feed.content ? '<div class="feed-body">' + escapeHtml(feed.content).replace(/\n/g, "<br>") + '</div>' : "") + '\n        ' + (feed.image ? '<div class="feed-media"><img class="feed-img" src="' + escapeHtml(feed.image) + '" alt=""><div class="feed-media-dots"><i></i><i></i></div><span class="feed-media-count">1 / 1</span></div>' : "") + '\n        ' + (feed.imgs && feed.imgs.length ? feedSimHtml(feed) : "") + '\n        ' + (draft ? '<div class="feed-timg"><img src="' + escapeHtml(feedTextImageSrc(feed, textImage.text, name)) + '" alt=""></div>' : "") + '\n        ' + (tags.length ? '<div class="feed-tags">' + tags.map((t) => '<span>' + escapeHtml(t) + '</span>').join("") + '</div>' : "") + '\n        <div class="feed-actions">\n          <button type="button" class="feed-action feed-like-btn ' + (liked ? "liked" : "") + '" data-id="' + feed.id + '" title="' + escapeHtml(likeTitle) + '">\n            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>\n            <span>' + (feed.likes || []).length + '</span>\n          </button>\n          <span class="feed-action"><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg><span>' + comments.length + '</span></span>\n          <button type="button" class="feed-action feed-repost-btn" data-id="' + feed.id + '" title="转发这条动态"><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg><span>0</span></button>\n          <button type="button" class="feed-action feed-share-btn" data-id="' + feed.id + '" title="复制动态文字"><svg viewBox="0 0 24 24"><path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4 18-7z"/></svg></button>\n        </div>\n        ' + (commentsHtml ? '<div class="feed-comments">' + commentsHtml + '</div>' : "") + '\n        ' + moreReplies + '\n        <div class="feed-comment-input">\n          <input id="feed-cmt-input-' + feed.id + '" placeholder="回复…">\n          <button type="button" class="feed-action feed-comment-submit" data-id="' + feed.id + '">回复</button>\n        </div>';
+      item.querySelectorAll(".sim-card").forEach(function (sc) {
+        sc.addEventListener("click", function (ev) {
+          try { ev.stopPropagation(); } catch (e) {}
+          const on = sc.classList.contains("show");
+          item.querySelectorAll(".sim-card.show").forEach(function (x) { x.classList.remove("show"); });
+          if (!on) sc.classList.add("show");
+        });
+      });
       (function(fid) {
         item.querySelectorAll(".c-reply-btn").forEach((btn) => {
           btn.addEventListener("click", () => {
@@ -25506,6 +25555,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (feed.content) bits.push(String(feed.content));
     if (feed.imageDesc) bits.push("图片内容：" + String(feed.imageDesc));
     else if (feed.image) bits.push("这条动态带图片，图片已随本次请求附带");
+    if (feed.imgs && feed.imgs.length) bits.push("配图：" + feed.imgs.map(function (im, i) { return "图" + (i + 1) + "：" + String((im && im.desc) || ""); }).join("｜"));
     if (feed.textImage) {
       const t = typeof feed.textImage === "string" ? feed.textImage : feed.textImage.text;
       if (t) bits.push("文字图片：" + String(t));
@@ -25526,6 +25576,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   async function generateCharFeed(char) {
     let content = FEED_TEMPLATES[Math.floor(Math.random() * FEED_TEMPLATES.length)];
+    let imgs = [];
     if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
       const _mosHits = (function () {
         try { return MemoryOS.retrieve(char.id, "今天 最近 生活 心情 工作 朋友", { limit: 6 }).map(function (h) { return h.m; }); } catch (e) { return []; }
@@ -25539,10 +25590,33 @@ document.addEventListener("DOMContentLoaded", () => {
       const recent = (char.history || []).slice(-6).map((h) => "".concat(h.role === "assistant" ? char.remarkName || char.realName : char.myName, "：").concat(String(h.content || "").slice(0, 80))).join("\n");
       const oldFeeds = (db.feeds || []).filter((f) => f.authorId === char.id).slice(0, 4).map((f) => "- " + String(f.content || (f.textImage && f.textImage.text) || "").slice(0, 60)).join("\n");
     const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。你现在要发布一条朋友圈动态，内容关于你今天的真实生活、心情或见闻，30-70字，自然、有生活气息，不要像文案或鸡汤。可以结合你的记忆与最近的聊天内容，也可以自由发挥。不要重复你最近发过的动态，不要每条都用同一种句式和情绪。严禁提到自己是AI或人机。").concat("\n\n", TimeSense.feedBlock(char)).concat(memText).concat(recent ? "\n最近聊天（可选素材）：\n" + recent : "").concat(oldFeeds ? "\n最近已发过（不要重复）：\n" + oldFeeds : "")), [char], "online", null, null, (recent || "") + "\n" + (oldFeeds || ""));
-      const gen = await offlineRequest(sys, [{ role: "user", content: "写一条朋友圈动态。" }], 150, true);
-      if (gen && gen.trim()) content = gen.trim().slice(0, 120);
+      const sys2 = sys + "\n\n输出要求：严格输出一个 JSON 对象，不要任何多余文字或代码块：{\"content\":\"动态正文，30-70字，不要包含图片描述或括号内容\",\"imgs\":[{\"ratio\":\"3:4\",\"desc\":\"这张图拍到什么画面：物体、色彩、光影、场景、构图细节，可一句可一段，必须贴合正文，严禁出现随手拍/配图/模拟图/照片/图片等说明词\"}]}。imgs 可以是 0 到 9 张，通常 1-3 张；每张 desc 必须不同；若这条动态不需要配图，imgs 给空数组。";
+      const gen = await offlineRequest(sys2, [{ role: "user", content: "写一条朋友圈动态，按 JSON 输出。" }], 420, true);
+      if (gen && gen.trim()) {
+        const parsed = mxgParseFeedJson(gen);
+        if (parsed && parsed.content) {
+          content = String(parsed.content).trim().slice(0, 160);
+          if (parsed.imgs && parsed.imgs.length) {
+            imgs = parsed.imgs.slice(0, 9).map(function (im) {
+              return { ratio: String((im && im.ratio) || "1:1"), desc: String((im && im.desc) || "").trim().slice(0, 260) };
+            }).filter(function (im) { return im.desc; });
+          }
+        } else {
+          content = gen.trim().slice(0, 120);
+        }
+      }
     }
-    return content;
+    return { content: content, imgs: imgs || [] };
+  }
+  function mxgParseFeedJson(raw) {
+    try {
+      let t = String(raw || "").replace(/```json|```/gi, "").trim();
+      const a = t.indexOf("{"), b = t.lastIndexOf("}");
+      if (a < 0 || b <= a) return null;
+      const o = JSON.parse(t.slice(a, b + 1));
+      if (!o || typeof o !== "object") return null;
+      return { content: o.content || o.text || "", imgs: Array.isArray(o.imgs) ? o.imgs : [] };
+    } catch (e) { return null; }
   }
   async function generateCharTextImage(char, source) {
     let text = String(source || "").replace(/[\r\n]+/g, " ").replace(/^["“”]+|["“”]+$/g, "").trim();
@@ -25558,7 +25632,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     return text || "有些话，留在草稿里就好。";
   }
-  function makeCharFeedPayload(char, content, textImage) {
+  function makeCharFeedPayload(char, content, textImage, imgs) {
     return {
       id: "feed_" + Date.now() + "_" + Math.random().toString(36).slice(2, 5),
       authorType: "char",
@@ -25567,6 +25641,7 @@ document.addEventListener("DOMContentLoaded", () => {
       authorAvatar: char.avatar,
       content: textImage ? "" : content,
       image: null,
+      imgs: (imgs && imgs.length) ? imgs : null,
       maskIds: (char.maskIds || []).slice(),
       textImage: textImage ? { text: textImage, ts: Date.now() } : null,
       likes: [],
@@ -25670,10 +25745,12 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
       const char = chars[Math.floor(Math.random() * chars.length)];
-      const content = await generateCharFeed(char);
+      const gen = await generateCharFeed(char);
+      const content = (gen && gen.content) || String(gen || "");
+      const genImgs = (gen && gen.imgs) || [];
       let textImage = null;
-      if (Math.random() < 0.28) textImage = await generateCharTextImage(char, content);
-      db.feeds.unshift(makeCharFeedPayload(char, content, textImage));
+      if (!genImgs.length && Math.random() < 0.28) textImage = await generateCharTextImage(char, content);
+      db.feeds.unshift(makeCharFeedPayload(char, content, textImage, genImgs));
       db.feedSettings.lastPostTs = now;
       await saveData();
       if (document.getElementById("dynamic-screen").classList.contains("active")) renderFeeds();
@@ -44007,6 +44084,19 @@ window.bsRoomAI = bsRoomAI;
 .mp-send:disabled, .mp-reply:disabled { opacity:.45; }
 .mp-open { flex:0 0 30px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:15px; color:#111; }
 .mp-typing { margin:6px 0 10px; padding-left:4px; font-size:12px; letter-spacing:.5px; color:#9a9a9a; }
+
+#dynamic-screen .sim-wrap { margin:11px 0 0 46px; display:grid; gap:4px; max-width:400px; }
+#dynamic-screen .sim-wrap.sim-single { grid-template-columns:1fr; }
+#dynamic-screen .sim-wrap.sim-two { grid-template-columns:1fr 1fr; }
+#dynamic-screen .sim-wrap.sim-grid { grid-template-columns:repeat(3,1fr); }
+#dynamic-screen .sim-card { position:relative; overflow:hidden; border-radius:12px; border:1px solid #e9e9ec; background:linear-gradient(135deg,#f4f5f8,#e3e5ea); display:flex; align-items:center; justify-content:center; aspect-ratio:1/1; cursor:pointer; }
+#dynamic-screen .sim-single .sim-card { aspect-ratio:16/10; max-height:62vh; }
+#dynamic-screen .sim-ico { width:26px; height:26px; opacity:.45; }
+#dynamic-screen .sim-ratio { position:absolute; right:6px; top:6px; font-size:9.5px; letter-spacing:.02em; color:#84848a; background:rgba(255,255,255,.92); padding:1px 5px; border-radius:6px; z-index:1; }
+#dynamic-screen .sim-count { position:absolute; left:6px; bottom:6px; font-size:9.5px; color:#84848a; background:rgba(255,255,255,.92); padding:1px 5px; border-radius:6px; z-index:1; }
+#dynamic-screen .sim-desc { position:absolute; inset:0; background:rgba(12,14,18,.84); color:#eef0f3; display:none; z-index:2; }
+#dynamic-screen .sim-card.show .sim-desc { display:block; }
+#dynamic-screen .sim-desc-in { height:100%; box-sizing:border-box; overflow-y:auto; padding:12px; font-size:12.5px; line-height:1.65; white-space:pre-wrap; word-break:break-word; -webkit-overflow-scrolling:touch; }
 #dynamic-screen .feed-timg { margin:11px 0 0 46px; border-radius:14px; overflow:hidden; border:1px solid #ececee; background:#fbfbfb; max-width:480px; }
 #dynamic-screen .feed-timg img { display:block; width:100%; height:auto; }
 .mxg-peek.kb .mp-panel { height:calc(100% - 300px); min-height:340px; transition:height .22s ease, transform .44s cubic-bezier(.22,1.02,.36,1); }
