@@ -10481,6 +10481,16 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
   var inited = {};
   var snap = {};
   var pending = {};
+  var seenAt = {};
+  try { seenAt = JSON.parse(localStorage.getItem("mxg-seen-at") || "{}") || {}; } catch (eSA) { seenAt = {}; }
+  function persistSeenAt() { try { localStorage.setItem("mxg-seen-at", JSON.stringify(seenAt)); } catch (eSS) {} }
+  function markSeenAt(key, ts) {
+    if (!key) return;
+    var v = Number(ts) || Date.now();
+    if (!seenAt[key] || v > seenAt[key]) { seenAt[key] = v; persistSeenAt(); }
+  }
+  window.__mxgMarkSeenAt = markSeenAt;
+  window.__mxgSeenAt = seenAt;
   var bootAt = Date.now();
   window.__mxgNotifyLog = [];
   function sigOf(m) { return String((m && m.id) || "") + "#" + String((m && m.content) || "").length + "#" + String((m && m.content) || "").slice(0, 60); }
@@ -10520,6 +10530,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         if (here) {
           snap[a.key] = { c: n, s: sig };
           if (sig) pending[a.key] = { c: n, s: sig, t: Date.now() };
+          if (last) markSeenAt(a.key, Number(last.timestamp || last.ts || 0) || Date.now());
           h.forEach(function (m) { noted[sigOf(m)] = 1; });
           inited[a.key] = 1;
           window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "room/" + n });
@@ -10541,6 +10552,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             noted[sigOf(m)] = 1;
           });
           inited[a.key] = 1;
+          if (last) markSeenAt(a.key, Number(last.timestamp || last.ts || 0) || Date.now());
           window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "init/" + n });
           if (window.__mxgNotifyLog.length > 40) window.__mxgNotifyLog.shift();
           if (!last) return;
@@ -10558,6 +10570,21 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
             if (txd && window.__mxgBanner) window.__mxgBanner(nmd, txd.slice(0, 90), { chatType: a.type, chatId: a.key }, true);
             return;
           }
+          /* 兜底：最后一条的时间比“上次读过这个会话”的时间新，就当新消息弹一次 */
+          if (last && !noted[sig]) {
+            var lt = Number(last.timestamp || last.ts || 0);
+            var st = seenAt[a.key] || 0;
+            if (lt && lt > st + 1500 && n >= prev.c) {
+              noted[sig] = 1;
+              markSeenAt(a.key, lt);
+              var nmt = a.o.remarkName || a.o.realName || a.o.nickname || a.o.name || "新消息";
+              var txt2 = String(last.content).replace(/<[^>]*>/g, " ").replace(/\[[^\]]*\]/g, " ").replace(/\s+/g, " ").trim();
+              window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "ts/" + n });
+              if (window.__mxgNotifyLog.length > 40) window.__mxgNotifyLog.shift();
+              if (txt2 && window.__mxgBanner) window.__mxgBanner(nmt, txt2.slice(0, 90), { chatType: a.type, chatId: a.key }, true);
+              return;
+            }
+          }
           window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "seen/" + n });
           if (window.__mxgNotifyLog.length > 40) window.__mxgNotifyLog.shift();
           return;
@@ -10571,6 +10598,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         }
         noted[sig] = 1;
         try { delete pending[a.key]; } catch (eP) {}
+        try { markSeenAt(a.key, Number(last.timestamp || last.ts || 0) || Date.now()); } catch (eM2) {}
         window.__mxgNotifyLog.push({ t: Date.now(), k: a.key, v: "pop/" + n });
         if (window.__mxgNotifyLog.length > 40) window.__mxgNotifyLog.shift();
         var nm = a.o.remarkName || a.o.realName || a.o.nickname || a.o.name || "新消息";
@@ -10605,7 +10633,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
         var last = h[h.length - 1];
         var sig = last ? window.__mxgSig(last) : "";
         var sn = snap[a.key];
-        out.push(a.type + " " + (a.o.remarkName || a.o.realName || a.o.name || a.key) + " · 条数 " + src.length + " · 对方消息 " + h.length + " · 进度=" + (sn ? (sn.c + "～" + String(sn.s || "").length) : "无") + " · 已记录=" + (noted[sig] ? "是" : "否") + " · 初始化=" + (inited[a.key] ? "是" : "否") + (last ? (" · 末条=" + String(last.content).slice(0, 12)) : ""));
+        out.push(a.type + " " + (a.o.remarkName || a.o.realName || a.o.name || a.key) + " · 条数 " + src.length + " · 对方消息 " + h.length + " · 进度=" + (sn ? (sn.c + "～" + String(sn.s || "").length) : "无") + " · 已记录=" + (noted[sig] ? "是" : "否") + " · 初始化=" + (inited[a.key] ? "是" : "否") + " · 已读=" + (seenAt && seenAt[a.key] ? new Date(seenAt[a.key]).toLocaleTimeString() : "无") + (last ? (" · 末条=" + String(last.content).slice(0, 12)) : ""));
       });
       out.push("最近判定：" + window.__mxgNotifyLog.slice(-8).map(function (x) { return new Date(x.t).toLocaleTimeString() + " " + String(x.k).slice(-6) + ":" + x.v; }).join(" | "));
       var __shardState = window.__mxgShardFail ? ("异常：" + window.__mxgShardFail) : ("正常 缺失=" + String(window.__mxgShardMissing || 0) + " 不齐=" + String(window.__mxgShardBad || 0));
@@ -12853,7 +12881,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.28";
+  const APP_VERSION = "v6.4.29";
   let db = {
     characters: [],
     groups: [],
@@ -13208,7 +13236,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.28：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.29：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
@@ -17015,6 +17043,10 @@ document.addEventListener("DOMContentLoaded", () => {
     applyBubbleAvatarMode(chat);
     renderMessages(false, true);
     switchScreen("chat-room-screen");
+    try {
+      setTimeout(function () { if (window.__mxgPinBottom) window.__mxgPinBottom(); }, 450);
+      setTimeout(function () { if (window.__mxgPinBottom) window.__mxgPinBottom(); }, 1000);
+    } catch (ePin) {}
   }
   window.__mxgOpenChatRoom = function (id, type) { try { openChatRoom(id, type || "private"); } catch (e) {} };
 
@@ -17078,9 +17110,8 @@ document.addEventListener("DOMContentLoaded", () => {
       messageArea.prepend(loadMoreButton);
     }
     if (forceScrollToBottom) {
-      setTimeout(() => {
-        pinChatToBottom();
-      }, 0);
+      try { messageArea.scrollTop = 0; } catch (eZ) {}
+      pinChatToBottomForce();
     } else if (isLoadMore) {
       messageArea.scrollTop = messageArea.scrollHeight - oldScrollHeight;
     }
@@ -17619,6 +17650,14 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     return wrapper;
   }
+  function pinChatToBottomForce() {
+    if (!messageArea) return;
+    var go = function () { try { messageArea.scrollTop = messageArea.scrollHeight; } catch (e) {} };
+    go();
+    try { requestAnimationFrame(go); } catch (e) {}
+    [30, 80, 180, 360, 700, 1200].forEach(function (ms) { setTimeout(go, ms); });
+  }
+  window.__mxgPinBottom = pinChatToBottomForce;
   function pinChatToBottom() {
     if (!messageArea) return;
     /* 用户已经往上翻看记录时，不要强行拉回底部 */
@@ -17643,6 +17682,9 @@ document.addEventListener("DOMContentLoaded", () => {
         var __cur = currentChatId || "";
         /* 只有“正停在这个人的聊天页”才不弹；在别的页面、别人的聊天页，都要弹 */
         var __here = __act === "chat-room-screen" && !document.hidden && (!__mid || __mid === __cur);
+        if (__here) {
+          try { if (window.__mxgMarkSeenAt) window.__mxgMarkSeenAt(__mid || __cur, Number(message.timestamp || message.ts || 0) || Date.now()); } catch (eMH) {}
+        }
         if (!__here) {
           var __c = null;
           try {
