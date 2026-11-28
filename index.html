@@ -7204,7 +7204,7 @@
 #dynamic-screen .feed-title {
   position:absolute; left:50%; transform:translateX(-50%);
   display:flex; align-items:center; gap:7px;
-  font-size:19px; font-weight:800; letter-spacing:.01em; color:#0a0a0a;
+  font-size:16.5px; font-weight:800; letter-spacing:.01em; color:#0a0a0a;
 }
 #dynamic-screen .feed-title i { width:5px; height:5px; background:#0a0a0a; }
 #dynamic-screen .feed-tools { margin-left:auto; display:flex; align-items:center; gap:14px; }
@@ -7225,11 +7225,11 @@
 }
 #dynamic-screen .feed-tabs {
   display:flex; align-items:center; gap:22px;
-  height:44px; padding:0 18px; border-top:1px solid #0a0a0a; border-bottom:1px solid #0a0a0a;
+  height:42px; padding:0 16px; border-top:1px solid #ededef; border-bottom:1px solid #ededef;
 }
 #dynamic-screen .feed-tab {
   appearance:none; border:0; background:transparent; padding:0 0 4px;
-  font-family:inherit; font-size:11px; font-weight:600; letter-spacing:.08em; color:#0a0a0a;
+  font-family:inherit; font-size:12px; font-weight:600; letter-spacing:.06em; color:#0a0a0a;
 }
 #dynamic-screen .feed-tab.on { font-weight:800; border-bottom:2px solid #0a0a0a; }
 #dynamic-screen .feed-tabs .right {
@@ -7254,37 +7254,37 @@
   border:0 !important; border-bottom:0 !important; border-radius:0 !important;
   box-shadow:none !important; margin:0 !important;
 }
-#dynamic-screen .feed-item + .feed-item { border-top:1px solid #0a0a0a !important; margin-top:18px; padding-top:18px !important; }
+#dynamic-screen .feed-item + .feed-item { border-top:1px solid #ececee !important; margin-top:15px; padding-top:15px !important; }
 #dynamic-screen .feed-head { display:flex; align-items:flex-start; gap:10px; padding:0 !important; border:0 !important; }
-#dynamic-screen .feed-avatar-wrap { position:relative; width:42px; height:42px; flex:none; }
+#dynamic-screen .feed-avatar-wrap { position:relative; width:36px; height:36px; flex:none; }
 #dynamic-screen .feed-head img.avatar,
 #dynamic-screen .feed-head .feed-avatar {
-  width:42px; height:42px; border-radius:50%; object-fit:cover; flex:none;
-  border:1px solid #0a0a0a; background:#fff;
+  width:36px; height:36px; border-radius:50%; object-fit:cover; flex:none;
+  border:1px solid #e3e3e5; background:#fff;
 }
 #dynamic-screen .feed-online-dot {
   position:absolute; right:-1px; bottom:1px; width:7px; height:7px; border-radius:50%;
   background:#25b85a; border:1.5px solid #fff;
 }
-#dynamic-screen .feed-who { display:flex; flex-direction:column; gap:4px; min-width:0; flex:1; }
+#dynamic-screen .feed-who { display:flex; flex-direction:row; align-items:center; gap:6px; min-width:0; flex:1; padding-top:1px; }
 #dynamic-screen .f-name-row { display:flex; align-items:center; gap:7px; }
-#dynamic-screen .f-name { font-size:14px; font-weight:700; letter-spacing:-.01em; line-height:1.1; color:#0a0a0a; }
+#dynamic-screen .f-name { font-size:13px; font-weight:700; letter-spacing:-.01em; line-height:1.15; color:#0a0a0a; }
 #dynamic-screen .f-pin {
   display:inline-flex; align-items:center; height:15px; padding:0 4px;
   border:1px solid #0a0a0a; font-size:7px; font-weight:700; letter-spacing:.04em; color:#0a0a0a;
 }
-#dynamic-screen .f-time { font-size:9px; font-weight:500; letter-spacing:.03em; color:#5e5e61; font-variant-numeric:tabular-nums; }
+#dynamic-screen .f-time { font-size:11.5px; font-weight:400; letter-spacing:0; color:#8e8e93; font-variant-numeric:tabular-nums; }
 #dynamic-screen .feed-more-btn {
   flex:none; width:28px; height:24px; padding:0; border:0; background:transparent;
   color:#0a0a0a; font:700 15px/1 -apple-system,"PingFang SC",sans-serif;
   letter-spacing:2px; cursor:pointer; margin-top:2px;
 }
 #dynamic-screen .feed-body {
-  margin:12px 0 0; padding:0 !important;
-  font-size:15px; line-height:1.55; letter-spacing:-.01em;
+  margin:9px 0 0 46px; padding:0 !important;
+  font-size:14px; line-height:1.5; letter-spacing:0;
   color:#0a0a0a !important; white-space:pre-wrap; word-break:break-word;
 }
-#dynamic-screen .feed-media { position:relative; margin:12px 0 0; }
+#dynamic-screen .feed-media { position:relative; margin:11px 0 0 46px; }
 #dynamic-screen .feed-img {
   display:block; width:100%; max-height:68vh;
   margin:0; object-fit:cover; border-radius:16px; background:#f2f2f2;
@@ -7312,12 +7312,12 @@
 #dynamic-screen .fd-text:before { content:"“"; margin-right:2px; font-size:28px; vertical-align:-2px; }
 #dynamic-screen .feed-tags {
   display:flex; flex-wrap:wrap; align-items:center; gap:7px;
-  margin:10px 0 0; font-size:9px; font-weight:600; letter-spacing:.02em; color:#0a0a0a;
+  margin:9px 0 0 46px; font-size:9px; font-weight:600; letter-spacing:.02em; color:#0a0a0a;
 }
 #dynamic-screen .feed-tags span:not(:last-child):after { content:"|"; margin-left:7px; color:#9a9a9c; font-weight:400; }
 #dynamic-screen .feed-actions {
-  display:flex; align-items:center; gap:30px; height:36px;
-  margin:8px 0 0; padding:0 !important; border-top:0 !important;
+  display:flex; align-items:center; gap:22px; height:30px;
+  margin:7px 0 0 46px; padding:0 !important; border-top:0 !important;
 }
 #dynamic-screen .feed-action {
   display:inline-flex; align-items:center; gap:6px;
@@ -7325,7 +7325,7 @@
   color:#0a0a0a; font-family:inherit; font-size:10px; font-weight:600; letter-spacing:.02em;
 }
 #dynamic-screen .feed-action svg {
-  width:20px; height:20px; fill:none; stroke:#0a0a0a;
+  width:18px; height:18px; fill:none; stroke:#0a0a0a;
   stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;
 }
 #dynamic-screen .feed-like-btn svg path { fill:none; }
@@ -7339,13 +7339,15 @@
   height:24px; margin:0 0 0 19px; border-left:2px solid #0a0a0a;
 }
 #dynamic-screen .feed-comments {
-  display:flex; flex-direction:column; gap:12px;
-  margin:8px 0 0; padding:0 !important;
+  display:flex; flex-direction:column; gap:10px;
+  margin:6px 0 0 46px; padding:0 !important;
 }
 #dynamic-screen .feed-comment { display:flex; align-items:flex-start; gap:9px; }
+#dynamic-screen .c-avwrap { position:relative; flex:none; width:26px; height:26px; }
+#dynamic-screen .c-avwrap .c-avatar { position:absolute; left:0; top:0; }
 #dynamic-screen .c-avatar {
-  width:42px; height:42px; border-radius:50%; flex:none; object-fit:cover;
-  border:1px solid #0a0a0a; background:#fff;
+  width:26px; height:26px; border-radius:50%; flex:none; object-fit:cover;
+  border:1px solid #e6e6e8; background:#fff;
 }
 #dynamic-screen .c-avatar-letter {
   display:flex; align-items:center; justify-content:center;
@@ -7353,11 +7355,11 @@
 }
 #dynamic-screen .c-body { min-width:0; line-height:1.5; flex:1; }
 #dynamic-screen .c-top { display:flex; align-items:center; gap:5px; flex-wrap:wrap; }
-#dynamic-screen .c-name { font-size:11px; font-weight:800; letter-spacing:.01em; color:#0a0a0a; }
+#dynamic-screen .c-name { font-size:12.5px; font-weight:700; letter-spacing:0; color:#0a0a0a; }
 #dynamic-screen .c-name-to { font-weight:500; }
 #dynamic-screen .c-reply { font-size:8px; font-weight:500; color:#7c7c7f; }
-#dynamic-screen .c-time { display:block; margin-top:2px; font-size:8px; font-weight:500; color:#77777a; font-variant-numeric:tabular-nums; }
-#dynamic-screen .c-text { display:block; margin-top:5px; font-size:11px; font-weight:400; word-break:break-word; color:#0a0a0a; }
+#dynamic-screen .c-time { display:inline-block; margin-left:6px; font-size:10.5px; font-weight:400; color:#9a9a9e; font-variant-numeric:tabular-nums; }
+#dynamic-screen .c-text { display:block; margin-top:3px; font-size:12.5px; font-weight:400; line-height:1.45; word-break:break-word; color:#0a0a0a; }
 #dynamic-screen .c-reply-btn { color:#0a0a0a !important; font-size:8px !important; margin-left:7px !important; font-weight:600; }
 #dynamic-screen .c-actions {
   display:flex; align-items:center; gap:12px; margin-top:5px;
@@ -7373,8 +7375,8 @@
 #dynamic-screen .feed-more-replies span { color:#7c7c7f; font-weight:500; }
 #dynamic-screen .feed-comment-input {
   display:flex; align-items:center; gap:8px;
-  margin:10px 0 0; padding:3px 0 5px !important;
-  border-top:0 !important; border-bottom:1px solid #0a0a0a;
+  margin:9px 0 0 46px; padding:3px 0 5px !important;
+  border-top:0 !important; border-bottom:1px solid #ededef;
 }
 #dynamic-screen .feed-comment-input input {
   flex:1; min-width:0; border:0; background:transparent; padding:2px 0;
@@ -13031,7 +13033,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.33";
+  const APP_VERSION = "v6.4.34";
   let db = {
     characters: [],
     groups: [],
@@ -13386,7 +13388,7 @@ document.addEventListener("DOMContentLoaded", () => {
     __mxgTrace("load:start");
     /* v6.3.20：先读 core（设置 + 会话清单），再按清单读每个会话的分片 */
     var coreItem = null;
-    /* v6.4.33：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
+    /* v6.4.34：core 读取偶尔超时（IDB 刚打开/被锁），这里重试 3 次，避免一次抖动就起成空库 */
     for (var __ci = 0; __ci < 3 && !coreItem; __ci++) {
       try { coreItem = await __mxgRace(dataStorage.db.storage.get(MXG_CORE_KEY), 9000, null); } catch (e0) {}
       if (!coreItem && __ci < 2) await new Promise(function (r) { setTimeout(r, 400 + __ci * 400); });
@@ -14711,6 +14713,7 @@ document.addEventListener("DOMContentLoaded", () => {
     setTimeout(function () { __mxgBootGuardReset(); }, 4000);
     window.addEventListener("pageshow", function () { window.__stgBusy = false; });
     try { migrateMaskScope(); } catch (err) { console.warn("面具迁移失败", err); }
+    try { if (typeof migrateFeedMasks === "function") migrateFeedMasks(); } catch (err2) {}
     document.body.addEventListener("click", (e) => {
       if (e.target.closest(".context-menu")) {
         e.stopPropagation();
@@ -22571,11 +22574,40 @@ document.addEventListener("DOMContentLoaded", () => {
     if (feed && typeof feed.maskId === "string") return feed.maskId;
     return "";
   }
+  /* 一条动态属于哪些面具：自己的动态看 maskId；角色的动态看它挂了哪些面具 */
+  function feedMaskKeys(feed) {
+    if (!feed) return [];
+    if (Array.isArray(feed.maskIds) && feed.maskIds.length) return feed.maskIds;
+    if (typeof feed.maskId === "string" && feed.maskId) return [feed.maskId];
+    if (feed.authorType === "char" && feed.authorId) {
+      const c = (db.characters || []).find((x) => x.id === feed.authorId);
+      if (c && Array.isArray(c.maskIds) && c.maskIds.length) return c.maskIds;
+    }
+    if (feed.authorType === "user") return [""];
+    return [];
+  }
   function feedView(list) {
     const _m = getCurrentMask();
     if (!_m) return list || [];
-    return (list || []).filter((f) => !f || f.authorType !== "user" || feedMaskKey(f) === _m.id);
+    return (list || []).filter(function (f) {
+      if (!f) return true;
+      return feedMaskKeys(f).indexOf(_m.id) >= 0;
+    });
   }
+  /* 老数据补面具归属：角色动态按角色当前绑定的面具归档 */
+  function migrateFeedMasks() {
+    try {
+      let changed = false;
+      (db.feeds || []).forEach(function (f) {
+        if (!f || f.authorType !== "char") return;
+        if (Array.isArray(f.maskIds) && f.maskIds.length) return;
+        const c = (db.characters || []).find((x) => x.id === f.authorId);
+        if (c && Array.isArray(c.maskIds) && c.maskIds.length) { f.maskIds = c.maskIds.slice(); changed = true; }
+      });
+      if (changed) saveData();
+    } catch (e) {}
+  }
+  window.migrateFeedMasks = migrateFeedMasks;
 
   /* ===== 面具切换：所有面具相关视图一次性重算 ===== */
   function refreshMaskScopedUI() {
@@ -25224,14 +25256,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const sameDay = d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth() && d.getDate() === now.getDate();
     const y = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
     const isYesterday = d.getFullYear() === y.getFullYear() && d.getMonth() === y.getMonth() && d.getDate() === y.getDate();
-    if (diff >= 0 && diff < 8 * 60 * 1e3) return hhmm + " · 刚刚";
-    if (sameDay) {
-      const h = d.getHours();
-      const label = h < 5 ? "凌晨" : h < 8 ? "早晨" : h < 11 ? "上午" : h < 13 ? "午间" : h < 17 ? "下午" : h < 19 ? "傍晚" : "今夜";
-      return hhmm + " · " + label;
-    }
-    if (isYesterday) return "昨天 " + hhmm;
-    return (d.getMonth() + 1) + "月" + d.getDate() + "日 · " + hhmm;
+    if (diff >= 0 && diff < 60 * 1e3) return "刚刚";
+    if (diff >= 0 && diff < 60 * 60 * 1e3) return Math.floor(diff / 6e4) + " 分钟";
+    if (diff >= 0 && diff < 12 * 60 * 60 * 1e3) return Math.floor(diff / 36e5) + " 小时";
+    if (sameDay) return hhmm;
+    if (isYesterday) return "昨天";
+    return (d.getMonth() + 1) + "月" + d.getDate() + "日";
   }
   function feedTagsOf(feed) {
     const tags = [];
@@ -25246,11 +25276,75 @@ document.addEventListener("DOMContentLoaded", () => {
     return Array.from(new Set(tags)).slice(0, 4);
   }
   function feedCommentAvatar(c) {
-    if (c.authorType === "user" || c.authorName === "我") return '<span class="c-avatar c-avatar-letter">我</span>';
-    return '<img class="c-avatar" src="' + escapeHtml(c.authorAvatar || "https://i.postimg.cc/GtbTnxhP/o-o-1.jpg") + '" alt="">';
+    const av = c.authorAvatar || ((c.authorType === "user" || c.authorName === "我") ? ((getCurrentMask() || {}).avatar || "") : "");
+    const label = String(c.authorType === "user" ? ((getCurrentMask() || {}).name || "我") : (c.authorName || "?")).slice(0, 1);
+    return '<span class="c-avwrap"><span class="c-avatar c-avatar-letter">' + escapeHtml(label) + '</span>' + (av ? '<img class="c-avatar" src="' + escapeHtml(av) + '" alt="" style="opacity:0" onload="this.style.opacity=\'\'" onerror="this.style.display=\'none\'">' : "") + '</span>';
   }
   function feedCommentHtml(feed, c) {
     return '\n        <div class="feed-comment">\n          ' + feedCommentAvatar(c) + '\n          <div class="c-body">\n            <div class="c-top"><span class="c-name">' + escapeHtml(c.authorName || "我") + '</span>' + (c.replyTo ? '<span class="c-reply">回复</span><span class="c-name c-name-to">' + escapeHtml(c.replyTo) + '</span>' : "") + '<span class="c-reply-btn" data-feed="' + feed.id + '" data-name="' + escapeHtml(c.authorName || "") + '">回复</span></div>\n            <span class="c-time">' + (c.ts ? feedTimeText(c.ts) : "") + '</span>\n            <span class="c-text">' + escapeHtml(String(c.content || "")) + '</span>\n            <div class="c-actions"><span><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>1</span><span><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg></span><span><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg></span></div>\n          </div>\n        </div>'
+  }
+  const __feedTI = {};
+  function __feedWrap(ctx, text, maxW) {
+    const rows = [];
+    let line = "";
+    for (const ch of String(text || "")) {
+      if (ch === "\n") { rows.push(line); line = ""; continue; }
+      const t = line + ch;
+      if (ctx.measureText(t).width > maxW && line) { rows.push(line); line = ch; }
+      else line = t;
+    }
+    rows.push(line);
+    return rows.slice(0, 9);
+  }
+  function buildFeedTextImage(feed, text, name) {
+    try {
+      const W = 720, P = 36;
+      const c = document.createElement("canvas");
+      const ctx0 = c.getContext("2d");
+      const fontBody = '400 21px -apple-system,"PingFang SC","Helvetica Neue",sans-serif';
+      ctx0.font = fontBody;
+      const rows = __feedWrap(ctx0, text, W - P * 2);
+      const bodyH = rows.length * 32;
+      const H = 140 + bodyH + 72;
+      c.width = W * 2; c.height = H * 2;
+      const ctx = c.getContext("2d");
+      ctx.scale(2, 2);
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, W, H);
+      /* 顶部：头像圆 + 名字 + 时间 */
+      ctx.fillStyle = "#111111";
+      ctx.beginPath(); ctx.arc(P + 22, 54, 22, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = "#ffffff"; ctx.font = '600 19px -apple-system,"PingFang SC",sans-serif';
+      ctx.textAlign = "center"; ctx.fillText(String(name || "?").slice(0, 1), P + 22, 61); ctx.textAlign = "left";
+      ctx.fillStyle = "#111111"; ctx.font = '700 19px -apple-system,"PingFang SC",sans-serif';
+      ctx.fillText(String(name || ""), P + 56, 48);
+      ctx.fillStyle = "#9a9a9e"; ctx.font = '400 15px -apple-system,"PingFang SC",sans-serif';
+      ctx.fillText("草稿 · 404", P + 56, 71);
+      /* 分隔线 */
+      ctx.strokeStyle = "#ececee"; ctx.lineWidth = 1;
+      ctx.beginPath(); ctx.moveTo(P, 104); ctx.lineTo(W - P, 104); ctx.stroke();
+      /* 正文 */
+      ctx.fillStyle = "#111111"; ctx.font = fontBody;
+      rows.forEach(function (r, i) { ctx.fillText(r, P, 140 + i * 32 - 6); });
+      /* 底部：互动条 */
+      const by = 140 + bodyH + 24;
+      ctx.strokeStyle = "#ececee"; ctx.beginPath(); ctx.moveTo(P, by - 16); ctx.lineTo(W - P, by - 16); ctx.stroke();
+      ctx.fillStyle = "#8e8e93"; ctx.font = '400 14px -apple-system,"PingFang SC",sans-serif';
+      ctx.fillText("♡  " + String((feed && (feed.likes || []).length) || 0) + "     ◯  " + String((feed && (feed.comments || []).length) || 0) + "     ⟲", P, by + 12);
+      ctx.textAlign = "right"; ctx.fillStyle = "#c7c7cc";
+      ctx.fillText("MXG / 404", W - P, by + 12); ctx.textAlign = "left";
+      return c.toDataURL("image/jpeg", 0.86);
+    } catch (e) { return ""; }
+  }
+  function feedTextImageSrc(feed, text, name) {
+    try {
+      const img = feed && feed.textImage && feed.textImage.img;
+      if (img) return img;
+      const k = String((feed && feed.id) || "") + "#" + String(text || "").length;
+      if (__feedTI[k]) return __feedTI[k];
+      const src = buildFeedTextImage(feed, text, name);
+      if (src) __feedTI[k] = src;
+      return src || "";
+    } catch (e) { return ""; }
   }
   function renderFeeds() {
     const container = document.getElementById("feed-list-container");
@@ -25308,7 +25402,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const moreReplies = comments.length > 1
         ? '<button type="button" class="feed-more-replies" data-feed="' + feed.id + '">' + (expanded ? '收起回复' : '查看另外 ' + (comments.length - 1) + ' 条回复') + (expanded ? '' : ' <span>↗</span>') + '</button>'
         : '';
-      item.innerHTML = '\n        <div class="feed-head">\n          <div class="feed-avatar-wrap"><img class="avatar" src="' + escapeHtml(avatar) + '" alt="">' + (feed.authorType === "char" ? '<span class="feed-online-dot"></span>' : '') + '</div>\n          <div class="feed-who"><div class="f-name-row"><div class="f-name">' + escapeHtml(name) + '</div>' + (feed.pinned ? '<span class="f-pin">置顶</span>' : '') + '</div><div class="f-time">' + feedTimeText(feed.ts) + '</div></div>\n          <button type="button" class="feed-more-btn" data-id="' + feed.id + '" aria-label="动态更多操作">···</button>\n        </div>\n        ' + (feed.content ? '<div class="feed-body">' + escapeHtml(feed.content).replace(/\n/g, "<br>") + '</div>' : "") + '\n        ' + (feed.image ? '<div class="feed-media"><img class="feed-img" src="' + escapeHtml(feed.image) + '" alt=""><div class="feed-media-dots"><i></i><i></i></div><span class="feed-media-count">1 / 1</span></div>' : "") + '\n        ' + (draft ? '<div class="feed-draft"><div class="fd-kicker">DRAFT / ' + String(feedIndex + 1).padStart(2, "0") + '</div><div class="fd-text">' + escapeHtml(textImage.text).replace(/\n/g, "<br>") + '</div></div>' : "") + '\n        ' + (tags.length ? '<div class="feed-tags">' + tags.map((t) => '<span>' + escapeHtml(t) + '</span>').join("") + '</div>' : "") + '\n        <div class="feed-actions">\n          <button type="button" class="feed-action feed-like-btn ' + (liked ? "liked" : "") + '" data-id="' + feed.id + '" title="' + escapeHtml(likeTitle) + '">\n            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>\n            <span>' + (feed.likes || []).length + '</span>\n          </button>\n          <span class="feed-action"><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg><span>' + comments.length + '</span></span>\n          <button type="button" class="feed-action feed-repost-btn" data-id="' + feed.id + '" title="转发这条动态"><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg><span>0</span></button>\n          <button type="button" class="feed-action feed-share-btn" data-id="' + feed.id + '" title="复制动态文字"><svg viewBox="0 0 24 24"><path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4 18-7z"/></svg></button>\n        </div>\n        <div class="feed-thread-meta"><span>THREAD / ' + String(feedIndex + 1).padStart(2, "0") + (draft ? '' : ' — 已发布') + '</span>' + (draft ? '<span>DRAFT ONLY · NO REPLY</span>' : '') + '</div>\n        <div class="feed-thread-line"></div>\n        ' + (commentsHtml ? '<div class="feed-comments">' + commentsHtml + '</div>' : "") + '\n        ' + moreReplies + '\n        <div class="feed-comment-input">\n          <input id="feed-cmt-input-' + feed.id + '" placeholder="回复…">\n          <button type="button" class="feed-action feed-comment-submit" data-id="' + feed.id + '">回复</button>\n        </div>';
+      item.innerHTML = '\n        <div class="feed-head">\n          <div class="feed-avatar-wrap"><img class="avatar" src="' + escapeHtml(avatar) + '" alt="">' + (feed.authorType === "char" ? '<span class="feed-online-dot"></span>' : '') + '</div>\n          <div class="feed-who"><div class="f-name-row"><div class="f-name">' + escapeHtml(name) + '</div>' + (feed.pinned ? '<span class="f-pin">置顶</span>' : '') + '</div><div class="f-time">' + feedTimeText(feed.ts) + '</div></div>\n          <button type="button" class="feed-more-btn" data-id="' + feed.id + '" aria-label="动态更多操作">···</button>\n        </div>\n        ' + (feed.content ? '<div class="feed-body">' + escapeHtml(feed.content).replace(/\n/g, "<br>") + '</div>' : "") + '\n        ' + (feed.image ? '<div class="feed-media"><img class="feed-img" src="' + escapeHtml(feed.image) + '" alt=""><div class="feed-media-dots"><i></i><i></i></div><span class="feed-media-count">1 / 1</span></div>' : "") + '\n        ' + (draft ? '<div class="feed-timg"><img src="' + escapeHtml(feedTextImageSrc(feed, textImage.text, name)) + '" alt=""></div>' : "") + '\n        ' + (tags.length ? '<div class="feed-tags">' + tags.map((t) => '<span>' + escapeHtml(t) + '</span>').join("") + '</div>' : "") + '\n        <div class="feed-actions">\n          <button type="button" class="feed-action feed-like-btn ' + (liked ? "liked" : "") + '" data-id="' + feed.id + '" title="' + escapeHtml(likeTitle) + '">\n            <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>\n            <span>' + (feed.likes || []).length + '</span>\n          </button>\n          <span class="feed-action"><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg><span>' + comments.length + '</span></span>\n          <button type="button" class="feed-action feed-repost-btn" data-id="' + feed.id + '" title="转发这条动态"><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg><span>0</span></button>\n          <button type="button" class="feed-action feed-share-btn" data-id="' + feed.id + '" title="复制动态文字"><svg viewBox="0 0 24 24"><path d="M21 3L10 14"/><path d="M21 3l-7 18-4-7-7-4 18-7z"/></svg></button>\n        </div>\n        ' + (commentsHtml ? '<div class="feed-comments">' + commentsHtml + '</div>' : "") + '\n        ' + moreReplies + '\n        <div class="feed-comment-input">\n          <input id="feed-cmt-input-' + feed.id + '" placeholder="回复…">\n          <button type="button" class="feed-action feed-comment-submit" data-id="' + feed.id + '">回复</button>\n        </div>';
       (function(fid) {
         item.querySelectorAll(".c-reply-btn").forEach((btn) => {
           btn.addEventListener("click", () => {
@@ -25326,6 +25420,7 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(item);
     });
   }
+  window.__mxgRenderFeeds = renderFeeds;
   function feedVisionPart(feed) {
     const url = feed && feed.image ? String(feed.image) : "";
     if (!url) return null;
@@ -25472,6 +25567,7 @@ document.addEventListener("DOMContentLoaded", () => {
       authorAvatar: char.avatar,
       content: textImage ? "" : content,
       image: null,
+      maskIds: (char.maskIds || []).slice(),
       textImage: textImage ? { text: textImage, ts: Date.now() } : null,
       likes: [],
       comments: [],
@@ -25567,7 +25663,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const intervalMs = (db.feedSettings.intervalMinutes || 30) * 60 * 1e3;
       const now = Date.now();
       if (now - (db.feedSettings.lastPostTs || 0) < intervalMs) return;
-      const chars = db.characters.filter((c) => c.status === "在线");
+      const _m = getCurrentMask();
+      const chars = db.characters.filter((c) => c.status === "在线" && (!_m || (c.maskIds || []).indexOf(_m.id) >= 0));
       if (!chars.length) {
         db.feedSettings.lastPostTs = now;
         return;
@@ -43910,6 +44007,8 @@ window.bsRoomAI = bsRoomAI;
 .mp-send:disabled, .mp-reply:disabled { opacity:.45; }
 .mp-open { flex:0 0 30px; width:30px; height:30px; display:flex; align-items:center; justify-content:center; font-size:15px; color:#111; }
 .mp-typing { margin:6px 0 10px; padding-left:4px; font-size:12px; letter-spacing:.5px; color:#9a9a9a; }
+#dynamic-screen .feed-timg { margin:11px 0 0 46px; border-radius:14px; overflow:hidden; border:1px solid #ececee; background:#fbfbfb; max-width:480px; }
+#dynamic-screen .feed-timg img { display:block; width:100%; height:auto; }
 .mxg-peek.kb .mp-panel { height:calc(100% - 300px); min-height:340px; transition:height .22s ease, transform .44s cubic-bezier(.22,1.02,.36,1); }
 
 #asset-screen .as-fcbox { position:relative; margin-top:16px; padding:20px 18px 18px; border-radius:18px; background:#fff; color:#101010; border:1px solid #EFE6D6; box-shadow:0 1px 0 rgba(16,16,18,.02); overflow:hidden; }
