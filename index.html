@@ -13033,7 +13033,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.36";
+  const APP_VERSION = "v6.4.37";
   let db = {
     characters: [],
     groups: [],
@@ -23800,7 +23800,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const gen = await generateCharFeed(char);
           const genText = (gen && gen.content) || String(gen || "");
           const genImgs = (gen && gen.imgs) || [];
-          const genStk = gen && gen.sticker ? mxgStickerByName(gen.sticker) : null;
+          const genStk = (gen && gen.sticker && window.mxgStickerByName) ? window.mxgStickerByName(gen.sticker) : null;
           const textImage = (!genImgs.length && !genStk && Math.random() < 0.28) ? await generateCharTextImage(char, genText) : null;
           db.feeds.unshift(makeCharFeedPayload(char, genText, textImage, genStk ? [] : genImgs, genStk));
           total += 1;
@@ -25338,6 +25338,23 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!tags.some((t) => t === "#404")) tags.push("#404");
     return Array.from(new Set(tags)).slice(0, 4);
   }
+  function mxgStickerNames() {
+    try { return (db.myStickers || []).filter(function (st) { return st && st.name; }).map(function (st) { return st.name; }); } catch (e) { return []; }
+  }
+  function mxgStickerCatalog() {
+    try {
+      return (db.myStickers || []).filter(function (st) { return st && st.name; }).map(function (st, i) {
+        let hint = String(st.desc || "").trim();
+        if (!hint && typeof st.data === "string") {
+          let tail = st.data.split("/").pop().split("?")[0];
+          try { tail = decodeURIComponent(tail); } catch (e) {}
+          tail = tail.replace(/\.(jpg|jpeg|png|gif|webp|bmp)$/i, "").replace(/[_+]/g, " ").replace(/-+/g, " ").trim();
+          if (tail && !/\d{5,}/.test(tail)) hint = tail;
+        }
+        return (i + 1) + ". " + st.name + (hint ? "（" + hint + "）" : "");
+      });
+    } catch (e) { return []; }
+  }
   function mxgStickerByName(name) {
     const raw = String(name || "").trim();
     if (!raw) return null;
@@ -25403,7 +25420,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     return hit || null;
   }
-  try { window.mxgFindSticker = mxgFindSticker; window.feedSimHtml = feedSimHtml; window.openFeedStickerPicker = openFeedStickerPicker; window.sendFeedStickerComment = sendFeedStickerComment; } catch (e0) {}
+  try {
+    window.mxgFindSticker = mxgFindSticker; window.feedSimHtml = feedSimHtml;
+    window.openFeedStickerPicker = openFeedStickerPicker; window.sendFeedStickerComment = sendFeedStickerComment;
+    window.mxgStickerNames = mxgStickerNames; window.mxgStickerCatalog = mxgStickerCatalog;
+    window.mxgStickerByName = mxgStickerByName; window.mxgExtractSticker = mxgExtractSticker;
+    window.feedStickerSrc = feedStickerSrc; window.feedStickerHtml = feedStickerHtml;
+  } catch (e0) {}
   function feedCommentAvatar(c) {
     const av = c.authorAvatar || ((c.authorType === "user" || c.authorName === "我") ? ((getCurrentMask() || {}).avatar || "") : "");
     const label = String(c.authorType === "user" ? ((getCurrentMask() || {}).name || "我") : (c.authorName || "?")).slice(0, 1);
@@ -25578,7 +25601,8 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       return await offlineRequest(sys, [{ role: "user", content: [{ type: "text", text: instruction + " 附带图片请直接看画面，引用图里的具体细节；不要假装看不到图片。" }].concat(parts) }], maxTokens, true);
     } catch (e) {
-      return await offlineRequest(sys, [{ role: "user", content: instruction }], maxTokens, true);
+      console.warn("[动态] 看图请求失败，不再重复请求：", e && e.message);
+      return null;
     }
   }
   async function charReplyToComment(feed, userText, replyToName, targetChar, userComment) {
@@ -25587,7 +25611,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const feedBrief = feedBriefOf(feed, 150);
     const _ucStk = (userComment && userComment.sticker) ? userComment.sticker : null;
     const _userSaid = userText ? String(userText) : (_ucStk ? "（只发了一个表情包「" + _ucStk.name + "」，没有文字）" : "");
-    const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。这是在朋友圈动态「").concat(feedBrief, "」下面，对方（").concat(replyToName || "朋友", "）回复你：「").concat(_userSaid, "」。要求：1. 接住对方这句话，不要另起话题；2. 可以引用动态或图片里的一个具体细节；3. 不要写成总结、鸡汤或文案；4. 不要和之前的评论用同一种句式；5. 严禁承认自己是AI、人机或程序。保持活人感，像真实的人在朋友圈回复朋友一样。").concat(_ucStk ? "\n对方这条评论里还发了一个表情包「" + _ucStk.name + "」，你能看到它的画面，回复时要接住这个表情包的意思（可以说一句调侃、也可以顺着这个梗回，但不要描述画面、不要说「你发的表情包」这种话）。" : "").concat(mxgStickerCatalog().length ? "\n如果你觉得特别贴合，可以在回复末尾加一个 [表情包：名称]（必须从下面的列表里原样取，最多一个，别每次都加）：\n" + mxgStickerCatalog().join("\n") : "").concat("\n\n", TimeSense.feedBlock(char, feed.ts))), [char], "online", null, null, feedBrief + "\n" + (userText || ""));
+    const sys = wbAttach(("你是角色「".concat(char.remarkName || char.realName, "」，").concat(char.persona || "一个鲜活的人", "。这是在朋友圈动态「").concat(feedBrief, "」下面，对方（").concat(replyToName || "朋友", "）回复你：「").concat(_userSaid, "」。要求：1. 接住对方这句话，不要另起话题；2. 可以引用动态或图片里的一个具体细节；3. 不要写成总结、鸡汤或文案；4. 不要和之前的评论用同一种句式；5. 严禁承认自己是AI、人机或程序。保持活人感，像真实的人在朋友圈回复朋友一样。").concat(_ucStk ? "\n对方这条评论里还发了一个表情包「" + _ucStk.name + "」，你能看到它的画面，回复时要接住这个表情包的意思（可以说一句调侃、也可以顺着这个梗回，但不要描述画面、不要说「你发的表情包」这种话）。" : "").concat((window.mxgStickerNames && window.mxgStickerNames().length) ? "\n如果你觉得特别贴合，可以在回复末尾加一个 [表情包：名称]（必须从下面的列表里原样取，最多一个，别每次都加）：\n" + window.mxgStickerNames().join("\n") : "").concat("\n\n", TimeSense.feedBlock(char, feed.ts))), [char], "online", null, null, feedBrief + "\n" + (userText || ""));
     const _extra = _ucStk ? [feedStickerPart(_ucStk)] : [];
     const reply = await requestFeedVision(sys, feed, "请回复这条评论。", 200, _extra);
     const charName = char.remarkName || char.realName;
@@ -25596,7 +25620,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (content.indexOf(charName + "\uFF1A") === 0) content = content.slice((charName + "\uFF1A").length);
     if (content.indexOf("\uFF1A") === 0) content = content.slice(1);
     const myMask = getCurrentMask();
-    const _x = mxgExtractSticker(content);
+    const _x = window.mxgExtractSticker ? window.mxgExtractSticker(content) : { text: content, sticker: null };
     if (_x.text) content = _x.text;
     feed.comments.push({
       authorType: "char",
@@ -25787,16 +25811,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (mask) chars = chars.filter((c) => (c.maskIds || []).includes(mask.id));
     if (!chars.length) return;
     const feedBrief = feedBriefOf(feed, 240);
-    const angles = [
-      "只回应其中一个具体细节，短、克制，不总结整条动态。",
-      "用一句半开玩笑的吐槽回应，不要夸，不要客套。",
-      "从自己的习惯或今天发生的小事出发，说一句和这条动态有关的话。",
-      "提出一个具体的小问题，像真的想知道答案。",
-      "轻微反对或补一句不同意见，像熟人之间抬杠。",
-      "只写一个很短的即时反应，像刚看到就顺手评论。",
-      "抓住图片里的光线、物件或氛围，写得细一点。",
-      "用亲近但不腻的语气关心一句，不要长篇。"
-    ];
     const fallback = [
       "等一下，这个细节我还真看懂了。",
       "你这句比照片还像现场。",
@@ -25808,37 +25822,45 @@ document.addEventListener("DOMContentLoaded", () => {
       "别拖太晚。"
     ];
     let existing = (feed.comments || []).map((c) => String(c.content || "").replace(/\s+/g, "")).filter(Boolean);
+    const names = chars.map(function (c) { return c.remarkName || c.realName; });
+    const _stkNames = (window.mxgStickerNames && window.mxgStickerNames()) || [];
+    let batch = [];
+    if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
+      const personaText = chars.map(function (c) { return "「" + (c.remarkName || c.realName) + "」：" + String(c.persona || "一个鲜活的人").slice(0, 90); }).join("\n");
+      const sys = wbAttach(("你的朋友（" + (mask ? mask.name : "我") + "）发了一条动态，原文与配图信息如下：「" + feedBrief + "」。\n现在你要一次性替下面这些角色各写一条评论，每个角色只能一条：\n" + personaText + "\n要求：1. 每条 20-50 字，必须落到原文或图片里的一个具体细节，不能只写空泛感受；2. 各条之间角度和句式都要不同，严禁互相相似，也不要重复已有的评论：" + (existing.slice(-4).join("\n") || "暂无") + "；3. 完全贴合各自的性格口吻，像真实的人在朋友圈随手评论，不要写成鸡汤或文案；4. 严禁承认自己是AI或人机。\n严格只输出一个 JSON 数组，不要任何多余文字或代码块：[{\"name\":\"角色名\",\"content\":\"评论内容\",\"sticker\":\"可选，表情包名称或空字符串\"}]" + (_stkNames.length ? "\nsticker 只能从这些名字里原样取（不必每条都加）：" + _stkNames.join("、") : "\nsticker 一律给空字符串。")), chars, "online", null, null, feedBrief);
+      let _mosCm = "";
+      try { _mosCm = MemoryOS.context(chars[0].id, feedBrief, "comment", 900); } catch (e) {}
+      try {
+        const sysWithTime = sys + (_mosCm ? "\n\n" + _mosCm : "") + "\n\n" + TimeSense.feedBlock(chars[0], feed.ts);
+        const rep = await requestFeedVision(sysWithTime, feed, "请一次给出所有角色的评论（JSON 数组）。", 400);
+        if (rep && rep.trim()) {
+          const a = rep.indexOf("["), b = rep.lastIndexOf("]");
+          if (a >= 0 && b > a) batch = JSON.parse(rep.slice(a, b + 1));
+        }
+      } catch (eC) {
+        console.warn("[动态评论] 批量生成失败，改用兜底文案：", eC && eC.message);
+      }
+    }
     for (let i = 0; i < chars.length; i++) {
       const char = chars[i];
-      const angle = angles[i % angles.length];
-      let content = fallback[i % fallback.length];
-      if (db.apiSettings && db.apiSettings.url && db.apiSettings.key && db.apiSettings.model) {
-        const otherComments = existing.slice(-4).join("\n") || "暂无";
-    const sys = wbAttach(("你是角色「" + (char.remarkName || char.realName) + "」，" + (char.persona || "一个鲜活的人") + "。你的朋友（" + (mask ? mask.name : char.myName) + "）发了一条动态，原文与图片信息如下：「" + feedBrief + "」。现在你要评论这条动态。要求：1. 只从以下角度写：" + angle + " 2. 必须落到原文或图片里的一个具体细节，不能只写空泛感受；3. 严禁与其他人的评论相似或重复，已出现的评论是：\n" + otherComments + "\n4. 用你自己的口吻，20-50字，像真实的人在朋友圈随手评论；5. 不要总结整条动态，不要写成鸡汤或文案；6. 严禁承认自己是AI或人机。" + (mxgStickerCatalog().length ? "\n如果这条动态的情绪正好能用一个表情包接住，可以在评论末尾再加一个 [表情包：名称]（只能从下面原样取，最多一个，不必每条都加）：\n" + mxgStickerCatalog().join("\n") : "")), [char], "online", null, null, feedBrief + "\n" + otherComments);
-        let _mosCm = "";
-        try { _mosCm = MemoryOS.context(char.id, feedBrief, "comment", 900); } catch (e) {}
-        try {
-          const sysWithTime = sys + (_mosCm ? "\n\n" + _mosCm : "") + "\n\n" + TimeSense.feedBlock(char, feed.ts);
-          const rep = await requestFeedVision(sysWithTime, feed, "请评论这条动态。", 120);
-          if (rep && rep.trim()) content = rep.trim().slice(0, 120);
-        } catch (eC) {
-          console.warn("[动态评论] 生成失败，改用兜底文案：", eC && eC.message);
-        }
-      }
-      const _xc = mxgExtractSticker(content);
+      const name = names[i];
+      const item = (Array.isArray(batch) ? (batch.find(function (x) { return x && x.name === name; }) || batch[i] || {}) : {}) || {};
+      let content = String(item.content || "").trim().slice(0, 120) || fallback[i % fallback.length];
+      const _xc = window.mxgExtractSticker ? window.mxgExtractSticker(content) : { text: content, sticker: null };
       if (_xc.text) content = _xc.text;
       const normalized = content.replace(/\s+/g, "");
       if (existing.includes(normalized)) content = fallback[(i + 3) % fallback.length];
-      feed.comments.push({ authorType: "char", authorName: char.remarkName || char.realName, authorAvatar: char.avatar, content, sticker: _xc.sticker || null, ts: Date.now() });
+      feed.comments.push({ authorType: "char", authorName: name, authorAvatar: char.avatar, content, sticker: _xc.sticker || null, ts: Date.now() });
       existing.push(normalized);
       try { pushMemory(char.id, "online", "（朋友圈）".concat(mask ? mask.name : char.myName, "发过一条动态：「").concat(feedBrief, "」，我看过并评论了。"), "fact"); } catch (eM) {}
-      if (Math.random() < 0.3) {
+      if (Math.random() < 0.12) {
         try { Promise.resolve(charInitiatePrivateChat(feed, char, mask)).catch(() => {}); } catch (eP) {}
       }
     }
     try { await saveData(); } catch (eS) {}
     renderFeeds();
   }
+  try { window.charCommentUserFeed = charCommentUserFeed; window.charReplyToComment = charReplyToComment; } catch (eCC2) {}
   async function charInitiatePrivateChat(feed, char, mask) {
     if (!char) return;
     const feedBrief = feedBriefOf(feed, 100);
@@ -25869,7 +25891,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const gen = await generateCharFeed(char);
       const content = (gen && gen.content) || String(gen || "");
       const genImgs = (gen && gen.imgs) || [];
-      const genStk = gen && gen.sticker ? mxgStickerByName(gen.sticker) : null;
+      const genStk = (gen && gen.sticker && window.mxgStickerByName) ? window.mxgStickerByName(gen.sticker) : null;
       let textImage = null;
       if (!genImgs.length && !genStk && Math.random() < 0.28) textImage = await generateCharTextImage(char, content);
       db.feeds.unshift(makeCharFeedPayload(char, content, textImage, genStk ? [] : genImgs, genStk));
