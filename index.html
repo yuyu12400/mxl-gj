@@ -842,6 +842,7 @@
         input[type=checkbox].ios-sw:checked { background:#34c759; }
         input[type=checkbox].ios-sw:checked::after { left:22px; }
         .message-wrapper.action-tip-wrap { justify-content: center !important; align-items: center !important; width: 100% !important; padding: 0; box-sizing: border-box; }
+        .mxg-narr-group { display: flex !important; flex-direction: column; align-items: stretch; width: 100%; box-sizing: border-box; }
         .withdrawn-wrap { display: flex; flex-direction: row; justify-content: center; align-items: center; width: 100%; padding: 8px 0; box-sizing: border-box; }
         .withdrawn-tip { font-size: calc(var(--app-fs, 1) * 12px); color: #9aa0a6; display: flex; align-items: center; justify-content: center; gap: 6px; line-height: 1.5; text-align: center; }
         .withdrawn-view { border: none; background: transparent; color: var(--primary-color); font-size: calc(var(--app-fs, 1) * 12px); cursor: pointer; padding: 0; }
@@ -13036,7 +13037,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.43";
+  const APP_VERSION = "v6.4.44";
   let db = {
     characters: [],
     groups: [],
@@ -17369,6 +17370,36 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) { return false; }
   };
   function createMessageBubbleElement(message) {
+    /* v6.4.44：任何来源（群聊 / 房间模式 / 旧数据）里带 [旁白：xxx] 标记的消息，一律剥离标记、拆成小字旁白 + 正文气泡，绝不把 "旁白" 字样和括号显示出来 */
+    if (message && message.role !== "user" && (message.type === "text" || !message.type) &&
+        /[\[【（](?:旁白|动作)[：:]/.test(String(message.content || ""))) {
+      const txt = String(message.content || "");
+      const group = document.createElement("div");
+      group.className = "mxg-narr-group";
+      const NRE_CAP = /[\[【（](?:旁白|动作)[：:]([^\]】）]+)[\]】）]/g;
+      txt.split(/\r?\n/).forEach(function (line) {
+        const lineT = String(line || "").trim();
+        if (!lineT) return;
+        const inners = [];
+        NRE_CAP.lastIndex = 0;
+        let mm2;
+        while ((mm2 = NRE_CAP.exec(lineT)) !== null) {
+          const v = String(mm2[1] || "").trim();
+          if (v) inners.push(v);
+        }
+        inners.forEach(function (inner) {
+          const ne = document.createElement("div");
+          ne.className = "message-wrapper action-tip-wrap";
+          ne.innerHTML = '<div class="action-tip">' + escapeHtml(inner) + "</div>";
+          group.appendChild(ne);
+        });
+        const bodyText = lineT.replace(NRE_CAP, "").trim();
+        if (!bodyText) return;
+        const clone = createMessageBubbleElement(Object.assign({}, message, { content: bodyText, parts: [{ type: "text", text: bodyText }] }));
+        if (clone) group.appendChild(clone);
+      });
+      if (group.childNodes.length) return group;
+    }
     if (message && (message.status === "revoked" || message.withdrawn)) {
       const ww = document.createElement("div");
       ww.className = "message-wrapper withdrawn-wrap";
