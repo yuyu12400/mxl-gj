@@ -13036,7 +13036,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.42";
+  const APP_VERSION = "v6.4.43";
   let db = {
     characters: [],
     groups: [],
@@ -14351,7 +14351,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function recordCommitments(chat, raw, ts, role) {
       if (!chat || !raw) return [];
       const nowTs = validTs(ts) || Date.now();
-      let text = String(raw).replace(/\[动作：[^\]]*\]/g, "").replace(/<orange[^>]*>|<\/orange>/g, "").trim();
+      let text = String(raw).replace(/[\[【（](?:旁白|动作)[：:]([^\]】）]+)[\]】）]/g, "").replace(/<orange[^>]*>|<\/orange>/g, "").trim();
       text = text.replace(/^\[[^\]]{0,24}的(?:消息|语音|表情包)[：:]\s*/, "").replace(/\]\s*$/, "").trim();
       if (!text || text.length > 500) return [];
       if (!/(约|约定|见面|开会|会议|面试|考试|截止|deadline|提醒|安排|生日|聚餐|上课|上班|下班|去看|一起吃|要做|得去|记得|答应|说好|计划)/i.test(text)) return [];
@@ -19045,7 +19045,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (character.actionDesc) {
-      prompt += "【动作描写·已开启】你偶尔用 [动作：xxx] 标注一个具体的身体动作或神情（会以居中的系统小字显示）。规则：①一个动作只写一句、25字以内，必须是此刻屏幕后真实发生的具体细节（手停在键盘上、把头靠回枕头、把勺子放下），最好带上这轮场景里的东西；②禁止心理活动、想法、情绪总结、氛围渲染，禁止「沉默了一下」「细细想着怎么接话」「轻轻看了一眼」这类通用过渡句；③可以有动作，也可以这一轮完全没有，宁可不写也不要凑；④除 [动作：xxx] 之外，正文里不允许出现任何未加标记的动作、神态或环境描写，也不要用括号或星号写动作。说话正文里不要用括号或星号夹带动作/心理描写。\n";
+      prompt += "【旁白·已开启】你的回复必须包含旁白：单独占一行，以 [旁白： 开头、以 ] 结尾，形如 [旁白：手停在键盘上没敲下去]。规则：①每轮至少一条，通常一到两条，一行一条，每条一句话、30字以内；②旁白可以是屏幕后的具体动作、神情，也可以是你此刻心里冒出来的一句话；要贴合这一轮的场景和你说的话，不要用「沉默了一下」「细细想着怎么接话」「轻轻看了一眼」这种放在哪都成立的套话；③旁白里不要替我说话、不要替我决定；④除了这种独占一行的 [旁白：xxx]，正文里绝不能出现任何未标记的动作、神态、心理或环境描写，也不要用括号、星号、引号来写旁白——写进正文会被我当成你说的话。说话正文里不要用括号或星号夹带动作/心理描写。\n";
     }
 
     prompt += "【二、线上聊天与语言】\n";
@@ -19122,7 +19122,7 @@ document.addEventListener("DOMContentLoaded", () => {
     prompt += "1. 你的普通聊天消息必须使用以下格式：\n";
     prompt += "[".concat(rn, "的消息：消息内容]\n");
     prompt += "2. 一次回复通常发送 ".concat(_countTxt, "消息；在这个范围内，消息长短与发送节奏按当前内容自然决定，不要为了凑数量重复或补充无意义内容。\n");
-    prompt += "3. 所有输出都应是聊天内容或下方规定的系统功能标记。禁止在普通聊天消息中添加括号动作、星号动作、环境描写或第三人称旁白。（若动作描写已开启，按对应规则使用 [动作：xxx]）\n";
+    prompt += "3. 所有输出都应是聊天内容或下方规定的系统功能标记。禁止在普通聊天消息正文里添加括号动作、星号动作、环境描写、心理描写或第三人称旁白；这些内容只能写成独占一行的 [旁白：xxx]（旁白开关已开启时）。\n";
     prompt += "4. 表情包是你自己的表达方式，要不要发由你自己判断：先看当前情绪、气氛和正在聊的事，想发就自然发，不想发就不发；不需要等我要求，也不要为了活跃气氛硬塞。格式：\n";
     prompt += "[".concat(rn, "发送的表情包：表情包名称]\n");
     if (db.myStickers && db.myStickers.length) {
@@ -19388,7 +19388,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const _mvRoom = !!(typeof MV !== "undefined" && MV && MV.roomMode && MV.listenChar && currentChatType === "private" && currentChatId === MV.listenChar && MV.roomChat && MV.roomChat.msgs && MV.roomChat.msgs.length);
       const _roomMode = _musicRoom || _mvRoom;
       if (_musicRoom) {
-        systemPrompt += "\n【房间对话模式】现在是音乐一起听房间里的独立对话，只有你和我两个人边听歌边聊天。本场景下严禁输出任何 [动作：xxx] 动作描写、方括号指令、卡片标记、格式标签或内心独白，只需像真实的人一样直接说话回复。";
+        systemPrompt += "\n【房间对话模式】现在是音乐一起听房间里的独立对话，只有你和我两个人边听歌边聊天。本场景下严禁输出任何 [旁白：xxx] 旁白、方括号指令、卡片标记、格式标签或内心独白，只需像真实的人一样直接说话回复。";
       }
       if (_mvRoom) {
         var _mvTitle = (MV.cur && MV.cur.title) ? MV.cur.title : "一部片";
@@ -19683,7 +19683,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const character = db.characters.find((c) => c.id === currentChatId);
       const contentStr = String(b.content);
       const stM = character && contentStr.match(new RegExp("\\[".concat(escRe(character.realName), "\u66F4\u65B0\u72B6\u6001\u4E3A\uFF1A(.*?)\\]")));
-      const actM = contentStr.match(/\[动作：([^\]]+)\]/);
+      const actM = contentStr.match(/[\[【（](?:旁白|动作)[：:]([^\]】）]+)[\]】）]/);
       let type = b.type || "text", display = contentStr;
       if (stM) {
         character.status = stM[1];
@@ -19693,18 +19693,18 @@ document.addEventListener("DOMContentLoaded", () => {
         type = "action";
         display = stM[1];
       } else if (actM) {
-        const acts = contentStr.match(/\[动作：([^\]]+)\]/g) || [];
-        display = contentStr.replace(/\[动作：[^\]]+\]/g, "").trim();
+        const acts = contentStr.match(/[\[【（](?:旁白|动作)[：:]([^\]】）]+)[\]】）]/g) || [];
+        display = contentStr.replace(/[\[【（](?:旁白|动作)[：:]([^\]】）]+)[\]】）]/g, "").trim();
         if (!display) {
           type = "action";
           display = acts.map(function(a) {
-            return a.replace(/^\[动作：|\]$/g, "");
+            return a.replace(/^\[【（](?:旁白|动作)[：:]/, "").replace(/[\]】）]$/, "");
           }).join("\uFF1B");
         } else {
           acts.forEach(function(a) {
             const ae = document.createElement("div");
             ae.className = "message-wrapper action-tip-wrap msg-pop-enter";
-            ae.innerHTML = '<div class="action-tip">' + escapeHtml(a.replace(/^\[动作：|\]$/g, "")) + "</div>";
+            ae.innerHTML = '<div class="action-tip">' + escapeHtml(a.replace(/^\[【（](?:旁白|动作)[：:]/, "").replace(/[\]】）]$/, "")) + "</div>";
             if (_isCur() && msgArea) {
               msgArea.appendChild(ae);
               pinChatToBottom();
@@ -20124,7 +20124,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const character = chat;
       const myName = character.myName;
       const actionParts = [];
-      fullResponse = String(fullResponse).replace(/\[动作：([^\]]+)\]/g, (m, a) => {
+      fullResponse = String(fullResponse).replace(/[\[【（](?:旁白|动作)[：:]([^\]】）]+)[\]】）]/g, (m, a) => {
         actionParts.push(a.trim());
         return "";
       });
