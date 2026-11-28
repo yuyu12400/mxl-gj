@@ -10121,7 +10121,7 @@ body.feed-ui #bottom-nav .nav-item.active { background:transparent !important; c
                   <input type="file" id="setting-chat-bg-upload" accept="image/*" style="display:none;">
                   <button type="button" id="setting-chat-bg-reset" class="btn">恢复原生纯白</button>
                 </div>
-                <button type="submit" class="btn btn-primary">保存设置</button>
+                <button type="button" class="btn btn-primary" id="chat-settings-save-btn">保存设置</button>
             </form>
             <hr style="border:none; border-top:1px solid #eee; margin: 20px 0;">
             <div style="height:10px;"></div>
@@ -13036,7 +13036,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.40";
+  const APP_VERSION = "v6.4.41";
   let db = {
     characters: [],
     groups: [],
@@ -21033,10 +21033,60 @@ document.addEventListener("DOMContentLoaded", () => {
         switchScreen("group-settings-screen");
       }
     });
+    const submitChatSettings = async () => {
+      if (window.__chatSetSaving) return;
+      window.__chatSetSaving = true;
+      try {
+        await saveSettingsFromSidebar();
+        switchScreen("chat-room-screen");
+      } catch (err) {
+        console.error("[设置保存失败]", err);
+        showToast("保存失败：" + ((err && err.message) ? err.message : "请重试"));
+      } finally {
+        setTimeout(function () { window.__chatSetSaving = false; }, 400);
+      }
+    };
     settingsForm.addEventListener("submit", (e) => {
       e.preventDefault();
-      saveSettingsFromSidebar();
-      switchScreen("chat-room-screen");
+      submitChatSettings();
+    });
+    const chatSaveBtn = document.getElementById("chat-settings-save-btn");
+    if (chatSaveBtn) {
+      const doChatSettingsSave = (ev) => {
+        try { if (ev && ev.preventDefault) ev.preventDefault(); } catch (e1) {}
+        clampReplyInputs();
+        try { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); } catch (e2) {}
+        submitChatSettings();
+      };
+      /* 移动端数字键盘弹出时，第一次点保存往往只收起键盘、点击被吞掉。
+         这里同时在 touchstart / pointerdown 触发，保证点一下就保存（靠 __chatSetSaving 去重）。 */
+      chatSaveBtn.addEventListener("click", doChatSettingsSave);
+      chatSaveBtn.addEventListener("pointerdown", doChatSettingsSave);
+      chatSaveBtn.addEventListener("touchstart", doChatSettingsSave, { passive: true });
+    }
+    const clampReplyInputs = () => {
+      ["setting-min-replies", "setting-max-replies"].forEach(function (id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        let v = parseInt(el.value, 10);
+        if (!Number.isFinite(v) || v < 1) v = 1;
+        if (v > 8) v = 8;
+        el.value = String(v);
+      });
+      const mn = document.getElementById("setting-min-replies");
+      const mx = document.getElementById("setting-max-replies");
+      if (mn && mx) {
+        let a = parseInt(mn.value, 10) || 1;
+        let b = parseInt(mx.value, 10) || 3;
+        if (b < a) { mx.value = String(a); b = a; }
+        mn.value = String(a);
+      }
+    };
+    ["setting-min-replies", "setting-max-replies"].forEach(function (id) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener("change", clampReplyInputs);
+      el.addEventListener("blur", clampReplyInputs);
     });
     const useCustomCssCheckbox = document.getElementById("setting-use-custom-css"), customCssTextarea = document.getElementById("setting-custom-bubble-css"), resetCustomCssBtn = document.getElementById("reset-custom-bubble-css-btn"), privatePreviewBox = document.getElementById("private-bubble-css-preview");
     useCustomCssCheckbox.addEventListener("change", (e) => {
