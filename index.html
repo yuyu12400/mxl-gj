@@ -3229,7 +3229,10 @@
             flex-shrink: 0;
         }
 
-        .feed-comment .c-name {
+        .feed-comment .c-role {
+    font-size: 10px; line-height: 1.4; color: #b0b0b8; margin-left: 5px; font-weight: 400; letter-spacing: .2px;
+  }
+  .feed-comment .c-name {
             color: #666;
             font-weight: 600;
             white-space: nowrap;
@@ -13033,7 +13036,7 @@ document.addEventListener("DOMContentLoaded", () => {
     "night-mode-btn": { name: "", url: "https://i.postimg.cc/htYvkdQK/chan-146.png" },
     "podcast-screen": { name: "\u64AD\u5BA2\u53F0", url: "" }
   };
-  const APP_VERSION = "v6.4.38";
+  const APP_VERSION = "v6.4.39";
   let db = {
     characters: [],
     groups: [],
@@ -25433,7 +25436,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return '<span class="c-avwrap"><span class="c-avatar c-avatar-letter">' + escapeHtml(label) + '</span>' + (av ? '<img class="c-avatar" src="' + escapeHtml(av) + '" alt="" style="opacity:0" onload="this.style.opacity=\'\'" onerror="this.style.display=\'none\'">' : "") + '</span>';
   }
   function feedCommentHtml(feed, c) {
-    return '\n        <div class="feed-comment">\n          ' + feedCommentAvatar(c) + '\n          <div class="c-body">\n            <div class="c-top"><span class="c-name">' + escapeHtml(c.authorName || "我") + '</span>' + (c.replyTo ? '<span class="c-reply">回复</span><span class="c-name c-name-to">' + escapeHtml(c.replyTo) + '</span>' : "") + '<span class="c-reply-btn" data-feed="' + feed.id + '" data-name="' + escapeHtml(c.authorName || "") + '">回复</span></div>\n            <span class="c-time">' + (c.ts ? feedTimeText(c.ts) : "") + '</span>\n            <span class="c-text">' + escapeHtml(String(c.content || "")) + '</span>' + (c.sticker ? '<img class="c-sticker" src="' + escapeHtml(feedStickerSrc(c.sticker)) + '" alt="表情包">' : "") + '\n            <div class="c-actions"><span><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>1</span><span><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg></span><span><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg></span></div>\n          </div>\n        </div>'
+    return '\n        <div class="feed-comment">\n          ' + feedCommentAvatar(c) + '\n          <div class="c-body">\n            <div class="c-top"><span class="c-name">' + escapeHtml(c.authorName || "我") + '</span>' + (c.role ? '<span class="c-role">' + escapeHtml(c.role) + '</span>' : '') + (c.replyTo ? '<span class="c-reply">回复</span><span class="c-name c-name-to">' + escapeHtml(c.replyTo) + '</span>' : "") + '<span class="c-reply-btn" data-feed="' + feed.id + '" data-name="' + escapeHtml(c.authorName || "") + '">回复</span></div>\n            <span class="c-time">' + (c.ts ? feedTimeText(c.ts) : "") + '</span>\n            <span class="c-text">' + escapeHtml(String(c.content || "")) + '</span>' + (c.sticker ? '<img class="c-sticker" src="' + escapeHtml(feedStickerSrc(c.sticker)) + '" alt="表情包">' : "") + '\n            <div class="c-actions"><span><svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.09 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>1</span><span><svg viewBox="0 0 24 24"><path d="M21.99 4c0-1.1-.89-2-1.99-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h14l4 4-.01-18z"/></svg></span><span><svg viewBox="0 0 24 24"><path d="M17 3l4 4-4 4"/><path d="M21 7H8a4 4 0 0 0-4 4"/><path d="M7 21l-4-4 4-4"/><path d="M3 17h13a4 4 0 0 0 4-4"/></svg></span></div>\n          </div>\n        </div>'
   }
   const __feedTI = {};
   function __feedWrap(ctx, text, maxW) {
@@ -25728,7 +25731,20 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         return st.name + (hint ? "（" + hint + "）" : "");
       });
-      const sys2 = sys + (_stkLines.length ? "\n\n你偶尔也会发一张表情包配上文字（不是每次都发，合适才发）。可用表情包：" + _stkLines.join("；") + "。如果选择发表情包，正文必须是配文，要和这张表情包表达的情绪或画面严丝合缝（比如表情包是「炸毛猫」，配文就写「它又开始了，我选择闭麦」这种感觉），15-60字，绝不能写一张表情包看不出来的事；此时 imgs 必须为空数组，表情包和模拟图不能同一条一起发。" : "") + "\n\n输出要求：严格输出一个 JSON 对象，不要任何多余文字或代码块：{\"content\":\"动态正文，30-70字，不要包含图片描述或括号内容\",\"sticker\":\"选了表情包就填目录里的名称，没选填空字符串\",\"imgs\":[{\"ratio\":\"3:4\",\"desc\":\"这张图拍到什么画面：物体、色彩、光影、场景、构图细节，可一句可一段，必须贴合正文，严禁出现随手拍/配图/模拟图/照片/图片等说明词\"}],\"npc\":[{\"name\":\"网名\",\"content\":\"评论内容\"}]}。imgs 可以是 0 到 9 张，通常 1-3 张；每张 desc 必须不同；若这条动态不需要配图，imgs 给空数组。npc 是 1 到 3 条路人网友的评论，要顺着这条动态的具体内容（正文和配图/表情包里出现的东西、情绪、地点、时间）来写，像陌生人刷到时随手留的言：可以好奇追问、共鸣、吐槽、玩梗，也可以只感叹一个细节；每条 10-35 字，名字要像真实网名（2-6 字，可带符号），各条风格不同，严禁出现角色本人的名字、严禁复述正文、严禁承认是AI。";
+      const _knownLines = (db.characters || []).filter(function (c) { return c && c.id !== char.id && (c.remarkName || c.realName); }).slice(0, 4).map(function (c) {
+        var nm = c.remarkName || c.realName;
+        var desc = String(c.persona || c.desc || "").replace(/[\r\n]+/g, " ").trim().slice(0, 40);
+        var rel = "";
+        try {
+          var rs = (db.relationships || []).filter(function (r) { return r && r.bType === "char" && r.aType === "char" && ((r.aId === char.id && r.bId === c.id) || (r.bId === char.id && r.aId === c.id)); });
+          if (rs.length && rs[0].label) rel = "，和你的关系：" + rs[0].label;
+        } catch (eR) {}
+        return nm + (desc ? "（" + desc + "）" : "") + rel;
+      });
+      const _knownHint = _knownLines.length
+        ? "\n\n你已经认识的、会来你动态下面留言的人（优先从他们里选留言者）：" + _knownLines.join("；") + "。候选不够或不合适当下这条动态时，可以按设定另造 1 个认识你的人。"
+        : "\n\n留言的人必须是你认识的具体熟人（家人、室友、同事、同学、常来往的店主等），按设定给他们具体身份。";
+      const sys2 = sys + _knownHint + (_stkLines.length ? "\n\n你偶尔也会发一张表情包配上文字（不是每次都发，合适才发）。可用表情包：" + _stkLines.join("；") + "。如果选择发表情包，正文必须是配文，要和这张表情包表达的情绪或画面严丝合缝（比如表情包是「炸毛猫」，配文就写「它又开始了，我选择闭麦」这种感觉），15-60字，绝不能写一张表情包看不出来的事；此时 imgs 必须为空数组，表情包和模拟图不能同一条一起发。" : "") + "\n\n输出要求：严格输出一个 JSON 对象，不要任何多余文字或代码块：{\"content\":\"动态正文，30-70字，不要包含图片描述或括号内容\",\"sticker\":\"选了表情包就填目录里的名称，没选填空字符串\",\"imgs\":[{\"ratio\":\"3:4\",\"desc\":\"这张图拍到什么画面：物体、色彩、光影、场景、构图细节，可一句可一段，必须贴合正文，严禁出现随手拍/配图/模拟图/照片/图片等说明词\"}],\"npc\":[{\"name\":\"名字\",\"role\":\"与你的关系\",\"content\":\"留言\"}]}。imgs 可以是 0 到 9 张，通常 1-3 张；每张 desc 必须不同；若这条动态不需要配图，imgs 给空数组。npc 是 1 到 3 条留言，来自「认识你的人」（你的朋友、家人、同事或同学），不是陌生路人。内容要顺着这条动态的具体细节（正文和配图/表情包里出现的东西、情绪、地点、时间）来写，是熟人之间随口说的话：可以调侃、追问、共鸣、起哄，也可以只吐槽一个细节；每条 10-35 字。每条还必须有 role 字段：这个人和你是什么关系（2-6 字，如 室友、表哥、同班同学、店长、隔壁邻居）。名字用熟人该有的称呼，各条身份和口吻都要不一样，严禁出现你自己，严禁复述正文，严禁承认是AI。";
       const gen = await offlineRequest(sys2, [{ role: "user", content: "写一条朋友圈动态，按 JSON 输出。" }], 420, true);
       if (gen && gen.trim()) {
         const parsed = mxgParseFeedJson(gen);
@@ -25740,7 +25756,7 @@ document.addEventListener("DOMContentLoaded", () => {
           }
           if (parsed.npc && parsed.npc.length) {
             npc = parsed.npc.slice(0, 3).map(function (x) {
-              return { name: String((x && x.name) || "路过").trim().slice(0, 12), content: String((x && x.content) || "").trim().slice(0, 60) };
+              return { name: String((x && x.name) || "朋友").trim().slice(0, 14), role: String((x && x.role) || "").trim().slice(0, 8), content: String((x && x.content) || "").trim().slice(0, 60) };
             }).filter(function (x) { return x.content; });
           }
           if (!sticker && parsed.imgs && parsed.imgs.length) {
@@ -25795,7 +25811,8 @@ document.addEventListener("DOMContentLoaded", () => {
       textImage: textImage ? { text: textImage, ts: Date.now() } : null,
       likes: [],
       comments: (npc || []).filter(function (x) { return x && x.content; }).map(function (x, i) {
-        return { id: "npc_" + Date.now() + "_" + i, authorType: "npc", authorName: x.name || "路过", authorAvatar: "", content: x.content, ts: Date.now() - (3 - i) * 1000 };
+        var _known = (db.characters || []).find(function (c) { return c && c.id !== char.id && ((c.remarkName || "") === x.name || (c.realName || "") === x.name); });
+        return { id: "npc_" + Date.now() + "_" + i, authorType: _known ? "char" : "npc", authorId: _known ? _known.id : "", authorName: x.name || "朋友", role: x.role || "", authorAvatar: _known ? (_known.avatar || "") : "", content: x.content, ts: Date.now() - (3 - i) * 1000 };
       }),
       ts: Date.now()
     };
